@@ -1,5 +1,16 @@
 Seems that currently Lazada and Tiki easily allow individual third parties to open accounts for creating applications. However, Shopee says it will only accept applications from real businesses.
 
+# To-do
+
+- Figure out the data model for products in each platform
+  - Tiki
+  - Shopee
+  - Lazada
+- Figure out product image sizes on each platform
+  - Tiki
+  - Shopee
+  - Lazada
+
 # Secrets
 
 ## Tiki
