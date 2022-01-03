@@ -13,6 +13,11 @@ import (
 func main() {
   var config laxo.Config
   logger := laxo.InitConfig(&config)
+
+  if err := laxo.InitRedis(); err != nil {
+    logger.Error("Failed to init Redis", "error", err)
+  }
+
   r := laxo.SetupRouter()
 
   logger.Info("Serving...", "port", config.Port)

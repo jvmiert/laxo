@@ -3,13 +3,13 @@ package laxo
 import (
   "log"
 
+  "github.com/gorilla/mux"
   "github.com/hashicorp/hcl/v2/hclsimple"
   "github.com/hashicorp/go-hclog"
-  "github.com/gorilla/mux"
 )
 
 type Config struct {
-  Port string `hcl:"port"`
+  Port     string `hcl:"port"`
   LogLevel string `hcl:"log_level"`
 }
 
@@ -35,6 +35,6 @@ func SetupRouter() *mux.Router {
   s := r.PathPrefix("/api").Subrouter()
   s.HandleFunc("/login", handleLogin).Methods("POST")
 
-  return s
+  return r
 }
 
