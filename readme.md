@@ -1,11 +1,6 @@
 Seems that currently Lazada and Tiki easily allow individual third parties to open accounts for creating applications. However, Shopee says it will only accept applications from real businesses.
 
 # To-do
-- Setup SQLC based on the migration file that I already made
-  - https://docs.sqlc.dev/en/stable/tutorials/getting-started-postgresql.html
-  - https://github.com/search?q=packages+schema++filename%3Asqlc.yaml&type=Code&ref=advsearch&l=&l=
-- Setup Makefile for SQLC to automatically generate with correct version (use go tooling just like golang-migrate)
-  - https://github.com/msal4/sdms-grpc/blob/2ce950e6e65f3bc91a04a971fde79694fc4d9bb5/Makefile
 - Figure out the data model for products in each platform
   - Tiki
   - Shopee

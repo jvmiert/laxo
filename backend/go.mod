@@ -7,6 +7,9 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-hclog v1.0.0
 	github.com/hashicorp/hcl/v2 v2.11.1
+	github.com/jackc/pgconn v1.10.1
+	github.com/jackc/pgx/v4 v4.14.1
+	github.com/joho/godotenv v1.4.0
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mediocregopher/radix/v4 v4.0.0

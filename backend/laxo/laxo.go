@@ -5,6 +5,7 @@ import (
 
   "github.com/gorilla/mux"
   "github.com/hashicorp/hcl/v2/hclsimple"
+  "github.com/joho/godotenv"
   "github.com/hashicorp/go-hclog"
 )
 
@@ -13,8 +14,13 @@ type Config struct {
   LogLevel string `hcl:"log_level"`
 }
 
+var Logger hclog.Logger
 
 func InitConfig(config *Config) hclog.Logger {
+  if err := godotenv.Load(".env"); err != nil {
+    log.Fatal("Failed to load .env file")
+  }
+
   err := hclsimple.DecodeFile("config.hcl", nil, config)
   if err != nil {
     log.Fatalf("Failed to load configuration: %r", err)
@@ -25,6 +31,8 @@ func InitConfig(config *Config) hclog.Logger {
     Level: hclog.LevelFromString(config.LogLevel),
   })
 
+  Logger = appLogger
+
   appLogger.Info("Configuration loaded", "LogLevel", config.LogLevel)
 
   return appLogger
@@ -34,6 +42,8 @@ func SetupRouter() *mux.Router {
   r := mux.NewRouter()
   s := r.PathPrefix("/api").Subrouter()
   s.HandleFunc("/login", handleLogin).Methods("POST")
+  s.HandleFunc("/test", handleTest).Methods("GET")
+
 
   return r
 }
