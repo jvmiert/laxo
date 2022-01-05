@@ -5,7 +5,7 @@ package sqlc
 import ()
 
 type User struct {
-	UserID   int32  `json:"userID"`
+	ID       string `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
