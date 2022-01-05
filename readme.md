@@ -1,14 +1,11 @@
+# API access
 Seems that currently Lazada and Tiki easily allow individual third parties to open accounts for creating applications. However, Shopee says it will only accept applications from real businesses.
 
 # To-do
-- Figure out the data model for products in each platform
-  - Tiki
-  - Shopee
-  - Lazada
-- Figure out product image sizes on each platform
-  - Tiki
-  - Shopee
-  - Lazada
+- Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
+
+# Thoughts
+It seems for SKU creation, the best approach is to create a logical data model for the service. This data model will then be the source of truth from which we create translation functions for each individual platform. The tricky thing will be that it seems Lazada has predefined SKU attributes. They do not allow arbitrary SKU creation. It seems Tiki also follows this strategy.
 
 # Secrets
 
@@ -39,7 +36,9 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://open.shopee.com/
 
 # Competitors
-
 - https://ecomkey.asia/en/price-list
 - https://www.anchanto.com
 - https://www.crescodata.com/
+
+# Third party project links
+- https://docs.google.com/spreadsheets/d/1CU_IFc_jVjZ7PLc6UEWmPNszufvYhhrVAGpJUemNU40/edit#gid=0
