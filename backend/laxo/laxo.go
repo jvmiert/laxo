@@ -42,8 +42,6 @@ func SetupRouter() *mux.Router {
   r := mux.NewRouter()
   s := r.PathPrefix("/api").Subrouter()
   s.HandleFunc("/login", handleLogin).Methods("POST")
-  s.HandleFunc("/test", handleTest).Methods("GET")
-
 
   return r
 }

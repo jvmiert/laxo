@@ -16,12 +16,14 @@ func main() {
 
   if err := laxo.InitRedis(); err != nil {
     logger.Error("Failed to init Redis", "error", err)
+    return
   }
 
   uri := os.Getenv("POSTGRESQL_URL")
 
   if err := laxo.InitDatabase(uri); err != nil {
     logger.Error("Failed to init Database", "uri", uri, "error", err)
+    return
   }
 
   r := laxo.SetupRouter()
