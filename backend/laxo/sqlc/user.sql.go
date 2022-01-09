@@ -9,45 +9,47 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  username, password, email
+  email, password
 ) VALUES (
-  $1, $2, $3
+  $1, $2
 )
-RETURNING id, username, password, email
+RETURNING id, password, email
 `
 
 type CreateUserParams struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
 	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Username, arg.Password, arg.Email)
+	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.Password)
 	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Password,
-		&i.Email,
-	)
+	err := row.Scan(&i.ID, &i.Password, &i.Email)
 	return i, err
 }
 
-const getUser = `-- name: GetUser :one
-SELECT id, username, password, email FROM users
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, password, email FROM users
+WHERE email = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(&i.ID, &i.Password, &i.Email)
+	return i, err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, password, email FROM users
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, id)
+func (q *Queries) GetUserByID(ctx context.Context, id string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Password,
-		&i.Email,
-	)
+	err := row.Scan(&i.ID, &i.Password, &i.Email)
 	return i, err
 }

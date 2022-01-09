@@ -4,6 +4,7 @@ import (
   "log"
 
   "github.com/gorilla/mux"
+  "github.com/urfave/negroni"
   "github.com/hashicorp/hcl/v2/hclsimple"
   "github.com/joho/godotenv"
   "github.com/hashicorp/go-hclog"
@@ -38,11 +39,19 @@ func InitConfig(config *Config) hclog.Logger {
   return appLogger
 }
 
-func SetupRouter() *mux.Router {
+func SetupRouter() *negroni.Negroni {
+  n := negroni.New()
+
+  // common middleware
+  n.Use(negroni.HandlerFunc(assureJSON))
+
   r := mux.NewRouter()
+
   s := r.PathPrefix("/api").Subrouter()
   s.HandleFunc("/login", handleLogin).Methods("POST")
+  s.HandleFunc("/user", handleCreateUser).Methods("POST")
 
-  return r
+  n.UseHandler(r)
+  return n
 }
 
