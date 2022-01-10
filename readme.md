@@ -5,9 +5,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Make Redis user session and persist login
 - Create a general API error structure and implement easy logic to consistently return on every endpoint
-- Add created/updated fields in user table
-- Make JSON content type middleware only apply to JSON POST routes
 
 # Thoughts
 It seems for SKU creation, the best approach is to create a logical data model for the service. This data model will then be the source of truth from which we create translation functions for each individual platform. The tricky thing will be that it seems Lazada has predefined SKU attributes. They do not allow arbitrary SKU creation. It seems Tiki also follows this strategy.
