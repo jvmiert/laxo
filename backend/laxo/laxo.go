@@ -39,19 +39,24 @@ func InitConfig(config *Config) hclog.Logger {
   return appLogger
 }
 
-func SetupRouter() *negroni.Negroni {
-  n := negroni.New()
+func SetupRouter() *mux.Router {
+  router := mux.NewRouter()
 
-  // common middleware
-  n.Use(negroni.HandlerFunc(assureJSON))
+  // Common middlewares
+  common := negroni.New()
 
-  r := mux.NewRouter()
+  subRouter := router.PathPrefix("/api").Subrouter().StrictSlash(true)
 
-  s := r.PathPrefix("/api").Subrouter()
-  s.HandleFunc("/login", handleLogin).Methods("POST")
-  s.HandleFunc("/user", handleCreateUser).Methods("POST")
+	subRouter.Handle("/user", common.With(
+		negroni.HandlerFunc(assureJSON),
+		negroni.WrapFunc(handleCreateUser),
+	)).Methods("POST")
 
-  n.UseHandler(r)
-  return n
+	subRouter.Handle("/test", common.With(
+		negroni.WrapFunc(handleTest),
+	)).Methods("GET")
+
+
+  return subRouter
 }
 
