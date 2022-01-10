@@ -2,10 +2,13 @@
 
 package sqlc
 
-import ()
+import (
+	"database/sql"
+)
 
 type User struct {
-	ID       string `json:"id"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+	ID       string       `json:"id"`
+	Password string       `json:"password"`
+	Email    string       `json:"email"`
+	Created  sql.NullTime `json:"created"`
 }
