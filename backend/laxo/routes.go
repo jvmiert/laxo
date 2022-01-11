@@ -6,11 +6,11 @@ import (
   "errors"
 )
 
-func handleTest(w http.ResponseWriter, r *http.Request) {
+func HandleTest(w http.ResponseWriter, r *http.Request) {
   fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
 }
 
-func handleCreateUser(w http.ResponseWriter, r *http.Request) {
+func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
   var u User
 
   if err := decodeJSONBody(w, r, &u.Model); err != nil {

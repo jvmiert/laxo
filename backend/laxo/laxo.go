@@ -6,7 +6,6 @@ import (
   "github.com/gorilla/mux"
   "github.com/urfave/negroni"
   "github.com/hashicorp/hcl/v2/hclsimple"
-  "github.com/joho/godotenv"
   "github.com/hashicorp/go-hclog"
 )
 
@@ -17,19 +16,21 @@ type Config struct {
 
 var Logger hclog.Logger
 
-func InitConfig(config *Config) hclog.Logger {
-  if err := godotenv.Load(".env"); err != nil {
-    log.Fatal("Failed to load .env file")
-  }
-
+func InitConfig(config *Config, testing bool) hclog.Logger {
   err := hclsimple.DecodeFile("config.hcl", nil, config)
   if err != nil {
     log.Fatalf("Failed to load configuration: %r", err)
   }
 
+  logLevel := hclog.Off
+
+  if(!testing) {
+    logLevel = hclog.LevelFromString(config.LogLevel)
+  }
+
   appLogger := hclog.New(&hclog.LoggerOptions{
     Name:  "laxo-backend",
-    Level: hclog.LevelFromString(config.LogLevel),
+    Level: logLevel,
   })
 
   Logger = appLogger
@@ -49,11 +50,11 @@ func SetupRouter() *mux.Router {
 
 	subRouter.Handle("/user", common.With(
 		negroni.HandlerFunc(assureJSON),
-		negroni.WrapFunc(handleCreateUser),
+		negroni.WrapFunc(HandleCreateUser),
 	)).Methods("POST")
 
 	subRouter.Handle("/test", common.With(
-		negroni.WrapFunc(handleTest),
+		negroni.WrapFunc(HandleTest),
 	)).Methods("GET")
 
 

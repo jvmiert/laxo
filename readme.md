@@ -5,6 +5,7 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Finish create user route test
 - Make Redis user session and persist login
 - Create a general API error structure and implement easy logic to consistently return on every endpoint
 

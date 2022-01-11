@@ -8,11 +8,16 @@ import (
   "os/signal"
 
   "laxo.vn/laxo/laxo"
+  "github.com/joho/godotenv"
 )
 
 func main() {
   var config laxo.Config
-  logger := laxo.InitConfig(&config)
+  logger := laxo.InitConfig(&config, false)
+
+  if err := godotenv.Load(".env"); err != nil {
+    logger.Error("Failed to load .env file")
+  }
 
   if err := laxo.InitRedis(); err != nil {
     logger.Error("Failed to init Redis", "error", err)
