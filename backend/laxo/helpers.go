@@ -7,7 +7,16 @@ import (
   "strings"
   "fmt"
   "io"
+  "crypto/rand"
 )
+
+func GenerateRandomString(n int) ([]byte, error) {
+  b := make([]byte, n)
+  if _, err := rand.Read(b); err != nil {
+    return nil, err
+  }
+  return b, nil
+}
 
 type malformedRequest struct {
   status int

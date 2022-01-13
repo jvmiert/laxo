@@ -36,6 +36,15 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
     return
   }
 
+  sessionKey, err := SetUserSession(&u)
+
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  ur.SessionKey = sessionKey
+
   js, err := ur.JSON()
 
   if err != nil {

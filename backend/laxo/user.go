@@ -17,9 +17,10 @@ import (
 var ErrUserExists = errors.New("User already exists")
 
 type UserReturn struct {
-	ID       string       `json:"id"`
-	Email    string       `json:"email"`
-	Created  sql.NullTime `json:"created"`
+	ID         string       `json:"id"`
+	Email      string       `json:"email"`
+	Created    sql.NullTime `json:"created"`
+  SessionKey string       `json:"sessionKey,omitempty"`
 }
 
 func (ur *UserReturn) JSON() ([]byte, error) {
@@ -93,6 +94,8 @@ func SaveNewUserToDB(u *User) (UserReturn, error) {
   ur.ID      = savedUser.ID
   ur.Email   = savedUser.Email
   ur.Created = savedUser.Created
+
+  u.Model = &savedUser
 
   return ur, nil
 }
