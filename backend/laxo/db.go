@@ -11,7 +11,7 @@ var PglClient *pgxpool.Pool
 var Queries *sqlc.Queries
 
 func InitDatabase(uri string) error {
-  Logger.Info("connecting to:", uri)
+  Logger.Debug("Connecting to Postgres", "uri", uri)
   dbpool, err := pgxpool.Connect(context.Background(), uri)
   if err != nil {
     return err
