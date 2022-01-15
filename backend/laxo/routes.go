@@ -29,9 +29,7 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  ur, err := SaveNewUserToDB(&u)
-
-  if err != nil {
+  if err := SaveNewUserToDB(&u); err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
@@ -43,9 +41,9 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  ur.SessionKey = sessionKey
+  u.SessionKey = sessionKey
 
-  js, err := ur.JSON()
+  js, err := u.JSON()
 
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

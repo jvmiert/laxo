@@ -23,19 +23,9 @@ type UserReturn struct {
   SessionKey string       `json:"sessionKey,omitempty"`
 }
 
-func (ur *UserReturn) JSON() ([]byte, error) {
-  bytes, err := json.Marshal(ur)
-
-  if err != nil {
-    Logger.Error("UserReturn marshal error", "error", err)
-    return bytes, err
-  }
-
-  return bytes, nil
-}
-
 type User struct {
-  Model *sqlc.User
+  Model       *sqlc.User
+  SessionKey  string
 }
 
 func (u *User) ValidateNew() error {
@@ -66,14 +56,29 @@ func (u *User) ValidateNew() error {
   }
 }
 
-func SaveNewUserToDB(u *User) (UserReturn, error) {
+func (u *User) JSON() ([]byte, error) {
   var ur UserReturn
+  ur.ID         = u.Model.ID
+  ur.Email      = u.Model.Email
+  ur.Created    = u.Model.Created
+  ur.SessionKey = u.SessionKey
 
+  bytes, err := json.Marshal(ur)
+
+  if err != nil {
+    Logger.Error("UserReturn marshal error", "error", err)
+    return bytes, err
+  }
+
+  return bytes, nil
+}
+
+func SaveNewUserToDB(u *User) error {
   hash, err := bcrypt.GenerateFromPassword([]byte(u.Model.Password), 13)
 
   if err != nil {
     Logger.Error("Password hash error", "error", err)
-    return ur, err
+    return err
   }
 
   u.Model.Password = string(hash)
@@ -88,14 +93,10 @@ func SaveNewUserToDB(u *User) (UserReturn, error) {
 
   if err != nil {
     Logger.Error("Save user to DB error", "error", err)
-    return ur, err
+    return err
   }
-
-  ur.ID      = savedUser.ID
-  ur.Email   = savedUser.Email
-  ur.Created = savedUser.Created
 
   u.Model = &savedUser
 
-  return ur, nil
+  return nil
 }
