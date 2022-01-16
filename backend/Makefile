@@ -2,12 +2,17 @@ include .env
 MIGRATE_VERSION_TAG=v4.15.1
 SQLC_VERSION_TAG=v1.11.0
 
-.PHONY: install migrate upgrade generate test
+.PHONY: install migrate upgrade generate test testrace
 
 test:
 	migrate -database ${POSTGRESQL_TEST_URL} -path laxo/migrations drop -f
 	migrate -database ${POSTGRESQL_TEST_URL} -path laxo/migrations up
 	go test -v ./cmd/laxo
+
+testrace:
+	migrate -database ${POSTGRESQL_TEST_URL} -path laxo/migrations drop -f
+	migrate -database ${POSTGRESQL_TEST_URL} -path laxo/migrations up
+	go test -race -v ./cmd/laxo
 
 install:
 	# Installing migrate tool to manage migrations
