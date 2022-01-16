@@ -1,9 +1,12 @@
 package laxo
 
 import (
+  "fmt"
+  "time"
   "context"
-  "github.com/mediocregopher/radix/v4"
   "encoding/base64"
+
+  "github.com/mediocregopher/radix/v4"
 )
 
 func SetUserSession(u *User) (string, error) {
@@ -16,8 +19,12 @@ func SetUserSession(u *User) (string, error) {
 
   sessionKey := base64.StdEncoding.EncodeToString(randomBytes)
 
+  // Get the seconds till the token expires
+  expires := time.Until(time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire))
+  expireString := fmt.Sprintf("%.0f", expires.Seconds())
+
   ctx := context.Background()
-  if err := RedisClient.Do(ctx, radix.Cmd(nil, "SET", sessionKey, u.Model.ID)); err != nil {
+  if err := RedisClient.Do(ctx, radix.Cmd(nil, "SETEX", sessionKey, expireString, u.Model.ID)); err != nil {
     Logger.Error("Couldn't set user session in Redis", "error", err)
     return "", err
   }
