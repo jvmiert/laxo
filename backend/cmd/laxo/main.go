@@ -12,8 +12,7 @@ import (
 )
 
 func main() {
-  var config laxo.Config
-  logger := laxo.InitConfig(&config, false)
+  logger, config := laxo.InitConfig(false)
 
   if err := godotenv.Load(".env"); err != nil {
     logger.Error("Failed to load .env file")

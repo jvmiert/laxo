@@ -12,31 +12,32 @@ import (
   "github.com/joho/godotenv"
 )
 
-func setupTest(t *testing.T) {
+func setupTest(t *testing.T) *laxo.Config {
   os.Chdir("./../..")
 
   if err := godotenv.Load(".env"); err != nil {
     t.Error("Failed to load .env file")
   }
 
-  var config laxo.Config
-  _ = laxo.InitConfig(&config, true)
+  _, config := laxo.InitConfig(true)
 
   if err := laxo.InitRedis(); err != nil {
     t.Fatalf("Failed to init Redis: %v", err)
-    return
+    return nil
   }
 
   uri := os.Getenv("POSTGRESQL_TEST_URL")
 
   if err := laxo.InitDatabase(uri); err != nil {
     t.Fatalf("Failed to init Database: %v", err)
-    return
+    return nil
   }
+
+  return &config
 }
 
 func TestRouteCreateUser(t *testing.T) {
-  setupTest(t)
+  config := setupTest(t)
 
   // Testing empty post
   req, err := http.NewRequest("POST", "/api/user", nil)
@@ -144,6 +145,21 @@ func TestRouteCreateUser(t *testing.T) {
       status, http.StatusOK)
   }
 
+  if len(rr.Result().Cookies()) == 0 {
+    t.Error("Cookie not present after user creation")
+  }
+
+  found := false
+  for _, c := range rr.Result().Cookies() {
+    if c.Name == config.AuthCookieName {
+      found = true
+    }
+  }
+
+  if !found {
+    t.Error("Auth cookie not found after user creation")
+  }
+
   // Posting the same user again should give an error
   jsonStr = []byte(`{"email": "example@example.com", "password": "incorrect123"}`)
   req, err = http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonStr))
@@ -164,3 +180,22 @@ func TestRouteCreateUser(t *testing.T) {
    t.Error("User duplication validation did not return correctly")
   }
 }
+
+func TestGetUser(t *testing.T) {
+  req, err := http.NewRequest("GET", "/api/user", nil)
+  if err != nil {
+    t.Fatal(err)
+  }
+
+  rr := httptest.NewRecorder()
+  r := laxo.SetupRouter()
+
+  r.ServeHTTP(rr, req)
+
+  // Route should return 401 without a valid cookie
+  if status := rr.Code; status != http.StatusUnauthorized{
+    t.Errorf("handler returned wrong status code: got %v want %v",
+      status, http.StatusUnauthorized)
+  }
+}
+

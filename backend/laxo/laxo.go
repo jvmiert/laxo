@@ -10,14 +10,19 @@ import (
 )
 
 type Config struct {
-  Port     string `hcl:"port"`
-  LogLevel string `hcl:"log_level"`
+  Port             string `hcl:"port"`
+  LogLevel         string `hcl:"log_level"`
+  AuthCookieName   string `hcl:"auth_cookie_name"`
+  AuthCookieExpire int    `hcl:"auth_cookie_days_expire"`
 }
 
-var Logger hclog.Logger
+var (
+  Logger    hclog.Logger
+  AppConfig Config
+)
 
-func InitConfig(config *Config, testing bool) hclog.Logger {
-  err := hclsimple.DecodeFile("config.hcl", nil, config)
+func InitConfig(testing bool) (hclog.Logger, Config) {
+  err := hclsimple.DecodeFile("config.hcl", nil, &AppConfig)
   if err != nil {
     log.Fatalf("Failed to load configuration: %r", err)
   }
@@ -25,7 +30,7 @@ func InitConfig(config *Config, testing bool) hclog.Logger {
   logLevel := hclog.Off
 
   if(!testing) {
-    logLevel = hclog.LevelFromString(config.LogLevel)
+    logLevel = hclog.LevelFromString(AppConfig.LogLevel)
   }
 
   appLogger := hclog.New(&hclog.LoggerOptions{
@@ -35,9 +40,9 @@ func InitConfig(config *Config, testing bool) hclog.Logger {
 
   Logger = appLogger
 
-  appLogger.Info("Configuration loaded", "LogLevel", config.LogLevel)
+  appLogger.Info("Configuration loaded", "LogLevel", AppConfig.LogLevel)
 
-  return appLogger
+  return appLogger, AppConfig
 }
 
 func SetupRouter() *mux.Router {
@@ -53,8 +58,8 @@ func SetupRouter() *mux.Router {
 		negroni.WrapFunc(HandleCreateUser),
 	)).Methods("POST")
 
-	subRouter.Handle("/test", common.With(
-		negroni.WrapFunc(HandleTest),
+	subRouter.Handle("/user", common.With(
+		negroni.WrapFunc(assureAuth(HandleGetUser)),
 	)).Methods("GET")
 
 
