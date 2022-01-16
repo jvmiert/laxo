@@ -18,15 +18,17 @@ func main() {
     logger.Error("Failed to load .env file")
   }
 
-  if err := laxo.InitRedis(); err != nil {
+  redisURI := os.Getenv("REDIS_URL")
+
+  if err := laxo.InitRedis(redisURI); err != nil {
     logger.Error("Failed to init Redis", "error", err)
     return
   }
 
-  uri := os.Getenv("POSTGRESQL_URL")
+  dbURI := os.Getenv("POSTGRESQL_URL")
 
-  if err := laxo.InitDatabase(uri); err != nil {
-    logger.Error("Failed to init Database", "uri", uri, "error", err)
+  if err := laxo.InitDatabase(dbURI); err != nil {
+    logger.Error("Failed to init Database", "uri", dbURI, "error", err)
     return
   }
 

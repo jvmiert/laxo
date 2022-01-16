@@ -7,9 +7,9 @@ import (
 
 var RedisClient radix.Client
 
-func InitRedis() error {
-  Logger.Debug("Connecting to Redis")
-  client, err := (radix.PoolConfig{}).New(context.Background(), "tcp", "127.0.0.1:6379")
+func InitRedis(uri string) error {
+  Logger.Debug("Connecting to Redis", "uri", uri)
+  client, err := (radix.PoolConfig{}).New(context.Background(), "tcp", uri)
   if err != nil {
     return err
   }

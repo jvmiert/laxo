@@ -21,14 +21,16 @@ func setupTest(t *testing.T) *laxo.Config {
 
   _, config := laxo.InitConfig(true)
 
-  if err := laxo.InitRedis(); err != nil {
+  redisURI := os.Getenv("REDIS_TEST_URL")
+
+  if err := laxo.InitRedis(redisURI); err != nil {
     t.Fatalf("Failed to init Redis: %v", err)
     return nil
   }
 
-  uri := os.Getenv("POSTGRESQL_TEST_URL")
+  dbURI := os.Getenv("POSTGRESQL_TEST_URL")
 
-  if err := laxo.InitDatabase(uri); err != nil {
+  if err := laxo.InitDatabase(dbURI); err != nil {
     t.Fatalf("Failed to init Database: %v", err)
     return nil
   }
