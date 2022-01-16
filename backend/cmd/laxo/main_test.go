@@ -12,6 +12,13 @@ import (
   "github.com/joho/godotenv"
 )
 
+type TestState struct {
+  CreateUserToken string
+  Config *laxo.Config
+}
+
+var state TestState
+
 func setupTest(t *testing.T) *laxo.Config {
   os.Chdir("./../..")
 
@@ -34,6 +41,8 @@ func setupTest(t *testing.T) *laxo.Config {
     t.Fatalf("Failed to init Database: %v", err)
     return nil
   }
+
+  state.Config = &config
 
   return &config
 }
@@ -154,6 +163,7 @@ func TestRouteCreateUser(t *testing.T) {
   found := false
   for _, c := range rr.Result().Cookies() {
     if c.Name == config.AuthCookieName {
+      state.CreateUserToken = c.Value
       found = true
     }
   }
@@ -198,6 +208,26 @@ func TestGetUser(t *testing.T) {
   if status := rr.Code; status != http.StatusUnauthorized{
     t.Errorf("handler returned wrong status code: got %v want %v",
       status, http.StatusUnauthorized)
+  }
+
+  // Testing if we can retrieve the user info of the newly created account in
+  // the previous test.
+  req, err = http.NewRequest("GET", "/api/user", nil)
+  if err != nil {
+    t.Fatal(err)
+  }
+
+  req.AddCookie(&http.Cookie{Name: state.Config.AuthCookieName, Value: state.CreateUserToken})
+
+  rr = httptest.NewRecorder()
+  r = laxo.SetupRouter()
+
+  r.ServeHTTP(rr, req)
+
+  // Route should return 200 with a valid cookie
+  if status := rr.Code; status != http.StatusOK{
+    t.Errorf("handler returned wrong status code: got %v want %v",
+      status, http.StatusOK)
   }
 }
 
