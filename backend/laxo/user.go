@@ -16,6 +16,9 @@ import (
 
 var ErrUserExists = errors.New("User already exists")
 
+// When the user db model is empty (not loaded from db)
+var ErrModelUnpopulated = errors.New("User model is not retrieved from db")
+
 type UserReturn struct {
 	ID         string       `json:"id"`
 	Email      string       `json:"email"`
@@ -26,6 +29,19 @@ type UserReturn struct {
 type User struct {
   Model       *sqlc.User
   SessionKey  string
+}
+
+func (u *User) CheckPassword(p string) error {
+  if u.Model == nil {
+    return ErrModelUnpopulated
+  }
+
+  err := bcrypt.CompareHashAndPassword([]byte(u.Model.Password), []byte(p))
+
+  if err != nil {
+    return err
+  }
+  return nil
 }
 
 func (u *User) ValidateNew() error {
@@ -71,6 +87,23 @@ func (u *User) JSON() ([]byte, error) {
   }
 
   return bytes, nil
+}
+
+func RetrieveUserFromDB(uID string) (*User, error) {
+  user, err := Queries.GetUserByID(
+    context.Background(),
+    uID,
+  )
+
+  if err != nil {
+    Logger.Debug("User retrieval error", err)
+    return nil, err
+  }
+
+  var u User
+  u.Model = &user
+
+  return &u, nil
 }
 
 func SaveNewUserToDB(u *User) error {
