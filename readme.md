@@ -49,3 +49,12 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 
 # Third party project links
 - https://docs.google.com/spreadsheets/d/1CU_IFc_jVjZ7PLc6UEWmPNszufvYhhrVAGpJUemNU40/edit#gid=0
+
+# Inspiration
+- https://workos.com/
+- https://vercel.com/login/email?
+- https://monday.com/
+- https://asana.com/#close
+- https://www.airtable.com/
+- https://www.float.com/
+- https://clickup.com/
