@@ -1,10 +1,13 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import useLoginApi from "../hooks/loginUser";
 
 const Login: NextPage = () => {
+  const [isLoading, isError, isSuccess, doLogin] = useLoginApi();
+
   const submitForm = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    console.log("submit!")
+    doLogin("test@example.com", "12345test");
   }
   return (
     <div>
@@ -15,6 +18,9 @@ const Login: NextPage = () => {
 
       <main>
         <p className="text-3xl font-bold underline">Login</p>
+        <p>Loading: {isLoading.toString()}</p>
+        <p>isError: {isError.toString()}</p>
+        <p>isSuccess: {isSuccess.toString()}</p>
         <form
           onSubmit={submitForm}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
