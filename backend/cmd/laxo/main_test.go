@@ -141,7 +141,7 @@ func TestRouteCreateUser(t *testing.T) {
   }
 
   // Posting a valid user creation request
-  jsonStr = []byte(`{"email": "example@example.com", "password": "incorrect123"}`)
+  jsonStr = []byte(`{"email": "example@example.com", "password": "correct123"}`)
   req, err = http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonStr))
   if err != nil {
     t.Fatal(err)
@@ -173,7 +173,7 @@ func TestRouteCreateUser(t *testing.T) {
   }
 
   // Posting the same user again should give an error
-  jsonStr = []byte(`{"email": "example@example.com", "password": "incorrect123"}`)
+  jsonStr = []byte(`{"email": "example@example.com", "password": "correct123"}`)
   req, err = http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonStr))
   if err != nil {
     t.Fatal(err)
@@ -220,7 +220,6 @@ func TestGetUser(t *testing.T) {
   req.AddCookie(&http.Cookie{Name: state.Config.AuthCookieName, Value: state.CreateUserToken})
 
   rr = httptest.NewRecorder()
-  r = laxo.SetupRouter()
 
   r.ServeHTTP(rr, req)
 
@@ -228,6 +227,61 @@ func TestGetUser(t *testing.T) {
   if status := rr.Code; status != http.StatusOK{
     t.Errorf("handler returned wrong status code: got %v want %v",
       status, http.StatusOK)
+  }
+}
+
+func TestLogin(t *testing.T) {
+  // Testing an incorrect password
+  jsonStr := []byte(`{"email": "example@example.com", "password": "incorrect"}`)
+  req, err := http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonStr))
+  if err != nil {
+    t.Fatal(err)
+  }
+  req.Header.Set("Content-Type", "application/json")
+
+  rr := httptest.NewRecorder()
+  r := laxo.SetupRouter()
+
+  r.ServeHTTP(rr, req)
+
+  // Route should return 401 with a wrong password
+  if status := rr.Code; status != http.StatusUnauthorized{
+    t.Errorf("handler returned wrong status code: got %v want %v",
+      status, http.StatusUnauthorized)
+  }
+
+  // Testing a correct password
+  jsonStr = []byte(`{"email": "example@example.com", "password": "correct123"}`)
+  req, err = http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonStr))
+  if err != nil {
+    t.Fatal(err)
+  }
+  req.Header.Set("Content-Type", "application/json")
+
+  rr = httptest.NewRecorder()
+
+  r.ServeHTTP(rr, req)
+
+  // Route should return 200 with a correct password
+  if status := rr.Code; status != http.StatusOK{
+    t.Errorf("handler returned wrong status code: got %v want %v",
+      status, http.StatusOK)
+  }
+
+  if len(rr.Result().Cookies()) == 0 {
+    t.Error("Cookie not present after login")
+  }
+
+  found := false
+  for _, c := range rr.Result().Cookies() {
+    if c.Name == state.Config.AuthCookieName {
+      state.CreateUserToken = c.Value
+      found = true
+    }
+  }
+
+  if !found {
+    t.Error("Auth cookie not found after login")
   }
 }
 
