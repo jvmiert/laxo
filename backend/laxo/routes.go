@@ -11,6 +11,40 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
   fmt.Fprintf(w, "Hello, your uID is: %s\n", uID)
 }
 
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
+  var loginRequest LoginRequest
+
+  if err := decodeJSONBody(w, r, &loginRequest); err != nil {
+    var mr *malformedRequest
+    if errors.As(err, &mr) {
+      http.Error(w, mr.msg, mr.status)
+    } else {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    }
+    return
+  }
+
+  user, err := RetrieveUserFromDBbyEmail(loginRequest.Email)
+  if err == ErrUserNotExist {
+    // @todo: do a fake pw check to prevent timing attacks?
+    http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+    return
+  } else if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+
+  if err := user.CheckPassword(loginRequest.Password); err != nil {
+    http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+    return
+  }
+
+  // @todo: Create user session token and return auth cookie
+
+  w.WriteHeader(http.StatusOK)
+}
+
 func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
   var u User
 

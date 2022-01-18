@@ -15,6 +15,7 @@ import (
 )
 
 var ErrUserExists = errors.New("User already exists")
+var ErrUserNotExist = errors.New("User does not exist")
 
 // When the user db model is empty (not loaded from db)
 var ErrModelUnpopulated = errors.New("User model is not retrieved from db")
@@ -24,6 +25,11 @@ type UserReturn struct {
 	Email      string       `json:"email"`
 	Created    sql.NullTime `json:"created"`
   SessionKey string       `json:"sessionKey,omitempty"`
+}
+
+type LoginRequest struct {
+  Email    string `json:"email"`
+  Password string `json:"password"`
 }
 
 type User struct {
@@ -89,13 +95,34 @@ func (u *User) JSON() ([]byte, error) {
   return bytes, nil
 }
 
-func RetrieveUserFromDB(uID string) (*User, error) {
+func RetrieveUserFromDBbyID(uID string) (*User, error) {
   user, err := Queries.GetUserByID(
     context.Background(),
     uID,
   )
 
-  if err != nil {
+  if err == pgx.ErrNoRows {
+    return nil, ErrUserNotExist
+  } else if err != nil {
+    Logger.Debug("User retrieval error", err)
+    return nil, err
+  }
+
+  var u User
+  u.Model = &user
+
+  return &u, nil
+}
+
+func RetrieveUserFromDBbyEmail(email string) (*User, error) {
+  user, err := Queries.GetUserByEmail(
+    context.Background(),
+    email,
+  )
+
+  if err == pgx.ErrNoRows {
+    return nil, ErrUserNotExist
+  } else if err != nil {
     Logger.Debug("User retrieval error", err)
     return nil, err
   }
