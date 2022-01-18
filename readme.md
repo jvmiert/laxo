@@ -5,11 +5,17 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Figure out how to properly do services
-- Create frontend login / session storage
+- Create session token and return auth cookie from login endpoint
+- Add form to login?
+  - Handle errors in login form?
+- Figure out how to detect login on service load?
 - Setup i18n for pages
 - Setup correct meta tags / html header handeling (next/head)
 - Create a general API error structure and implement easy logic to consistently return on every endpoint
+
+# Long-term to-do
+- Implement: https://github.com/gorilla/csrf
+  - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 
 # Thoughts
 It seems for SKU creation, the best approach is to create a logical data model for the service. This data model will then be the source of truth from which we create translation functions for each individual platform. The tricky thing will be that it seems Lazada has predefined SKU attributes. They do not allow arbitrary SKU creation. It seems Tiki also follows this strategy.
