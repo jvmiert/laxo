@@ -4,7 +4,6 @@ import (
   "fmt"
   "net/http"
   "errors"
-  "time"
 )
 
 func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
@@ -35,14 +34,30 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
   }
 
 
-  if err := user.CheckPassword(loginRequest.Password); err != nil {
+  if err = user.CheckPassword(loginRequest.Password); err != nil {
     http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
     return
   }
 
-  // @todo: Create user session token and return auth cookie
+  sessionKey, err := SetUserSession(user)
 
-  w.WriteHeader(http.StatusOK)
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  user.SessionKey = sessionKey
+
+  SetUserCookie(user.SessionKey, w)
+
+  js, err := user.JSON()
+
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  w.Write(js)
 }
 
 func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -77,19 +92,7 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
   }
 
   u.SessionKey = sessionKey
-
-  // @todo: make this a helper function?
-  expires := time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire)
-
-  authCookie := &http.Cookie{
-    Name: AppConfig.AuthCookieName,
-    Value: u.SessionKey,
-    HttpOnly: true,
-    Secure: true,
-    Expires: expires,
-  }
-
-  http.SetCookie(w, authCookie)
+  SetUserCookie(u.SessionKey, w)
 
   js, err := u.JSON()
 
