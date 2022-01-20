@@ -1,11 +1,10 @@
-import {useState, useEffect } from 'react';
+import { useState } from 'react';
 import AxiosClient from "../lib/axios";
 
 export default function useLoginApi(): [isLoading: boolean, isError: boolean, isSuccess: boolean, doLogin: (email: string, password: string) => void] {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(false);
 
   const doLogin = async (email: string, password: string) => {
     setIsError(false);
@@ -16,6 +15,7 @@ export default function useLoginApi(): [isLoading: boolean, isError: boolean, is
       setIsError(true);
       console.log(error);
     }
+    setIsSuccess(true);
     setIsLoading(false);
   };
 

@@ -1,14 +1,42 @@
+import { useEffect } from 'react';
+import { useRouter } from 'next/router'
+import { Form, Field  } from 'react-final-form'
+import { ValidationErrors, SubmissionErrors } from "final-form";
+import { z } from "zod";
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import useLoginApi from "../hooks/loginUser";
 
+const loginSchema = z.object({
+  email: z.string().email().max(300),
+  password: z.string().min(8).max(128),
+});
+
+type Values = z.infer<typeof loginSchema>;
+
 const Login: NextPage = () => {
+  const router = useRouter()
+
   const [isLoading, isError, isSuccess, doLogin] = useLoginApi();
 
-  const submitForm = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    doLogin("test@example.com", "12345test");
+  useEffect(() => {
+   if(isSuccess) {
+     router.push("/")
+   }
+  }, [isSuccess, router]);
+
+  const submitForm = (values: Values ): SubmissionErrors => {
+    //doLogin("test@example.com", "12345test");
+    console.log(values)
+    return {}
   }
+
+  const validate = (values: Values ): ValidationErrors => {
+    // @todo: do validation with zod
+    console.log(loginSchema.safeParse(values));
+    return {}
+  }
+
   return (
     <div>
       <Head>
@@ -21,28 +49,45 @@ const Login: NextPage = () => {
         <p>Loading: {isLoading.toString()}</p>
         <p>isError: {isError.toString()}</p>
         <p>isSuccess: {isSuccess.toString()}</p>
-        <form
+        <Form
           onSubmit={submitForm}
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-        >
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-            Email
-            </label>
-            <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Email"/>
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-            Password
-            </label>
-            <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="******************"/>
-          </div>
-          <div className="flex items-center justify-between">
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-            Sign In
-            </button>
-          </div>
-        </form>
+          validateOnBlur={true}
+          validate={validate}
+          render={({ handleSubmit }) => (
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+            >
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                Email
+                </label>
+                <Field<string>
+                  name="email"
+                  render={({ input, meta }) => (
+                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" {...input} type="text" placeholder="Email"/>
+                  )}
+                />
+              </div>
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                Password
+                </label>
+                <Field<string>
+                  name="password"
+                  render={({ input, meta }) => (
+                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" {...input} type="password" placeholder="******************"/>
+                  )}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                Sign In
+                </button>
+              </div>
+            </form>
+          )}
+          />
       </main>
     </div>
   )
