@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { Form, Field  } from 'react-final-form'
 import { ValidationErrors, SubmissionErrors } from "final-form";
 import { z } from "zod";
+import type { SafeParseReturnType } from "zod";
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import useLoginApi from "../hooks/loginUser";
@@ -32,9 +33,16 @@ const Login: NextPage = () => {
   }
 
   const validate = (values: Values ): ValidationErrors => {
-    // @todo: do validation with zod
-    console.log(loginSchema.safeParse(values));
-    return {}
+    const errors: { [key: string | number]: string }= {};
+
+    const validationResult  = loginSchema.safeParse(values);
+
+    if (!validationResult.success) {
+      validationResult.error.issues.forEach((validation) => {
+        errors[validation.path[0]] = validation.message;
+      });
+    }
+    return errors;
   }
 
   return (
@@ -51,9 +59,10 @@ const Login: NextPage = () => {
         <p>isSuccess: {isSuccess.toString()}</p>
         <Form
           onSubmit={submitForm}
-          validateOnBlur={true}
+          validateOnBlur={false}
           validate={validate}
-          render={({ handleSubmit }) => (
+          initialValues={{ email: "", password: "" }}
+          render={({ handleSubmit, hasValidationErrors }) => (
             <form
               onSubmit={handleSubmit}
               className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
@@ -64,9 +73,16 @@ const Login: NextPage = () => {
                 </label>
                 <Field<string>
                   name="email"
-                  render={({ input, meta }) => (
-                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" {...input} type="text" placeholder="Email"/>
-                  )}
+                  render={({ input, meta }) => {
+                    const showError = (meta.error || meta.submitError) && meta.touched;
+                    return(
+                      <>
+                        <input className={`shadow appearance-none border ${showError ? "border-red-500" : null} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`} {...input} type="text" placeholder="Email"/>
+                        {showError && (
+                          <span className="text-red-500 text-xs italic">{meta.error || meta.submitError}</span>
+                        )}
+                        </>
+                    )}}
                 />
               </div>
               <div className="mb-6">
@@ -75,13 +91,20 @@ const Login: NextPage = () => {
                 </label>
                 <Field<string>
                   name="password"
-                  render={({ input, meta }) => (
-                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" {...input} type="password" placeholder="******************"/>
-                  )}
-                />
+                  render={({ input, meta }) => {
+                    const showError = (meta.error || meta.submitError) && meta.touched;
+                    return(
+                      <>
+                        <input className={`shadow appearance-none border ${showError ? "border-red-500" : null} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`} {...input} type="password" placeholder="******************"/>
+                        {showError && (
+                          <span className="text-red-500 text-xs italic">{meta.error || meta.submitError}</span>
+                        )}
+                        </>
+                    )}}
+                  />
               </div>
               <div className="flex items-center justify-between">
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                <button disabled={hasValidationErrors} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                 Sign In
                 </button>
               </div>
