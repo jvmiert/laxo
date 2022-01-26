@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import type { NextPage } from 'next'
-import Link from 'next/link'
-import Head from 'next/head'
+import { useEffect } from "react";
+import type { NextPage } from "next";
+import Link from "next/link";
+import Head from "next/head";
 
 const Home: NextPage = () => {
   return (
@@ -18,7 +18,7 @@ const Home: NextPage = () => {
         <p className="text-3xl font-bold underline">Hello world</p>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

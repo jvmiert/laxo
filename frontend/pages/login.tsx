@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router'
-import { Form, Field  } from 'react-final-form'
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { Form, Field } from "react-final-form";
 import { ValidationErrors, SubmissionErrors } from "final-form";
 import { z } from "zod";
 import type { SafeParseReturnType } from "zod";
-import type { NextPage } from 'next';
-import Head from 'next/head';
+import type { NextPage } from "next";
+import Head from "next/head";
 import useLoginApi from "../hooks/loginUser";
 
 const loginSchema = z.object({
@@ -16,26 +16,27 @@ const loginSchema = z.object({
 type Values = z.infer<typeof loginSchema>;
 
 const Login: NextPage = () => {
-  const router = useRouter()
+  const router = useRouter();
 
   const [isLoading, isError, isSuccess, doLogin] = useLoginApi();
 
   useEffect(() => {
-   if(isSuccess) {
-     router.push("/")
-   }
+    if (isSuccess) {
+      router.push("/");
+    }
   }, [isSuccess, router]);
 
-  const submitForm = (values: Values ): SubmissionErrors => {
+  const submitForm = (values: Values): SubmissionErrors => {
     //doLogin("test@example.com", "12345test");
-    console.log(values)
-    return {}
-  }
 
-  const validate = (values: Values ): ValidationErrors => {
-    const errors: { [key: string | number]: string }= {};
+    console.log(values);
+    return {};
+  };
 
-    const validationResult  = loginSchema.safeParse(values);
+  const validate = (values: Values): ValidationErrors => {
+    const errors: { [key: string]: string } = {};
+
+    const validationResult = loginSchema.safeParse(values);
 
     if (!validationResult.success) {
       validationResult.error.issues.forEach((validation) => {
@@ -43,7 +44,7 @@ const Login: NextPage = () => {
       });
     }
     return errors;
-  }
+  };
 
   return (
     <div>
@@ -68,52 +69,84 @@ const Login: NextPage = () => {
               className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
             >
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                Email
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="username"
+                >
+                  Email
                 </label>
                 <Field<string>
                   name="email"
                   render={({ input, meta }) => {
-                    const showError = (meta.error || meta.submitError) && meta.touched;
-                    return(
+                    const showError =
+                      (meta.error || meta.submitError) && meta.touched;
+                    return (
                       <>
-                        <input className={`shadow appearance-none border ${showError ? "border-red-500" : null} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`} {...input} type="text" placeholder="Email"/>
+                        <input
+                          className={`shadow appearance-none border ${
+                            showError ? "border-red-500" : null
+                          } rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
+                          {...input}
+                          type="text"
+                          placeholder="Email"
+                        />
                         {showError && (
-                          <span className="text-red-500 text-xs italic">{meta.error || meta.submitError}</span>
+                          <span className="text-red-500 text-xs italic">
+                            {meta.error || meta.submitError}
+                          </span>
                         )}
-                        </>
-                    )}}
+                      </>
+                    );
+                  }}
                 />
               </div>
               <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                Password
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="password"
+                >
+                  Password
                 </label>
                 <Field<string>
                   name="password"
                   render={({ input, meta }) => {
-                    const showError = (meta.error || meta.submitError) && meta.touched;
-                    return(
+                    const showError =
+                      (meta.error || meta.submitError) && meta.touched;
+                    return (
                       <>
-                        <input className={`shadow appearance-none border ${showError ? "border-red-500" : null} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`} {...input} type="password" placeholder="******************"/>
+                        <input
+                          className={`shadow appearance-none border ${
+                            showError ? "border-red-500" : null
+                          } rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
+                          {...input}
+                          type="password"
+                          placeholder="******************"
+                        />
                         {showError && (
-                          <span className="text-red-500 text-xs italic">{meta.error || meta.submitError}</span>
+                          <span className="text-red-500 text-xs italic">
+                            {meta.error || meta.submitError}
+                          </span>
                         )}
-                        </>
-                    )}}
-                  />
+                      </>
+                    );
+                  }}
+                />
               </div>
               <div className="flex items-center justify-between">
-                <button disabled={hasValidationErrors} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                Sign In
+                <button
+                  disabled={hasValidationErrors}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  type="submit"
+                >
+                  Sign In
                 </button>
               </div>
             </form>
           )}
-          />
+        />
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
