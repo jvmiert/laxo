@@ -6,11 +6,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Lower case, trim email addresses in backend
-- Figure out proper structure for schema, form value types, validation, error message structure in form frontend
-  - Maybe do validation async?
-- Add form to login?
-  - Handle errors in login form?
-- Create a loading hook that only starts loading after x ms?
 - Figure out how to detect login on service load?
 - Setup i18n for pages
 - Setup correct meta tags / html header handeling (next/head)

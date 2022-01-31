@@ -1,28 +1,40 @@
-import { useState } from "react";
+import axios from "axios";
 import AxiosClient from "../lib/axios";
 
-export default function useLoginApi(): [
-  isLoading: boolean,
-  isError: boolean,
-  isSuccess: boolean,
-  doLogin: (email: string, password: string) => void,
-] {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+export interface LoginErrorDetails {
+  [key: string]: string;
+}
 
+export default function useLoginApi(): [
+  doLogin: (
+    email: string,
+    password: string,
+  ) => Promise<{
+    success: boolean;
+    error: boolean;
+    errorDetails: LoginErrorDetails;
+  }>,
+] {
   const doLogin = async (email: string, password: string) => {
-    setIsError(false);
-    setIsLoading(true);
     try {
-      const result = await AxiosClient.post("/login", { email, password });
+      await AxiosClient.post("/login", { email, password });
     } catch (error) {
-      setIsError(true);
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data instanceof Object) {
+          return {
+            success: false,
+            error: true,
+            errorDetails: error.response.data,
+          };
+        }
+        return { success: false, error: true, errorDetails: {} };
+      }
+
+      throw error;
     }
-    setIsSuccess(true);
-    setIsLoading(false);
+
+    return { success: true, error: false, errorDetails: {} };
   };
 
-  return [isLoading, isError, isSuccess, doLogin];
+  return [doLogin];
 }

@@ -1,50 +1,13 @@
-import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { Form, Field } from "react-final-form";
-import { ValidationErrors, SubmissionErrors } from "final-form";
-import { z } from "zod";
-import type { SafeParseReturnType } from "zod";
 import type { NextPage } from "next";
 import Head from "next/head";
-import useLoginApi from "../hooks/loginUser";
-
-const loginSchema = z.object({
-  email: z.string().email().max(300),
-  password: z.string().min(8).max(128),
-});
-
-type Values = z.infer<typeof loginSchema>;
+import useLoginFuncs from "../hooks/loginFormFuncs";
 
 const Login: NextPage = () => {
   const router = useRouter();
 
-  const [isLoading, isError, isSuccess, doLogin] = useLoginApi();
-
-  useEffect(() => {
-    if (isSuccess) {
-      router.push("/");
-    }
-  }, [isSuccess, router]);
-
-  const submitForm = (values: Values): SubmissionErrors => {
-    //doLogin("test@example.com", "12345test");
-
-    console.log(values);
-    return {};
-  };
-
-  const validate = (values: Values): ValidationErrors => {
-    const errors: { [key: string]: string } = {};
-
-    const validationResult = loginSchema.safeParse(values);
-
-    if (!validationResult.success) {
-      validationResult.error.issues.forEach((validation) => {
-        errors[validation.path[0]] = validation.message;
-      });
-    }
-    return errors;
-  };
+  const [validate, submitForm] = useLoginFuncs(router);
 
   return (
     <div>
@@ -55,15 +18,12 @@ const Login: NextPage = () => {
 
       <main>
         <p className="text-3xl font-bold underline">Login</p>
-        <p>Loading: {isLoading.toString()}</p>
-        <p>isError: {isError.toString()}</p>
-        <p>isSuccess: {isSuccess.toString()}</p>
         <Form
           onSubmit={submitForm}
           validateOnBlur={false}
           validate={validate}
           initialValues={{ email: "", password: "" }}
-          render={({ handleSubmit, hasValidationErrors }) => (
+          render={({ handleSubmit, submitting, submitError }) => (
             <form
               onSubmit={handleSubmit}
               className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
@@ -79,7 +39,11 @@ const Login: NextPage = () => {
                   name="email"
                   render={({ input, meta }) => {
                     const showError =
-                      (meta.error || meta.submitError) && meta.touched;
+                      meta.touched &&
+                      (meta.error ||
+                        (meta.submitError && !meta.dirtySinceLastSubmit)) &&
+                      !meta.submitting;
+
                     return (
                       <>
                         <input
@@ -111,7 +75,11 @@ const Login: NextPage = () => {
                   name="password"
                   render={({ input, meta }) => {
                     const showError =
-                      (meta.error || meta.submitError) && meta.touched;
+                      meta.touched &&
+                      (meta.error ||
+                        (meta.submitError && !meta.dirtySinceLastSubmit)) &&
+                      !meta.submitting;
+
                     return (
                       <>
                         <input
@@ -132,10 +100,15 @@ const Login: NextPage = () => {
                   }}
                 />
               </div>
+              {submitError && (
+                <p className="text-red-500 text-xs italic mb-2">
+                  {submitError}
+                </p>
+              )}
               <div className="flex items-center justify-between">
                 <button
-                  disabled={hasValidationErrors}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  disabled={submitting}
+                  className="disabled:cursor-not-allowed disabled:bg-blue-200 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   type="submit"
                 >
                   Sign In

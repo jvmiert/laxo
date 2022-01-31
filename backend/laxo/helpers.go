@@ -10,6 +10,13 @@ import (
   "crypto/rand"
 )
 
+func ErrorJSON(w http.ResponseWriter, errorBytes []byte, code int) {
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+    w.Header().Set("X-Content-Type-Options", "nosniff")
+      w.WriteHeader(code)
+         w.Write(errorBytes)
+}
+
 func GenerateRandomString(n int) ([]byte, error) {
   b := make([]byte, n)
   if _, err := rand.Read(b); err != nil {

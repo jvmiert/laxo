@@ -25,8 +25,14 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
   user, err := RetrieveUserFromDBbyEmail(loginRequest.Email)
   if err == ErrUserNotExist {
-    // @todo: do a fake pw check to prevent timing attacks?
-    http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+    js, errJS := GetUserLoginFailure(true, false)
+
+    if errJS != nil {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+      return
+    }
+
+    ErrorJSON(w, js, http.StatusUnauthorized)
     return
   } else if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -35,7 +41,14 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 
   if err = user.CheckPassword(loginRequest.Password); err != nil {
-    http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+    js, errJS := GetUserLoginFailure(false, true)
+
+    if errJS != nil {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+      return
+    }
+
+    ErrorJSON(w, js, http.StatusUnauthorized)
     return
   }
 

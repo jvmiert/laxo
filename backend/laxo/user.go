@@ -17,6 +17,10 @@ import (
 var ErrUserExists = errors.New("User already exists")
 var ErrUserNotExist = errors.New("User does not exist")
 
+// Used for returning to frontend
+var ValErrWrongPassword = "Password is incorrect"
+var ValErrUnknownEmail  = "Email not found"
+
 // When the user db model is empty (not loaded from db)
 var ErrModelUnpopulated = errors.New("User model is not retrieved from db")
 
@@ -24,6 +28,31 @@ type UserReturn struct {
 	ID         string       `json:"id"`
 	Email      string       `json:"email"`
 	Created    sql.NullTime `json:"created"`
+}
+
+type UserLoginErrorMessage struct {
+  Email    string `json:"email,omitempty"`
+  Password string `json:"password,omitempty"`
+}
+
+func GetUserLoginFailure(emailFailed bool, pwFailed bool) ([]byte, error) {
+  r := &UserLoginErrorMessage{}
+
+  if emailFailed {
+    r.Email = ValErrUnknownEmail
+  }
+
+  if pwFailed {
+    r.Password = ValErrWrongPassword
+  }
+
+  bytes, err := json.Marshal(r)
+
+  if err != nil {
+    return bytes, err
+  }
+
+  return bytes, err
 }
 
 type LoginRequest struct {

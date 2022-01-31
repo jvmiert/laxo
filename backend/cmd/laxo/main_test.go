@@ -4,6 +4,7 @@ import (
   "os"
   "bytes"
 	"net/http"
+  "encoding/json"
   "strings"
 	"testing"
 	"net/http/httptest"
@@ -249,6 +250,18 @@ func TestLogin(t *testing.T) {
     t.Errorf("handler returned wrong status code: got %v want %v",
       status, http.StatusUnauthorized)
   }
+
+  // Route should return correct JSON error message
+   var errorResponse laxo.UserLoginErrorMessage
+   err = json.Unmarshal(rr.Body.Bytes(), &errorResponse)
+
+   if err != nil {
+    t.Errorf("couldn't unmarshal error return: %v", err)
+   }
+
+   if errorResponse.Password != laxo.ValErrWrongPassword {
+    t.Errorf("Wrong error response: got %v want %v", errorResponse.Password, laxo.ValErrWrongPassword)
+   }
 
   // Testing a correct password
   jsonStr = []byte(`{"email": "example@example.com", "password": "correct123"}`)
