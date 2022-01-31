@@ -37,11 +37,11 @@ func SetUserCookie(sessionToken string, w http.ResponseWriter) {
   expires := time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire)
 
   authCookie := &http.Cookie{
-    Name: AppConfig.AuthCookieName,
-    Value: sessionToken,
+    Name:     AppConfig.AuthCookieName,
+    Value:    sessionToken,
     HttpOnly: true,
-    Secure: true,
-    Expires: expires,
+    Secure:   true,
+    Expires:  expires,
   }
 
   http.SetCookie(w, authCookie)

@@ -4,6 +4,7 @@ import (
   "context"
   "mime"
   "net/http"
+  "time"
   "strings"
 
   "github.com/mediocregopher/radix/v4"
@@ -61,6 +62,15 @@ func assureAuth(handler AuthHandlerFunc) http.HandlerFunc {
     }
 
     if uID == "" {
+      c := &http.Cookie{
+        Name:     AppConfig.AuthCookieName,
+        Value:    "",
+        Expires:  time.Unix(0, 0),
+        Secure:   true,
+        HttpOnly: true,
+      }
+
+      http.SetCookie(w, c)
       http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
       return
     }
