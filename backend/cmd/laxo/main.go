@@ -44,7 +44,11 @@ func main() {
 
   go func() {
     if err := srv.ListenAndServe(); err != nil {
-      logger.Error("Failed to listen and service", "error", err)
+      if err == http.ErrServerClosed {
+        logger.Info("Closing server...")
+      } else {
+        logger.Error("Failed to listen and service", "error", err)
+      }
     }
   }()
 
