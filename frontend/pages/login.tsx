@@ -26,11 +26,11 @@ const Login: NextPage = () => {
           render={({ handleSubmit, submitting, submitError }) => (
             <form
               onSubmit={handleSubmit}
-              className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+              className="mb-4 rounded bg-white px-8 pt-6 pb-8 shadow-md"
             >
               <div className="mb-4">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="mb-2 block text-sm font-bold text-gray-700"
                   htmlFor="username"
                 >
                   Email
@@ -47,15 +47,15 @@ const Login: NextPage = () => {
                     return (
                       <>
                         <input
-                          className={`shadow appearance-none border ${
+                          className={`appearance-none border shadow ${
                             showError ? "border-red-500" : null
-                          } rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
+                          } focus:shadow-outline w-full rounded py-2 px-3 leading-tight text-gray-700 focus:outline-none`}
                           {...input}
                           type="text"
                           placeholder="Email"
                         />
                         {showError && (
-                          <span className="text-red-500 text-xs italic">
+                          <span className="text-xs italic text-red-500">
                             {meta.error || meta.submitError}
                           </span>
                         )}
@@ -66,7 +66,7 @@ const Login: NextPage = () => {
               </div>
               <div className="mb-6">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="mb-2 block text-sm font-bold text-gray-700"
                   htmlFor="password"
                 >
                   Password
@@ -83,15 +83,15 @@ const Login: NextPage = () => {
                     return (
                       <>
                         <input
-                          className={`shadow appearance-none border ${
+                          className={`appearance-none border shadow ${
                             showError ? "border-red-500" : null
-                          } rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
+                          } focus:shadow-outline w-full rounded py-2 px-3 leading-tight text-gray-700 focus:outline-none`}
                           {...input}
                           type="password"
                           placeholder="******************"
                         />
                         {showError && (
-                          <span className="text-red-500 text-xs italic">
+                          <span className="text-xs italic text-red-500">
                             {meta.error || meta.submitError}
                           </span>
                         )}
@@ -101,14 +101,14 @@ const Login: NextPage = () => {
                 />
               </div>
               {submitError && (
-                <p className="text-red-500 text-xs italic mb-2">
+                <p className="mb-2 text-xs italic text-red-500">
                   {submitError}
                 </p>
               )}
               <div className="flex items-center justify-between">
                 <button
                   disabled={submitting}
-                  className="disabled:cursor-not-allowed disabled:bg-blue-200 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700 focus:outline-none disabled:cursor-not-allowed disabled:bg-blue-200"
                   type="submit"
                 >
                   Sign In
