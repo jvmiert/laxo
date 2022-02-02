@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { Form, Field } from "react-final-form";
+import { useIntl } from "react-intl";
 import Head from "next/head";
 import loadIntlMessages from "@/helpers/loadIntlMessages";
 import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
@@ -18,6 +19,7 @@ type LoginPageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
 export default function LoginPage(props: LoginPageProps) {
   const router = useRouter();
+  const t = useIntl();
 
   const [validate, submitForm] = useLoginFuncs(router);
 
@@ -45,7 +47,10 @@ export default function LoginPage(props: LoginPageProps) {
                   className="mb-2 block text-sm font-bold text-gray-700"
                   htmlFor="username"
                 >
-                  Email
+                  {t.formatMessage({
+                    defaultMessage: "Email",
+                    description: "Login Page: Email Field",
+                  })}
                 </label>
                 <Field<string>
                   name="email"
@@ -64,7 +69,10 @@ export default function LoginPage(props: LoginPageProps) {
                           } focus:shadow-outline w-full rounded py-2 px-3 leading-tight text-gray-700 focus:outline-none`}
                           {...input}
                           type="text"
-                          placeholder="Email"
+                          placeholder={t.formatMessage({
+                            defaultMessage: "Email",
+                            description: "Login Page: Email Field",
+                          })}
                         />
                         {showError && (
                           <span className="text-xs italic text-red-500">
@@ -81,7 +89,10 @@ export default function LoginPage(props: LoginPageProps) {
                   className="mb-2 block text-sm font-bold text-gray-700"
                   htmlFor="password"
                 >
-                  Password
+                  {t.formatMessage({
+                    defaultMessage: "Password",
+                    description: "Login Page: Password Field",
+                  })}
                 </label>
                 <Field<string>
                   name="password"
@@ -123,7 +134,10 @@ export default function LoginPage(props: LoginPageProps) {
                   className="focus:shadow-outline rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700 focus:outline-none disabled:cursor-not-allowed disabled:bg-blue-200"
                   type="submit"
                 >
-                  Sign In
+                  {t.formatMessage({
+                    defaultMessage: "Sign In",
+                    description: "Login Page: Sign In Button",
+                  })}
                 </button>
               </div>
             </form>
@@ -132,5 +146,4 @@ export default function LoginPage(props: LoginPageProps) {
       </main>
     </div>
   );
-
 }

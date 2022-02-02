@@ -1,4 +1,8 @@
 {
+  "+Szoko": {
+    "defaultMessage": "Password must contain a digit",
+    "description": "Login Form: password contain digit validation failure"
+  },
   "/6/PQt": {
     "defaultMessage": "Email should be less than 300 characters",
     "description": "Login Form: email max length validation failure"
@@ -15,9 +19,17 @@
     "defaultMessage": "Please enter a valid email address",
     "description": "Login Form: email validation failure"
   },
+  "B1947g": {
+    "defaultMessage": "Email",
+    "description": "Login Page: Email Field"
+  },
   "CSz1XG": {
     "defaultMessage": "Hello World",
     "description": "Index Page: title"
+  },
+  "FcbahC": {
+    "defaultMessage": "Password",
+    "description": "Login Page: Password Field"
   },
   "Oi4nVT": {
     "defaultMessage": "Required",
@@ -26,5 +38,13 @@
   "ZcA0FH": {
     "defaultMessage": "Login Failed",
     "description": "Login Form: general failure"
+  },
+  "vKMJZo": {
+    "defaultMessage": "Sign In",
+    "description": "Login Page: Sign In Button"
+  },
+  "xO8//p": {
+    "defaultMessage": "Password must contain a letter",
+    "description": "Login Form: password contain letter validation failure"
   }
 }
