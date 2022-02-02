@@ -1,0 +1,30 @@
+{
+  "/6/PQt": {
+    "defaultMessage": "Email phải dưới 300 ký tự",
+    "description": "Login Form: email max length validation failure"
+  },
+  "5fCJKU": {
+    "defaultMessage": "Mật khẩu phải có ít nhất 8 ký tự",
+    "description": "Login Form: password min length validation failure"
+  },
+  "5j+WaG": {
+    "defaultMessage": "Mật khẩu phải ít hơn 128 ký tự",
+    "description": "Login Form: password min length validation failure"
+  },
+  "6rPTP8": {
+    "defaultMessage": "Vui lòng nhập một địa chỉ email hợp lệ",
+    "description": "Login Form: email validation failure"
+  },
+  "CSz1XG": {
+    "defaultMessage": "Chào thế giới",
+    "description": "Index Page: title"
+  },
+  "Oi4nVT": {
+    "defaultMessage": "Yêu cầu",
+    "description": "Login Form: general validation failure"
+  },
+  "ZcA0FH": {
+    "defaultMessage": "Đăng nhập thất bại",
+    "description": "Login Form: general failure"
+  }
+}

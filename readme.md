@@ -6,14 +6,16 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Lower case, trim email addresses in backend
-- Figure out how to detect login on service load?
 - Setup i18n for pages
+- Figure out how to detect login on service load? (use swr, mutate on login?)
 - Setup correct meta tags / html header handeling (next/head)
 - Create a general API error structure and implement easy logic to consistently return on every endpoint
 
 # Long-term to-do
 - Implement: https://github.com/gorilla/csrf
   - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
+- Optimize yup schema validation for react final form?
+  - https://gist.github.com/nfantone/9ab600760db8774ab4873cb1a3a22f26
 
 # Thoughts
 It seems for SKU creation, the best approach is to create a logical data model for the service. This data model will then be the source of truth from which we create translation functions for each individual platform. The tricky thing will be that it seems Lazada has predefined SKU attributes. They do not allow arbitrary SKU creation. It seems Tiki also follows this strategy.

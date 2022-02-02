@@ -1,10 +1,22 @@
 import { useRouter } from "next/router";
 import { Form, Field } from "react-final-form";
-import type { NextPage } from "next";
 import Head from "next/head";
-import useLoginFuncs from "../hooks/loginFormFuncs";
+import loadIntlMessages from "@/helpers/loadIntlMessages";
+import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
+import { InferGetStaticPropsType } from "next";
+import useLoginFuncs from "@/hooks/loginFormFuncs";
 
-const Login: NextPage = () => {
+export async function getStaticProps(ctx: LoadI18nMessagesProps) {
+  return {
+    props: {
+      intlMessages: await loadIntlMessages(ctx),
+    },
+  };
+}
+
+type LoginPageProps = InferGetStaticPropsType<typeof getStaticProps>;
+
+export default function LoginPage(props: LoginPageProps) {
   const router = useRouter();
 
   const [validate, submitForm] = useLoginFuncs(router);
@@ -120,6 +132,5 @@ const Login: NextPage = () => {
       </main>
     </div>
   );
-};
 
-export default Login;
+}

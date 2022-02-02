@@ -1,0 +1,30 @@
+{
+  "/6/PQt": {
+    "defaultMessage": "Email should be less than 300 characters",
+    "description": "Login Form: email max length validation failure"
+  },
+  "5fCJKU": {
+    "defaultMessage": "Password should be at least 8 characters",
+    "description": "Login Form: password min length validation failure"
+  },
+  "5j+WaG": {
+    "defaultMessage": "Password should be less than 128 characters",
+    "description": "Login Form: password min length validation failure"
+  },
+  "6rPTP8": {
+    "defaultMessage": "Please enter a valid email address",
+    "description": "Login Form: email validation failure"
+  },
+  "CSz1XG": {
+    "defaultMessage": "Hello World",
+    "description": "Index Page: title"
+  },
+  "Oi4nVT": {
+    "defaultMessage": "Required",
+    "description": "Login Form: general validation failure"
+  },
+  "ZcA0FH": {
+    "defaultMessage": "Login Failed",
+    "description": "Login Form: general failure"
+  }
+}

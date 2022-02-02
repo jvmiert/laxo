@@ -2,6 +2,10 @@
 module.exports = {
   reactStrictMode: true,
   poweredByHeader: false,
+  i18n: {
+    locales: ["en", "vi"],
+    defaultLocale: "en",
+  },
   async rewrites() {
     return [
       {
@@ -9,5 +13,13 @@ module.exports = {
         destination: "http://127.0.0.1:8080/api/:path*",
       },
     ];
+  },
+  webpack(config, { dev, ...other }) {
+    if (!dev) {
+      // https://formatjs.io/docs/guides/advanced-usage#react-intl-without-parser-40-smaller
+      config.resolve.alias["@formatjs/icu-messageformat-parser"] =
+        "@formatjs/icu-messageformat-parser/no-parser";
+    }
+    return config;
   },
 };

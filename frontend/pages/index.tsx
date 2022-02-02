@@ -1,9 +1,22 @@
-import { useEffect } from "react";
-import type { NextPage } from "next";
+import { useIntl } from "react-intl";
 import Link from "next/link";
 import Head from "next/head";
+import loadIntlMessages from "@/helpers/loadIntlMessages";
+import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
+import { InferGetStaticPropsType } from "next";
 
-const Home: NextPage = () => {
+export async function getStaticProps(ctx: LoadI18nMessagesProps) {
+  return {
+    props: {
+      intlMessages: await loadIntlMessages(ctx),
+    },
+  };
+}
+
+type HomePageProps = InferGetStaticPropsType<typeof getStaticProps>;
+
+export default function HomePage(props: HomePageProps) {
+  const t = useIntl();
   return (
     <div>
       <Head>
@@ -15,10 +28,13 @@ const Home: NextPage = () => {
         <Link href="/login">
           <a>Login</a>
         </Link>
-        <p className="text-3xl font-bold underline">Hello world</p>
+        <p className="text-3xl font-bold underline">
+          {t.formatMessage({
+            defaultMessage: "Hello World",
+            description: "Index Page: title",
+          })}
+        </p>
       </main>
     </div>
   );
-};
-
-export default Home;
+}

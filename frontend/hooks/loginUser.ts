@@ -1,5 +1,5 @@
 import axios from "axios";
-import AxiosClient from "../lib/axios";
+import AxiosClient from "@/lib/axios";
 
 export interface LoginErrorDetails {
   [key: string]: string;
