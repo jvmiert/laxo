@@ -17,7 +17,7 @@ const LoginSchema = z.object({
     .max(128, { message: "too_big_pw" }),
 });
 
-type LoginSchemaValues = z.infer<typeof LoginSchema>;
+export type LoginSchemaValues = z.infer<typeof LoginSchema>;
 
 export default function useLoginFuncs(
   router: NextRouter,

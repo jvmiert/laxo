@@ -1,11 +1,12 @@
 import { useRouter } from "next/router";
 import { Form, Field } from "react-final-form";
+import createDecorator from "final-form-focus";
 import { useIntl } from "react-intl";
 import Head from "next/head";
 import loadIntlMessages from "@/helpers/loadIntlMessages";
 import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
 import { InferGetStaticPropsType } from "next";
-import useLoginFuncs from "@/hooks/loginFormFuncs";
+import useLoginFuncs, { LoginSchemaValues } from "@/hooks/loginFormFuncs";
 
 export async function getStaticProps(ctx: LoadI18nMessagesProps) {
   return {
@@ -16,6 +17,8 @@ export async function getStaticProps(ctx: LoadI18nMessagesProps) {
 }
 
 type LoginPageProps = InferGetStaticPropsType<typeof getStaticProps>;
+
+const focusOnError = createDecorator<LoginSchemaValues>();
 
 export default function LoginPage(props: LoginPageProps) {
   const router = useRouter();
@@ -34,6 +37,7 @@ export default function LoginPage(props: LoginPageProps) {
         <p className="text-3xl font-bold underline">Login</p>
         <Form
           onSubmit={submitForm}
+          decorators={[focusOnError]}
           validateOnBlur={false}
           validate={validate}
           initialValues={{ email: "", password: "" }}
