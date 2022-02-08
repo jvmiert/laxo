@@ -1,6 +1,5 @@
 import axios from "axios";
-import { useRouter } from "next/router";
-import AxiosClient from "@/lib/axios";
+import { useAxios } from "@/providers/AxiosProvider";
 
 export interface LoginErrorDetails {
   [key: string]: string;
@@ -16,10 +15,11 @@ export default function useLoginApi(): [
     errorDetails: LoginErrorDetails;
   }>,
 ] {
-  const { locale } = useRouter();
+  const { axiosClient } = useAxios();
+
   const doLogin = async (email: string, password: string) => {
     try {
-      await AxiosClient(locale).post("/login", { email, password });
+      await axiosClient.post("/login", { email, password });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data instanceof Object) {

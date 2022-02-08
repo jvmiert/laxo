@@ -5,20 +5,17 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Automatically extract and merge new translation strings (fallback to default message)
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware
+  - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
-- Somehow pass locale to backend so we know what language to put the error messages in
-  - Pass along with axios interceptor?
-  - Store with SWR?
-  - Pass axios into a provider?
 - Setup i18n for backend validation message
 - Lower case, trim email addresses in backend
   - Figure out if we're trimming white space by sending a curl request to test
 - Figure out how to detect login on service load? (use swr, mutate on login?)
 - Setup correct meta tags / html header handeling (next/head)
-- Store the axios client in a provider that changes with locale switch, then create a hook to retrieve the client
-- Create a general API error structure and implement easy logic to consistently return on every endpoint
+  - Maybe use? https://github.com/garmeeh/next-seo
 
 # Long-term to-do
 - Implement: https://github.com/gorilla/csrf

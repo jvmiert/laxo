@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import { IntlProvider } from "react-intl";
 import { useRouter } from "next/router";
 import type { AppProps } from "next/app";
+import { AxiosProvider } from "@/providers/AxiosProvider";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { locale, defaultLocale } = useRouter();
@@ -11,7 +12,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       defaultLocale={defaultLocale}
       messages={pageProps.intlMessages}
     >
-      <Component {...pageProps} />
+      <AxiosProvider>
+        <Component {...pageProps} />
+      </AxiosProvider>
     </IntlProvider>
   );
 }
