@@ -1,9 +1,14 @@
 {
+  "+Szoko": "Password must contain a digit",
   "/6/PQt": "Email should be less than 300 characters",
   "5fCJKU": "Password should be at least 8 characters",
   "5j+WaG": "Password should be less than 128 characters",
   "6rPTP8": "Please enter a valid email address",
+  "B1947g": "Email",
   "CSz1XG": "Hello World",
+  "FcbahC": "Password",
   "Oi4nVT": "Required",
-  "ZcA0FH": "Login Failed"
+  "ZcA0FH": "Login Failed",
+  "vKMJZo": "Sign In",
+  "xO8//p": "Password must contain a letter"
 }

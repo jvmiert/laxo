@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SubmissionErrors, ValidationErrors, FORM_ERROR } from "final-form";
-import type { NextRouter } from "next/router";
+import { useRouter } from "next/router";
 import { useIntl } from "react-intl";
 import useLoginApi from "@/hooks/loginUser";
 
@@ -19,14 +19,13 @@ const LoginSchema = z.object({
 
 export type LoginSchemaValues = z.infer<typeof LoginSchema>;
 
-export default function useLoginFuncs(
-  router: NextRouter,
-): [
+export default function useLoginFuncs(): [
   validate: (values: LoginSchemaValues) => ValidationErrors,
   submit: (values: LoginSchemaValues) => Promise<SubmissionErrors>,
 ] {
   const t = useIntl();
   const [doLogin] = useLoginApi();
+  const { push } = useRouter();
 
   const submitForm = async (
     values: LoginSchemaValues,
@@ -53,7 +52,7 @@ export default function useLoginFuncs(
     }
 
     if (success) {
-      router.push("/");
+      push("/");
       return {};
     }
   };

@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import { Form, Field } from "react-final-form";
 import createDecorator from "final-form-focus";
 import { useIntl } from "react-intl";
@@ -21,10 +20,9 @@ type LoginPageProps = InferGetStaticPropsType<typeof getStaticProps>;
 const focusOnError = createDecorator<LoginSchemaValues>();
 
 export default function LoginPage(props: LoginPageProps) {
-  const router = useRouter();
   const t = useIntl();
 
-  const [validate, submitForm] = useLoginFuncs(router);
+  const [validate, submitForm] = useLoginFuncs();
 
   return (
     <div>

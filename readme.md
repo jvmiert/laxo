@@ -14,8 +14,10 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - Pass axios into a provider?
 - Setup i18n for backend validation message
 - Lower case, trim email addresses in backend
+  - Figure out if we're trimming white space by sending a curl request to test
 - Figure out how to detect login on service load? (use swr, mutate on login?)
 - Setup correct meta tags / html header handeling (next/head)
+- Store the axios client in a provider that changes with locale switch, then create a hook to retrieve the client
 - Create a general API error structure and implement easy logic to consistently return on every endpoint
 
 # Long-term to-do
