@@ -5,6 +5,7 @@ import (
   "context"
   "regexp"
   "errors"
+  "strings"
 
   "laxo.vn/laxo/laxo/sqlc"
   "database/sql"
@@ -91,7 +92,9 @@ func (u *User) ValidateNew() error {
   }
 
   // Making sure email doesn't exist yet
-  _, err = Queries.GetUserByEmail(context.Background(), u.Model.Email)
+  lowerEmail := strings.ToLower(u.Model.Email)
+
+  _, err = Queries.GetUserByEmail(context.Background(), strings.TrimSpace(lowerEmail))
 
   // No rows exist yet with this email, we pass validation
   if err == pgx.ErrNoRows {
@@ -142,9 +145,10 @@ func RetrieveUserFromDBbyID(uID string) (*User, error) {
 }
 
 func RetrieveUserFromDBbyEmail(email string) (*User, error) {
+  lowerEmail := strings.ToLower(email)
   user, err := Queries.GetUserByEmail(
     context.Background(),
-    email,
+    strings.TrimSpace(lowerEmail),
   )
 
   if err == pgx.ErrNoRows {
@@ -170,10 +174,11 @@ func SaveNewUserToDB(u *User) error {
 
   u.Model.Password = string(hash)
 
+  lowerEmail := strings.ToLower(u.Model.Email)
   savedUser, err := Queries.CreateUser(
     context.Background(),
     sqlc.CreateUserParams{
-      Email: u.Model.Email,
+      Email: strings.TrimSpace(lowerEmail),
       Password: u.Model.Password,
     },
   )

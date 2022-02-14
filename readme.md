@@ -11,8 +11,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Debounce validation to prevent stutter?
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
 - Setup i18n for backend validation message
-- Lower case, trim email addresses in backend
-  - Figure out if we're trimming white space by sending a curl request to test
 - Figure out how to detect login on service load? (use swr, mutate on login?)
 - Setup correct meta tags / html header handeling (next/head)
   - Maybe use? https://github.com/garmeeh/next-seo
