@@ -26,5 +26,25 @@
   "ZcA0FH": {
     "defaultMessage": "Đăng nhập thất bại",
     "description": "Login Form: general failure"
+  },
+  "+Szoko": {
+    "defaultMessage": "Password must contain a digit",
+    "description": "Login Form: password contain digit validation failure"
+  },
+  "B1947g": {
+    "defaultMessage": "Email",
+    "description": "Login Page: Email Field"
+  },
+  "FcbahC": {
+    "defaultMessage": "Password",
+    "description": "Login Page: Password Field"
+  },
+  "vKMJZo": {
+    "defaultMessage": "Sign In",
+    "description": "Login Page: Sign In Button"
+  },
+  "xO8//p": {
+    "defaultMessage": "Password must contain a letter",
+    "description": "Login Form: password contain letter validation failure"
   }
 }
