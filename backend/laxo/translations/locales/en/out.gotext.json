@@ -1,0 +1,19 @@
+{
+    "language": "en",
+    "messages": [
+        {
+            "id": "Password is incorrect",
+            "message": "Password is incorrect",
+            "translation": "Password is incorrect",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Email not found",
+            "message": "Email not found",
+            "translation": "Email not found",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        }
+    ]
+}

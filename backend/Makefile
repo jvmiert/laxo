@@ -2,7 +2,10 @@ include .env
 MIGRATE_VERSION_TAG=v4.15.1
 SQLC_VERSION_TAG=v1.11.0
 
-.PHONY: install migrate upgrade generate test testrace
+.PHONY: install migrate upgrade generate test testrace translate
+
+translate:
+	go generate .\laxo\translations\translations.go
 
 test:
 	migrate -database ${POSTGRESQL_TEST_URL} -path laxo/migrations drop -f

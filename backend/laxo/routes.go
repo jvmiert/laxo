@@ -25,7 +25,8 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
   user, err := RetrieveUserFromDBbyEmail(loginRequest.Email)
   if err == ErrUserNotExist {
-    js, errJS := GetUserLoginFailure(true, false)
+    printer := getLocalePrinter(r)
+    js, errJS := GetUserLoginFailure(true, false, printer)
 
     if errJS != nil {
       http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -41,7 +42,8 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 
   if err = user.CheckPassword(loginRequest.Password); err != nil {
-    js, errJS := GetUserLoginFailure(false, true)
+    printer := getLocalePrinter(r)
+    js, errJS := GetUserLoginFailure(false, true, printer)
 
     if errJS != nil {
       http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

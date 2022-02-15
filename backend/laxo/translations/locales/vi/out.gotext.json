@@ -1,0 +1,15 @@
+{
+    "language": "vi",
+    "messages": [
+        {
+            "id": "Password is incorrect",
+            "message": "Password is incorrect",
+            "translation": "Mật khẩu không đúng"
+        },
+        {
+            "id": "Email not found",
+            "message": "Email not found",
+            "translation": "Không tìm thấy email"
+        }
+    ]
+}

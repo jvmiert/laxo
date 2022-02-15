@@ -10,15 +10,6 @@ import (
   "github.com/mediocregopher/radix/v4"
 )
 
-
-func setLocale(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-  localeHeader := r.Header.Get("locale")
-
-  Logger.Info("Received locale header", localeHeader)
-
-  next(w, r)
-}
-
 type AuthHandlerFunc func(w http.ResponseWriter, r *http.Request, u string)
 
 func assureJSON(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {

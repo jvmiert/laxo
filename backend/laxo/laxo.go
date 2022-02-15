@@ -59,7 +59,6 @@ func SetupRouter() *mux.Router {
 	)).Methods("POST")
 
 	subRouter.Handle("/login", common.With(
-		negroni.HandlerFunc(setLocale),
 		negroni.HandlerFunc(assureJSON),
 		negroni.WrapFunc(HandleLogin),
 	)).Methods("POST")

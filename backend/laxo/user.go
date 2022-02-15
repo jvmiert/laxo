@@ -9,6 +9,7 @@ import (
 
   "laxo.vn/laxo/laxo/sqlc"
   "database/sql"
+  "golang.org/x/text/message"
   "github.com/jackc/pgx/v4"
   "github.com/go-ozzo/ozzo-validation/v4"
   "github.com/go-ozzo/ozzo-validation/v4/is"
@@ -17,10 +18,6 @@ import (
 
 var ErrUserExists = errors.New("User already exists")
 var ErrUserNotExist = errors.New("User does not exist")
-
-// Used for returning to frontend
-var ValErrWrongPassword = "Password is incorrect"
-var ValErrUnknownEmail  = "Email not found"
 
 // When the user db model is empty (not loaded from db)
 var ErrModelUnpopulated = errors.New("User model is not retrieved from db")
@@ -36,15 +33,15 @@ type UserLoginErrorMessage struct {
   Password string `json:"password,omitempty"`
 }
 
-func GetUserLoginFailure(emailFailed bool, pwFailed bool) ([]byte, error) {
+func GetUserLoginFailure(emailFailed bool, pwFailed bool, printer *message.Printer) ([]byte, error) {
   r := &UserLoginErrorMessage{}
 
   if emailFailed {
-    r.Email = ValErrUnknownEmail
+    r.Email = printer.Sprintf("Email not found")
   }
 
   if pwFailed {
-    r.Password = ValErrWrongPassword
+    r.Password = printer.Sprintf("Password is incorrect")
   }
 
   bytes, err := json.Marshal(r)

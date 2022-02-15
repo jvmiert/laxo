@@ -9,7 +9,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
-- Setup i18n for backend validation message
 - Figure out how to detect login on service load? (use swr, mutate on login?)
 - Setup correct meta tags / html header handeling (next/head)
   - Maybe use? https://github.com/garmeeh/next-seo
