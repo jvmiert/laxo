@@ -21,7 +21,7 @@ type TestState struct {
 var state TestState
 
 func setupTest(t *testing.T) *laxo.Config {
-  os.Chdir("./../..")
+  os.Chdir("./..")
 
   if err := godotenv.Load(".env"); err != nil {
     t.Error("Failed to load .env file")

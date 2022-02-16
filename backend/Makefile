@@ -10,7 +10,7 @@ translate:
 test:
 	migrate -database ${POSTGRESQL_TEST_URL} -path laxo/migrations drop -f
 	migrate -database ${POSTGRESQL_TEST_URL} -path laxo/migrations up
-	go test -v ./cmd/laxo
+	go test -v ./laxo_tests
 
 testrace:
 	migrate -database ${POSTGRESQL_TEST_URL} -path laxo/migrations drop -f
