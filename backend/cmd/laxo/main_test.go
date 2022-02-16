@@ -259,8 +259,38 @@ func TestLogin(t *testing.T) {
     t.Errorf("couldn't unmarshal error return: %v", err)
    }
 
-   if errorResponse.Password != laxo.ValErrWrongPassword {
-    t.Errorf("Wrong error response: got %v want %v", errorResponse.Password, laxo.ValErrWrongPassword)
+   if errorResponse.Password != "Password is incorrect" {
+    t.Errorf("Wrong error response: got %v want %v", errorResponse.Password, "Password is incorrect")
+   }
+
+  // Testing an incorrect password with vi locale
+  jsonStr = []byte(`{"email": "example@example.com", "password": "incorrect"}`)
+  req, err = http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonStr))
+  if err != nil {
+    t.Fatal(err)
+  }
+  req.Header.Set("Content-Type", "application/json")
+  req.Header.Set("locale", "vi")
+
+  rr = httptest.NewRecorder()
+
+  r.ServeHTTP(rr, req)
+
+  // Route should return 401 with a wrong password
+  if status := rr.Code; status != http.StatusUnauthorized{
+    t.Errorf("handler returned wrong status code: got %v want %v",
+      status, http.StatusUnauthorized)
+  }
+
+  // Route should return correct JSON error message
+   err = json.Unmarshal(rr.Body.Bytes(), &errorResponse)
+
+   if err != nil {
+    t.Errorf("couldn't unmarshal error return: %v", err)
+   }
+
+   if errorResponse.Password != "Mật khẩu không đúng" {
+    t.Errorf("Wrong error response: got %v want %v", errorResponse.Password, "Mật khẩu không đúng")
    }
 
   // Testing a correct password
