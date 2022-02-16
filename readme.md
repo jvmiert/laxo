@@ -5,6 +5,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Backend validation should create a lookup function with the ozzo validation code instead of the message
+- Create login backend data validation?
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?
