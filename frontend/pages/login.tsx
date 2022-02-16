@@ -47,7 +47,7 @@ export default function LoginPage(props: LoginPageProps) {
               <div className="mb-4">
                 <label
                   className="mb-2 block text-sm font-bold text-gray-700"
-                  htmlFor="username"
+                  htmlFor="email"
                 >
                   {t.formatMessage({
                     defaultMessage: "Email",
@@ -72,7 +72,7 @@ export default function LoginPage(props: LoginPageProps) {
                           {...input}
                           type="text"
                           placeholder={t.formatMessage({
-                            defaultMessage: "Email",
+                            defaultMessage: "my@email.com",
                             description: "Login Page: Email Field",
                           })}
                         />
