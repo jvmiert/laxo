@@ -100,6 +100,9 @@ func (u *User) ValidateNew() error {
 
   // We returned a result, email exists
   if err == nil {
+    // @TODO: validation.NewError()
+    //        we need to create a new validation error and
+    //        return that instead of a go error.
     return ErrUserExists
   } else {
     return err
