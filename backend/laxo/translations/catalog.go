@@ -39,21 +39,28 @@ func init() {
 }
 
 var messageKeyToIndex = map[string]int{
-	"Email not found":       1,
-	"Password is incorrect": 0,
+	"Email not found":                      0,
+	"Password is incorrect":                1,
+	"cannot be blank":                      2,
+	"must be a valid email address":        4,
+	"the length must be between %v and %v": 3,
 }
 
-var enIndex = []uint32{ // 3 elements
-	0x00000000, 0x00000016, 0x00000026,
-} // Size: 36 bytes
+var enIndex = []uint32{ // 6 elements
+	0x00000000, 0x00000010, 0x00000026, 0x00000036,
+	0x00000061, 0x0000007f,
+} // Size: 48 bytes
 
-const enData string = "\x02Password is incorrect\x02Email not found"
+const enData string = "" + // Size: 127 bytes
+	"\x02Email not found\x02Password is incorrect\x02cannot be blank\x02the l" +
+	"ength must be between %[1]v and %[2]v\x02must be a valid email address"
 
-var viIndex = []uint32{ // 3 elements
-	0x00000000, 0x0000001b, 0x00000034,
-} // Size: 36 bytes
+var viIndex = []uint32{ // 6 elements
+	0x00000000, 0x00000019, 0x00000034, 0x00000034,
+	0x00000034, 0x00000034,
+} // Size: 48 bytes
 
 const viData string = "" + // Size: 52 bytes
-	"\x02Mật khẩu không đúng\x02Không tìm thấy email"
+	"\x02Không tìm thấy email\x02Mật khẩu không đúng"
 
-	// Total table size 162 bytes (0KiB); checksum: C27B0BC0
+	// Total table size 275 bytes (0KiB); checksum: 48A8E34

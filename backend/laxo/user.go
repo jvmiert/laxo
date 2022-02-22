@@ -10,6 +10,7 @@ import (
   "laxo.vn/laxo/laxo/sqlc"
   "database/sql"
   "golang.org/x/text/message"
+  "golang.org/x/text/number"
   "github.com/jackc/pgx/v4"
   "github.com/go-ozzo/ozzo-validation/v4"
   "github.com/go-ozzo/ozzo-validation/v4/is"
@@ -21,6 +22,9 @@ var ErrUserNotExist = errors.New("User does not exist")
 
 // When the user db model is empty (not loaded from db)
 var ErrModelUnpopulated = errors.New("User model is not retrieved from db")
+
+var ValidationErrPwReqDigit = "password_requires_digit"
+var ValidationErrPwReqLetter = "password_requires_letter"
 
 type UserReturn struct {
 	ID         string       `json:"id"`
@@ -53,6 +57,44 @@ func GetUserLoginFailure(emailFailed bool, pwFailed bool, printer *message.Print
   return bytes, err
 }
 
+func GetUserRegistrationFailure(errs error, printer *message.Printer) validation.Errors {
+  // @TODO:
+  //   - Create a switch statement with all the possible validation error codes and return correct translated string
+  //   - Create a proper object to return to frontend (map, marshall)
+  //     - https://github.com/go-ozzo/ozzo-validation#validation-errors
+
+  errMap := errs.(validation.Errors)
+
+  var errorString string
+  for key, err := range errMap {
+    ozzoError := err.(validation.Error)
+    code := ozzoError.Code()
+    params := ozzoError.Params()
+
+    switch code {
+    case validation.ErrRequired.Code():
+      errorString = printer.Sprintf("cannot be blank")
+    case validation.ErrLengthOutOfRange.Code():
+      errorString = printer.Sprintf("the length must be between %v and %v", number.Decimal(params["min"]), number.Decimal(params["max"]))
+    case is.ErrEmail.Code():
+      errorString = printer.Sprintf("must be a valid email address")
+    default:
+      errorString = "unknown error"
+    }
+
+    ozzoError.SetMessage(errorString)
+
+    errMap[key] = ozzoError
+
+    Logger.Debug("GetUserRegFailure", "key", key, "code", code, "error", err, "params", params)
+    Logger.Debug("Translate result", errorString)
+  }
+
+  b, _ := json.Marshal(errMap)
+  Logger.Debug("Marshal result", "bytes", string(b))
+  return errMap
+}
+
 type LoginRequest struct {
   Email    string `json:"email"`
   Password string `json:"password"`
@@ -76,16 +118,17 @@ func (u *User) CheckPassword(p string) error {
   return nil
 }
 
-func (u *User) ValidateNew() error {
+func (u *User) ValidateNew(printer *message.Printer) error {
   err := validation.ValidateStruct(u.Model,
     validation.Field(&u.Model.Email, validation.Required, validation.Length(3, 300), is.Email),
     validation.Field(&u.Model.Password, validation.Required, validation.Length(8, 128),
-      validation.Match(regexp.MustCompile(`\d`)).Error("Password must contain a digit"),
-      validation.Match(regexp.MustCompile(`[^\d]`)).Error("Password must have a letter")),
+      validation.Match(regexp.MustCompile(`\d`)).ErrorObject(validation.NewError(ValidationErrPwReqDigit, ValidationErrPwReqDigit)),
+      validation.Match(regexp.MustCompile(`[^\d]`)).ErrorObject(validation.NewError(ValidationErrPwReqDigit, ValidationErrPwReqDigit))),
   )
 
   if err != nil {
-    return err
+    Logger.Debug("Original error:", "error", err)
+    return GetUserRegistrationFailure(err, printer)
   }
 
   // Making sure email doesn't exist yet

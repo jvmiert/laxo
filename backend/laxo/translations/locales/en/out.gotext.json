@@ -2,6 +2,13 @@
     "language": "en",
     "messages": [
         {
+            "id": "Email not found",
+            "message": "Email not found",
+            "translation": "Email not found",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
             "id": "Password is incorrect",
             "message": "Password is incorrect",
             "translation": "Password is incorrect",
@@ -9,9 +16,41 @@
             "fuzzy": true
         },
         {
-            "id": "Email not found",
-            "message": "Email not found",
-            "translation": "Email not found",
+            "id": "cannot be blank",
+            "message": "cannot be blank",
+            "translation": "cannot be blank",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "the length must be between {Decimalparamsmin} and {Decimalparamsmax}",
+            "message": "the length must be between {Decimalparamsmin} and {Decimalparamsmax}",
+            "translation": "the length must be between {Decimalparamsmin} and {Decimalparamsmax}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Decimalparamsmin",
+                    "string": "%[1]v",
+                    "type": "golang.org/x/text/number.Formatter",
+                    "underlyingType": "struct{*golang.org/x/text/number.options; value interface{}}",
+                    "argNum": 1,
+                    "expr": "number.Decimal(params[\"min\"])"
+                },
+                {
+                    "id": "Decimalparamsmax",
+                    "string": "%[2]v",
+                    "type": "golang.org/x/text/number.Formatter",
+                    "underlyingType": "struct{*golang.org/x/text/number.options; value interface{}}",
+                    "argNum": 2,
+                    "expr": "number.Decimal(params[\"max\"])"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "must be a valid email address",
+            "message": "must be a valid email address",
+            "translation": "must be a valid email address",
             "translatorComment": "Copied from source.",
             "fuzzy": true
         }
