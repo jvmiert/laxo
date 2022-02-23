@@ -17,6 +17,19 @@ func ErrorJSON(w http.ResponseWriter, errorBytes []byte, code int) {
          w.Write(errorBytes)
 }
 
+func ErrorJSONEncode(w http.ResponseWriter, error error, code int) {
+  b, err := json.Marshal(error)
+
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+    w.Header().Set("X-Content-Type-Options", "nosniff")
+      w.WriteHeader(code)
+         w.Write(b)
+}
+
 func GenerateRandomString(n int) ([]byte, error) {
   b := make([]byte, n)
   if _, err := rand.Read(b); err != nil {

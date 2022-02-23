@@ -90,8 +90,7 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 
   printer := getLocalePrinter(r)
   if err := u.ValidateNew(printer); err != nil {
-    Logger.Info("User validation error", "error", err)
-    http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+    ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
     return
   }
 
@@ -117,6 +116,7 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
     return
   }
 
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
   w.Write(js)
 }
 

@@ -121,6 +121,27 @@ func TestRouteCreateUser(t *testing.T) {
    t.Error("Email validation did not return correctly")
   }
 
+  // Post an invalid email with vi locale
+  jsonStr = []byte(`{"email": "wrong email"}`)
+  req, err = http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonStr))
+  if err != nil {
+    t.Fatal(err)
+  }
+  req.Header.Set("Content-Type", "application/json")
+  req.Header.Set("locale", "vi")
+
+  rr = httptest.NewRecorder()
+  r.ServeHTTP(rr, req)
+
+  if status := rr.Code; status != http.StatusUnprocessableEntity{
+    t.Errorf("handler returned wrong status code: got %v want %v",
+      status, http.StatusUnprocessableEntity)
+  }
+
+  if !strings.Contains(rr.Body.String(), "Phải la một địa chỉ") {
+   t.Error("Email validation did not return correctly")
+  }
+
   // Posting a valid email without a valid password
   jsonStr = []byte(`{"email": "example@example.com", "password": "incorrect"}`)
   req, err = http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonStr))

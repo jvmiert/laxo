@@ -17,7 +17,6 @@ import (
   "golang.org/x/crypto/bcrypt"
 )
 
-var ErrUserExists = errors.New("User already exists")
 var ErrUserNotExist = errors.New("User does not exist")
 
 // When the user db model is empty (not loaded from db)
@@ -58,11 +57,6 @@ func GetUserLoginFailure(emailFailed bool, pwFailed bool, printer *message.Print
 }
 
 func GetUserRegistrationFailure(errs error, printer *message.Printer) validation.Errors {
-  // @TODO:
-  //   - Create a switch statement with all the possible validation error codes and return correct translated string
-  //   - Create a proper object to return to frontend (map, marshall)
-  //     - https://github.com/go-ozzo/ozzo-validation#validation-errors
-
   errMap := errs.(validation.Errors)
 
   var errorString string
@@ -78,20 +72,17 @@ func GetUserRegistrationFailure(errs error, printer *message.Printer) validation
       errorString = printer.Sprintf("the length must be between %v and %v", number.Decimal(params["min"]), number.Decimal(params["max"]))
     case is.ErrEmail.Code():
       errorString = printer.Sprintf("must be a valid email address")
+    case ValidationErrPwReqDigit:
+      errorString = printer.Sprintf("must contain a digit")
+    case ValidationErrPwReqLetter:
+      errorString = printer.Sprintf("must contain a letter")
     default:
-      errorString = "unknown error"
+      errorString = printer.Sprintf("unknown validation error")
     }
 
-    ozzoError.SetMessage(errorString)
-
-    errMap[key] = ozzoError
-
-    Logger.Debug("GetUserRegFailure", "key", key, "code", code, "error", err, "params", params)
-    Logger.Debug("Translate result", errorString)
+    newError := ozzoError.SetMessage(errorString)
+    errMap[key] = newError
   }
-
-  b, _ := json.Marshal(errMap)
-  Logger.Debug("Marshal result", "bytes", string(b))
   return errMap
 }
 
@@ -123,11 +114,10 @@ func (u *User) ValidateNew(printer *message.Printer) error {
     validation.Field(&u.Model.Email, validation.Required, validation.Length(3, 300), is.Email),
     validation.Field(&u.Model.Password, validation.Required, validation.Length(8, 128),
       validation.Match(regexp.MustCompile(`\d`)).ErrorObject(validation.NewError(ValidationErrPwReqDigit, ValidationErrPwReqDigit)),
-      validation.Match(regexp.MustCompile(`[^\d]`)).ErrorObject(validation.NewError(ValidationErrPwReqDigit, ValidationErrPwReqDigit))),
+      validation.Match(regexp.MustCompile(`[^\d]`)).ErrorObject(validation.NewError(ValidationErrPwReqLetter, ValidationErrPwReqLetter))),
   )
 
   if err != nil {
-    Logger.Debug("Original error:", "error", err)
     return GetUserRegistrationFailure(err, printer)
   }
 
@@ -143,10 +133,12 @@ func (u *User) ValidateNew(printer *message.Printer) error {
 
   // We returned a result, email exists
   if err == nil {
-    // @TODO: validation.NewError()
-    //        we need to create a new validation error and
-    //        return that instead of a go error.
-    return ErrUserExists
+    err = validation.Errors{
+      "email": validation.NewError(
+        "already_exists",
+        printer.Sprintf("user already exists")),
+    }
+    return err
   } else {
     return err
   }

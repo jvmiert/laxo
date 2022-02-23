@@ -2,14 +2,67 @@
     "language": "vi",
     "messages": [
         {
+            "id": "Email not found",
+            "message": "Email not found",
+            "translation": "Không tìm thấy email"
+        },
+        {
             "id": "Password is incorrect",
             "message": "Password is incorrect",
             "translation": "Mật khẩu không đúng"
         },
         {
-            "id": "Email not found",
-            "message": "Email not found",
-            "translation": "Không tìm thấy email"
+            "id": "cannot be blank",
+            "message": "cannot be blank",
+            "translation": ""
+        },
+        {
+            "id": "the length must be between {Decimalparamsmin} and {Decimalparamsmax}",
+            "message": "the length must be between {Decimalparamsmin} and {Decimalparamsmax}",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Decimalparamsmin",
+                    "string": "%[1]v",
+                    "type": "golang.org/x/text/number.Formatter",
+                    "underlyingType": "struct{*golang.org/x/text/number.options; value interface{}}",
+                    "argNum": 1,
+                    "expr": "number.Decimal(params[\"min\"])"
+                },
+                {
+                    "id": "Decimalparamsmax",
+                    "string": "%[2]v",
+                    "type": "golang.org/x/text/number.Formatter",
+                    "underlyingType": "struct{*golang.org/x/text/number.options; value interface{}}",
+                    "argNum": 2,
+                    "expr": "number.Decimal(params[\"max\"])"
+                }
+            ]
+        },
+        {
+            "id": "must be a valid email address",
+            "message": "must be a valid email address",
+            "translation": "Phải la một địa chỉ email hợp lệ"
+        },
+        {
+            "id": "must contain a digit",
+            "message": "must contain a digit",
+            "translation": ""
+        },
+        {
+            "id": "must contain a letter",
+            "message": "must contain a letter",
+            "translation": ""
+        },
+        {
+            "id": "unknown validation error",
+            "message": "unknown validation error",
+            "translation": ""
+        },
+        {
+            "id": "user already exists",
+            "message": "user already exists",
+            "translation": ""
         }
     ]
 }

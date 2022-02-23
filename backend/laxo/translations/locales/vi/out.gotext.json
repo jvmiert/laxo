@@ -42,6 +42,26 @@
         {
             "id": "must be a valid email address",
             "message": "must be a valid email address",
+            "translation": "Phải la một địa chỉ email hợp lệ"
+        },
+        {
+            "id": "must contain a digit",
+            "message": "must contain a digit",
+            "translation": ""
+        },
+        {
+            "id": "must contain a letter",
+            "message": "must contain a letter",
+            "translation": ""
+        },
+        {
+            "id": "unknown validation error",
+            "message": "unknown validation error",
+            "translation": ""
+        },
+        {
+            "id": "user already exists",
+            "message": "user already exists",
             "translation": ""
         }
     ]

@@ -53,6 +53,34 @@
             "translation": "must be a valid email address",
             "translatorComment": "Copied from source.",
             "fuzzy": true
+        },
+        {
+            "id": "must contain a digit",
+            "message": "must contain a digit",
+            "translation": "must contain a digit",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "must contain a letter",
+            "message": "must contain a letter",
+            "translation": "must contain a letter",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "unknown validation error",
+            "message": "unknown validation error",
+            "translation": "unknown validation error",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "user already exists",
+            "message": "user already exists",
+            "translation": "user already exists",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
         }
     ]
 }

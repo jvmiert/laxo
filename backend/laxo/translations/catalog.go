@@ -43,24 +43,33 @@ var messageKeyToIndex = map[string]int{
 	"Password is incorrect":                1,
 	"cannot be blank":                      2,
 	"must be a valid email address":        4,
+	"must contain a digit":                 5,
+	"must contain a letter":                6,
 	"the length must be between %v and %v": 3,
+	"unknown validation error":             7,
+	"user already exists":                  8,
 }
 
-var enIndex = []uint32{ // 6 elements
+var enIndex = []uint32{ // 10 elements
 	0x00000000, 0x00000010, 0x00000026, 0x00000036,
-	0x00000061, 0x0000007f,
-} // Size: 48 bytes
+	0x00000061, 0x0000007f, 0x00000094, 0x000000aa,
+	0x000000c3, 0x000000d7,
+} // Size: 64 bytes
 
-const enData string = "" + // Size: 127 bytes
+const enData string = "" + // Size: 215 bytes
 	"\x02Email not found\x02Password is incorrect\x02cannot be blank\x02the l" +
-	"ength must be between %[1]v and %[2]v\x02must be a valid email address"
+	"ength must be between %[1]v and %[2]v\x02must be a valid email address" +
+	"\x02must contain a digit\x02must contain a letter\x02unknown validation " +
+	"error\x02user already exists"
 
-var viIndex = []uint32{ // 6 elements
+var viIndex = []uint32{ // 10 elements
 	0x00000000, 0x00000019, 0x00000034, 0x00000034,
-	0x00000034, 0x00000034,
-} // Size: 48 bytes
+	0x00000034, 0x00000065, 0x00000065, 0x00000065,
+	0x00000065, 0x00000065,
+} // Size: 64 bytes
 
-const viData string = "" + // Size: 52 bytes
-	"\x02Không tìm thấy email\x02Mật khẩu không đúng"
+const viData string = "" + // Size: 101 bytes
+	"\x02Không tìm thấy email\x02Mật khẩu không đúng\x02Phải la một địa ch" +
+	"ỉ email hợp lệ"
 
-	// Total table size 275 bytes (0KiB); checksum: 48A8E34
+	// Total table size 444 bytes (0KiB); checksum: 2A4B5670
