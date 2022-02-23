@@ -1,6 +1,6 @@
 import { useIntl } from "react-intl";
-import Link from "next/link";
 import Head from "next/head";
+import Navigation from "@/components/Navigation";
 import loadIntlMessages from "@/helpers/loadIntlMessages";
 import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
 import { InferGetStaticPropsType } from "next";
@@ -24,10 +24,8 @@ export default function HomePage(props: HomePageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <Navigation />
       <main>
-        <Link href="/login">
-          <a>Login</a>
-        </Link>
         <p className="text-3xl font-bold underline">
           {t.formatMessage({
             defaultMessage: "Hello World",

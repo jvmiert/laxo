@@ -3,9 +3,17 @@
     "defaultMessage": "Password must contain a digit",
     "description": "Login Form: password contain digit validation failure"
   },
+  "+YOAqi": {
+    "defaultMessage": "Password should be at least 8 characters",
+    "description": "Register Form: password min length validation failure"
+  },
   "/6/PQt": {
     "defaultMessage": "Email should be less than 300 characters",
     "description": "Login Form: email max length validation failure"
+  },
+  "/qBv3h": {
+    "defaultMessage": "Register",
+    "description": "Register Page: Register Button"
   },
   "5fCJKU": {
     "defaultMessage": "Password should be at least 8 characters",
@@ -15,9 +23,17 @@
     "defaultMessage": "Password should be less than 128 characters",
     "description": "Login Form: password min length validation failure"
   },
+  "6AYO/I": {
+    "defaultMessage": "Please enter your full name",
+    "description": "Register Form: name validation failure"
+  },
   "6rPTP8": {
     "defaultMessage": "Please enter a valid email address",
     "description": "Login Form: email validation failure"
+  },
+  "A/RgdZ": {
+    "defaultMessage": "Password should be less than 128 characters",
+    "description": "Register Form: password min length validation failure"
   },
   "B1947g": {
     "defaultMessage": "Email",
@@ -31,13 +47,57 @@
     "defaultMessage": "Password",
     "description": "Login Page: Password Field"
   },
+  "OXs9Do": {
+    "defaultMessage": "Password",
+    "description": "Register Page: Password Field"
+  },
   "Oi4nVT": {
     "defaultMessage": "Required",
     "description": "Login Form: general validation failure"
   },
+  "S8Q3Ij": {
+    "defaultMessage": "Email",
+    "description": "Register Page: Email Field"
+  },
+  "XUvE7S": {
+    "defaultMessage": "my@email.com",
+    "description": "Register Page: Email Field"
+  },
   "ZcA0FH": {
     "defaultMessage": "Login Failed",
     "description": "Login Form: general failure"
+  },
+  "dADhz9": {
+    "defaultMessage": "my@email.com",
+    "description": "Login Page: Email Field"
+  },
+  "n4ckm5": {
+    "defaultMessage": "Full Name",
+    "description": "Register Page: Name Field"
+  },
+  "nIa1kc": {
+    "defaultMessage": "Required",
+    "description": "Register Form: general validation failure"
+  },
+  "nx8KOK": {
+    "defaultMessage": "Password must contain a digit",
+    "description": "Register Form: password contain digit validation failure"
+  },
+  "pTcuAB": {
+    "defaultMessage": "Please enter a valid email address",
+    "description": "Register Form: email validation failure"
+  },
+  "rdiIJQ": {
+    "defaultMessage": "Email should be less than 300 characters",
+    "description": "Register Form: email max length validation failure"
+  },
+  "sp9Cg/": {
+    "defaultMessage": "Password must contain a letter",
+    "description": "Register Form: password contain letter validation failure"
+  },
+  "uEevjw": {
+    "defaultMessage": "Elliot Alderson",
+    "description": "Register Page: Name Field"
   },
   "vKMJZo": {
     "defaultMessage": "Sign In",

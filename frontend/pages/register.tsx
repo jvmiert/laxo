@@ -2,6 +2,7 @@ import { InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { useIntl } from "react-intl";
 import { Form, Field } from "react-final-form";
+import Navigation from "@/components/Navigation";
 import loadIntlMessages from "@/helpers/loadIntlMessages";
 import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
 import useRegisterFuncs, {
@@ -29,6 +30,7 @@ export default function RegisterPage(props: RegisterPageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <Navigation />
       <main>
         <p className="text-3xl font-bold underline">Register</p>
         Register

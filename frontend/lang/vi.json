@@ -46,5 +46,65 @@
   "xO8//p": {
     "defaultMessage": "Password must contain a letter",
     "description": "Login Form: password contain letter validation failure"
+  },
+  "+YOAqi": {
+    "defaultMessage": "Password should be at least 8 characters",
+    "description": "Register Form: password min length validation failure"
+  },
+  "/qBv3h": {
+    "defaultMessage": "Register",
+    "description": "Register Page: Register Button"
+  },
+  "6AYO/I": {
+    "defaultMessage": "Please enter your full name",
+    "description": "Register Form: name validation failure"
+  },
+  "A/RgdZ": {
+    "defaultMessage": "Password should be less than 128 characters",
+    "description": "Register Form: password min length validation failure"
+  },
+  "OXs9Do": {
+    "defaultMessage": "Password",
+    "description": "Register Page: Password Field"
+  },
+  "S8Q3Ij": {
+    "defaultMessage": "Email",
+    "description": "Register Page: Email Field"
+  },
+  "XUvE7S": {
+    "defaultMessage": "my@email.com",
+    "description": "Register Page: Email Field"
+  },
+  "dADhz9": {
+    "defaultMessage": "my@email.com",
+    "description": "Login Page: Email Field"
+  },
+  "n4ckm5": {
+    "defaultMessage": "Full Name",
+    "description": "Register Page: Name Field"
+  },
+  "nIa1kc": {
+    "defaultMessage": "Required",
+    "description": "Register Form: general validation failure"
+  },
+  "nx8KOK": {
+    "defaultMessage": "Password must contain a digit",
+    "description": "Register Form: password contain digit validation failure"
+  },
+  "pTcuAB": {
+    "defaultMessage": "Please enter a valid email address",
+    "description": "Register Form: email validation failure"
+  },
+  "rdiIJQ": {
+    "defaultMessage": "Email should be less than 300 characters",
+    "description": "Register Form: email max length validation failure"
+  },
+  "sp9Cg/": {
+    "defaultMessage": "Password must contain a letter",
+    "description": "Register Form: password contain letter validation failure"
+  },
+  "uEevjw": {
+    "defaultMessage": "Elliot Alderson",
+    "description": "Register Page: Name Field"
   }
 }
