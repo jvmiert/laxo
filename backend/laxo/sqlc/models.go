@@ -7,8 +7,9 @@ import (
 )
 
 type User struct {
-	ID       string       `json:"id"`
-	Password string       `json:"password"`
-	Email    string       `json:"email"`
-	Created  sql.NullTime `json:"created"`
+	ID       string         `json:"id"`
+	Password string         `json:"password"`
+	Email    string         `json:"email"`
+	Created  sql.NullTime   `json:"created"`
+	Fullname sql.NullString `json:"fullname"`
 }
