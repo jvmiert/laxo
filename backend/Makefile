@@ -36,6 +36,7 @@ migrate:
 	@read -p "Enter the name of the new migration: " name; \
 	migrate create -ext sql -dir laxo/migrations -seq $$name;
 
+# NOTE: doesn't work on windows, run on linux
 upgrade:
 	migrate -database ${POSTGRESQL_URL} -path laxo/migrations up
 
