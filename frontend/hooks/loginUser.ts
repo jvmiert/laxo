@@ -26,7 +26,7 @@ export default function useLoginApi(): [
           return {
             success: false,
             error: true,
-            errorDetails: error.response.data,
+            errorDetails: error.response.data.errorDetails,
           };
         }
         return { success: false, error: true, errorDetails: {} };

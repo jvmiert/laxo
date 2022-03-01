@@ -55,7 +55,7 @@ export default function RegisterPage(props: RegisterPageProps) {
                   })}
                 </label>
                 <Field<string>
-                  name="name"
+                  name="fullname"
                   render={({ input, meta }) => {
                     const showError =
                       meta.touched &&

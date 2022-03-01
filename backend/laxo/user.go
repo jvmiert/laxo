@@ -31,31 +31,6 @@ type UserReturn struct {
 	Created    sql.NullTime `json:"created"`
 }
 
-type UserLoginErrorMessage struct {
-  Email    string `json:"email,omitempty"`
-  Password string `json:"password,omitempty"`
-}
-
-func GetUserLoginFailure(emailFailed bool, pwFailed bool, printer *message.Printer) ([]byte, error) {
-  r := &UserLoginErrorMessage{}
-
-  if emailFailed {
-    r.Email = printer.Sprintf("Email not found")
-  }
-
-  if pwFailed {
-    r.Password = printer.Sprintf("Password is incorrect")
-  }
-
-  bytes, err := json.Marshal(r)
-
-  if err != nil {
-    return bytes, err
-  }
-
-  return bytes, err
-}
-
 func GetUserRegistrationFailure(errs error, printer *message.Printer) validation.Errors {
   errMap := errs.(validation.Errors)
 
@@ -158,6 +133,30 @@ func (u *User) JSON() ([]byte, error) {
   }
 
   return bytes, nil
+}
+
+func LoginUser(email string, password string, printer *message.Printer) (*User, error) {
+  user, err := RetrieveUserFromDBbyEmail(email)
+  if err == ErrUserNotExist {
+    err = validation.Errors{
+      "email": validation.NewError(
+        "not_exists",
+        printer.Sprintf("Email not found")),
+    }
+    return nil, err
+  }
+
+
+  if err = user.CheckPassword(password); err != nil {
+  err = validation.Errors{
+    "password": validation.NewError(
+      "pw_incorrect",
+      printer.Sprintf("Password is incorrect")),
+  }
+  return nil, err
+  }
+
+  return user, nil
 }
 
 func RetrieveUserFromDBbyID(uID string) (*User, error) {

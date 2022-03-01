@@ -3,7 +3,7 @@ import { SubmissionErrors, ValidationErrors, FORM_ERROR } from "final-form";
 import { useIntl } from "react-intl";
 
 const RegisterSchema = z.object({
-  name: z.string({ required_error: "name_required" }),
+  fullname: z.string({ required_error: "name_required" }),
   email: z
     .string()
     .email({ message: "not_email" })

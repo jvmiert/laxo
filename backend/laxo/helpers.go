@@ -10,15 +10,18 @@ import (
   "crypto/rand"
 )
 
-func ErrorJSON(w http.ResponseWriter, errorBytes []byte, code int) {
-  w.Header().Set("Content-Type", "application/json; charset=utf-8")
-    w.Header().Set("X-Content-Type-Options", "nosniff")
-      w.WriteHeader(code)
-         w.Write(errorBytes)
+type ErrorReturn struct {
+  ErrorDetails  error    `json:"errorDetails"`
+  Error         bool     `json:"error"`
 }
 
 func ErrorJSONEncode(w http.ResponseWriter, error error, code int) {
-  b, err := json.Marshal(error)
+  var returnError ErrorReturn
+
+  returnError.Error = true
+  returnError.ErrorDetails = error
+
+  b, err := json.Marshal(returnError)
 
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

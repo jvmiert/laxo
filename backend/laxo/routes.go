@@ -23,34 +23,12 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  user, err := RetrieveUserFromDBbyEmail(loginRequest.Email)
-  if err == ErrUserNotExist {
-    printer := getLocalePrinter(r)
-    js, errJS := GetUserLoginFailure(true, false, printer)
+  printer := getLocalePrinter(r)
 
-    if errJS != nil {
-      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-      return
-    }
+  user, err := LoginUser(loginRequest.Email, loginRequest.Password, printer)
 
-    ErrorJSON(w, js, http.StatusUnauthorized)
-    return
-  } else if err != nil {
-    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    return
-  }
-
-
-  if err = user.CheckPassword(loginRequest.Password); err != nil {
-    printer := getLocalePrinter(r)
-    js, errJS := GetUserLoginFailure(false, true, printer)
-
-    if errJS != nil {
-      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-      return
-    }
-
-    ErrorJSON(w, js, http.StatusUnauthorized)
+  if err != nil {
+    ErrorJSONEncode(w, err, http.StatusUnauthorized)
     return
   }
 

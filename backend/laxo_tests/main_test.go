@@ -273,16 +273,21 @@ func TestLogin(t *testing.T) {
   }
 
   // Route should return correct JSON error message
-   var errorResponse laxo.UserLoginErrorMessage
-   err = json.Unmarshal(rr.Body.Bytes(), &errorResponse)
+  var errorResponse map[string]interface{}
 
-   if err != nil {
+  err = json.Unmarshal(rr.Body.Bytes(), &errorResponse)
+
+  if err != nil {
     t.Errorf("couldn't unmarshal error return: %v", err)
-   }
+  }
 
-   if errorResponse.Password != "Password is incorrect" {
-    t.Errorf("Wrong error response: got %v want %v", errorResponse.Password, "Password is incorrect")
-   }
+  // The pw incorrect error
+  var ErrPWIncorrect = "Password is incorrect"
+
+  responseValue := errorResponse["errorDetails"].(map[string]interface{})["password"]
+  if responseValue != ErrPWIncorrect {
+    t.Errorf("Wrong error response: got %v want %v", responseValue, "Password is incorrect")
+  }
 
   // Testing an incorrect password with vi locale
   jsonStr = []byte(`{"email": "example@example.com", "password": "incorrect"}`)
@@ -304,15 +309,20 @@ func TestLogin(t *testing.T) {
   }
 
   // Route should return correct JSON error message
-   err = json.Unmarshal(rr.Body.Bytes(), &errorResponse)
+  err = json.Unmarshal(rr.Body.Bytes(), &errorResponse)
 
-   if err != nil {
+  if err != nil {
     t.Errorf("couldn't unmarshal error return: %v", err)
-   }
+  }
 
-   if errorResponse.Password != "Mật khẩu không đúng" {
-    t.Errorf("Wrong error response: got %v want %v", errorResponse.Password, "Mật khẩu không đúng")
-   }
+  // The pw incorrect error
+  var ErrPWIncorrectVI = "Mật khẩu không đúng"
+
+  responseValue = errorResponse["errorDetails"].(map[string]interface{})["password"]
+
+  if responseValue != ErrPWIncorrectVI {
+    t.Errorf("Wrong error response: got %v want %v", responseValue, "Mật khẩu không đúng")
+  }
 
   // Testing a correct password
   jsonStr = []byte(`{"email": "example@example.com", "password": "correct123"}`)
