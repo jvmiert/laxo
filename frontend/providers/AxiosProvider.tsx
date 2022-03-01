@@ -1,4 +1,4 @@
-import { ReactChildren, ReactNode } from "react";
+import { ReactChildren, ReactNode, useMemo } from "react";
 import { useRouter } from "next/router";
 import { AxiosInstance } from "axios";
 import AxiosClient from "@/lib/axios";
@@ -17,7 +17,7 @@ export const AxiosProvider = ({
 }) => {
   const { locale } = useRouter();
 
-  const axiosClient = AxiosClient(locale);
+  const axiosClient = useMemo(() => AxiosClient(locale), [locale]);
 
   const providerValues: AxiosConsumerProps = {
     axiosClient,
