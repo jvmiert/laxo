@@ -163,7 +163,7 @@ func TestRouteCreateUser(t *testing.T) {
   }
 
   // Posting a valid user creation request
-  jsonStr = []byte(`{"email": "example@example.com", "password": "correct123"}`)
+  jsonStr = []byte(`{"email": "example@example.com", "password": "correct123", "fullname": "first name last name"}`)
   req, err = http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonStr))
   if err != nil {
     t.Fatal(err)
@@ -195,7 +195,7 @@ func TestRouteCreateUser(t *testing.T) {
   }
 
   // Posting the same user again should give an error
-  jsonStr = []byte(`{"email": "example@example.com", "password": "correct123"}`)
+  jsonStr = []byte(`{"email": "example@example.com", "password": "correct123", "fullname": "first name last name"}`)
   req, err = http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonStr))
   if err != nil {
     t.Fatal(err)
