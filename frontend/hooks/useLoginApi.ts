@@ -7,8 +7,6 @@ export interface LoginErrorDetails {
   [key: string]: string;
 }
 
-// @TODO:
-//   - add SWR mutation in here to update auth state
 export default function useLoginApi(): {
   doLogin: (email: string, password: string) => Promise<ResponseError>;
   doLogout: () => Promise<ResponseError>;
