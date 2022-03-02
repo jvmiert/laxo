@@ -5,11 +5,11 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Figure out how to detect login on service load? (use swr, mutate on login?)
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
-- Figure out how to detect login on service load? (use swr, mutate on login?)
 - Setup correct meta tags / html header handeling (next/head)
   - Maybe use? https://github.com/garmeeh/next-seo
 

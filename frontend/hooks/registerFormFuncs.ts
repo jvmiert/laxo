@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { SubmissionErrors, ValidationErrors, FORM_ERROR } from "final-form";
+import { useRouter } from "next/router";
 import { useIntl } from "react-intl";
+import useRegisterApi from "@/hooks/registerUser";
 
 const RegisterSchema = z.object({
   fullname: z.string({ required_error: "name_required" }),
@@ -23,11 +25,38 @@ export default function useRegisterFuncs(): [
   submit: (values: RegisterSchemaValues) => Promise<SubmissionErrors>,
 ] {
   const t = useIntl();
+  const [doRegistration] = useRegisterApi();
+  const { push } = useRouter();
 
   const submitForm = async (
     values: RegisterSchemaValues,
   ): Promise<SubmissionErrors> => {
-    return Promise;
+    const { success, error, errorDetails } = await doRegistration(
+      values.email,
+      values.password,
+      values.fullname,
+    );
+
+    if (error) {
+      if (Object.keys(errorDetails).length == 0) {
+        return {
+          [FORM_ERROR]: t.formatMessage({
+            defaultMessage: "Registration Failed",
+            description: "Registration Form: general failure",
+          }),
+        };
+      }
+      const errors: { [key: string]: string } = {};
+      Object.keys(errorDetails).forEach((key) => {
+        errors[key] = errorDetails[key];
+      });
+      return errors;
+    }
+
+    if (success) {
+      push("/");
+      return {};
+    }
   };
 
   const validate = (values: RegisterSchemaValues): ValidationErrors => {

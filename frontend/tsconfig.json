@@ -21,6 +21,7 @@
       "@/hooks/*": ["hooks/*"],
       "@/helpers/*": ["helpers/*"],
       "@/providers/*": ["providers/*"],
+      "@/types/*": ["types/*"],
       "@/pages/*": ["pages/*"]
     }
   },

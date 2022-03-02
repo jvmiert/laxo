@@ -86,6 +86,7 @@ func (u *User) CheckPassword(p string) error {
 
 func (u *User) ValidateNew(printer *message.Printer) error {
   err := validation.ValidateStruct(u.Model,
+    validation.Field(&u.Model.Fullname, validation.Required),
     validation.Field(&u.Model.Email, validation.Required, validation.Length(3, 300), is.Email),
     validation.Field(&u.Model.Password, validation.Required, validation.Length(8, 128),
       validation.Match(regexp.MustCompile(`\d`)).ErrorObject(validation.NewError(ValidationErrPwReqDigit, ValidationErrPwReqDigit)),
@@ -214,6 +215,7 @@ func SaveNewUserToDB(u *User) error {
     sqlc.CreateUserParams{
       Email: strings.TrimSpace(lowerEmail),
       Password: u.Model.Password,
+      Fullname: u.Model.Fullname,
     },
   )
 

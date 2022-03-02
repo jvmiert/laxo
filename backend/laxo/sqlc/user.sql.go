@@ -5,7 +5,6 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -18,9 +17,9 @@ RETURNING id, password, email, created, fullname
 `
 
 type CreateUserParams struct {
-	Email    string         `json:"email"`
-	Password string         `json:"password"`
-	Fullname sql.NullString `json:"fullname"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Fullname string `json:"fullname"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {

@@ -2,18 +2,26 @@ import axios from "axios";
 import { useAxios } from "@/providers/AxiosProvider";
 import type { ResponseError } from "@/types/ApiResponse";
 
-export interface LoginErrorDetails {
+export interface RegisterErrorDetails {
   [key: string]: string;
 }
 
-export default function useLoginApi(): [
-  doLogin: (email: string, password: string) => Promise<ResponseError>,
+export default function useRegisterApi(): [
+  doLogin: (
+    email: string,
+    password: string,
+    fullname: string,
+  ) => Promise<ResponseError>,
 ] {
   const { axiosClient } = useAxios();
 
-  const doLogin = async (email: string, password: string) => {
+  const doRegistration = async (
+    email: string,
+    password: string,
+    fullname: string,
+  ) => {
     try {
-      await axiosClient.post("/login", { email, password });
+      await axiosClient.post("/user", { email, password, fullname });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.data instanceof Object) {
@@ -32,5 +40,5 @@ export default function useLoginApi(): [
     return { success: true, error: false, errorDetails: {} };
   };
 
-  return [doLogin];
+  return [doRegistration];
 }
