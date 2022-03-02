@@ -29,6 +29,7 @@ type UserReturn struct {
 	ID         string       `json:"id"`
 	Email      string       `json:"email"`
 	Created    sql.NullTime `json:"created"`
+	Fullname   string       `json:"fullname"`
 }
 
 func GetUserRegistrationFailure(errs error, printer *message.Printer) validation.Errors {
@@ -125,6 +126,7 @@ func (u *User) JSON() ([]byte, error) {
   ur.ID         = u.Model.ID
   ur.Email      = u.Model.Email
   ur.Created    = u.Model.Created
+  ur.Fullname   = u.Model.Fullname
 
   bytes, err := json.Marshal(ur)
 
