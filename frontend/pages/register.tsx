@@ -2,6 +2,7 @@ import { InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { useIntl } from "react-intl";
 import { Form, Field } from "react-final-form";
+import createDecorator from "final-form-focus";
 import Navigation from "@/components/Navigation";
 import loadIntlMessages from "@/helpers/loadIntlMessages";
 import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
@@ -18,6 +19,8 @@ export async function getStaticProps(ctx: LoadI18nMessagesProps) {
 }
 
 type RegisterPageProps = InferGetStaticPropsType<typeof getStaticProps>;
+
+const focusOnError = createDecorator<RegisterSchemaValues>();
 
 export default function RegisterPage(props: RegisterPageProps) {
   const t = useIntl();
@@ -36,6 +39,7 @@ export default function RegisterPage(props: RegisterPageProps) {
         Register
         <Form
           onSubmit={submitForm}
+          decorators={[focusOnError]}
           validateOnBlur={false}
           validate={validate}
           initialValues={{ email: "", password: "" }}
