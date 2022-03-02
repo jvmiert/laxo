@@ -2,7 +2,7 @@ import { z } from "zod";
 import { SubmissionErrors, ValidationErrors, FORM_ERROR } from "final-form";
 import { useRouter } from "next/router";
 import { useIntl } from "react-intl";
-import useLoginApi from "@/hooks/loginUser";
+import useLoginApi from "@/hooks/useLoginApi";
 
 const LoginSchema = z.object({
   email: z
@@ -24,7 +24,7 @@ export default function useLoginFuncs(): [
   submit: (values: LoginSchemaValues) => Promise<SubmissionErrors>,
 ] {
   const t = useIntl();
-  const [doLogin] = useLoginApi();
+  const { doLogin } = useLoginApi();
   const { push } = useRouter();
 
   const submitForm = async (

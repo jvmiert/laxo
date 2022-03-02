@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useSWRConfig } from "swr";
 import { useAxios } from "@/providers/AxiosProvider";
 import type { ResponseError } from "@/types/ApiResponse";
 
@@ -14,6 +15,7 @@ export default function useRegisterApi(): [
   ) => Promise<ResponseError>,
 ] {
   const { axiosClient } = useAxios();
+  const { mutate } = useSWRConfig();
 
   const doRegistration = async (
     email: string,
@@ -24,6 +26,7 @@ export default function useRegisterApi(): [
       await axiosClient.post("/user", { email, password, fullname });
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        mutate("/user");
         if (error.response?.data instanceof Object) {
           return {
             success: false,
@@ -37,6 +40,7 @@ export default function useRegisterApi(): [
       throw error;
     }
 
+    mutate("/user");
     return { success: true, error: false, errorDetails: {} };
   };
 

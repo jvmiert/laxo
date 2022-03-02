@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface NavLinkProps {
   currentPath: string;
@@ -21,13 +22,25 @@ function NavLink(props: NavLinkProps) {
 
 export default function Navigation() {
   const { pathname, locale } = useRouter();
+  const { auth } = useAuth();
 
   return (
     <div>
       <ul className="list-none">
         <NavLink currentPath={pathname} href="/" navText="Home" />
-        <NavLink currentPath={pathname} href="/login" navText="Login" />
-        <NavLink currentPath={pathname} href="/register" navText="Register" />
+        {!auth && (
+          <>
+            <NavLink currentPath={pathname} href="/login" navText="Login" />
+            <NavLink
+              currentPath={pathname}
+              href="/register"
+              navText="Register"
+            />
+          </>
+        )}
+        {auth && (
+          <NavLink currentPath={pathname} href="/logout" navText="Logout" />
+        )}
       </ul>
       <ul className="list-none">
         <li>

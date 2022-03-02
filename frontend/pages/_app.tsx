@@ -3,6 +3,7 @@ import { IntlProvider } from "react-intl";
 import { useRouter } from "next/router";
 import type { AppProps } from "next/app";
 import { AxiosProvider } from "@/providers/AxiosProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { locale, defaultLocale } = useRouter();
@@ -13,7 +14,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       messages={pageProps.intlMessages}
     >
       <AxiosProvider>
-        <Component {...pageProps} />
+        <AuthProvider>
+          <Component {...pageProps} />
+        </AuthProvider>
       </AxiosProvider>
     </IntlProvider>
   );

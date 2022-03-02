@@ -33,6 +33,15 @@ func SetUserSession(u *User) (string, error) {
   return sessionKey, nil
 }
 
+func RemoveUserSession(sessionToken string) error {
+  ctx := context.Background()
+  if err := RedisClient.Do(ctx, radix.Cmd(nil, "DEL", sessionToken)); err != nil {
+    Logger.Error("Couldn't remove user session in Redis", "error", err)
+    return err
+  }
+  return nil
+}
+
 func SetUserCookie(sessionToken string, w http.ResponseWriter) {
   expires := time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire)
 
@@ -46,3 +55,16 @@ func SetUserCookie(sessionToken string, w http.ResponseWriter) {
 
   http.SetCookie(w, authCookie)
 }
+
+func RemoveUserCookie(w http.ResponseWriter) {
+  authCookie := &http.Cookie{
+    Name:     AppConfig.AuthCookieName,
+    Value:    "",
+    HttpOnly: true,
+    Secure:   true,
+    MaxAge:  -1,
+  }
+
+  http.SetCookie(w, authCookie)
+}
+

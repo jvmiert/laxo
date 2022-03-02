@@ -10,6 +10,28 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
   fmt.Fprintf(w, "Hello, your uID is: %s\n", uID)
 }
 
+func HandleLogout(w http.ResponseWriter, r *http.Request) {
+  c, err := r.Cookie(AppConfig.AuthCookieName)
+
+  if err == http.ErrNoCookie {
+    http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+    return
+  } else if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    Logger.Error("Error in auth handler function (cookie parsing)", "error", err)
+    return
+  }
+
+  err = RemoveUserSession(c.Value)
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  RemoveUserCookie(w)
+  fmt.Fprintf(w, "ok")
+}
+
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
   var loginRequest LoginRequest
 

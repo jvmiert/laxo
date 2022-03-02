@@ -63,6 +63,10 @@ func SetupRouter() *mux.Router {
 		negroni.WrapFunc(HandleLogin),
 	)).Methods("POST")
 
+	subRouter.Handle("/logout", common.With(
+		negroni.WrapFunc(HandleLogout),
+	)).Methods("POST")
+
 	subRouter.Handle("/user", common.With(
 		negroni.WrapFunc(assureAuth(HandleGetUser)),
 	)).Methods("GET")
