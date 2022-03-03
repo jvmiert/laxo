@@ -47,6 +47,7 @@ func SetUserCookie(sessionToken string, w http.ResponseWriter) {
 
   authCookie := &http.Cookie{
     Name:     AppConfig.AuthCookieName,
+    Path:     "/",
     Value:    sessionToken,
     HttpOnly: true,
     Secure:   true,

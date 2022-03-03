@@ -5,7 +5,7 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Figure out how to detect login on service load? (use swr, mutate on login?)
+- Decide if I need a separate auth endpoint (/auth) or just let other endpoints fail with a forbidden.
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?

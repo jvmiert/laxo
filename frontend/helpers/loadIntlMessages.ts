@@ -2,8 +2,8 @@ import fs from "fs/promises";
 import path from "path";
 
 export type LoadI18nMessagesProps = {
-  locale: string;
-  defaultLocale: string;
+  locale?: string;
+  defaultLocale?: string;
 };
 
 type MessageConfig = { [key: string]: string };

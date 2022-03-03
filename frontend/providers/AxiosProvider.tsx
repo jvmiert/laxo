@@ -1,7 +1,7 @@
 import { ReactChildren, ReactNode, useMemo } from "react";
 import { useRouter } from "next/router";
 import { AxiosInstance } from "axios";
-import AxiosClient from "@/lib/axios";
+import { AxiosClient } from "@/lib/axios";
 import createSafeContext from "@/lib/useSafeContext";
 
 export interface AxiosConsumerProps {
