@@ -49,7 +49,9 @@ func SetupRouter() *mux.Router {
   router := mux.NewRouter()
 
   // Common middlewares
-  common := negroni.New()
+  common := negroni.New(
+    negroni.NewLogger(),
+  )
 
   subRouter := router.PathPrefix("/api").Subrouter().StrictSlash(true)
 
