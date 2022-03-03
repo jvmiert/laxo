@@ -14,7 +14,9 @@ const axiosFetcher = (axios: AxiosInstance): FetcherReturnFunction => {
 export function useGetAuth() {
   const [isAuthed, setIsAuthed] = useState(false);
   const { axiosClient } = useAxios();
-  const { data, error } = useSWR("/user", axiosFetcher(axiosClient));
+  const { data, error } = useSWR("/user", axiosFetcher(axiosClient), {
+    shouldRetryOnError: false,
+  });
 
   useEffect(() => {
     if (data) {
