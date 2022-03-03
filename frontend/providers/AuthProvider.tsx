@@ -1,6 +1,6 @@
 import { ReactChildren, ReactNode } from "react";
 import createSafeContext from "@/lib/useSafeContext";
-import { useGetAuth } from "@/hooks/swr-hooks";
+import { useGetAuth } from "@/hooks/swrHooks";
 
 export interface AuthConsumerProps {
   auth: boolean;
