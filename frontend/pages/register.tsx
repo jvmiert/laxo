@@ -1,28 +1,15 @@
-import { InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { useIntl } from "react-intl";
 import { Form, Field } from "react-final-form";
 import createDecorator from "final-form-focus";
 import Navigation from "@/components/Navigation";
-import loadIntlMessages from "@/helpers/loadIntlMessages";
-import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
 import useRegisterFuncs, {
   RegisterSchemaValues,
 } from "@/hooks/registerFormFuncs";
 
-export async function getStaticProps(ctx: LoadI18nMessagesProps) {
-  return {
-    props: {
-      intlMessages: await loadIntlMessages(ctx),
-    },
-  };
-}
-
-type RegisterPageProps = InferGetStaticPropsType<typeof getStaticProps>;
-
 const focusOnError = createDecorator<RegisterSchemaValues>();
 
-export default function RegisterPage(props: RegisterPageProps) {
+export default function RegisterPage() {
   const t = useIntl();
   const [validate, submitForm] = useRegisterFuncs();
 

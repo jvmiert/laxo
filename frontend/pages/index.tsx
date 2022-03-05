@@ -1,22 +1,9 @@
 import { useIntl } from "react-intl";
 import Head from "next/head";
 import Navigation from "@/components/Navigation";
-import loadIntlMessages from "@/helpers/loadIntlMessages";
-import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
-import { InferGetStaticPropsType } from "next";
 import { useAuth } from "@/providers/AuthProvider";
 
-export async function getStaticProps(ctx: LoadI18nMessagesProps) {
-  return {
-    props: {
-      intlMessages: await loadIntlMessages(ctx),
-    },
-  };
-}
-
-type HomePageProps = InferGetStaticPropsType<typeof getStaticProps>;
-
-export default function HomePage(props: HomePageProps) {
+export default function HomePage() {
   const t = useIntl();
   const { auth } = useAuth();
   return (

@@ -19,7 +19,6 @@
       "@/lib/*": ["lib/*"],
       "@/components/*": ["components/*"],
       "@/hooks/*": ["hooks/*"],
-      "@/helpers/*": ["helpers/*"],
       "@/providers/*": ["providers/*"],
       "@/types/*": ["types/*"],
       "@/pages/*": ["pages/*"]

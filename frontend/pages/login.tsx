@@ -4,21 +4,10 @@ import { useIntl } from "react-intl";
 import Head from "next/head";
 import Navigation from "@/components/Navigation";
 import { withRedirectAuth } from "@/lib/withAuth";
-import loadIntlMessages from "@/helpers/loadIntlMessages";
-import type { LoadI18nMessagesProps } from "@/helpers/loadIntlMessages";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import useLoginFuncs, { LoginSchemaValues } from "@/hooks/loginFormFuncs";
 
-export const getServerSideProps: GetServerSideProps = withRedirectAuth(
-  "/",
-  async (ctx: LoadI18nMessagesProps) => {
-    return {
-      props: {
-        intlMessages: await loadIntlMessages(ctx),
-      },
-    };
-  },
-);
+export const getServerSideProps: GetServerSideProps = withRedirectAuth("/");
 
 type LoginPageProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 

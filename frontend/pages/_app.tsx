@@ -5,13 +5,26 @@ import type { AppProps } from "next/app";
 import { AxiosProvider } from "@/providers/AxiosProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 
+import messages_en from "../compiled-lang/en.json";
+import messages_vi from "../compiled-lang/vi.json";
+
+type LocalesType = {
+  [key: string]: any;
+};
+
+const languages: LocalesType = {
+  en: { ...messages_en },
+  vi: { ...messages_vi },
+};
+
 function MyApp({ Component, pageProps }: AppProps) {
-  const { locale, defaultLocale } = useRouter();
+  const { locale = "en", defaultLocale } = useRouter();
+
   return (
     <IntlProvider
       locale={locale!}
       defaultLocale={defaultLocale}
-      messages={pageProps.intlMessages}
+      messages={languages[locale]}
     >
       <AxiosProvider>
         <AuthProvider>
