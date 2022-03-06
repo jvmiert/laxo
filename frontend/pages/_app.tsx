@@ -1,5 +1,6 @@
 import "../styles/globals.css";
 import { IntlProvider } from "react-intl";
+import { SWRConfig } from "swr";
 import { useRouter } from "next/router";
 import type { AppProps } from "next/app";
 import { AxiosProvider } from "@/providers/AxiosProvider";
@@ -21,17 +22,21 @@ function MyApp({ Component, pageProps }: AppProps) {
   const { locale = "en", defaultLocale } = useRouter();
 
   return (
-    <IntlProvider
-      locale={locale!}
-      defaultLocale={defaultLocale}
-      messages={languages[locale]}
+    <SWRConfig
+      value={pageProps?.fallback ? { fallback: pageProps.fallback } : {}}
     >
-      <AxiosProvider>
-        <AuthProvider>
-          <Component {...pageProps} />
-        </AuthProvider>
-      </AxiosProvider>
-    </IntlProvider>
+      <IntlProvider
+        locale={locale!}
+        defaultLocale={defaultLocale}
+        messages={languages[locale]}
+      >
+        <AxiosProvider>
+          <AuthProvider>
+            <Component {...pageProps} />
+          </AuthProvider>
+        </AxiosProvider>
+      </IntlProvider>
+    </SWRConfig>
   );
 }
 

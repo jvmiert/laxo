@@ -149,7 +149,6 @@ func LoginUser(email string, password string, printer *message.Printer) (*User, 
     return nil, err
   }
 
-
   if err = user.CheckPassword(password); err != nil {
   err = validation.Errors{
     "password": validation.NewError(

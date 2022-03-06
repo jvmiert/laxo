@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { AxiosInstance, AxiosPromise } from "axios";
 import useSWR from "swr";
 import { useAxios } from "@/providers/AxiosProvider";
@@ -12,23 +11,12 @@ const axiosFetcher = (axios: AxiosInstance): FetcherReturnFunction => {
 };
 
 export function useGetAuth() {
-  const [isAuthed, setIsAuthed] = useState(false);
   const { axiosClient } = useAxios();
   const { data, error } = useSWR("/user", axiosFetcher(axiosClient), {
     shouldRetryOnError: false,
   });
 
-  useEffect(() => {
-    if (data) {
-      setIsAuthed(true);
-    }
-
-    if (error) {
-      setIsAuthed(false);
-    }
-  }, [data, error]);
-
   return {
-    auth: isAuthed,
+    auth: !!data && !error,
   };
 }

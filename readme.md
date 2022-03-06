@@ -5,7 +5,9 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Decide if I need a separate auth endpoint (/auth) or just let other endpoints fail with a forbidden.
+- Finish login redirect (with next param) for unauthenticated users navigating to auth protected routes
+- Redo withRedirectAuth to be the same as withRedirectUnauth
+- Make the dashboard page
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?
@@ -14,6 +16,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - Maybe use? https://github.com/garmeeh/next-seo
 
 # Long-term to-do
+- Interesting layout example for nextjs:
+  - https://github.com/vercel/next.js/issues/8193#issuecomment-873281365
 - Implement: https://github.com/gorilla/csrf
   - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 - Optimize yup schema validation for react final form?

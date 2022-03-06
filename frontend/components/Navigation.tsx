@@ -39,7 +39,14 @@ export default function Navigation() {
           </>
         )}
         {auth && (
-          <NavLink currentPath={pathname} href="/logout" navText="Logout" />
+          <>
+            <NavLink
+              currentPath={pathname}
+              href="/dashboard"
+              navText="Dashboard"
+            />
+            <NavLink currentPath={pathname} href="/logout" navText="Logout" />
+          </>
         )}
       </ul>
       <ul className="list-none">
