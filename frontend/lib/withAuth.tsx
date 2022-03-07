@@ -137,13 +137,18 @@ export const withAuthPage = (Page: NextPage) => {
 export const withUnauthPage = (url: string, Page: NextPage) => {
   const WithAuthPage = (props: any) => {
     const { auth } = useAuth();
-    const { push, locale } = useRouter();
+    const { push, locale, query } = useRouter();
 
     useEffect(() => {
       if (auth) {
-        push(url, url, { locale: locale });
+        // @HACK: Sometimes we want to redirect to the page that the user was
+        // visiting previously. We should actually have some state that indicates
+        // when we are redirecting to avoid hijacking the redirect with the push below.
+        if (!query?.next) {
+          push(url, url, { locale: locale });
+        }
       }
-    });
+    }, [auth, locale, push, query]);
     return <Page {...props} />;
   };
 

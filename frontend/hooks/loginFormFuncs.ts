@@ -3,6 +3,7 @@ import { SubmissionErrors, ValidationErrors, FORM_ERROR } from "final-form";
 import { useRouter } from "next/router";
 import { useIntl } from "react-intl";
 import useLoginApi from "@/hooks/useLoginApi";
+import useRedirectSafely from "@/hooks/redirectSafely";
 
 const LoginSchema = z.object({
   email: z
@@ -25,8 +26,8 @@ export default function useLoginFuncs(): [
 ] {
   const t = useIntl();
   const { doLogin } = useLoginApi();
-  const { push } = useRouter();
-
+  const { query } = useRouter();
+  const { redirectSafely } = useRedirectSafely();
   const submitForm = async (
     values: LoginSchemaValues,
   ): Promise<SubmissionErrors> => {
@@ -52,7 +53,7 @@ export default function useLoginFuncs(): [
     }
 
     if (success) {
-      push("/");
+      redirectSafely(query?.next ? (query.next as string) : "/");
       return {};
     }
   };
