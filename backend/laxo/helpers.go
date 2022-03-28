@@ -1,13 +1,13 @@
 package laxo
 
 import (
-  "net/http"
-  "encoding/json"
-  "errors"
-  "strings"
-  "fmt"
-  "io"
-  "crypto/rand"
+	"crypto/rand"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
 )
 
 type ErrorReturn struct {

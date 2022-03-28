@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "laxo.vn/laxo/laxo/proto/gen";
+
+package product;
+
+service ProductService {
+  rpc CreateFrame (CreateFrameRequest) returns (stream CreateFrameReply) {}
+}
+
+message CreateFrameRequest {
+  string imgID = 1;
+}
+
+message CreateFrameReply {
+  string imgID = 1;
+}
+

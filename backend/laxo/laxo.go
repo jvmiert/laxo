@@ -1,12 +1,12 @@
 package laxo
 
 import (
-  "log"
+	"log"
 
-  "github.com/gorilla/mux"
-  "github.com/urfave/negroni"
-  "github.com/hashicorp/hcl/v2/hclsimple"
-  "github.com/hashicorp/go-hclog"
+	"github.com/gorilla/mux"
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/hcl/v2/hclsimple"
+	"github.com/urfave/negroni"
 )
 
 type Config struct {

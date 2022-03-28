@@ -14,11 +14,14 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@improbable-eng/grpc-web": "^0.15.0",
     "@next/bundle-analyzer": "^12.1.0",
     "@types/final-form-focus": "^1.1.2",
+    "@types/google-protobuf": "^3.15.5",
     "axios": "^0.25.0",
     "final-form": "^4.20.6",
     "final-form-focus": "^1.1.2",
+    "google-protobuf": "^3.20.0-rc.2",
     "next": "^12.1.0",
     "react": "^17.0.2",
     "react-dom": "17.0.2",

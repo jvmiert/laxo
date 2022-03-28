@@ -1,0 +1,2 @@
+# temp directory for storing the protoc compiler binary and plugins
+/protoc

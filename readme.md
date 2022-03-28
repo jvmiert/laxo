@@ -5,15 +5,13 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Finish login redirect (with next param) for unauthenticated users navigating to auth protected routes
-- Redo withRedirectAuth to be the same as withRedirectUnauth
 - Make the dashboard page
+- Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
+  also return a human readable message in the requested locale.
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
-- Setup correct meta tags / html header handeling (next/head)
-  - Maybe use? https://github.com/garmeeh/next-seo
 
 # Long-term to-do
 - Interesting layout example for nextjs:
@@ -22,6 +20,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 - Optimize yup schema validation for react final form?
   - https://gist.github.com/nfantone/9ab600760db8774ab4873cb1a3a22f26
+- Setup correct meta tags / html header handeling (next/head)
+  - Maybe use? https://github.com/garmeeh/next-seo
 
 # Thoughts
 It seems for SKU creation, the best approach is to create a logical data model for the service. This data model will then be the source of truth from which we create translation functions for each individual platform. The tricky thing will be that it seems Lazada has predefined SKU attributes. They do not allow arbitrary SKU creation. It seems Tiki also follows this strategy.
@@ -49,6 +49,28 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 "Image file. Max 2.0 MB each. Image format accepted: JPG, JPEG, PNG"
 - https://open.shopee.com/documents?module=91&type=1&id=660&version=2
 
+# Frame feature research
+
+## Image manipulation
+- https://github.com/gographics/imagick
+- https://github.com/omgovich/react-colorful#customization
+- https://github.com/jgraph/drawio/blob/dev/src/main/webapp/js/grapheditor/Shapes.js
+- https://imagemagick.org/api/drawing-wand.php
+- Fast image manipulation:
+  - https://github.com/h2non/bimg
+
+## Job queues
+- https://cadenceworkflow.io/docs/go-client/
+- https://docs.temporal.io/docs/temporal-explained/introduction
+  - https://github.com/temporalio/samples-go
+- https://github.com/hibiken/asynq
+
+# GRPC
+- https://kennethjenkins.net/posts/go-nginx-grpc/
+- https://github.com/improbable-eng/grpc-web/go/grpcweb
+- https://github.com/percybolmer/grpcexample/blob/master/main.go
+- https://github.com/grpc-ecosystem/awesome-grpc
+
 # Links
 - https://open.tiki.vn/docs/docs/current/getting-started/
 - https://open.lazada.com/
@@ -58,6 +80,9 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://ecomkey.asia/en/price-list
 - https://www.anchanto.com
 - https://www.crescodata.com/
+
+# Random
+- https://github.com/charithe/durationcheck
 
 # Third party project links
 - https://docs.google.com/spreadsheets/d/1CU_IFc_jVjZ7PLc6UEWmPNszufvYhhrVAGpJUemNU40/edit#gid=0
