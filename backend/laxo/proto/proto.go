@@ -12,7 +12,8 @@ type ProtoServer struct {
 }
 
 func (s *ProtoServer) CreateFrame(req *gen.CreateFrameRequest, stream gen.ProductService_CreateFrameServer) error {
-  laxo.Logger.Info("Received CreateFrame", req.GetImgID())
+  uID := stream.Context().Value(keyUID)
+  laxo.Logger.Info("Received CreateFrame", "content", req.ImgID, "uID", uID)
 
   if err := stream.Send(&gen.CreateFrameReply{ImgID: "test1"}); err != nil {
     return err

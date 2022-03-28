@@ -6,6 +6,7 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/gorilla/mux v1.8.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hashicorp/go-hclog v1.0.0
 	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/improbable-eng/grpc-web v0.15.0
@@ -21,6 +22,7 @@ require (
 	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.45.0
+	google.golang.org/grpc/examples v0.0.0-20220325165806-e63e1230fd01 // indirect
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/gographics/imagick.v3 v3.4.0
 )

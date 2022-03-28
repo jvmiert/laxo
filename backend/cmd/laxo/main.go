@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/joho/godotenv"
 	"golang.org/x/sync/errgroup"
@@ -75,7 +76,10 @@ func main() {
   logger.Info("Serving GRPC...", "port", "8081")
 
   g.Go(func() error {
-    grpcServer := grpc.NewServer()
+    opts := []grpc.ServerOption{
+      grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(laxo_proto.StreamAuthFunc)),
+    }
+    grpcServer := grpc.NewServer(opts...)
     protoServer := &laxo_proto.ProtoServer{}
     laxo_proto_gen.RegisterProductServiceServer(grpcServer, protoServer)
 
