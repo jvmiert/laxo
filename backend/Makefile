@@ -2,7 +2,7 @@ include .env
 MIGRATE_VERSION_TAG=v4.15.1
 SQLC_VERSION_TAG=v1.11.0
 
-.PHONY: install migrate upgrade generate test testrace translate serve
+.PHONY: install migrate upgrade generate test testrace translate serve migrate-version
 
 serve:
 	go run ./cmd/laxo/main.go
@@ -39,3 +39,9 @@ migrate:
 upgrade:
 	migrate -database ${POSTGRESQL_URL} -path laxo/migrations up
 
+migrate-version:
+	migrate -database ${POSTGRESQL_URL} -path laxo/migrations version
+
+migrate-force:
+	@read -p "Enter the migration version number to force to: " number; \
+	migrate -database ${POSTGRESQL_URL} -path laxo/migrations force $$number;
