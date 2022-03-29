@@ -9,15 +9,20 @@ import (
 
 const createShop = `-- name: CreateShop :one
 INSERT INTO shops (
-  shop_name
+  shop_name, user_id
 ) VALUES (
-  $1
+  $1, $2
 )
 RETURNING id, user_id, shop_name, created, last_update
 `
 
-func (q *Queries) CreateShop(ctx context.Context, shopName string) (Shop, error) {
-	row := q.db.QueryRow(ctx, createShop, shopName)
+type CreateShopParams struct {
+	ShopName string `json:"shopName"`
+	UserID   string `json:"userID"`
+}
+
+func (q *Queries) CreateShop(ctx context.Context, arg CreateShopParams) (Shop, error) {
+	row := q.db.QueryRow(ctx, createShop, arg.ShopName, arg.UserID)
 	var i Shop
 	err := row.Scan(
 		&i.ID,

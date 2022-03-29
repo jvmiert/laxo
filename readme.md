@@ -8,6 +8,7 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Make the dashboard page
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.
+  - https://go.dev/tour/methods/15 (make sure the type casting is error checked)
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?

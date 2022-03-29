@@ -55,6 +55,11 @@ func SetupRouter() *mux.Router {
 
   subRouter := router.PathPrefix("/api").Subrouter().StrictSlash(true)
 
+	subRouter.Handle("/shop", common.With(
+		negroni.HandlerFunc(assureJSON),
+		negroni.WrapFunc(assureAuth(HandleCreateShop)),
+	)).Methods("POST")
+
 	subRouter.Handle("/user", common.With(
 		negroni.HandlerFunc(assureJSON),
 		negroni.WrapFunc(HandleCreateUser),

@@ -1,13 +1,50 @@
 package laxo
 
 import (
-  "fmt"
-  "net/http"
-  "errors"
+	"errors"
+	"fmt"
+	"net/http"
 )
 
 func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
   fmt.Fprintf(w, "Hello, your uID is: %s\n", uID)
+}
+
+func HandleCreateShop(w http.ResponseWriter, r *http.Request, uID string) {
+  var s Shop
+
+  if err := decodeJSONBody(w, r, &s.Model); err != nil {
+    var mr *malformedRequest
+    if errors.As(err, &mr) {
+      http.Error(w, mr.msg, mr.status)
+    } else {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    }
+    return
+  }
+
+  printer := getLocalePrinter(r)
+  if err := s.ValidateNew(printer); err != nil {
+    ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+    return
+  }
+
+
+  if err := SaveNewShopToDB(&s, uID); err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  js, err := s.JSON()
+
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+  w.Write(js)
+
 }
 
 func HandleLogout(w http.ResponseWriter, r *http.Request) {

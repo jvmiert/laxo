@@ -1,20 +1,21 @@
 package laxo
 
 import (
-  "encoding/json"
-  "context"
-  "regexp"
-  "errors"
-  "strings"
+	"context"
+	"encoding/json"
+	"errors"
+	"regexp"
+	"strings"
 
-  "laxo.vn/laxo/laxo/sqlc"
-  "database/sql"
-  "golang.org/x/text/message"
-  "golang.org/x/text/number"
-  "github.com/jackc/pgx/v4"
-  "github.com/go-ozzo/ozzo-validation/v4"
-  "github.com/go-ozzo/ozzo-validation/v4/is"
-  "golang.org/x/crypto/bcrypt"
+	"database/sql"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/jackc/pgx/v4"
+	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/text/message"
+	"golang.org/x/text/number"
+	"laxo.vn/laxo/laxo/sqlc"
 )
 
 var ErrUserNotExist = errors.New("User does not exist")
@@ -170,7 +171,6 @@ func RetrieveUserFromDBbyID(uID string) (*User, error) {
   if err == pgx.ErrNoRows {
     return nil, ErrUserNotExist
   } else if err != nil {
-    Logger.Debug("User retrieval error", err)
     return nil, err
   }
 
