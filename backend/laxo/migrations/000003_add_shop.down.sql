@@ -1,4 +1,4 @@
 BEGIN;
-ALTER TABLE shops DROP CONSTRAINT fk_shop_user,
+ALTER TABLE shops DROP CONSTRAINT fk_shop_user;
 DROP TABLE IF EXISTS shops;
 COMMIT;
