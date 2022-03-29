@@ -18,6 +18,16 @@ type ErrorReturn struct {
 func ErrorJSONEncode(w http.ResponseWriter, error error, code int) {
   var returnError ErrorReturn
 
+  /*
+     @TODO: In addition to the i18n error string, return a error
+            code that will be consistent between languages.
+
+  ozzoError := error.(validation.Errors)
+
+  Logger.Debug("test", ozzoError["email"].(validation.Error).Code())
+
+  */
+
   returnError.Error = true
   returnError.ErrorDetails = error
 
