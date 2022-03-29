@@ -39,7 +39,7 @@ func main() {
     return
   }
 
-  r := laxo.SetupRouter()
+  r := laxo.SetupRouter(false)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)

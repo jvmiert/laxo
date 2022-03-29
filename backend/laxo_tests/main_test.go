@@ -1,16 +1,16 @@
 package main
 
 import (
-  "os"
-  "bytes"
+	"bytes"
+	"encoding/json"
 	"net/http"
-  "encoding/json"
-  "strings"
-	"testing"
 	"net/http/httptest"
+	"os"
+	"strings"
+	"testing"
 
-  "laxo.vn/laxo/laxo"
-  "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
+	"laxo.vn/laxo/laxo"
 )
 
 type TestState struct {
@@ -18,7 +18,7 @@ type TestState struct {
   Config *laxo.Config
 }
 
-var state TestState
+var State TestState
 
 func setupTest(t *testing.T) *laxo.Config {
   os.Chdir("./..")
@@ -43,7 +43,7 @@ func setupTest(t *testing.T) *laxo.Config {
     return nil
   }
 
-  state.Config = &config
+  State.Config = &config
 
   return &config
 }
@@ -58,7 +58,7 @@ func TestRouteCreateUser(t *testing.T) {
   }
 
   rr := httptest.NewRecorder()
-  r := laxo.SetupRouter()
+  r := laxo.SetupRouter(true)
 
   r.ServeHTTP(rr, req)
 
@@ -185,7 +185,7 @@ func TestRouteCreateUser(t *testing.T) {
   found := false
   for _, c := range rr.Result().Cookies() {
     if c.Name == config.AuthCookieName {
-      state.CreateUserToken = c.Value
+      State.CreateUserToken = c.Value
       found = true
     }
   }
@@ -222,7 +222,7 @@ func TestGetUser(t *testing.T) {
   }
 
   rr := httptest.NewRecorder()
-  r := laxo.SetupRouter()
+  r := laxo.SetupRouter(true)
 
   r.ServeHTTP(rr, req)
 
@@ -239,7 +239,7 @@ func TestGetUser(t *testing.T) {
     t.Fatal(err)
   }
 
-  req.AddCookie(&http.Cookie{Name: state.Config.AuthCookieName, Value: state.CreateUserToken})
+  req.AddCookie(&http.Cookie{Name: State.Config.AuthCookieName, Value: State.CreateUserToken})
 
   rr = httptest.NewRecorder()
 
@@ -262,7 +262,7 @@ func TestLogin(t *testing.T) {
   req.Header.Set("Content-Type", "application/json")
 
   rr := httptest.NewRecorder()
-  r := laxo.SetupRouter()
+  r := laxo.SetupRouter(true)
 
   r.ServeHTTP(rr, req)
 
@@ -348,8 +348,8 @@ func TestLogin(t *testing.T) {
 
   found := false
   for _, c := range rr.Result().Cookies() {
-    if c.Name == state.Config.AuthCookieName {
-      state.CreateUserToken = c.Value
+    if c.Name == State.Config.AuthCookieName {
+      State.CreateUserToken = c.Value
       found = true
     }
   }
@@ -359,3 +359,7 @@ func TestLogin(t *testing.T) {
   }
 }
 
+
+func TestShop(t *testing.T) {
+  testShopFunc(t, State.Config.AuthCookieName, State.CreateUserToken)
+}

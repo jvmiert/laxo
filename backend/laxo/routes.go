@@ -29,7 +29,6 @@ func HandleCreateShop(w http.ResponseWriter, r *http.Request, uID string) {
     return
   }
 
-
   if err := SaveNewShopToDB(&s, uID); err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return

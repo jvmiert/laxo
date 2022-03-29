@@ -45,12 +45,18 @@ func InitConfig(testing bool) (hclog.Logger, Config) {
   return appLogger, AppConfig
 }
 
-func SetupRouter() *mux.Router {
+func SetupRouter(testing bool) *mux.Router {
   router := mux.NewRouter()
 
   // Common middlewares
+  var commonMiddlewares []negroni.Handler
+
+  if(!testing) {
+    commonMiddlewares = append(commonMiddlewares, negroni.NewLogger())
+  }
+
   common := negroni.New(
-    negroni.NewLogger(),
+    commonMiddlewares...
   )
 
   subRouter := router.PathPrefix("/api").Subrouter().StrictSlash(true)

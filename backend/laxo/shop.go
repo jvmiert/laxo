@@ -72,6 +72,7 @@ func SaveNewShopToDB(s *Shop, u string) error {
   )
 
   if err != nil {
+    Logger.Error("Save shop to DB error", "error", err)
     return err
   }
 
