@@ -2,9 +2,9 @@ import "../styles/globals.css";
 import { IntlProvider } from "react-intl";
 import { SWRConfig } from "swr";
 import { useRouter } from "next/router";
-import type { AppProps } from "next/app";
 import { AxiosProvider } from "@/providers/AxiosProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { AppPropsWithLayout } from "@/types/pages";
 
 import messages_en from "../compiled-lang/en.json";
 import messages_vi from "../compiled-lang/vi.json";
@@ -18,8 +18,10 @@ const languages: LocalesType = {
   vi: { ...messages_vi },
 };
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const { locale = "en", defaultLocale } = useRouter();
+
+  const getLayout = Component.getLayout ?? ((page) => page);
 
   return (
     <SWRConfig
@@ -31,9 +33,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         messages={languages[locale]}
       >
         <AxiosProvider>
-          <AuthProvider>
-            <Component {...pageProps} />
-          </AuthProvider>
+          <AuthProvider>{getLayout(<Component {...pageProps} />)}</AuthProvider>
         </AxiosProvider>
       </IntlProvider>
     </SWRConfig>

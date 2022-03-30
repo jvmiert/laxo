@@ -1,7 +1,8 @@
+import type { ReactElement } from "react";
 import { useIntl } from "react-intl";
 import Head from "next/head";
 import useCreateFrame from "@/hooks/useCreateFrame";
-import Navigation from "@/components/Navigation";
+import DefaultLayout from "@/components/DefaultLayout";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 
@@ -11,21 +12,24 @@ type DashboardPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >;
 
-export default withAuthPage(function DashboardPage(props: DashboardPageProps) {
+function DashboardPage(props: DashboardPageProps) {
   const t = useIntl();
   const { createFrame } = useCreateFrame();
   return (
-    <div>
+    <>
       <Head>
         <title>Laxo - Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Navigation />
-      <main>
-        <p className="text-3xl font-bold underline">Dashboard</p>
-        <button onClick={createFrame}>Create a frame test</button>
-      </main>
-    </div>
+      <p className="text-3xl font-bold underline">Dashboard</p>
+      <button onClick={createFrame}>Create a frame test</button>
+    </>
   );
-});
+}
+
+DashboardPage.getLayout = function getLayout(page: ReactElement) {
+  return <DefaultLayout>{page}</DefaultLayout>;
+};
+
+export default withAuthPage(DashboardPage);

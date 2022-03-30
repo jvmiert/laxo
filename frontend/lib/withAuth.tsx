@@ -3,6 +3,7 @@ import { GetServerSideProps, NextPage } from "next";
 import { AxiosServerClient } from "@/lib/axios";
 import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/router";
+import { NextPageWithLayout } from "@/types/pages";
 
 // The GetServerSideProps wrappers in this file will query the backend to see if the user
 // is authenticated based on their cookie. Depending on which of the wrapper functions,
@@ -117,7 +118,7 @@ export const withRedirectUnauth = (
   return getServerSideProps;
 };
 
-export const withAuthPage = (Page: NextPage) => {
+export const withAuthPage = (Page: NextPageWithLayout) => {
   const WithAuthPage = (props: any) => {
     const { auth } = useAuth();
     const { push, locale, route } = useRouter();
@@ -131,10 +132,11 @@ export const withAuthPage = (Page: NextPage) => {
   };
 
   WithAuthPage.displayname = `WithAuthPage(${Page.displayName})`;
+  WithAuthPage.getLayout = Page.getLayout;
   return WithAuthPage;
 };
 
-export const withUnauthPage = (url: string, Page: NextPage) => {
+export const withUnauthPage = (url: string, Page: NextPageWithLayout) => {
   const WithAuthPage = (props: any) => {
     const { auth } = useAuth();
     const { push, locale, query } = useRouter();
@@ -153,5 +155,6 @@ export const withUnauthPage = (url: string, Page: NextPage) => {
   };
 
   WithAuthPage.displayname = `WithUnauthPage(${Page.displayName})`;
+  WithAuthPage.getLayout = Page.getLayout;
   return WithAuthPage;
 };
