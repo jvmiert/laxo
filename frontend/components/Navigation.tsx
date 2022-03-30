@@ -1,6 +1,8 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/providers/AuthProvider";
+import { ShoppingCartIcon } from "@heroicons/react/solid";
+import LangMenu from "@/components/LangMenu";
 
 interface NavLinkProps {
   currentPath: string;
@@ -21,46 +23,53 @@ function NavLink(props: NavLinkProps) {
 }
 
 export default function Navigation() {
-  const { pathname, locale } = useRouter();
+  const { pathname } = useRouter();
   const { auth } = useAuth();
 
   return (
-    <div>
-      <ul className="list-none">
-        <NavLink currentPath={pathname} href="/" navText="Home" />
-        {!auth && (
-          <>
-            <NavLink currentPath={pathname} href="/login" navText="Login" />
-            <NavLink
-              currentPath={pathname}
-              href="/register"
-              navText="Register"
-            />
-          </>
-        )}
-        {auth && (
-          <>
-            <NavLink
-              currentPath={pathname}
-              href="/dashboard"
-              navText="Dashboard"
-            />
-            <NavLink currentPath={pathname} href="/logout" navText="Logout" />
-          </>
-        )}
-      </ul>
-      <ul className="list-none">
-        <li>
-          <Link href={pathname} locale="en">
-            <a className={`${locale == "en" ? "underline" : ""}`}>English</a>
-          </Link>
-        </li>
-        <li>
-          <Link href={pathname} locale="vi">
-            <a className={`${locale == "vi" ? "underline" : ""}`}>Vietnamese</a>
-          </Link>
-        </li>
-      </ul>
+    <div className="flex h-16 w-full justify-center">
+      <header className="m-auto flex w-4/5 max-w-5xl flex-row items-center px-6">
+        <div className="flex shrink grow items-center justify-center">
+          <span>
+            <ShoppingCartIcon className="inline h-5 w-5 text-pink-500" />{" "}
+            <span className="font-bold underline decoration-pink-500 decoration-2 dark:text-slate-200">
+              Laxo
+            </span>
+          </span>
+        </div>
+        <div className="flex shrink grow items-center justify-center">
+          <ul className="item-center flex list-none space-x-4">
+            <NavLink currentPath={pathname} href="/" navText="Home" />
+            {!auth && (
+              <>
+                <NavLink currentPath={pathname} href="/login" navText="Login" />
+                <NavLink
+                  currentPath={pathname}
+                  href="/register"
+                  navText="Register"
+                />
+              </>
+            )}
+            {auth && (
+              <>
+                <NavLink
+                  currentPath={pathname}
+                  href="/dashboard"
+                  navText="Dashboard"
+                />
+                <NavLink
+                  currentPath={pathname}
+                  href="/logout"
+                  navText="Logout"
+                />
+              </>
+            )}
+          </ul>
+        </div>
+        <div className="relative flex shrink grow items-center justify-center">
+          <LangMenu />
+        </div>
+      </header>
     </div>
   );
 }
