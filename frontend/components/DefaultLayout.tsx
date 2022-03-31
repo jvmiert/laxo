@@ -9,7 +9,9 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
   return (
     <>
       <Navigation />
-      <main>{children}</main>
+      <div className="container mx-auto px-4 pt-4">
+        <main>{children}</main>
+      </div>
     </>
   );
 }

@@ -5,6 +5,7 @@ import useCreateFrame from "@/hooks/useCreateFrame";
 import DefaultLayout from "@/components/DefaultLayout";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import { useGetShop } from "@/hooks/swrHooks";
 
 export const getServerSideProps: GetServerSideProps = withRedirectUnauth();
 
@@ -15,6 +16,7 @@ type DashboardPageProps = InferGetServerSidePropsType<
 function DashboardPage(props: DashboardPageProps) {
   const t = useIntl();
   const { createFrame } = useCreateFrame();
+  const { shops } = useGetShop();
   return (
     <>
       <Head>
@@ -22,8 +24,9 @@ function DashboardPage(props: DashboardPageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <p className="text-3xl font-bold underline">Dashboard</p>
+      <p className="text-2xl font-bold">Dashboard</p>
       <button onClick={createFrame}>Create a frame test</button>
+      <p>{JSON.stringify(shops)}</p>
     </>
   );
 }
