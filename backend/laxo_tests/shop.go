@@ -6,10 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"laxo.vn/laxo/laxo"
 )
 
-func testShopFunc(t *testing.T, authCookieName string, authToken string) {
+func testShopCreateFunc(t *testing.T, authCookieName string, authToken string) {
   table := []struct {
     id         string
     cookie     *http.Cookie
@@ -35,9 +36,11 @@ func testShopFunc(t *testing.T, authCookieName string, authToken string) {
 
       router.ServeHTTP(w, r)
 
-      if w.Code != v.statusCode {
-        t.Errorf("Expected status code: %d, but got: %d", v.statusCode, w.Code)
-      }
+      assert.Equal(t, w.Code, v.statusCode, "Status code should be equal")
     })
   }
+}
+
+func testShopGetFunc(t *testing.T, authCookieName string, authToken string) {
+  t.Fatal("shop get function tests not implemented yet")
 }

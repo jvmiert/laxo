@@ -10,6 +10,24 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
   fmt.Fprintf(w, "Hello, your uID is: %s\n", uID)
 }
 
+func HandleGetMyShops(w http.ResponseWriter, r *http.Request, uID string) {
+  shops, err := RetrieveShopsFromDBbyUserID(uID)
+
+  if err != nil {
+    ErrorJSONEncode(w, err, http.StatusUnauthorized)
+    return
+  }
+
+  js, err := GenerateShopList(shops)
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+  w.Write(js)
+}
+
 func HandleCreateShop(w http.ResponseWriter, r *http.Request, uID string) {
   var s Shop
 

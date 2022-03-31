@@ -33,3 +33,53 @@ func (q *Queries) CreateShop(ctx context.Context, arg CreateShopParams) (Shop, e
 	)
 	return i, err
 }
+
+const getShopByID = `-- name: GetShopByID :one
+SELECT id, user_id, shop_name, created, last_update FROM shops
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetShopByID(ctx context.Context, id string) (Shop, error) {
+	row := q.db.QueryRow(ctx, getShopByID, id)
+	var i Shop
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ShopName,
+		&i.Created,
+		&i.LastUpdate,
+	)
+	return i, err
+}
+
+const getShopsByUserID = `-- name: GetShopsByUserID :many
+SELECT id, user_id, shop_name, created, last_update FROM shops
+WHERE user_id = $1
+`
+
+func (q *Queries) GetShopsByUserID(ctx context.Context, userID string) ([]Shop, error) {
+	rows, err := q.db.Query(ctx, getShopsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Shop
+	for rows.Next() {
+		var i Shop
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.ShopName,
+			&i.Created,
+			&i.LastUpdate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

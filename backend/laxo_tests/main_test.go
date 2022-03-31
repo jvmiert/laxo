@@ -361,5 +361,6 @@ func TestLogin(t *testing.T) {
 
 
 func TestShop(t *testing.T) {
-  testShopFunc(t, State.Config.AuthCookieName, State.CreateUserToken)
+  testShopCreateFunc(t, State.Config.AuthCookieName, State.CreateUserToken)
+  testShopGetFunc(t, State.Config.AuthCookieName, State.CreateUserToken)
 }

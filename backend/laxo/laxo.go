@@ -84,6 +84,9 @@ func SetupRouter(testing bool) *mux.Router {
 		negroni.WrapFunc(assureAuth(HandleGetUser)),
 	)).Methods("GET")
 
+	subRouter.Handle("/shop", common.With(
+		negroni.WrapFunc(assureAuth(HandleGetMyShops)),
+	)).Methods("GET")
 
   return subRouter
 }

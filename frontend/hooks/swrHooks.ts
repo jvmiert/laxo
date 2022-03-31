@@ -20,3 +20,20 @@ export function useGetAuth() {
     auth: !!data && !error,
   };
 }
+
+export function useGetShop() {
+  const { axiosClient } = useAxios();
+  const {
+    data: shops,
+    error,
+    isValidating,
+  } = useSWR("/shop", axiosFetcher(axiosClient), {
+    shouldRetryOnError: true,
+  });
+
+  return {
+    shops,
+    error,
+    loading: isValidating,
+  };
+}

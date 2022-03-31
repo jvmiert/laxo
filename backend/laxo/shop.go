@@ -10,6 +10,12 @@ import (
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
+type ShopReturn struct {
+	ID         string       `json:"id"`
+  UserID     string       `json:"userID"`
+	ShopName   string       `json:"shopName"`
+}
+
 func GetShopCreateFailure(errs error, printer *message.Printer) validation.Errors {
   errMap := errs.(validation.Errors)
 
@@ -39,7 +45,12 @@ type Shop struct {
 }
 
 func (s *Shop) JSON() ([]byte, error) {
-  bytes, err := json.Marshal(s)
+  var sr ShopReturn
+  sr.ID       = s.Model.ID
+  sr.UserID   = s.Model.UserID
+  sr.ShopName = s.Model.ShopName
+
+  bytes, err := json.Marshal(sr)
 
   if err != nil {
     Logger.Error("Shop marshal error", "error", err)
@@ -48,7 +59,6 @@ func (s *Shop) JSON() ([]byte, error) {
 
   return bytes, nil
 }
-
 
 func (s *Shop) ValidateNew(printer *message.Printer) error {
   err := validation.ValidateStruct(s.Model,
@@ -61,6 +71,50 @@ func (s *Shop) ValidateNew(printer *message.Printer) error {
   return nil
 }
 
+func GenerateShopList(ss []Shop) ([]byte, error) {
+  sList := []json.RawMessage{}
+  for _, s := range ss {
+    b, err := s.JSON()
+    if err != nil {
+      return nil, err
+    }
+    j := json.RawMessage(b)
+    sList = append(sList, j)
+  }
+
+	shopData := map[string]interface{}{
+		"shops": sList,
+		"total": len(sList),
+	}
+
+  bytes, err := json.Marshal(shopData)
+
+  if err != nil {
+    Logger.Error("Shop list marshal error", "error", err)
+    return bytes, err
+  }
+  return bytes, nil
+}
+
+func RetrieveShopsFromDBbyUserID(userID string) ([]Shop, error) {
+  shops, err := Queries.GetShopsByUserID(
+    context.Background(),
+    userID,
+  )
+
+  if err != nil {
+    Logger.Debug("Shop retrieval error", err)
+    return nil, err
+  }
+
+  var sReturn []Shop
+
+  for _, s := range shops {
+    sReturn = append(sReturn, Shop{Model: &s})
+  }
+
+  return sReturn, nil
+}
 
 func SaveNewShopToDB(s *Shop, u string) error {
   savedShop, err := Queries.CreateShop(
