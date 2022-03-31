@@ -16,6 +16,7 @@ func testShopFunc(t *testing.T, authCookieName string, authToken string) {
     statusCode int
     body       []byte
   }{
+      {"Create shop unauth", nil, http.StatusUnauthorized, []byte(`{"foo": "ShopName"}`)},
       {"Create shop invalid", &http.Cookie{Name: authCookieName, Value: authToken}, http.StatusUnprocessableEntity, []byte(`{"foo": "ShopName"}`)},
       {"Create shop valid", &http.Cookie{Name: authCookieName, Value: authToken}, http.StatusOK, []byte(`{"shopName": "ShopName"}`)},
     }
