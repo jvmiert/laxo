@@ -3,6 +3,7 @@ import { SubmissionErrors, ValidationErrors, FORM_ERROR } from "final-form";
 import { useRouter } from "next/router";
 import { useIntl } from "react-intl";
 import useRegisterApi from "@/hooks/registerUser";
+import useRedirectSafely from "@/hooks/redirectSafely";
 
 const RegisterSchema = z.object({
   fullname: z.string({ required_error: "name_required" }),
@@ -26,7 +27,8 @@ export default function useRegisterFuncs(): [
 ] {
   const t = useIntl();
   const [doRegistration] = useRegisterApi();
-  const { push } = useRouter();
+  const { query } = useRouter();
+  const { redirectSafely } = useRedirectSafely();
 
   const submitForm = async (
     values: RegisterSchemaValues,
@@ -54,7 +56,7 @@ export default function useRegisterFuncs(): [
     }
 
     if (success) {
-      push("/");
+      redirectSafely(query?.next ? (query.next as string) : "/dashboard");
       return {};
     }
   };

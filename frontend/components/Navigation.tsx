@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/providers/AuthProvider";
-import { ShoppingCartIcon } from "@heroicons/react/solid";
 import LangMenu from "@/components/LangMenu";
+import NavLogo from "@/components/NavLogo";
 
 interface NavLinkProps {
   currentPath: string;
@@ -32,10 +32,7 @@ export default function Navigation() {
         <div className="flex items-center justify-center">
           <Link href="/" passHref>
             <span className="cursor-pointer">
-              <ShoppingCartIcon className="inline h-5 w-5 text-pink-500" />{" "}
-              <span className="font-bold underline decoration-pink-500 decoration-2 dark:text-slate-200">
-                Laxo
-              </span>
+              <NavLogo />
             </span>
           </Link>
         </div>
@@ -48,11 +45,13 @@ export default function Navigation() {
                   href="/login"
                   navText="Log In"
                 />
-                <NavLink
-                  currentPath={pathname}
-                  href="/register"
-                  navText="Sign Up"
-                />
+                <li>
+                  <Link href="/register">
+                    <a className="w-full rounded-md bg-indigo-500 py-2 px-4 font-bold text-white shadow-md shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200">
+                      Sign Up
+                    </a>
+                  </Link>
+                </li>
               </>
             )}
             {auth && (

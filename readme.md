@@ -67,6 +67,20 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
   - https://github.com/temporalio/samples-go
 - https://github.com/hibiken/asynq
 
+# Oso - authorization
+- https://news.ycombinator.com/item?id=30878926
+- https://docs.osohq.com/go/getting-started/quickstart.html
+- https://www.osohq.com/academy/microservices-authorization
+- https://www.osohq.com/post/microservices-authorization-patterns
+- https://www.osohq.com/post/why-authorization-is-hard
+
+# Temporal
+- https://github.com/DataDog/temporalite
+- https://github.com/temporalio/temporal
+- https://github.com/temporalio/tctl
+- https://github.com/temporalio/docker-builds
+- https://docs.temporal.io/docs/server/options
+
 # GRPC
 - https://kennethjenkins.net/posts/go-nginx-grpc/
 - https://github.com/improbable-eng/grpc-web/go/grpcweb
