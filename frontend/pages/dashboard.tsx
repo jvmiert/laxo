@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
 import { useIntl } from "react-intl";
 import Head from "next/head";
-import useCreateFrame from "@/hooks/useCreateFrame";
 import DefaultLayout from "@/components/DefaultLayout";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
@@ -15,7 +14,6 @@ type DashboardPageProps = InferGetServerSidePropsType<
 
 function DashboardPage(props: DashboardPageProps) {
   const t = useIntl();
-  const { createFrame } = useCreateFrame();
   const { shops } = useGetShop();
   return (
     <>
@@ -25,7 +23,6 @@ function DashboardPage(props: DashboardPageProps) {
       </Head>
 
       <p className="text-2xl font-bold">Dashboard</p>
-      <button onClick={createFrame}>Create a frame test</button>
       <p>{JSON.stringify(shops)}</p>
     </>
   );
