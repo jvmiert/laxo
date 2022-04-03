@@ -14,6 +14,13 @@ type Shop struct {
 	LastUpdate sql.NullTime `json:"lastUpdate"`
 }
 
+type ShopsPlatform struct {
+	ID           string       `json:"id"`
+	ShopID       string       `json:"shopID"`
+	PlatformName string       `json:"platformName"`
+	Created      sql.NullTime `json:"created"`
+}
+
 type User struct {
 	ID       string       `json:"id"`
 	Password string       `json:"password"`

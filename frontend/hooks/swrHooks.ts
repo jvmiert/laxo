@@ -21,7 +21,11 @@ export function useGetAuth() {
   };
 }
 
-export function useGetShop() {
+export function useGetShop(): {
+  shops: any;
+  error: any;
+  loading: boolean;
+} {
   const { axiosClient } = useAxios();
   const {
     data: shops,

@@ -11,14 +11,14 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
 }
 
 func HandleGetMyShops(w http.ResponseWriter, r *http.Request, uID string) {
-  shops, err := RetrieveShopsFromDBbyUserID(uID)
+  shops, err := RetrieveShopsPlatformsByUserID(uID)
 
   if err != nil {
     ErrorJSONEncode(w, err, http.StatusUnauthorized)
     return
   }
 
-  js, err := GenerateShopList(shops)
+  js, err := GenerateShopPlatformList(shops)
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return

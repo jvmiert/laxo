@@ -6,6 +6,12 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Make the dashboard page
+  - Setup a callback url on nextjs under setup-shop/callback for each platform's oauth callback
+  - Setup my webserver to be able to receive callback requests from the platforms
+  - Create database logic that tracks what platform is connected to what shop
+  - Setup frontend to redirect to oauth authorization url of each platform on button connect click
+  - Process the return callbacks and verify them
+  - Store the access tokens in the database
 - Write test for get shop
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.
@@ -16,6 +22,7 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
 
 # Long-term to-do
+- Figure out how to handle multiple shops / transition between shops
 - Interesting layout example for nextjs:
   - https://github.com/vercel/next.js/issues/8193#issuecomment-873281365
 - Implement: https://github.com/gorilla/csrf
@@ -96,6 +103,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://ecomkey.asia/en/price-list
 - https://www.anchanto.com
 - https://www.crescodata.com/
+- https://www.onpoint.vn/
 
 # Random
 - https://github.com/charithe/durationcheck
@@ -103,7 +111,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 # Third party project links
 - https://docs.google.com/spreadsheets/d/1CU_IFc_jVjZ7PLc6UEWmPNszufvYhhrVAGpJUemNU40/edit#gid=0
 
-# Inspiration
+# Graphic Design Inspiration
 - https://workos.com/
 - https://vercel.com/login/email?
 - https://monday.com/
@@ -111,3 +119,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://www.airtable.com/
 - https://www.float.com/
 - https://clickup.com/
+
+# Programming
+- For API design: https://stripe.com/docs/api/promotion_codes/list
+

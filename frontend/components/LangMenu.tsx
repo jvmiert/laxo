@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { Transition, Popover } from "@headlessui/react";
-import { TranslateIcon, ChevronDownIcon } from "@heroicons/react/solid";
+import { ChevronDownIcon } from "@heroicons/react/solid";
+import { GlobeAltIcon } from "@heroicons/react/outline";
 
 export default function LangMenu() {
   const { pathname, locale } = useRouter();
@@ -9,7 +10,7 @@ export default function LangMenu() {
     <Popover className="relative inline-block text-left">
       <div>
         <Popover.Button>
-          <TranslateIcon className="inline h-5 w-5 text-gray-900" />
+          <GlobeAltIcon className="inline h-5 w-5 text-gray-900" />
           <ChevronDownIcon className="inline h-5 w-5 text-gray-900" />
         </Popover.Button>
       </div>

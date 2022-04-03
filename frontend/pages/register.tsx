@@ -30,7 +30,7 @@ function RegisterPage(props: RegisterPageProps) {
   return (
     <>
       <Head>
-        <title>Laxo - Register</title>
+        <title>Laxo: Register</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -223,9 +223,7 @@ function RegisterPage(props: RegisterPageProps) {
                 {
                   signIn: (
                     <Link href={"/login"} passHref>
-                      <span className="cursor-pointer text-indigo-500">
-                        Sign in
-                      </span>
+                      <a className="cursor-pointer text-indigo-500">Sign in</a>
                     </Link>
                   ),
                 },

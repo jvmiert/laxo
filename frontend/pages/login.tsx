@@ -180,9 +180,7 @@ function LoginPage(props: LoginPageProps) {
                 {
                   signUp: (
                     <Link href={"/register"} passHref>
-                      <span className="cursor-pointer text-indigo-500">
-                        Sign up
-                      </span>
+                      <a className="cursor-pointer text-indigo-500">Sign up</a>
                     </Link>
                   ),
                 },
