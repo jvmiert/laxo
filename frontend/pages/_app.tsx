@@ -1,3 +1,4 @@
+import "../styles/fonts.css";
 import "../styles/globals.css";
 import { IntlProvider } from "react-intl";
 import { SWRConfig } from "swr";
