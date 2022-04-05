@@ -7,3 +7,20 @@ export type ResponseError = {
   error: boolean;
   errorDetails: ErrorDetails;
 };
+
+export type GetShopResponsePlatforms = {
+  id: string;
+  name: string;
+  created: number;
+};
+
+export type GetShopResponseShops = {
+  id: string;
+  userID: string;
+  name: string;
+  platforms: Array<GetShopResponsePlatforms>;
+};
+export type GetShopResponse = {
+  shops: Array<GetShopResponseShops>;
+  total: number;
+};

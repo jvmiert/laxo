@@ -20,7 +20,7 @@ type ShopReturn struct {
 type PlatformReturn struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name"`
-  Created    int64   `json:"created"`
+  Created    int64    `json:"created"`
 }
 
 func GetShopCreateFailure(errs error, printer *message.Printer) validation.Errors {

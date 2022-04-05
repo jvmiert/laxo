@@ -22,13 +22,10 @@ function ConnectStore(props: ConnectStoreProps) {
   const { shops, loading } = useGetShop();
 
   const getButtonDisabled = (platform: string): boolean => {
-    if (!shops) return true;
-
     if (shops.shops.length == 0) return true;
 
     if (shops.shops[0].platforms.length == 0) return false;
 
-    // @TODO: type this stuff :(
     return (
       shops.shops[0].platforms.filter((e) => e.name.toLowerCase() == platform)
         .length > 0
@@ -97,7 +94,7 @@ function ConnectStore(props: ConnectStoreProps) {
       )}
       {!loading &&
         shops.shops.length > 0 &&
-        shops?.shops[0].platforms.length > 0 && (
+        shops.shops[0].platforms.length > 0 && (
           <div className="mt-6 max-w-xl rounded-md border border-gray-100 p-6">
             {shops?.shops[0].platforms.map((platform) => (
               <div key={platform.id} className="flex flex-row justify-between">
