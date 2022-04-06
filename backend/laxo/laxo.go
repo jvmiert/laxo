@@ -14,6 +14,7 @@ type Config struct {
   LogLevel         string `hcl:"log_level"`
   AuthCookieName   string `hcl:"auth_cookie_name"`
   AuthCookieExpire int    `hcl:"auth_cookie_days_expire"`
+  CallbackBasePath string `hcl:"callback_base_path"`
 }
 
 var (
@@ -64,6 +65,11 @@ func SetupRouter(testing bool) *mux.Router {
 	subRouter.Handle("/shop", common.With(
 		negroni.HandlerFunc(assureJSON),
 		negroni.WrapFunc(assureAuth(HandleCreateShop)),
+	)).Methods("POST")
+
+	subRouter.Handle("/oauth-redirects", common.With(
+		negroni.HandlerFunc(assureJSON),
+		negroni.WrapFunc(assureAuth(HandleOautchRedirects)),
 	)).Methods("POST")
 
 	subRouter.Handle("/user", common.With(

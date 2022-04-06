@@ -55,7 +55,7 @@ function ConnectStore(props: ConnectStoreProps) {
           <div className="flex space-x-4">
             {!getButtonDisabled("shopee") && (
               <button
-                className="flex w-40 justify-center rounded-md bg-gradient-to-r from-[#f53d2d] to-[#f63] py-2 px-4 font-bold text-white shadow-lg shadow-orange-600/50 hover:from-orange-700 hover:to-orange-700 focus:outline-none focus:ring focus:ring-orange-200"
+                className="flex w-40 justify-center rounded-md bg-gradient-to-r from-[#ff9c68] to-[#ff5422] py-2 px-4 font-bold text-white shadow-lg shadow-orange-600/50 hover:from-orange-700 hover:to-orange-700 focus:outline-none focus:ring focus:ring-orange-200"
                 type="submit"
               >
                 {<ShopeeIcon />}{" "}

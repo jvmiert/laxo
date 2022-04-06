@@ -6,9 +6,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Make the dashboard page
-  - Setup a callback url on nextjs under setup-shop/callback for each platform's oauth callback
-  - Setup my webserver to be able to receive callback requests from the platforms
-  - Create database logic that tracks what platform is connected to what shop
   - Setup frontend to redirect to oauth authorization url of each platform on button connect click
   - Process the return callbacks and verify them
   - Store the access tokens in the database
