@@ -35,6 +35,7 @@ function DashboardSettings(props: DashboardSettingsProps) {
           })}
         </p>
         <input
+          readOnly
           className="appearance-none rounded border bg-gray-50 py-2 px-3 leading-tight text-gray-700 text-gray-500 shadow"
           value={shops.shops[0].name}
         />

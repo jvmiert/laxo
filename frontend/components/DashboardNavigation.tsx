@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { useGetShop } from "@/hooks/swrHooks";
 import DashboardNavItem from "@/components/DashboardNavItem";
 
@@ -36,12 +37,8 @@ export default function DashboardNavigation() {
         <div className="block w-full">
           {navigationData.map((item) =>
             item.children ? (
-              <>
-                <DashboardNavItem
-                  key={item.name}
-                  href={item.href}
-                  name={item.name}
-                />
+              <Fragment key={item.name}>
+                <DashboardNavItem href={item.href} name={item.name} />
                 {item.children.map((subItem) => (
                   <DashboardNavItem
                     key={subItem.name}
@@ -50,7 +47,7 @@ export default function DashboardNavigation() {
                     depth={1}
                   />
                 ))}
-              </>
+              </Fragment>
             ) : (
               <DashboardNavItem
                 key={item.name}
