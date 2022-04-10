@@ -10,7 +10,7 @@ import useLoginFuncs, { LoginSchemaValues } from "@/hooks/loginFormFuncs";
 import NavLogo from "@/components/NavLogo";
 
 export const getServerSideProps: GetServerSideProps =
-  withRedirectAuth("/dashboard");
+  withRedirectAuth("/dashboard/home");
 
 type LoginPageProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
@@ -193,4 +193,4 @@ function LoginPage(props: LoginPageProps) {
   );
 }
 
-export default withUnauthPage("/dashboard", LoginPage);
+export default withUnauthPage("/dashboard/home", LoginPage);

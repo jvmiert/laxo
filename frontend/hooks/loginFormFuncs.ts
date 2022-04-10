@@ -53,7 +53,7 @@ export default function useLoginFuncs(): [
     }
 
     if (success) {
-      redirectSafely(query?.next ? (query.next as string) : "/dashboard");
+      redirectSafely(query?.next ? (query.next as string) : "/dashboard/home");
       return {};
     }
   };

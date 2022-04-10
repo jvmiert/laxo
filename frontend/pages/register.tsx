@@ -236,4 +236,4 @@ function RegisterPage(props: RegisterPageProps) {
   );
 }
 
-export default withUnauthPage("/dashboard", RegisterPage);
+export default withUnauthPage("/dashboard/home", RegisterPage);
