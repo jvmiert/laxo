@@ -22,7 +22,6 @@ function NavLink(props: NavLinkProps) {
 
   if (splitPath.length > 1) {
     comparePath = splitPath[1];
-    console.log(comparePath);
   }
 
   const splitHref = href.split("/");
