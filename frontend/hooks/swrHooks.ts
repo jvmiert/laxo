@@ -1,7 +1,10 @@
 import { AxiosError, AxiosResponse } from "axios";
 import useSWR from "swr";
 import { useAxios } from "@/providers/AxiosProvider";
-import type { GetShopResponse } from "@/types/ApiResponse";
+import type {
+  GetShopResponse,
+  GetPlatformsResponse,
+} from "@/types/ApiResponse";
 
 export function useGetAuth() {
   const { axiosClient } = useAxios();
@@ -32,6 +35,30 @@ export function useGetShop(): {
 
   return {
     shops: data ? data.data : { shops: [], total: 0 },
+    error,
+    loading: isValidating,
+  };
+}
+
+export function useGetShopPlatforms(shopID: string): {
+  platforms: GetPlatformsResponse;
+  error: AxiosError | undefined;
+  loading: boolean;
+} {
+  const { axiosClient } = useAxios();
+  const { data, error, isValidating } = useSWR<
+    AxiosResponse<GetPlatformsResponse>,
+    AxiosError<unknown>
+  >(
+    shopID !== "" ? ["/oauth-redirects", shopID] : null,
+    (url) => axiosClient.get<GetPlatformsResponse>(url, { params: { shopID } }),
+    {
+      shouldRetryOnError: true,
+    },
+  );
+
+  return {
+    platforms: data ? data.data : { shopID: "", platforms: [] },
     error,
     loading: isValidating,
   };

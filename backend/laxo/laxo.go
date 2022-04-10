@@ -68,9 +68,8 @@ func SetupRouter(testing bool) *mux.Router {
 	)).Methods("POST")
 
 	subRouter.Handle("/oauth-redirects", common.With(
-		negroni.HandlerFunc(assureJSON),
 		negroni.WrapFunc(assureAuth(HandleOautchRedirects)),
-	)).Methods("POST")
+	)).Methods("GET")
 
 	subRouter.Handle("/user", common.With(
 		negroni.HandlerFunc(assureJSON),

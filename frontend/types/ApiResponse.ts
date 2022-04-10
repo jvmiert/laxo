@@ -20,7 +20,18 @@ export type GetShopResponseShops = {
   name: string;
   platforms: Array<GetShopResponsePlatforms>;
 };
+
 export type GetShopResponse = {
   shops: Array<GetShopResponseShops>;
   total: number;
+};
+
+export type GetPlatformsPlatforms = {
+  platform: string;
+  url: string;
+};
+
+export type GetPlatformsResponse = {
+  shopID: string;
+  platforms: Array<GetPlatformsPlatforms>;
 };

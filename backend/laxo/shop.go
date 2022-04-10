@@ -23,6 +23,7 @@ type PlatformReturn struct {
   Created    int64    `json:"created"`
 }
 
+
 func GetShopCreateFailure(errs error, printer *message.Printer) validation.Errors {
   errMap := errs.(validation.Errors)
 

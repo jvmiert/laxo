@@ -11,17 +11,8 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
 }
 
 func HandleOautchRedirects(w http.ResponseWriter, r *http.Request, uID string) {
-  var o OAuthRedirectRequest
-
-  if err := decodeJSONBody(w, r, &o); err != nil {
-    var mr *malformedRequest
-    if errors.As(err, &mr) {
-      http.Error(w, mr.msg, mr.status)
-    } else {
-      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    }
-    return
-  }
+  shopID := r.URL.Query().Get("shopID")
+  o := &OAuthRedirectRequest{ShopID: shopID}
 
   printer := getLocalePrinter(r)
   if err := o.Validate(uID, printer); err != nil {
@@ -29,14 +20,22 @@ func HandleOautchRedirects(w http.ResponseWriter, r *http.Request, uID string) {
     return
   }
 
-  url, err := o.GenerateRedirect()
+  err := o.GenerateRedirect()
 
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
-  fmt.Fprintf(w, "%s\n", url)
+  js, err := o.JSON()
+
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+  w.Write(js)
 }
 
 func HandleGetMyShops(w http.ResponseWriter, r *http.Request, uID string) {

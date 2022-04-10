@@ -1,70 +1,107 @@
-import { useIntl } from "react-intl";
+import cc from "classcat";
+import type { ReactElement } from "react";
+import { FormattedMessage, MessageDescriptor } from "react-intl";
 import { useRouter } from "next/router";
 import { fromUnixTime, formatDistance } from "date-fns";
 import { enUS, vi } from "date-fns/locale";
-import { useGetShop } from "@/hooks/swrHooks";
+import { useGetShop, useGetShopPlatforms } from "@/hooks/swrHooks";
 import { DotsVerticalIcon } from "@heroicons/react/outline";
 import LazadaIcon from "@/components/icons/LazadaIcon";
 import ShopeeIcon from "@/components/icons/ShopeeIcon";
 import TikiIcon from "@/components/icons/TikiIcon";
+import ShopNotMadeNotification from "@/components/ShopNotMadeNotification";
+
+type PlatformVisualDataType = {
+  icon: ReactElement;
+  text: ReactElement<MessageDescriptor>;
+  cssGradient: string;
+  cssShadow: string;
+  cssHover: string;
+  cssRing: string;
+};
+
+type PlatformVisualObjectType = {
+  [index: string]: PlatformVisualDataType;
+};
+const PlatformVisuals: PlatformVisualObjectType = {
+  shopee: {
+    icon: <ShopeeIcon />,
+    text: (
+      <FormattedMessage
+        defaultMessage="Shopee"
+        description="Connect Page: Connect Shopee Button"
+      />
+    ),
+    cssGradient: "from-[#ff9c68] to-[#ff5422]",
+    cssShadow: "shadow-orange-500/50",
+    cssHover: "hover:from-orange-700 hover:to-orange-700",
+    cssRing: "focus:ring-orange-200",
+  },
+  lazada: {
+    icon: <LazadaIcon />,
+    text: (
+      <FormattedMessage
+        defaultMessage="Lazada"
+        description="Connect Page: Connect Lazada Button"
+      />
+    ),
+    cssGradient: "from-[#37D8FF] to-[#972BFF]",
+    cssShadow: "shadow-blue-600/50",
+    cssHover: "hover:from-blue-700 hover:to-blue-700",
+    cssRing: "focus:ring-blue-200",
+  },
+  tiki: {
+    icon: <TikiIcon />,
+    text: (
+      <FormattedMessage
+        defaultMessage="Tiki"
+        description="Connect Page: Connect Tiki Button"
+      />
+    ),
+    cssGradient: "from-[#1a94ff] to-[#1083e8]",
+    cssShadow: "shadow-blue-600/50",
+    cssHover: "hover:from-blue-700 hover:to-blue-700",
+    cssRing: "focus:ring-blue-200",
+  },
+};
 
 export default function PlatformConnect() {
-  const t = useIntl();
   const { locale } = useRouter();
   const { shops } = useGetShop();
 
-  const getButtonDisabled = (platform: string): boolean => {
-    if (shops.shops.length == 0) return true;
+  const shopID = shops.shops.length > 0 ? shops.shops[0].id : "";
 
-    if (shops.shops[0].platforms.length == 0) return false;
+  const { platforms } = useGetShopPlatforms(shopID);
 
-    return (
-      shops.shops[0].platforms.filter((e) => e.name.toLowerCase() == platform)
-        .length > 0
-    );
-  };
+  if (shops.total < 1) return <ShopNotMadeNotification />;
 
   return (
     <>
       <div className="mt-6 max-w-xl rounded-md border border-gray-100 bg-gray-50 p-6">
         <p className="mb-4 border-b border-gray-200 pb-4 font-bold">Add New</p>
         <div className="flex space-x-4">
-          {!getButtonDisabled("shopee") && (
-            <button
-              className="flex w-40 justify-center rounded-md bg-gradient-to-r from-[#ff9c68] to-[#ff5422] py-2 px-4 font-bold text-white shadow-lg shadow-orange-600/50 hover:from-orange-700 hover:to-orange-700 focus:outline-none focus:ring focus:ring-orange-200"
-              type="submit"
-            >
-              {<ShopeeIcon />}{" "}
-              {t.formatMessage({
-                defaultMessage: "Shopee",
-                description: "Connect Page: Connect Shopee Button",
-              })}
-            </button>
-          )}
-          {!getButtonDisabled("lazada") && (
-            <button
-              className="flex w-40 justify-center rounded-md bg-gradient-to-r from-[#37D8FF] to-[#972BFF] py-2 px-4 font-bold text-white shadow-lg shadow-blue-600/50 hover:from-blue-700 hover:to-blue-700 focus:outline-none focus:ring focus:ring-blue-200"
-              type="submit"
-            >
-              {<LazadaIcon />}{" "}
-              {t.formatMessage({
-                defaultMessage: "Lazada",
-                description: "Connect Page: Connect Lazada Button",
-              })}
-            </button>
-          )}
-          {!getButtonDisabled("tiki") && (
-            <button
-              className="flex w-40 justify-center rounded-md bg-gradient-to-r from-[#1a94ff] to-[#1083e8] py-2 px-4 font-bold text-white shadow-lg shadow-blue-600/50 hover:from-blue-700 hover:to-blue-700 focus:outline-none focus:ring focus:ring-blue-200"
-              type="submit"
-            >
-              {<TikiIcon />}{" "}
-              {t.formatMessage({
-                defaultMessage: "Tiki",
-                description: "Connect Page: Connect Tiki Button",
-              })}
-            </button>
-          )}
+          {platforms.platforms.map((p) => {
+            if (p.platform in PlatformVisuals)
+              return (
+                <a
+                  key={p.platform}
+                  href={p.url}
+                  className={cc([
+                    "flex w-40 justify-center rounded-md bg-gradient-to-r",
+                    PlatformVisuals[p.platform].cssGradient,
+                    "py-2 px-4 font-bold text-white shadow-lg",
+                    PlatformVisuals[p.platform].cssShadow,
+                    PlatformVisuals[p.platform].cssHover,
+                    "focus:outline-none focus:ring",
+                    PlatformVisuals[p.platform].cssRing,
+                  ])}
+                  type="submit"
+                >
+                  {PlatformVisuals[p.platform].icon}{" "}
+                  {PlatformVisuals[p.platform].text}
+                </a>
+              );
+          })}
         </div>
       </div>
       {shops.shops.length > 0 && shops.shops[0].platforms.length > 0 && (
