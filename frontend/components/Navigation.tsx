@@ -13,10 +13,29 @@ interface NavLinkProps {
 function NavLink(props: NavLinkProps) {
   const { currentPath, href, navText } = props;
 
+  // For now we are just checking if the first sub path
+  // is matching.
+  let comparePath = currentPath;
+  let compareHref = href;
+
+  const splitPath = currentPath.split("/");
+
+  if (splitPath.length > 1) {
+    comparePath = splitPath[1];
+    console.log(comparePath);
+  }
+
+  const splitHref = href.split("/");
+  if (splitHref.length > 1) {
+    compareHref = splitHref[1];
+  }
+
   return (
     <li>
       <Link href={href}>
-        <a className={`${currentPath == href ? "underline" : ""}`}>{navText}</a>
+        <a className={`${comparePath == compareHref ? "underline" : ""}`}>
+          {navText}
+        </a>
       </Link>
     </li>
   );
