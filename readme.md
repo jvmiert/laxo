@@ -6,8 +6,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Make the dashboard page
-  - Transform the post endpoint for getting url redirects to a get endpoint. The endpoint should automatically see what platforms are already connected and return the unconnected ones
-  - Setup frontend to redirect to oauth authorization url of each platform on button connect click
   - Process the return callbacks and verify them
   - Store the access tokens in the database
 - Write test for get shop
