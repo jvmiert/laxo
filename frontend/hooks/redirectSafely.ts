@@ -1,6 +1,10 @@
 import { useRouter } from "next/router";
 
-export const redirectAllowList = new Set(["/dashboard"]);
+export const redirectAllowList = new Set([
+  "/dashboard/home",
+  "/dashboard/settings",
+  "/dashboard/platforms",
+]);
 
 export default function useRedirectSafely(): {
   redirectSafely: (url: string) => void;

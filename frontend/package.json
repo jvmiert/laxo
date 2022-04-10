@@ -21,6 +21,7 @@
     "@types/final-form-focus": "^1.1.2",
     "@types/google-protobuf": "^3.15.5",
     "axios": "^0.25.0",
+    "classcat": "^5.0.3",
     "date-fns": "^2.28.0",
     "final-form": "^4.20.6",
     "final-form-focus": "^1.1.2",

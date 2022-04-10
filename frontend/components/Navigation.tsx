@@ -58,7 +58,7 @@ export default function Navigation() {
               <>
                 <NavLink
                   currentPath={pathname}
-                  href="/dashboard"
+                  href="/dashboard/home"
                   navText="Dashboard"
                 />
                 <NavLink

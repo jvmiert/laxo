@@ -116,3 +116,4 @@ func (s *OAuthRedirectRequest) GenerateRedirect() (string, error) {
   return fmt.Sprint(url.String()), nil
 }
 
+// @TODO: When retrieving the callback, match the hash with: http://www.inanzzz.com/index.php/post/g4nt/signing-messages-and-verifying-integrity-with-a-secret-using-hmac-in-golang
