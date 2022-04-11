@@ -23,7 +23,8 @@ export default function DashboardNavItem({
         "mb-1",
         { "ml-0.5": !active },
         { "border-l-2 border-indigo-700": active },
-        `pl-${2 + 4 * depth}`,
+        { "pl-2": depth === 0 },
+        { "pl-6": depth > 0 },
         { "hover:ml-0 hover:border-l-2 hover:border-gray-50": !active },
       ])}
     >
