@@ -121,4 +121,5 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 
 # Programming
 - For API design: https://stripe.com/docs/api/promotion_codes/list
-
+- React inspiration: https://github.com/alan2207/bulletproof-react/tree/master/src
+- imagick reference: https://github.com/gographics/imagick/tree/im-7/examples
