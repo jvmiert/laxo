@@ -6,8 +6,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Make the dashboard page
-  - Process the return callbacks and verify them
-  - Store the access tokens in the database
+  - Properly define success or failure for Lazada authorization check
+  - Store the access tokens and additional information in the database
 - Write test for get shop
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.
@@ -21,6 +21,7 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Long-term to-do
 - Figure out how to handle multiple shops / transition between shops
+- Properly type the axios posts/errors/returns in my post hooks (e.g. the useOAuthApi)
 - Interesting layout example for nextjs:
   - https://github.com/vercel/next.js/issues/8193#issuecomment-873281365
 - Implement: https://github.com/gorilla/csrf

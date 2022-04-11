@@ -3,12 +3,15 @@ package laxo
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"golang.org/x/text/message"
 	"golang.org/x/text/number"
 	"laxo.vn/laxo/laxo/sqlc"
 )
+
+var ErrUserNoShops = errors.New("User does have any shops")
 
 type ShopReturn struct {
 	ID         string           `json:"id"`
@@ -169,7 +172,7 @@ func RetrieveShopsByUserID(userID string) ([]Shop, error) {
   )
 
   if err != nil {
-    Logger.Debug("Shop retrieval error", err)
+    Logger.Error("Shop retrieval error", err)
     return nil, err
   }
 
@@ -189,7 +192,7 @@ func RetrieveShopsPlatformsByUserID(userID string) ([]sqlc.GetShopsPlatformsByUs
   )
 
   if err != nil {
-    Logger.Debug("Shop retrieval error", err)
+    Logger.Error("Shop retrieval error", err)
     return nil, err
   }
 
@@ -215,3 +218,18 @@ func SaveNewShopToDB(s *Shop, u string) error {
   return nil
 }
 
+func GetActiveShopByUserID(userID string) (*Shop, error) {
+  shops, err := RetrieveShopsByUserID(userID)
+
+  if err != nil {
+    Logger.Error("Active shop retrieval error", err)
+    return nil, err
+  }
+
+  if len(shops) < 1 {
+    err := ErrUserNoShops
+    return nil, err
+  }
+
+  return &shops[0], nil
+}

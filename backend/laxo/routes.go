@@ -10,7 +10,29 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
   fmt.Fprintf(w, "Hello, your uID is: %s\n", uID)
 }
 
-func HandleOautchRedirects(w http.ResponseWriter, r *http.Request, uID string) {
+func HandleVerifyOAuth(w http.ResponseWriter, r *http.Request, uID string) {
+  var o OAuthVerifyRequest
+
+  if err := decodeJSONBody(w, r, &o); err != nil {
+    var mr *malformedRequest
+    if errors.As(err, &mr) {
+      http.Error(w, mr.msg, mr.status)
+    } else {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    }
+    return
+  }
+
+  printer := getLocalePrinter(r)
+  if err := o.verify(uID, printer); err != nil {
+    ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+    return
+  }
+
+  fmt.Fprintf(w, "Hello, your uID is: %s\n", uID)
+}
+
+func HandleOAuthRedirects(w http.ResponseWriter, r *http.Request, uID string) {
   shopID := r.URL.Query().Get("shopID")
   o := &OAuthRedirectRequest{ShopID: shopID}
 

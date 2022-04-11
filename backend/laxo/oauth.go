@@ -16,7 +16,112 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jackc/pgx/v4"
 	"golang.org/x/text/message"
+	"laxo.vn/laxo/laxo/lazada"
 )
+
+type OAuthVerifyRequest struct {
+  Platform     string     `json:"platform"`
+  Code         string     `json:"code"`
+  State        string     `json:"state"`
+}
+
+func (o *OAuthVerifyRequest) verify(uID string, printer *message.Printer) error {
+  if o.Code == "" {
+    return validation.Errors{
+      "code": validation.NewError(
+        "code_missing",
+        printer.Sprintf("code is required")),
+    }
+  }
+
+  shop, err := GetActiveShopByUserID(uID)
+
+  if err == ErrUserNoShops {
+    return validation.Errors{
+      "state": validation.NewError(
+        "user_no_shops",
+        printer.Sprintf("user does not have any shops")),
+    }
+  } else if err != nil {
+    Logger.Error("OAuthVerifyRequest validation error", "error", err)
+    return validation.Errors{
+      "state": validation.NewError(
+        "general_failure",
+        printer.Sprintf("something went wrong")),
+    }
+  }
+
+  secretKey := os.Getenv("OAUTH_HMAC_SECRET")
+
+  if secretKey == "" {
+    Logger.Error("OAuth HMAC secret key is not set!")
+    return errors.New("secret key not set")
+  }
+
+  if o.State == "" && o.Platform != "shopee" {
+    return validation.Errors{
+      "state": validation.NewError(
+        "invalid_state",
+        printer.Sprintf("supplied state is invalid")),
+    }
+  }
+
+  if o.State != "" {
+    recHash, err := hex.DecodeString(o.State)
+
+    if err != nil {
+      return validation.Errors{
+        "state": validation.NewError(
+          "invalid_state",
+          printer.Sprintf("supplied state is invalid")),
+      }
+    }
+
+    hash := hmac.New(sha256.New, []byte(secretKey))
+    io.WriteString(hash, shop.Model.ID+o.Platform)
+
+    if ok := hmac.Equal(recHash, hash.Sum(nil)); !ok {
+      return validation.Errors{
+        "state": validation.NewError(
+          "invalid_state",
+          printer.Sprintf("supplied state is invalid")),
+      }
+    }
+
+    // validate the actual code
+    if o.Platform == "lazada" {
+      clientID := os.Getenv("LAZADA_ID")
+      clientSecret := os.Getenv("LAZADA_SECRET")
+
+      if clientID == "" || clientSecret == "" {
+        Logger.Error("Lazada client id or secret is not set!")
+        return validation.Errors{
+          "code": validation.NewError(
+            "general_failure",
+            printer.Sprintf("something went wrong")),
+        }
+      }
+
+      client := lazada.NewClient(clientID, clientSecret, Logger)
+
+      _, err := client.Auth(o.Code)
+
+      if err != nil {
+        Logger.Error("Lazada token request error", "error", err)
+        return validation.Errors{
+          "code": validation.NewError(
+            "general_failure",
+            printer.Sprintf("something went wrong")),
+        }
+      }
+
+      //@TODO: Store auth response in database?
+    }
+  }
+
+
+  return nil
+}
 
 type ReturnRedirect struct {
   Platform     string     `json:"platform"`
@@ -157,6 +262,3 @@ func (s *OAuthRedirectRequest) GenerateRedirect() error {
   return nil
 }
 
-// @TODO: When retrieving the callback, match the hash with: http://www.inanzzz.com/index.php/post/g4nt/signing-messages-and-verifying-integrity-with-a-secret-using-hmac-in-golang
-
-// @TODO: Handle this callback url for lazada: http://localhost:3000/setup-shop/callback/lazada?code=0_108382_cyxXWvT3otZCM41iODqfxx571782&state=9a430e6343286e862fa8921f9afb9bff22b6f94bf2f4cdd6aed019cd13dac51c

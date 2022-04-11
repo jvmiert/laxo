@@ -50,7 +50,7 @@ export function useGetShopPlatforms(shopID: string): {
     AxiosResponse<GetPlatformsResponse>,
     AxiosError<unknown>
   >(
-    shopID !== "" ? ["/oauth-redirects", shopID] : null,
+    shopID !== "" ? ["/oauth/redirects", shopID] : null,
     (url) => axiosClient.get<GetPlatformsResponse>(url, { params: { shopID } }),
     {
       shouldRetryOnError: true,
