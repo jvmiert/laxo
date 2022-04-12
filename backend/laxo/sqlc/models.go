@@ -6,6 +6,22 @@ import (
 	"database/sql"
 )
 
+type PlatformLazada struct {
+	ID               string       `json:"id"`
+	ShopID           string       `json:"shopID"`
+	AccessToken      string       `json:"accessToken"`
+	Country          string       `json:"country"`
+	RefreshToken     string       `json:"refreshToken"`
+	AccountPlatform  string       `json:"accountPlatform"`
+	Account          string       `json:"account"`
+	UserIDVn         string       `json:"userIDVn"`
+	SellerIDVn       string       `json:"sellerIDVn"`
+	ShortCodeVn      string       `json:"shortCodeVn"`
+	RefreshExpiresIn sql.NullTime `json:"refreshExpiresIn"`
+	AccessExpiresIn  sql.NullTime `json:"accessExpiresIn"`
+	Created          sql.NullTime `json:"created"`
+}
+
 type Shop struct {
 	ID         string       `json:"id"`
 	UserID     string       `json:"userID"`
