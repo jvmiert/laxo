@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -16,6 +17,8 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 )
+
+var ErrPlatformFailed = errors.New("platform returned failed message")
 
 type CountryUserInfo struct {
 	Country     string `json:"country"`
@@ -39,6 +42,9 @@ type AuthResponse struct {
 	CountryUserInfo    []CountryUserInfo `json:"country_user_info"`
 	ExpiresIn          int               `json:"expires_in"`
 	Account            string            `json:"account"`
+
+  DateAccessExpired  time.Time
+  DateRefreshExpired time.Time
 }
 
 type LazadaClient struct {
@@ -107,8 +113,6 @@ func (lc *LazadaClient) Auth(code string) (*AuthResponse, error) {
 	values.Add("sign", lc.sign(apiPath))
 	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
 
-  lc.Logger.Debug("Making Lazada request", "fullURL", fullURL)
-
 	req, err = http.NewRequest("GET", fullURL, nil)
 
 	if err != nil {
@@ -117,13 +121,17 @@ func (lc *LazadaClient) Auth(code string) (*AuthResponse, error) {
 
 	httpResp, err := http.DefaultClient.Do(req)
 
-  lc.Logger.Debug("Lazada request response", "code", httpResp.Status, "header", httpResp.Header)
-
 	if err != nil {
 		return nil, err
 	}
 
 	defer httpResp.Body.Close()
+
+  t, err := http.ParseTime(httpResp.Header.Get("Date"))
+
+  if err != nil {
+    return nil, err
+  }
 
 	respBody, err := ioutil.ReadAll(httpResp.Body)
 
@@ -131,15 +139,20 @@ func (lc *LazadaClient) Auth(code string) (*AuthResponse, error) {
 		return nil, err
 	}
 
-  lc.Logger.Debug("Lazada request response body", string(respBody))
-
   resp := &AuthResponse{}
   err = json.Unmarshal(respBody, resp)
 
+  if err != nil {
+    return nil, err
+  }
 
-  lc.Logger.Debug("Lazada request response body (unmarshalled)", resp)
+  if resp.Code != "0" {
+    return nil, ErrPlatformFailed
+  }
 
-  // @TODO: Check the whether code is '0' for success or something else for failure
+  resp.DateRefreshExpired = t.Add(time.Second * time.Duration(resp.RefreshExpiresIn))
+  resp.DateAccessExpired = t.Add(time.Second * time.Duration(resp.ExpiresIn))
+
 	return resp, err
 }
 

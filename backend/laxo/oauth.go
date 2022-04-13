@@ -13,10 +13,13 @@ import (
 	"sort"
 	"strings"
 
+	"database/sql"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jackc/pgx/v4"
 	"golang.org/x/text/message"
 	"laxo.vn/laxo/laxo/lazada"
+	"laxo.vn/laxo/laxo/sqlc"
 )
 
 type OAuthVerifyRequest struct {
@@ -104,7 +107,7 @@ func (o *OAuthVerifyRequest) verify(uID string, printer *message.Printer) error 
 
       client := lazada.NewClient(clientID, clientSecret, Logger)
 
-      _, err := client.Auth(o.Code)
+      authResp, err := client.Auth(o.Code)
 
       if err != nil {
         Logger.Error("Lazada token request error", "error", err)
@@ -115,7 +118,59 @@ func (o *OAuthVerifyRequest) verify(uID string, printer *message.Printer) error 
         }
       }
 
-      //@TODO: Store auth response in database?
+      lazInfo, err := Queries.GetLazadaPlatformByShopID(
+        context.Background(),
+        shop.Model.ID,
+      )
+
+      if err == pgx.ErrNoRows {
+        _, dbErr := Queries.CreateLazadaPlatform(
+          context.Background(),
+          sqlc.CreateLazadaPlatformParams{
+            ShopID: shop.Model.ID,
+            AccessToken: authResp.AccessToken,
+            Country: authResp.Country,
+            RefreshToken: authResp.RefreshToken,
+            AccountPlatform: authResp.AccountPlatform,
+            Account: authResp.Account,
+            UserIDVn: authResp.CountryUserInfo[0].UserID,
+            SellerIDVn: authResp.CountryUserInfo[0].SellerID,
+            ShortCodeVn: authResp.CountryUserInfo[0].ShortCode,
+            RefreshExpiresIn: sql.NullTime{Time: authResp.DateRefreshExpired, Valid: true},
+            AccessExpiresIn: sql.NullTime{Time: authResp.DateAccessExpired, Valid: true},
+          },
+        )
+
+        if dbErr != nil {
+          return dbErr
+        }
+      } else if err != nil {
+        Logger.Error("Platform retrieval error", err)
+        return validation.Errors{
+          "code": validation.NewError(
+            "general_failure",
+            printer.Sprintf("something went wrong")),
+        }
+      }
+
+      err = Queries.UpdateLazadaPlatform(
+        context.Background(),
+        sqlc.UpdateLazadaPlatformParams{
+          AccessToken: authResp.AccessToken,
+          RefreshToken: authResp.RefreshToken,
+          RefreshExpiresIn: sql.NullTime{Time: authResp.DateRefreshExpired, Valid: true},
+          AccessExpiresIn: sql.NullTime{Time: authResp.DateAccessExpired, Valid: true},
+          ID: lazInfo.ID,
+        },
+      )
+      if err != nil {
+        Logger.Error("Platform update error", err)
+        return validation.Errors{
+          "code": validation.NewError(
+            "general_failure",
+            printer.Sprintf("something went wrong")),
+        }
+      }
     }
   }
 

@@ -94,23 +94,14 @@ func (q *Queries) GetLazadaPlatformByShopID(ctx context.Context, shopID string) 
 }
 
 const updateLazadaPlatform = `-- name: UpdateLazadaPlatform :exec
-UPDATE platform_lazada SET shop_id = $1, access_token = $2, country = $3,
-refresh_token = $4, account_platform = $5, account = $6, user_id_vn = $7,
-seller_id_vn = $8, short_code_vn = $9, refresh_expires_in = $10,
-access_expires_in = $11
-WHERE id = $12
+UPDATE platform_lazada SET access_token = $1, refresh_token = $2,
+refresh_expires_in = $3, access_expires_in = $4
+WHERE id = $5
 `
 
 type UpdateLazadaPlatformParams struct {
-	ShopID           string       `json:"shopID"`
 	AccessToken      string       `json:"accessToken"`
-	Country          string       `json:"country"`
 	RefreshToken     string       `json:"refreshToken"`
-	AccountPlatform  string       `json:"accountPlatform"`
-	Account          string       `json:"account"`
-	UserIDVn         string       `json:"userIDVn"`
-	SellerIDVn       string       `json:"sellerIDVn"`
-	ShortCodeVn      string       `json:"shortCodeVn"`
 	RefreshExpiresIn sql.NullTime `json:"refreshExpiresIn"`
 	AccessExpiresIn  sql.NullTime `json:"accessExpiresIn"`
 	ID               string       `json:"id"`
@@ -118,15 +109,8 @@ type UpdateLazadaPlatformParams struct {
 
 func (q *Queries) UpdateLazadaPlatform(ctx context.Context, arg UpdateLazadaPlatformParams) error {
 	_, err := q.db.Exec(ctx, updateLazadaPlatform,
-		arg.ShopID,
 		arg.AccessToken,
-		arg.Country,
 		arg.RefreshToken,
-		arg.AccountPlatform,
-		arg.Account,
-		arg.UserIDVn,
-		arg.SellerIDVn,
-		arg.ShortCodeVn,
 		arg.RefreshExpiresIn,
 		arg.AccessExpiresIn,
 		arg.ID,

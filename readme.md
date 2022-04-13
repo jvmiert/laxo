@@ -6,8 +6,9 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Make the dashboard page
-  - Properly define success or failure for Lazada authorization check
-  - Store the access tokens and additional information in the database
+  - Store that platform is connected in database
+  - Handle error messages in callback page
+  - Handle successful redirect in callback page
 - Write test for get shop
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.

@@ -14,8 +14,6 @@ WHERE shop_id = $1
 LIMIT 1;
 
 -- name: UpdateLazadaPlatform :exec
-UPDATE platform_lazada SET shop_id = $1, access_token = $2, country = $3,
-refresh_token = $4, account_platform = $5, account = $6, user_id_vn = $7,
-seller_id_vn = $8, short_code_vn = $9, refresh_expires_in = $10,
-access_expires_in = $11
-WHERE id = $12;
+UPDATE platform_lazada SET access_token = $1, refresh_token = $2,
+refresh_expires_in = $3, access_expires_in = $4
+WHERE id = $5;
