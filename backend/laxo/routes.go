@@ -10,6 +10,12 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
   fmt.Fprintf(w, "Hello, your uID is: %s\n", uID)
 }
 
+func HandleTest(w http.ResponseWriter, r *http.Request, uID string) {
+  startTask("cool shop")
+  test := GetUILD()
+  fmt.Fprintf(w, "Test, your ULID is: %s\n", test)
+}
+
 func HandleVerifyOAuth(w http.ResponseWriter, r *http.Request, uID string) {
   var o OAuthVerifyRequest
 

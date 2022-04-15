@@ -1,4 +1,4 @@
-package main
+package processing
 
 import "gopkg.in/gographics/imagick.v3/imagick"
 

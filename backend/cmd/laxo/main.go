@@ -39,6 +39,12 @@ func main() {
     return
   }
 
+  temporalClient, err := laxo.InitTemporal()
+
+  if err != nil {
+    logger.Error("Failed to retrieve Temporal client", "error", err)
+  }
+
   r := laxo.SetupRouter(false)
 
   ctx := context.Background()
@@ -125,10 +131,12 @@ func main() {
   shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 15*time.Second)
   defer shutdownCancel()
 
+  temporalClient.Close()
+
   _ = httpServer.Shutdown(shutdownCtx)
   _ = grpcHttpServer.Shutdown(shutdownCtx)
 
-  err := g.Wait()
+  err = g.Wait()
   if err != nil {
     logger.Error("Server returning an error", "error", err)
     os.Exit(2)

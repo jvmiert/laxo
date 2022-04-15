@@ -108,6 +108,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 # Random
 - https://github.com/charithe/durationcheck
 - https://heroicons.com/?
+- https://github.com/mitranim/gow
 
 # Third party project links
 - https://docs.google.com/spreadsheets/d/1CU_IFc_jVjZ7PLc6UEWmPNszufvYhhrVAGpJUemNU40/edit#gid=0
