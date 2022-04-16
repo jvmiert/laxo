@@ -22,7 +22,7 @@ func InitTemporal() (client.Client, error) {
   return c, err
 }
 
-func startTask(shopID string) error {
+func startTask(shopID string) (string, error) {
   workflowOptions := client.StartWorkflowOptions{
     ID:        "product_" + GetUILD(),
     TaskQueue: "product",
@@ -31,9 +31,9 @@ func startTask(shopID string) error {
 	we, err := TemporalClient.ExecuteWorkflow(context.Background(), workflowOptions, processing.ProcessLazadaProducts, shopID)
 	if err != nil {
     Logger.Error("Unable to execute workflow", "error", err)
-    return err
+    return "", err
 	}
 
 	Logger.Info("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
-  return nil
+  return we.GetID(), nil
 }

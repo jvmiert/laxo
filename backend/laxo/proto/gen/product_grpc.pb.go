@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductServiceClient interface {
 	CreateFrame(ctx context.Context, in *CreateFrameRequest, opts ...grpc.CallOption) (ProductService_CreateFrameClient, error)
+	GetProductRetrieveUpdate(ctx context.Context, in *ProductRetrieveUpdateRequest, opts ...grpc.CallOption) (ProductService_GetProductRetrieveUpdateClient, error)
 }
 
 type productServiceClient struct {
@@ -65,11 +66,44 @@ func (x *productServiceCreateFrameClient) Recv() (*CreateFrameReply, error) {
 	return m, nil
 }
 
+func (c *productServiceClient) GetProductRetrieveUpdate(ctx context.Context, in *ProductRetrieveUpdateRequest, opts ...grpc.CallOption) (ProductService_GetProductRetrieveUpdateClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ProductService_ServiceDesc.Streams[1], "/product.ProductService/GetProductRetrieveUpdate", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &productServiceGetProductRetrieveUpdateClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type ProductService_GetProductRetrieveUpdateClient interface {
+	Recv() (*ProductRetrieveUpdateReply, error)
+	grpc.ClientStream
+}
+
+type productServiceGetProductRetrieveUpdateClient struct {
+	grpc.ClientStream
+}
+
+func (x *productServiceGetProductRetrieveUpdateClient) Recv() (*ProductRetrieveUpdateReply, error) {
+	m := new(ProductRetrieveUpdateReply)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ProductServiceServer is the server API for ProductService service.
 // All implementations must embed UnimplementedProductServiceServer
 // for forward compatibility
 type ProductServiceServer interface {
 	CreateFrame(*CreateFrameRequest, ProductService_CreateFrameServer) error
+	GetProductRetrieveUpdate(*ProductRetrieveUpdateRequest, ProductService_GetProductRetrieveUpdateServer) error
 	mustEmbedUnimplementedProductServiceServer()
 }
 
@@ -79,6 +113,9 @@ type UnimplementedProductServiceServer struct {
 
 func (UnimplementedProductServiceServer) CreateFrame(*CreateFrameRequest, ProductService_CreateFrameServer) error {
 	return status.Errorf(codes.Unimplemented, "method CreateFrame not implemented")
+}
+func (UnimplementedProductServiceServer) GetProductRetrieveUpdate(*ProductRetrieveUpdateRequest, ProductService_GetProductRetrieveUpdateServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetProductRetrieveUpdate not implemented")
 }
 func (UnimplementedProductServiceServer) mustEmbedUnimplementedProductServiceServer() {}
 
@@ -114,6 +151,27 @@ func (x *productServiceCreateFrameServer) Send(m *CreateFrameReply) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _ProductService_GetProductRetrieveUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ProductRetrieveUpdateRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ProductServiceServer).GetProductRetrieveUpdate(m, &productServiceGetProductRetrieveUpdateServer{stream})
+}
+
+type ProductService_GetProductRetrieveUpdateServer interface {
+	Send(*ProductRetrieveUpdateReply) error
+	grpc.ServerStream
+}
+
+type productServiceGetProductRetrieveUpdateServer struct {
+	grpc.ServerStream
+}
+
+func (x *productServiceGetProductRetrieveUpdateServer) Send(m *ProductRetrieveUpdateReply) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // ProductService_ServiceDesc is the grpc.ServiceDesc for ProductService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -125,6 +183,11 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "CreateFrame",
 			Handler:       _ProductService_CreateFrame_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetProductRetrieveUpdate",
+			Handler:       _ProductService_GetProductRetrieveUpdate_Handler,
 			ServerStreams: true,
 		},
 	},

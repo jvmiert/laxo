@@ -5,6 +5,13 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Work on real-time product importing feedback interface
+  - Replace current polling functionality with redis streams or redis pub/sub
+  - Design the interface
+    - Position
+    - Progress visualization
+  - Document functionality
+- Add product retrieval functionality to Lazada client
 - Make the dashboard page
   - Store that platform is connected in database
   - Handle error messages in callback page

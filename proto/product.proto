@@ -6,6 +6,7 @@ package product;
 
 service ProductService {
   rpc CreateFrame (CreateFrameRequest) returns (stream CreateFrameReply) {}
+  rpc GetProductRetrieveUpdate (ProductRetrieveUpdateRequest) returns (stream ProductRetrieveUpdateReply) {}
 }
 
 message CreateFrameRequest {
@@ -16,3 +17,13 @@ message CreateFrameReply {
   string imgID = 1;
 }
 
+message ProductRetrieveUpdateRequest {
+  string shopID = 1;
+  string retrieveID = 2;
+}
+
+message ProductRetrieveUpdateReply {
+  string currentStatus = 1;
+  uint32  totalProducts = 2;
+  uint32  currentProducts = 3;
+}

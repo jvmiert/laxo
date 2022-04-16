@@ -11,9 +11,14 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
 }
 
 func HandleTest(w http.ResponseWriter, r *http.Request, uID string) {
-  startTask("cool shop")
-  test := GetUILD()
-  fmt.Fprintf(w, "Test, your ULID is: %s\n", test)
+  wfID, err := startTask("cool shop")
+
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  fmt.Fprint(w, wfID)
 }
 
 func HandleVerifyOAuth(w http.ResponseWriter, r *http.Request, uID string) {

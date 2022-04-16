@@ -13,9 +13,19 @@ type ProductServiceCreateFrame = {
   readonly responseType: typeof product_pb.CreateFrameReply;
 };
 
+type ProductServiceGetProductRetrieveUpdate = {
+  readonly methodName: string;
+  readonly service: typeof ProductService;
+  readonly requestStream: false;
+  readonly responseStream: true;
+  readonly requestType: typeof product_pb.ProductRetrieveUpdateRequest;
+  readonly responseType: typeof product_pb.ProductRetrieveUpdateReply;
+};
+
 export class ProductService {
   static readonly serviceName: string;
   static readonly CreateFrame: ProductServiceCreateFrame;
+  static readonly GetProductRetrieveUpdate: ProductServiceGetProductRetrieveUpdate;
 }
 
 export type ServiceError = { message: string, code: number; metadata: grpc.Metadata }
@@ -51,5 +61,6 @@ export class ProductServiceClient {
 
   constructor(serviceHost: string, options?: grpc.RpcOptions);
   createFrame(requestMessage: product_pb.CreateFrameRequest, metadata?: grpc.Metadata): ResponseStream<product_pb.CreateFrameReply>;
+  getProductRetrieveUpdate(requestMessage: product_pb.ProductRetrieveUpdateRequest, metadata?: grpc.Metadata): ResponseStream<product_pb.ProductRetrieveUpdateReply>;
 }
 
