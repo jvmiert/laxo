@@ -6,7 +6,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Work on real-time product importing feedback interface
-  - Replace current polling functionality with redis streams or redis pub/sub
+  - Figure out a way for clients to figure out in-progress event from a backend endpoint
+  - Come up with a timeout functionality to ensure the client doesn't wait too long if for whatever reason the task fails
   - Design the interface
     - Position
     - Progress visualization
@@ -28,6 +29,7 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
 
 # Long-term to-do
+- Make all logging follow the same format
 - Figure out how to handle multiple shops / transition between shops
 - Properly type the axios posts/errors/returns in my post hooks (e.g. the useOAuthApi)
 - Interesting layout example for nextjs:
@@ -132,3 +134,4 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - For API design: https://stripe.com/docs/api/promotion_codes/list
 - React inspiration: https://github.com/alan2207/bulletproof-react/tree/master/src
 - imagick reference: https://github.com/gographics/imagick/tree/im-7/examples
+- https://github.com/dedupeio/dedupe

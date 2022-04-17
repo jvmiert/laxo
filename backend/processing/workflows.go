@@ -51,11 +51,9 @@ func ProcessLazadaProducts(ctx workflow.Context, shopID string) (err error) {
   processState.State = "save"
   processState.Total = fetchData.TotalProducts
 
-  //@TODO: Make sure we don't make any off-by-one errors :(
-
   for i := 0; i < fetchData.TotalProducts; i++ {
     processState.Current = i
-    err = workflow.ExecuteActivity(sessionCtx, a.SaveLazadaProducts, LazadaSaveParam{DataKey: fetchData.DataKey, ProductIndex: i}).Get(sessionCtx, nil)
+    err = workflow.ExecuteActivity(sessionCtx, a.SaveLazadaProducts, LazadaSaveParam{DataKey: fetchData.DataKey, ProductIndex: i, ProductTotal: fetchData.TotalProducts}).Get(sessionCtx, nil)
 
     if err != nil {
       processState.State = "failed"

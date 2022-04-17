@@ -24,6 +24,6 @@ message ProductRetrieveUpdateRequest {
 
 message ProductRetrieveUpdateReply {
   string currentStatus = 1;
-  uint32  totalProducts = 2;
-  uint32  currentProducts = 3;
+  int32  totalProducts = 2;
+  int32  currentProducts = 3;
 }

@@ -28,7 +28,7 @@ export default function useShopApi(): {
         console.log("onMessage", res);
       },
       onEnd: (res) => {
-        //console.log("onEnd", res);
+        console.log("onEnd", res);
       },
     });
   };

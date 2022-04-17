@@ -605,11 +605,11 @@ proto.product.ProductRetrieveUpdateReply.deserializeBinaryFromReader = function(
       msg.setCurrentstatus(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readUint32());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setTotalproducts(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readUint32());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCurrentproducts(value);
       break;
     default:
@@ -650,14 +650,14 @@ proto.product.ProductRetrieveUpdateReply.serializeBinaryToWriter = function(mess
   }
   f = message.getTotalproducts();
   if (f !== 0) {
-    writer.writeUint32(
+    writer.writeInt32(
       2,
       f
     );
   }
   f = message.getCurrentproducts();
   if (f !== 0) {
-    writer.writeUint32(
+    writer.writeInt32(
       3,
       f
     );
@@ -684,7 +684,7 @@ proto.product.ProductRetrieveUpdateReply.prototype.setCurrentstatus = function(v
 
 
 /**
- * optional uint32 totalProducts = 2;
+ * optional int32 totalProducts = 2;
  * @return {number}
  */
 proto.product.ProductRetrieveUpdateReply.prototype.getTotalproducts = function() {
@@ -702,7 +702,7 @@ proto.product.ProductRetrieveUpdateReply.prototype.setTotalproducts = function(v
 
 
 /**
- * optional uint32 currentProducts = 3;
+ * optional int32 currentProducts = 3;
  * @return {number}
  */
 proto.product.ProductRetrieveUpdateReply.prototype.getCurrentproducts = function() {
