@@ -131,7 +131,9 @@ func main() {
   shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 15*time.Second)
   defer shutdownCancel()
 
-  temporalClient.Close()
+  if temporalClient != nil {
+    temporalClient.Close()
+  }
 
   _ = httpServer.Shutdown(shutdownCtx)
   _ = grpcHttpServer.Shutdown(shutdownCtx)
