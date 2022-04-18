@@ -35,7 +35,7 @@ func HandleVerifyOAuth(w http.ResponseWriter, r *http.Request, uID string) {
   }
 
   printer := getLocalePrinter(r)
-  if err := o.verify(uID, printer); err != nil {
+  if err := o.Verify(uID, printer); err != nil {
     ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
     return
   }

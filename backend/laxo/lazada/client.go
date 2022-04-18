@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 )
 
 var ErrPlatformFailed = errors.New("platform returned failed message")
+var ErrProductsFailed = errors.New("get products returned failed message")
 
 type CountryUserInfo struct {
 	Country     string `json:"country"`
@@ -47,6 +49,68 @@ type AuthResponse struct {
   DateRefreshExpired time.Time
 }
 
+type GetProductsResponse struct {
+	Data struct {
+		TotalProducts int `json:"total_products"`
+		Products      []struct {
+			Skus []struct {
+				Status              string   `json:"Status"`
+				Quantity            int      `json:"quantity"`
+				PackageContentsEn   string   `json:"package_contents_en"`
+				CompatibleVariation string   `json:"_compatible_variation_"`
+				Images              []string `json:"Images"`
+				SellerSku           string   `json:"SellerSku"`
+				ShopSku             string   `json:"ShopSku"`
+				SpecialTimeFormat   string   `json:"special_time_format"`
+				PackageContent      string   `json:"package_content"`
+				URL                 string   `json:"Url"`
+				PackageWidth        string   `json:"package_width"`
+				SpecialToTime       string   `json:"special_to_time"`
+				ColorFamily         string   `json:"color_family"`
+				SpecialFromTime     string   `json:"special_from_time"`
+				PackageHeight       string   `json:"package_height"`
+				SpecialPrice        float64  `json:"special_price"`
+				Price               float64  `json:"price"`
+				PackageLength       string   `json:"package_length"`
+				SpecialFromDate     string   `json:"special_from_date"`
+				PackageWeight       string   `json:"package_weight"`
+				Available           int      `json:"Available"`
+				SkuID               int      `json:"SkuId"`
+				SpecialToDate       string   `json:"special_to_date"`
+			} `json:"skus"`
+			ItemID          int `json:"item_id"`
+			PrimaryCategory int `json:"primary_category"`
+			Attributes      struct {
+				Name               string `json:"name"`
+				ShortDescription   string `json:"short_description"`
+				Description        string `json:"description"`
+				Brand              string `json:"brand"`
+				Model              string `json:"model"`
+				HeadphoneFeatures  string `json:"headphone_features"`
+				Bluetooth          string `json:"bluetooth"`
+				WarrantyType       string `json:"warranty_type"`
+				Warranty           string `json:"warranty"`
+				NameEn             string `json:"name_en"`
+				DescriptionEn      string `json:"description_en"`
+				Hazmat             string `json:"Hazmat"`
+				ShortDescriptionEn string `json:"short_description_en"`
+			} `json:"attributes"`
+		} `json:"products"`
+	} `json:"data"`
+	Code      string `json:"code"`
+	RequestID string `json:"request_id"`
+}
+
+type QueryProductsParams struct {
+  Filter          string
+  UpdateBefore    time.Time
+  CreatedBefore   time.Time
+  Offset          int
+  CreatedAfter    time.Time
+  UpdatedAfter    time.Time
+  Limit           int
+}
+
 type LazadaClient struct {
 	APIKey    string
 	APISecret string
@@ -58,6 +122,68 @@ type LazadaClient struct {
 	SysParams  map[string]string
 	APIParams  map[string]string
 	FileParams map[string][]byte
+}
+
+func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*GetProductsResponse, error) {
+	var req *http.Request
+	var err error
+
+  lc.AddAPIParam("filter", "live")
+  lc.AddAPIParam("limit", strconv.Itoa(params.Limit))
+  lc.AddAPIParam("offset", strconv.Itoa(params.Offset))
+
+	// add query params
+	values := url.Values{}
+	for key, val := range lc.SysParams {
+		values.Add(key, val)
+	}
+
+  for key, val := range lc.APIParams {
+    values.Add(key, val)
+  }
+
+	apiPath := "/products/get"
+	apiServerURL := "https://api.lazada.vn/rest"
+
+
+	values.Add("sign", lc.sign(apiPath))
+	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
+
+  lc.Logger.Debug("Making product query", "url", fullURL)
+
+	req, err = http.NewRequest("GET", fullURL, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	httpResp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer httpResp.Body.Close()
+
+
+	respBody, err := ioutil.ReadAll(httpResp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+  resp := &GetProductsResponse{}
+  err = json.Unmarshal(respBody, resp)
+
+  if err != nil {
+    return nil, err
+  }
+
+  if resp.Code != "0" {
+    return nil, ErrProductsFailed
+  }
+
+	return resp, err
 }
 
 func (lc *LazadaClient) AddAPIParam(key string, val string) *LazadaClient {
@@ -156,17 +282,23 @@ func (lc *LazadaClient) Auth(code string) (*AuthResponse, error) {
 	return resp, err
 }
 
-func NewClient(id string, secret string, logger hclog.Logger) *LazadaClient {
-	return &LazadaClient{
+func NewClient(id string, secret string, access string, logger hclog.Logger) *LazadaClient {
+  client := &LazadaClient{
 		APIKey:    id,
 		APISecret: secret,
     Logger: logger,
 		SysParams: map[string]string{
-			"app_key":     id,
-			"sign_method": "sha256",
-			"timestamp":   fmt.Sprintf("%d000", time.Now().Unix()),
+			"app_key":       id,
+			"sign_method":   "sha256",
+			"timestamp":     fmt.Sprintf("%d000", time.Now().Unix()),
 		},
 		APIParams:  map[string]string{},
 		FileParams: map[string][]byte{},
 	}
+
+  if access != "" {
+    client.SysParams["access_token"] = access
+  }
+
+  return client
 }

@@ -28,7 +28,7 @@ type OAuthVerifyRequest struct {
   State        string     `json:"state"`
 }
 
-func (o *OAuthVerifyRequest) verify(uID string, printer *message.Printer) error {
+func (o *OAuthVerifyRequest) Verify(uID string, printer *message.Printer) error {
   if o.Code == "" {
     return validation.Errors{
       "code": validation.NewError(
@@ -105,7 +105,7 @@ func (o *OAuthVerifyRequest) verify(uID string, printer *message.Printer) error 
         }
       }
 
-      client := lazada.NewClient(clientID, clientSecret, Logger)
+      client := lazada.NewClient(clientID, clientSecret, "", Logger)
 
       authResp, err := client.Auth(o.Code)
 

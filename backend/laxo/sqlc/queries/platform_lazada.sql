@@ -17,3 +17,8 @@ LIMIT 1;
 UPDATE platform_lazada SET access_token = $1, refresh_token = $2,
 refresh_expires_in = $3, access_expires_in = $4
 WHERE id = $5;
+
+-- name: GetValidAccessTokenByShopID :one
+SELECT access_token FROM platform_lazada
+WHERE shop_id = $1 AND access_expires_in > NOW()
+LIMIT 1;

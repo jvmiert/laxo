@@ -93,6 +93,19 @@ func (q *Queries) GetLazadaPlatformByShopID(ctx context.Context, shopID string) 
 	return i, err
 }
 
+const getValidAccessTokenByShopID = `-- name: GetValidAccessTokenByShopID :one
+SELECT access_token FROM platform_lazada
+WHERE shop_id = $1 AND access_expires_in > NOW()
+LIMIT 1
+`
+
+func (q *Queries) GetValidAccessTokenByShopID(ctx context.Context, shopID string) (string, error) {
+	row := q.db.QueryRow(ctx, getValidAccessTokenByShopID, shopID)
+	var access_token string
+	err := row.Scan(&access_token)
+	return access_token, err
+}
+
 const updateLazadaPlatform = `-- name: UpdateLazadaPlatform :exec
 UPDATE platform_lazada SET access_token = $1, refresh_token = $2,
 refresh_expires_in = $3, access_expires_in = $4
