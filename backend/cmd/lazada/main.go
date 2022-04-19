@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -49,5 +50,5 @@ func main() {
     return
   }
 
-  logger.Info("Query succeeded", "response", response)
+  logger.Info("Query succeeded", "response", fmt.Sprintf("%+v", response))
 }

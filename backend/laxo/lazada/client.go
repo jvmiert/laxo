@@ -49,56 +49,77 @@ type AuthResponse struct {
   DateRefreshExpired time.Time
 }
 
-type GetProductsResponse struct {
-	Data struct {
-		TotalProducts int `json:"total_products"`
-		Products      []struct {
-			Skus []struct {
-				Status              string   `json:"Status"`
-				Quantity            int      `json:"quantity"`
-				PackageContentsEn   string   `json:"package_contents_en"`
-				CompatibleVariation string   `json:"_compatible_variation_"`
-				Images              []string `json:"Images"`
-				SellerSku           string   `json:"SellerSku"`
-				ShopSku             string   `json:"ShopSku"`
-				SpecialTimeFormat   string   `json:"special_time_format"`
-				PackageContent      string   `json:"package_content"`
-				URL                 string   `json:"Url"`
-				PackageWidth        string   `json:"package_width"`
-				SpecialToTime       string   `json:"special_to_time"`
-				ColorFamily         string   `json:"color_family"`
-				SpecialFromTime     string   `json:"special_from_time"`
-				PackageHeight       string   `json:"package_height"`
-				SpecialPrice        float64  `json:"special_price"`
-				Price               float64  `json:"price"`
-				PackageLength       string   `json:"package_length"`
-				SpecialFromDate     string   `json:"special_from_date"`
-				PackageWeight       string   `json:"package_weight"`
-				Available           int      `json:"Available"`
-				SkuID               int      `json:"SkuId"`
-				SpecialToDate       string   `json:"special_to_date"`
-			} `json:"skus"`
-			ItemID          int `json:"item_id"`
-			PrimaryCategory int `json:"primary_category"`
-			Attributes      struct {
-				Name               string `json:"name"`
-				ShortDescription   string `json:"short_description"`
-				Description        string `json:"description"`
-				Brand              string `json:"brand"`
-				Model              string `json:"model"`
-				HeadphoneFeatures  string `json:"headphone_features"`
-				Bluetooth          string `json:"bluetooth"`
-				WarrantyType       string `json:"warranty_type"`
-				Warranty           string `json:"warranty"`
-				NameEn             string `json:"name_en"`
-				DescriptionEn      string `json:"description_en"`
-				Hazmat             string `json:"Hazmat"`
-				ShortDescriptionEn string `json:"short_description_en"`
-			} `json:"attributes"`
-		} `json:"products"`
-	} `json:"data"`
-	Code      string `json:"code"`
-	RequestID string `json:"request_id"`
+type ProductsResponseAttributes struct {
+  Name               string `json:"name"`
+  ShortDescription   string `json:"short_description"`
+  Description        string `json:"description"`
+  Brand              string `json:"brand"`
+  Model              string `json:"model"`
+  HeadphoneFeatures  string `json:"headphone_features"`
+  Bluetooth          string `json:"bluetooth"`
+  WarrantyType       string `json:"warranty_type"`
+  Warranty           string `json:"warranty"`
+  NameEn             string `json:"name_en"`
+  DescriptionEn      string `json:"description_en"`
+  Hazmat             string `json:"Hazmat"`
+  ShortDescriptionEn string `json:"short_description_en"`
+}
+
+type ProductsResponseSuspendedSkus struct {
+  RejectReason    string   `json:"rejectReason"`
+  SellerSku       string   `json:"SellerSku"`
+  SkuID           int      `json:"SkuId"`
+}
+
+type ProductsResponseSkus struct {
+  Status              string   `json:"Status"`
+  Quantity            int      `json:"quantity"`
+  PackageContentsEn   string   `json:"package_contents_en"`
+  CompatibleVariation string   `json:"_compatible_variation_"`
+  Images              []string `json:"Images"`
+  SellerSku           string   `json:"SellerSku"`
+  ShopSku             string   `json:"ShopSku"`
+  SpecialTimeFormat   string   `json:"special_time_format"`
+  PackageContent      string   `json:"package_content"`
+  URL                 string   `json:"Url"`
+  PackageWidth        string   `json:"package_width"`
+  SpecialToTime       string   `json:"special_to_time"`
+  ColorFamily         string   `json:"color_family"`
+  SpecialFromTime     string   `json:"special_from_time"`
+  PackageHeight       string   `json:"package_height"`
+  SpecialPrice        float64  `json:"special_price"`
+  Price               float64  `json:"price"`
+  PackageLength       string   `json:"package_length"`
+  SpecialFromDate     string   `json:"special_from_date"`
+  PackageWeight       string   `json:"package_weight"`
+  Available           int      `json:"Available"`
+  SkuID               int      `json:"SkuId"`
+  SpecialToDate       string   `json:"special_to_date"`
+}
+
+type ProductsResponseProducts struct {
+  Skus []ProductsResponseSkus                   `json:"skus"`
+  ItemID          int                           `json:"item_id"`
+  PrimaryCategory int                           `json:"primary_category"`
+  Attributes      ProductsResponseAttributes    `json:"attributes"`
+  CreatedTime     string                        `json:"created_time"`
+  UpdatedTime     string                        `json:"updated_time"`
+  Images          []string                      `json:"images"`
+  MarketImages    []string                      `json:"marketImages"`
+  Status          string                        `json:"status"`
+  SubStatus       string                        `json:"subStatus"`
+  SuspendedSkus   ProductsResponseSuspendedSkus `json:"suspendedSkus"`
+}
+
+type ProductsResponseData struct {
+		TotalProducts int                        `json:"total_products"`
+		Products      []ProductsResponseProducts `json:"products"`
+}
+
+type ProductsResponse struct {
+  Data      ProductsResponseData  `json:"data"`
+	Code      string                `json:"code"`
+	RequestID string                `json:"request_id"`
 }
 
 type QueryProductsParams struct {
@@ -124,7 +145,7 @@ type LazadaClient struct {
 	FileParams map[string][]byte
 }
 
-func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*GetProductsResponse, error) {
+func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResponse, error) {
 	var req *http.Request
 	var err error
 
@@ -172,7 +193,7 @@ func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*GetProductsR
 		return nil, err
 	}
 
-  resp := &GetProductsResponse{}
+  resp := &ProductsResponse{}
   err = json.Unmarshal(respBody, resp)
 
   if err != nil {
