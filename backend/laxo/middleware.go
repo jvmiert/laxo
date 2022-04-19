@@ -1,13 +1,14 @@
 package laxo
 
 import (
-  "context"
-  "mime"
-  "net/http"
-  "time"
-  "strings"
+	"context"
+	"fmt"
+	"mime"
+	"net/http"
+	"strings"
+	"time"
 
-  "github.com/mediocregopher/radix/v4"
+	"github.com/mediocregopher/radix/v4"
 )
 
 type AuthHandlerFunc func(w http.ResponseWriter, r *http.Request, u string)
@@ -62,17 +63,41 @@ func assureAuth(handler AuthHandlerFunc) http.HandlerFunc {
     }
 
     if uID == "" {
-      c := &http.Cookie{
-        Name:     AppConfig.AuthCookieName,
-        Value:    "",
-        Expires:  time.Unix(0, 0),
-        Secure:   true,
-        HttpOnly: true,
-      }
-
-      http.SetCookie(w, c)
+      RemoveUserCookie(w)
       http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
       return
+    }
+
+    // Extend expire if older than a day
+    var eTTL int
+    ctx = context.Background()
+    err = RedisClient.Do(ctx, radix.Cmd(&eTTL, "TTL", c.Value))
+
+    if err != nil {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+      Logger.Error("Error in auth handler function (Redis)", "error", err)
+      return
+    }
+
+    newExpireTime := time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire)
+    newExpireDuration := time.Until(newExpireTime)
+
+    oldExpireDuration := time.Duration(eTTL) * time.Second
+
+    diff := newExpireDuration - oldExpireDuration
+
+    // Refresh expire every day
+    if diff > 24 * time.Hour {
+      nExpireString := fmt.Sprintf("%.0f", newExpireDuration.Seconds())
+
+      ctx = context.Background()
+      if err := RedisClient.Do(ctx, radix.Cmd(nil, "EXPIRE", c.Value, nExpireString)); err != nil {
+        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+        Logger.Error("Couldn't set user session in Redis", "error", err)
+        return
+      }
+
+      SetUserCookie(c.Value, w, newExpireTime)
     }
 
     handler(w, r, uID)

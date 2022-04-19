@@ -169,7 +169,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  sessionKey, err := SetUserSession(user)
+  expireT, sessionKey, err := SetUserSession(user)
 
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -178,7 +178,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
   user.SessionKey = sessionKey
 
-  SetUserCookie(user.SessionKey, w)
+  SetUserCookie(user.SessionKey, w, expireT)
 
   js, err := user.JSON()
 
@@ -214,7 +214,7 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  sessionKey, err := SetUserSession(&u)
+  expireT, sessionKey, err := SetUserSession(&u)
 
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -222,7 +222,7 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
   }
 
   u.SessionKey = sessionKey
-  SetUserCookie(u.SessionKey, w)
+  SetUserCookie(u.SessionKey, w, expireT)
 
   js, err := u.JSON()
 

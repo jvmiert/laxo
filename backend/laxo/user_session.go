@@ -1,36 +1,37 @@
 package laxo
 
 import (
-  "fmt"
-  "net/http"
-  "time"
-  "context"
-  "encoding/base64"
+	"context"
+	"encoding/base64"
+	"fmt"
+	"net/http"
+	"time"
 
-  "github.com/mediocregopher/radix/v4"
+	"github.com/mediocregopher/radix/v4"
 )
 
-func SetUserSession(u *User) (string, error) {
+func SetUserSession(u *User) (time.Time, string, error) {
   randomBytes, err := GenerateRandomString(128)
 
   if err != nil {
     Logger.Error("Couldn't generate random bytes", "error", err)
-    return "", err
+    return time.Time{}, "", err
   }
 
   sessionKey := base64.StdEncoding.EncodeToString(randomBytes)
 
   // Get the seconds till the token expires
-  expires := time.Until(time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire))
+  expiresT := time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire)
+  expires := time.Until(expiresT)
   expireString := fmt.Sprintf("%.0f", expires.Seconds())
 
   ctx := context.Background()
   if err := RedisClient.Do(ctx, radix.Cmd(nil, "SETEX", sessionKey, expireString, u.Model.ID)); err != nil {
     Logger.Error("Couldn't set user session in Redis", "error", err)
-    return "", err
+    return time.Time{}, "", err
   }
 
-  return sessionKey, nil
+  return expiresT, sessionKey, nil
 }
 
 func RemoveUserSession(sessionToken string) error {
@@ -42,16 +43,14 @@ func RemoveUserSession(sessionToken string) error {
   return nil
 }
 
-func SetUserCookie(sessionToken string, w http.ResponseWriter) {
-  expires := time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire)
-
+func SetUserCookie(sessionToken string, w http.ResponseWriter, t time.Time) {
   authCookie := &http.Cookie{
     Name:     AppConfig.AuthCookieName,
     Path:     "/",
     Value:    sessionToken,
     HttpOnly: true,
     Secure:   true,
-    Expires:  expires,
+    Expires:  t,
   }
 
   http.SetCookie(w, authCookie)
@@ -63,7 +62,7 @@ func RemoveUserCookie(w http.ResponseWriter) {
     Value:    "",
     HttpOnly: true,
     Secure:   true,
-    MaxAge:  -1,
+    Expires:  time.Unix(0, 0),
   }
 
   http.SetCookie(w, authCookie)
