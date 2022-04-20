@@ -8,11 +8,12 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Work on real-time product importing feedback interface
   - Figure out a way for clients to figure out in-progress event from a backend endpoint
   - Come up with a timeout functionality to ensure the client doesn't wait too long if for whatever reason the task fails
+    - Figure out how GRPC returns error-ed request/response
   - Design the interface
     - Position
     - Progress visualization
   - Document functionality
-- Add product retrieval functionality to Lazada client
+- Create data storage for Lazada product retrieval
 - Make the dashboard page
   - Store that platform is connected in database
   - Handle error messages in callback page
