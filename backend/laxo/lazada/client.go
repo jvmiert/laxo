@@ -50,19 +50,31 @@ type AuthResponse struct {
 }
 
 type ProductsResponseAttributes struct {
-  Name               string `json:"name"`
-  ShortDescription   string `json:"short_description"`
-  Description        string `json:"description"`
-  Brand              string `json:"brand"`
-  Model              string `json:"model"`
-  HeadphoneFeatures  string `json:"headphone_features"`
-  Bluetooth          string `json:"bluetooth"`
-  WarrantyType       string `json:"warranty_type"`
-  Warranty           string `json:"warranty"`
-  NameEn             string `json:"name_en"`
-  DescriptionEn      string `json:"description_en"`
-  Hazmat             string `json:"Hazmat"`
-  ShortDescriptionEn string `json:"short_description_en"`
+  Name                 string `json:"name"`
+  ShortDescription     string `json:"short_description"`
+  Description          string `json:"description"`
+  Brand                string `json:"brand"`
+  Model                string `json:"model"`
+  HeadphoneFeatures    string `json:"headphone_features"`
+  Bluetooth            string `json:"bluetooth"`
+  WarrantyType         string `json:"warranty_type"`
+  Warranty             string `json:"warranty"`
+  Hazmat               string `json:"Hazmat"`
+  ExpireDate           string `json:"Expire_date"`
+  BrandClassification  string `json:"brand_classification"`
+  IngredientPreference string `json:"ingredient_preference"`
+  LotNumber            string `json:"Lot_number"`
+  UnitsHB              string `json:"units_hb"`
+  FmltSkinCare         string `json:"fmlt_skin_care"`
+  Quantitative         string `json:"Quantitative"`
+  SkinCareByAge        string `json:"skin_care_by_age"`
+  SkinBenefit          string `json:"skin_benefit"`
+  SkinType             string `json:"skin_type"`
+  UserManual           string `json:"User_Manual"`
+  CountryOriginHB      string `json:"country_origin_hb"`
+  ColorFamily          string `json:"color_family"`
+  FragranceFamily      string `json:"fragrance_family"`
+  Source               string `json:"source"`
 }
 
 type ProductsResponseSuspendedSkus struct {
@@ -74,12 +86,10 @@ type ProductsResponseSuspendedSkus struct {
 type ProductsResponseSkus struct {
   Status              string   `json:"Status"`
   Quantity            int      `json:"quantity"`
-  PackageContentsEn   string   `json:"package_contents_en"`
-  CompatibleVariation string   `json:"_compatible_variation_"`
   Images              []string `json:"Images"`
+  MarketImages        []string `json:"marketImages"`
   SellerSku           string   `json:"SellerSku"`
   ShopSku             string   `json:"ShopSku"`
-  SpecialTimeFormat   string   `json:"special_time_format"`
   PackageContent      string   `json:"package_content"`
   URL                 string   `json:"Url"`
   PackageWidth        string   `json:"package_width"`
