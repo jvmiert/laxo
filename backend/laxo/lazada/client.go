@@ -17,10 +17,12 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-hclog"
+	"gopkg.in/guregu/null.v4"
 )
 
 var ErrPlatformFailed = errors.New("platform returned failed message")
 var ErrProductsFailed = errors.New("get products returned failed message")
+var ErrProductsParseFailed = errors.New("couldn't parse products")
 
 type CountryUserInfo struct {
 	Country     string `json:"country"`
@@ -50,75 +52,99 @@ type AuthResponse struct {
 }
 
 type ProductsResponseAttributes struct {
-  Name                 string `json:"name"`
-  ShortDescription     string `json:"short_description"`
-  Description          string `json:"description"`
-  Brand                string `json:"brand"`
-  Model                string `json:"model"`
-  HeadphoneFeatures    string `json:"headphone_features"`
-  Bluetooth            string `json:"bluetooth"`
-  WarrantyType         string `json:"warranty_type"`
-  Warranty             string `json:"warranty"`
-  Hazmat               string `json:"Hazmat"`
-  ExpireDate           string `json:"Expire_date"`
-  BrandClassification  string `json:"brand_classification"`
-  IngredientPreference string `json:"ingredient_preference"`
-  LotNumber            string `json:"Lot_number"`
-  UnitsHB              string `json:"units_hb"`
-  FmltSkinCare         string `json:"fmlt_skin_care"`
-  Quantitative         string `json:"Quantitative"`
-  SkinCareByAge        string `json:"skin_care_by_age"`
-  SkinBenefit          string `json:"skin_benefit"`
-  SkinType             string `json:"skin_type"`
-  UserManual           string `json:"User_Manual"`
-  CountryOriginHB      string `json:"country_origin_hb"`
-  ColorFamily          string `json:"color_family"`
-  FragranceFamily      string `json:"fragrance_family"`
-  Source               string `json:"source"`
+  Name                 null.String `json:"name"`
+  ShortDescription     null.String `json:"short_description"`
+  Description          null.String `json:"description"`
+  Brand                null.String `json:"brand"`
+  Model                null.String `json:"model"`
+  HeadphoneFeatures    null.String `json:"headphone_features"`
+  Bluetooth            null.String `json:"bluetooth"`
+  WarrantyType         null.String `json:"warranty_type"`
+  Warranty             null.String `json:"warranty"`
+  Hazmat               null.String `json:"Hazmat"`
+  ExpireDate           null.String `json:"Expire_date"`
+  BrandClassification  null.String `json:"brand_classification"`
+  IngredientPreference null.String `json:"ingredient_preference"`
+  LotNumber            null.String `json:"Lot_number"`
+  UnitsHB              null.String `json:"units_hb"`
+  FmltSkinCare         null.String `json:"fmlt_skin_care"`
+  Quantitative         null.String `json:"Quantitative"`
+  SkinCareByAge        null.String `json:"skin_care_by_age"`
+  SkinBenefit          null.String `json:"skin_benefit"`
+  SkinType             null.String `json:"skin_type"`
+  UserManual           null.String `json:"User_Manual"`
+  CountryOriginHB      null.String `json:"country_origin_hb"`
+  ColorFamily          null.String `json:"color_family"`
+  FragranceFamily      null.String `json:"fragrance_family"`
+  Source               null.String `json:"source"`
 }
 
 type ProductsResponseSuspendedSkus struct {
-  RejectReason    string   `json:"rejectReason"`
-  SellerSku       string   `json:"SellerSku"`
-  SkuID           int      `json:"SkuId"`
+  RejectReason    null.String   `json:"rejectReason"`
+  SellerSku       null.String   `json:"SellerSku"`
+  SkuID           null.Int      `json:"SkuId"`
 }
 
 type ProductsResponseSkus struct {
-  Status              string   `json:"Status"`
-  Quantity            int      `json:"quantity"`
-  Images              []string `json:"Images"`
-  MarketImages        []string `json:"marketImages"`
-  SellerSku           string   `json:"SellerSku"`
-  ShopSku             string   `json:"ShopSku"`
-  PackageContent      string   `json:"package_content"`
-  URL                 string   `json:"Url"`
-  PackageWidth        string   `json:"package_width"`
-  SpecialToTime       string   `json:"special_to_time"`
-  ColorFamily         string   `json:"color_family"`
-  SpecialFromTime     string   `json:"special_from_time"`
-  PackageHeight       string   `json:"package_height"`
-  SpecialPrice        float64  `json:"special_price"`
-  Price               float64  `json:"price"`
-  PackageLength       string   `json:"package_length"`
-  SpecialFromDate     string   `json:"special_from_date"`
-  PackageWeight       string   `json:"package_weight"`
-  Available           int      `json:"Available"`
-  SkuID               int      `json:"SkuId"`
-  SpecialToDate       string   `json:"special_to_date"`
+  Status              null.String   `json:"Status"`
+  Quantity            null.Int      `json:"quantity"`
+  Images              []null.String `json:"Images"`
+  MarketImages        []null.String `json:"marketImages"`
+  SellerSku           null.String   `json:"SellerSku"`
+  ShopSku             null.String   `json:"ShopSku"`
+  PackageContent      null.String   `json:"package_content"`
+  URL                 null.String   `json:"Url"`
+  PackageWidth        null.String   `json:"package_width"`
+  SpecialToTime       null.String   `json:"special_to_time"`
+  ColorFamily         null.String   `json:"color_family"`
+  SpecialFromTime     null.String   `json:"special_from_time"`
+  PackageHeight       null.String   `json:"package_height"`
+  SpecialPrice        null.Float    `json:"special_price"`
+  Price               null.Float    `json:"price"`
+  PackageLength       null.String   `json:"package_length"`
+  SpecialFromDate     null.String   `json:"special_from_date"`
+  PackageWeight       null.String   `json:"package_weight"`
+  Available           null.Int      `json:"Available"`
+  SkuID               null.Int      `json:"SkuId"`
+  SpecialToDate       null.String   `json:"special_to_date"`
 }
 
 type ProductsResponseProducts struct {
-  Skus []ProductsResponseSkus                   `json:"skus"`
-  ItemID          int                           `json:"item_id"`
-  PrimaryCategory int                           `json:"primary_category"`
-  Attributes      ProductsResponseAttributes    `json:"attributes"`
-  CreatedTime     string                        `json:"created_time"`
-  UpdatedTime     string                        `json:"updated_time"`
-  Images          []string                      `json:"images"`
-  MarketImages    []string                      `json:"marketImages"`
-  Status          string                        `json:"status"`
-  SubStatus       string                        `json:"subStatus"`
-  SuspendedSkus   ProductsResponseSuspendedSkus `json:"suspendedSkus"`
+  Skus []ProductsResponseSkus                        `json:"skus"`
+  ItemID          null.Int                           `json:"item_id"`
+  PrimaryCategory null.Int                           `json:"primary_category"`
+  Attributes      ProductsResponseAttributes         `json:"attributes"`
+  CreatedTimeRaw  null.String                        `json:"created_time"`
+  UpdatedTimeRaw  null.String                        `json:"updated_time"`
+  Images          []null.String                      `json:"images"`
+  MarketImages    []null.String                      `json:"marketImages"`
+  Status          null.String                        `json:"status"`
+  SubStatus       null.String                        `json:"subStatus"`
+  SuspendedSkus   ProductsResponseSuspendedSkus      `json:"suspendedSkus"`
+  CreatedTime     time.Time
+  UpdatedTime     time.Time
+}
+
+func (p *ProductsResponseProducts) ParseTime() error {
+  if !p.CreatedTimeRaw.Valid || !p.UpdatedTimeRaw.Valid {
+    return ErrProductsParseFailed
+  }
+
+  i, err := strconv.ParseInt(p.CreatedTimeRaw.String, 10, 64)
+  if err != nil {
+    return err
+  }
+
+  p.CreatedTime = time.Unix(i/1000, 0)
+
+
+  i, err = strconv.ParseInt(p.UpdatedTimeRaw.String, 10, 64)
+  if err != nil {
+    return err
+  }
+
+  p.UpdatedTime = time.Unix(i/1000, 0)
+  return nil
 }
 
 type ProductsResponseData struct {
@@ -212,6 +238,13 @@ func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResp
 
   if resp.Code != "0" {
     return nil, ErrProductsFailed
+  }
+
+  for i := range resp.Data.Products {
+    p := &resp.Data.Products[i]
+    if err = p.ParseTime(); err != nil {
+      return nil, err
+    }
   }
 
 	return resp, err

@@ -14,6 +14,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
     - Progress visualization
   - Document functionality
 - Create data storage for Lazada product retrieval
+  - Use null values to avoid database mess
+  - Store date/time values as date/time after parsing, also keep raw values
 - Make the dashboard page
   - Store that platform is connected in database
   - Handle error messages in callback page

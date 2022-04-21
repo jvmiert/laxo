@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/lazada"
+	"laxo.vn/laxo/laxo/sqlc"
 )
 
 func main() {
@@ -50,5 +50,29 @@ func main() {
     return
   }
 
-  logger.Info("Query succeeded", "response", fmt.Sprintf("%+v", response))
+  //logger.Info("Query succeeded", "response", fmt.Sprintf("%+v", response))
+  logger.Info("Query succeeded", "total", response.Data.TotalProducts)
+
+  // @TODO: figure out a way to properly save these products with the null
+  //        posibility.
+  //
+  //        also need to check if the product already exists by checking
+  //        the lazada id? maybe make it unique?
+
+  for _, product := range response.Data.Products {
+    params := sqlc.CreateLazadaProductParams{
+      LazadaID: product.ItemID.Int64,
+      LazadaPrimaryCategory: product.PrimaryCategory.Int64,
+      Created: product.CreatedTime,
+      Updated: product.UpdatedTime,
+      Status: product.Status.String,
+      SubStatus: product.SubStatus.String,
+      ShopID: "01FZQNSR6AQCZ5CZ09QB80AH3C",
+    }
+    _, err := laxo.Queries.CreateLazadaProduct(context.Background(), params)
+    if err != nil {
+      logger.Error("Product save error", "error", err)
+      return
+    }
+  }
 }

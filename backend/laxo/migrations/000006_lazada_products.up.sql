@@ -1,5 +1,17 @@
 BEGIN;
-CREATE TABLE IF NOT EXISTS product_attribute_lazada(
+CREATE TABLE IF NOT EXISTS products_lazada(
+  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  lazada_id BIGINT NOT NULL,
+  lazada_primary_category BIGINT NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated TIMESTAMP WITH TIME ZONE NOT NULL,
+  status VARCHAR(128) NOT NULL,
+  sub_status VARCHAR(128) NOT NULL,
+  shop_id CHAR(26) NOT NULL,
+  CONSTRAINT fk_product_shop_lazada FOREIGN KEY(shop_id) REFERENCES shops(id)
+);
+
+CREATE TABLE IF NOT EXISTS products_attribute_lazada(
   id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
   name TEXT,
   short_description TEXT,
@@ -13,7 +25,7 @@ CREATE TABLE IF NOT EXISTS product_attribute_lazada(
   hazmat TEXT,
   expire_date TEXT,
   brand_classification TEXT,
-  ingredient-preference TEXT,
+  ingredient_preference TEXT,
   lot_number TEXT,
   units_hb TEXT,
   fmlt_skincare TEXT,
@@ -29,7 +41,8 @@ CREATE TABLE IF NOT EXISTS product_attribute_lazada(
   product_id CHAR(26) NOT NULL,
   CONSTRAINT fk_attribute_products_lazada FOREIGN KEY(product_id) REFERENCES products_lazada(id)
 );
-CREATE TABLE IF NOT EXISTS product_sku_lazada(
+
+CREATE TABLE IF NOT EXISTS products_sku_lazada(
   id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
   status VARCHAR(128),
   quantity INTEGER,
@@ -52,15 +65,5 @@ CREATE TABLE IF NOT EXISTS product_sku_lazada(
   special_to_date TIMESTAMP WITH TIME ZONE,
   product_id CHAR(26) NOT NULL,
   CONSTRAINT fk_sku_products_lazada FOREIGN KEY(product_id) REFERENCES products_lazada(id)
-);
-
-CREATE TABLE IF NOT EXISTS products_lazada(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
-  lazada_id BIGINT NOT NULL,
-  lazada_primary_category BIGINT NOT NULL,
-  created TIMESTAMP WITH TIME ZONE NOT NULL,
-  updated TIMESTAMP WITH TIME ZONE NOT NULL,
-  status VARCHAR(128) NOT NULL,
-  sub_status VARCHAR(128) NOT NULL,
 );
 COMMIT;
