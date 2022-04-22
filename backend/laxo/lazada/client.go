@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/araddon/dateparse"
 	"github.com/hashicorp/go-hclog"
 	"gopkg.in/guregu/null.v4"
 )
@@ -86,27 +87,61 @@ type ProductsResponseSuspendedSkus struct {
 }
 
 type ProductsResponseSkus struct {
-  Status              null.String   `json:"Status"`
-  Quantity            null.Int      `json:"quantity"`
-  Images              []null.String `json:"Images"`
-  MarketImages        []null.String `json:"marketImages"`
-  SellerSku           null.String   `json:"SellerSku"`
-  ShopSku             null.String   `json:"ShopSku"`
-  PackageContent      null.String   `json:"package_content"`
-  URL                 null.String   `json:"Url"`
-  PackageWidth        null.String   `json:"package_width"`
-  SpecialToTime       null.String   `json:"special_to_time"`
-  ColorFamily         null.String   `json:"color_family"`
-  SpecialFromTime     null.String   `json:"special_from_time"`
-  PackageHeight       null.String   `json:"package_height"`
-  SpecialPrice        null.Float    `json:"special_price"`
-  Price               null.Float    `json:"price"`
-  PackageLength       null.String   `json:"package_length"`
-  SpecialFromDate     null.String   `json:"special_from_date"`
-  PackageWeight       null.String   `json:"package_weight"`
-  Available           null.Int      `json:"Available"`
-  SkuID               null.Int      `json:"SkuId"`
-  SpecialToDate       null.String   `json:"special_to_date"`
+  Status               null.String   `json:"Status"`
+  Quantity             null.Int      `json:"quantity"`
+  Images               []null.String `json:"Images"`
+  MarketImages         []null.String `json:"marketImages"`
+  SellerSku            null.String   `json:"SellerSku"`
+  ShopSku              null.String   `json:"ShopSku"`
+  PackageContent       null.String   `json:"package_content"`
+  URL                  null.String   `json:"Url"`
+  PackageWidth         null.String   `json:"package_width"`
+  ColorFamily          null.String   `json:"color_family"`
+  PackageHeight        null.String   `json:"package_height"`
+  SpecialPrice         null.Float    `json:"special_price"`
+  Price                null.Float    `json:"price"`
+  PackageLength        null.String   `json:"package_length"`
+  PackageWeight        null.String   `json:"package_weight"`
+  Available            null.Int      `json:"Available"`
+  SkuID                null.Int      `json:"SkuId"`
+  SpecialToTimeRaw     null.String   `json:"special_to_time"`
+  SpecialFromTimeRaw   null.String   `json:"special_from_time"`
+  SpecialFromDateRaw   null.String   `json:"special_from_date"`
+  SpecialToDateRaw     null.String   `json:"special_to_date"`
+  SpecialToTime        time.Time
+  SpecialFromTime      time.Time
+  SpecialFromDate      time.Time
+  SpecialToDate        time.Time
+}
+
+func (p *ProductsResponseSkus) ParseTime() error {
+  adjustValues := [4]null.String{
+    p.SpecialToTimeRaw,
+    p.SpecialFromTimeRaw,
+    p.SpecialToDateRaw,
+    p.SpecialFromDateRaw,
+  }
+
+  parseValues := [4]time.Time{
+    p.SpecialToTime,
+    p.SpecialFromTime,
+    p.SpecialToDate,
+    p.SpecialFromDate,
+
+  }
+
+  for i, v := range adjustValues {
+    if v.Valid {
+      t, err := dateparse.ParseStrict(v.String)
+      if err != nil {
+        return err
+      }
+
+      parseValues[i] = t
+    }
+  }
+
+  return nil
 }
 
 type ProductsResponseProducts struct {
@@ -241,9 +276,18 @@ func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResp
   }
 
   for i := range resp.Data.Products {
+    // parse the product update/created times
     p := &resp.Data.Products[i]
     if err = p.ParseTime(); err != nil {
       return nil, err
+    }
+
+    // parse sku special times
+    for j := range resp.Data.Products[i].Skus {
+      s := &resp.Data.Products[i].Skus[j]
+      if err = s.ParseTime(); err != nil {
+        return nil, err
+      }
     }
   }
 
