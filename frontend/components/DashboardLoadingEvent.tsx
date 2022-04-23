@@ -45,13 +45,13 @@ export default function DashboardLoadingEvent() {
     };
   }, [progress]);
   return (
-    <div className="mb-4 flex flex-row rounded bg-gray-50 p-4">
+    <div className="flex flex-row rounded px-4">
       <div className="pr-4">
         <div className="rounded-full bg-indigo-100 p-4">
           {showDone ? (
-            <CheckIcon className="h-6 w-6 text-indigo-500" />
+            <CheckIcon className="h-4 w-4 text-indigo-500" />
           ) : (
-            <CollectionIcon className="h-6 w-6 text-indigo-500" />
+            <CollectionIcon className="h-4 w-4 text-indigo-500" />
           )}
         </div>
       </div>

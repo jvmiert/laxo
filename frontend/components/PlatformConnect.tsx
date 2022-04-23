@@ -79,7 +79,7 @@ export default function PlatformConnect() {
     <>
       <div className="mt-6 max-w-xl rounded-md border border-gray-100 bg-gray-50 p-6">
         <p className="mb-4 border-b border-gray-200 pb-4 font-bold">Add New</p>
-        <div className="flex space-x-4">
+        <div className="flex flex-wrap justify-center gap-4">
           {platforms.platforms.map((p) => {
             if (p.platform in PlatformVisuals)
               return (
