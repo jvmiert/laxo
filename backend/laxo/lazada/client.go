@@ -146,8 +146,8 @@ func (p *ProductsResponseSkus) ParseTime() error {
 
 type ProductsResponseProducts struct {
   Skus []ProductsResponseSkus                        `json:"skus"`
-  ItemID          null.Int                           `json:"item_id"`
-  PrimaryCategory null.Int                           `json:"primary_category"`
+  ItemID          int64                              `json:"item_id"`
+  PrimaryCategory int64                              `json:"primary_category"`
   Attributes      ProductsResponseAttributes         `json:"attributes"`
   CreatedTimeRaw  null.String                        `json:"created_time"`
   UpdatedTimeRaw  null.String                        `json:"updated_time"`
@@ -156,8 +156,8 @@ type ProductsResponseProducts struct {
   Status          null.String                        `json:"status"`
   SubStatus       null.String                        `json:"subStatus"`
   SuspendedSkus   ProductsResponseSuspendedSkus      `json:"suspendedSkus"`
-  CreatedTime     time.Time
-  UpdatedTime     time.Time
+  Created         time.Time
+  Updated         time.Time
 }
 
 func (p *ProductsResponseProducts) ParseTime() error {
@@ -170,7 +170,7 @@ func (p *ProductsResponseProducts) ParseTime() error {
     return err
   }
 
-  p.CreatedTime = time.Unix(i/1000, 0)
+  p.Created = time.Unix(i/1000, 0)
 
 
   i, err = strconv.ParseInt(p.UpdatedTimeRaw.String, 10, 64)
@@ -178,7 +178,7 @@ func (p *ProductsResponseProducts) ParseTime() error {
     return err
   }
 
-  p.UpdatedTime = time.Unix(i/1000, 0)
+  p.Updated = time.Unix(i/1000, 0)
   return nil
 }
 

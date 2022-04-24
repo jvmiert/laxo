@@ -5,6 +5,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -19,13 +20,13 @@ RETURNING id, lazada_id, lazada_primary_category, created, updated, status, sub_
 `
 
 type CreateLazadaProductParams struct {
-	LazadaID              int64     `json:"lazadaID"`
-	LazadaPrimaryCategory int64     `json:"lazadaPrimaryCategory"`
-	Created               time.Time `json:"created"`
-	Updated               time.Time `json:"updated"`
-	Status                string    `json:"status"`
-	SubStatus             string    `json:"subStatus"`
-	ShopID                string    `json:"shopID"`
+	LazadaID              int64          `json:"lazadaID"`
+	LazadaPrimaryCategory int64          `json:"lazadaPrimaryCategory"`
+	Created               time.Time      `json:"created"`
+	Updated               time.Time      `json:"updated"`
+	Status                sql.NullString `json:"status"`
+	SubStatus             sql.NullString `json:"subStatus"`
+	ShopID                string         `json:"shopID"`
 }
 
 func (q *Queries) CreateLazadaProduct(ctx context.Context, arg CreateLazadaProductParams) (ProductsLazada, error) {
@@ -50,4 +51,61 @@ func (q *Queries) CreateLazadaProduct(ctx context.Context, arg CreateLazadaProdu
 		&i.ShopID,
 	)
 	return i, err
+}
+
+const getLazadaProductByLazadaID = `-- name: GetLazadaProductByLazadaID :one
+SELECT id, lazada_id, lazada_primary_category, created, updated, status, sub_status, shop_id FROM products_lazada
+WHERE lazada_id = $1 AND shop_id = $2
+LIMIT 1
+`
+
+type GetLazadaProductByLazadaIDParams struct {
+	LazadaID int64  `json:"lazadaID"`
+	ShopID   string `json:"shopID"`
+}
+
+func (q *Queries) GetLazadaProductByLazadaID(ctx context.Context, arg GetLazadaProductByLazadaIDParams) (ProductsLazada, error) {
+	row := q.db.QueryRow(ctx, getLazadaProductByLazadaID, arg.LazadaID, arg.ShopID)
+	var i ProductsLazada
+	err := row.Scan(
+		&i.ID,
+		&i.LazadaID,
+		&i.LazadaPrimaryCategory,
+		&i.Created,
+		&i.Updated,
+		&i.Status,
+		&i.SubStatus,
+		&i.ShopID,
+	)
+	return i, err
+}
+
+const updateLazadaProduct = `-- name: UpdateLazadaProduct :exec
+UPDATE products_lazada SET
+  lazada_id = $1, lazada_primary_category = $2, created = $3, updated = $4,
+  status = $5, sub_status = $6
+WHERE id = $7
+`
+
+type UpdateLazadaProductParams struct {
+	LazadaID              int64          `json:"lazadaID"`
+	LazadaPrimaryCategory int64          `json:"lazadaPrimaryCategory"`
+	Created               time.Time      `json:"created"`
+	Updated               time.Time      `json:"updated"`
+	Status                sql.NullString `json:"status"`
+	SubStatus             sql.NullString `json:"subStatus"`
+	ID                    string         `json:"id"`
+}
+
+func (q *Queries) UpdateLazadaProduct(ctx context.Context, arg UpdateLazadaProductParams) error {
+	_, err := q.db.Exec(ctx, updateLazadaProduct,
+		arg.LazadaID,
+		arg.LazadaPrimaryCategory,
+		arg.Created,
+		arg.Updated,
+		arg.Status,
+		arg.SubStatus,
+		arg.ID,
+	)
+	return err
 }

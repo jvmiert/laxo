@@ -5,9 +5,10 @@ CREATE TABLE IF NOT EXISTS products_lazada(
   lazada_primary_category BIGINT NOT NULL,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   updated TIMESTAMP WITH TIME ZONE NOT NULL,
-  status VARCHAR(128) NOT NULL,
-  sub_status VARCHAR(128) NOT NULL,
+  status VARCHAR(128),
+  sub_status VARCHAR(128),
   shop_id CHAR(26) NOT NULL,
+  UNIQUE(lazada_id, shop_id),
   CONSTRAINT fk_product_shop_lazada FOREIGN KEY(shop_id) REFERENCES shops(id)
 );
 

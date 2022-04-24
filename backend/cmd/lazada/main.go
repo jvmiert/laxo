@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/lazada"
-	"laxo.vn/laxo/laxo/sqlc"
+	"laxo.vn/laxo/laxo/store"
 )
 
 func main() {
@@ -20,7 +20,16 @@ func main() {
 
   dbURI := os.Getenv("POSTGRESQL_URL")
 
-  if err := laxo.InitDatabase(dbURI); err != nil {
+  store, err := store.NewStore(dbURI, logger)
+
+  if err != nil {
+    logger.Error("Failed to create new store", "error", err)
+    return
+  }
+
+  lazadaService := lazada.NewService(store, logger)
+
+  if err = laxo.InitDatabase(dbURI); err != nil {
     logger.Error("Failed to init Database", "uri", dbURI, "error", err)
     return
   }
@@ -53,25 +62,9 @@ func main() {
   //logger.Info("Query succeeded", "response", fmt.Sprintf("%+v", response))
   logger.Info("Query succeeded", "total", response.Data.TotalProducts)
 
-  // @TODO: figure out a way to properly save these products with the null
-  //        posibility.
-  //
-  //        also need to check if the product already exists by checking
-  //        the lazada id? maybe make it unique?
-
   for _, product := range response.Data.Products {
-    params := sqlc.CreateLazadaProductParams{
-      LazadaID: product.ItemID.Int64,
-      LazadaPrimaryCategory: product.PrimaryCategory.Int64,
-      Created: product.CreatedTime,
-      Updated: product.UpdatedTime,
-      Status: product.Status.String,
-      SubStatus: product.SubStatus.String,
-      ShopID: "01FZQNSR6AQCZ5CZ09QB80AH3C",
-    }
-    _, err := laxo.Queries.CreateLazadaProduct(context.Background(), params)
-    if err != nil {
-      logger.Error("Product save error", "error", err)
+    if err = lazadaService.SaveOrUpdateProduct(product, "01FZQNSR6AQCZ5CZ09QB80AH3C"); err != nil {
+      logger.Error("SaveOrUpdateProduct return error", "error", err)
       return
     }
   }

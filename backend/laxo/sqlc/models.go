@@ -54,14 +54,14 @@ type ProductsAttributeLazada struct {
 }
 
 type ProductsLazada struct {
-	ID                    string    `json:"id"`
-	LazadaID              int64     `json:"lazadaID"`
-	LazadaPrimaryCategory int64     `json:"lazadaPrimaryCategory"`
-	Created               time.Time `json:"created"`
-	Updated               time.Time `json:"updated"`
-	Status                string    `json:"status"`
-	SubStatus             string    `json:"subStatus"`
-	ShopID                string    `json:"shopID"`
+	ID                    string         `json:"id"`
+	LazadaID              int64          `json:"lazadaID"`
+	LazadaPrimaryCategory int64          `json:"lazadaPrimaryCategory"`
+	Created               time.Time      `json:"created"`
+	Updated               time.Time      `json:"updated"`
+	Status                sql.NullString `json:"status"`
+	SubStatus             sql.NullString `json:"subStatus"`
+	ShopID                string         `json:"shopID"`
 }
 
 type ProductsSkuLazada struct {
