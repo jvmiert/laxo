@@ -12,16 +12,16 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/jackc/pgx/v4"
-	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/text/message"
 	"golang.org/x/text/number"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
-var ErrUserNotExist = errors.New("User does not exist")
+var ErrUserNotExist = errors.New("user does not exist")
+var ErrInvalidPW = errors.New("saved password does not match submitted")
 
 // When the user db model is empty (not loaded from db)
-var ErrModelUnpopulated = errors.New("User model is not retrieved from db")
+var ErrModelUnpopulated = errors.New("user model is not retrieved from db")
 
 var ValidationErrPwReqDigit = "password_requires_digit"
 var ValidationErrPwReqLetter = "password_requires_letter"
@@ -78,11 +78,16 @@ func (u *User) CheckPassword(p string) error {
     return ErrModelUnpopulated
   }
 
-  err := bcrypt.CompareHashAndPassword([]byte(u.Model.Password), []byte(p))
+  match, err := ComparePasswordAndHash(u.Model.Password, p)
 
   if err != nil {
     return err
   }
+
+  if !match {
+    return ErrInvalidPW
+  }
+
   return nil
 }
 
@@ -201,14 +206,14 @@ func RetrieveUserFromDBbyEmail(email string) (*User, error) {
 }
 
 func SaveNewUserToDB(u *User) error {
-  hash, err := bcrypt.GenerateFromPassword([]byte(u.Model.Password), 13)
+  hash, err := CreateHash(u.Model.Password)
 
   if err != nil {
     Logger.Error("Password hash error", "error", err)
     return err
   }
 
-  u.Model.Password = string(hash)
+  u.Model.Password = hash
 
   lowerEmail := strings.ToLower(u.Model.Email)
   savedUser, err := Queries.CreateUser(
