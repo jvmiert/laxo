@@ -182,6 +182,19 @@ func (p *ProductsResponseProducts) ParseTime() error {
   return nil
 }
 
+type ProductResponseVariation struct {
+  Name        string     `json:"name"`
+  HasImage    bool       `json:"has_image"`
+  Customize   bool       `json:"customize"`
+  Options     []string   `json:"options"`
+  Label       string     `json:"label"`
+}
+
+type ProductResponseProducts struct {
+  ProductsResponseProducts
+  Variations    []ProductResponseVariation   `json:"varation"`
+}
+
 type ProductsResponseData struct {
 		TotalProducts int                        `json:"total_products"`
 		Products      []ProductsResponseProducts `json:"products"`
@@ -191,6 +204,14 @@ type ProductsResponse struct {
   Data      ProductsResponseData  `json:"data"`
 	Code      string                `json:"code"`
 	RequestID string                `json:"request_id"`
+  RawData   []byte                `json:"laxo_raw"`
+}
+
+type ProductResponse struct {
+  Data      ProductResponseProducts   `json:"data"`
+	Code      string                    `json:"code"`
+	RequestID string                    `json:"request_id"`
+  RawData   []byte                    `json:"laxo_raw"`
 }
 
 type QueryProductsParams struct {
@@ -214,6 +235,76 @@ type LazadaClient struct {
 	SysParams  map[string]string
 	APIParams  map[string]string
 	FileParams map[string][]byte
+}
+
+func (lc *LazadaClient) QueryProduct(itemID null.Int, sellerSKU null.String) (*ProductResponse, error) {
+	var req *http.Request
+	var err error
+
+  if itemID.Valid {
+    lc.AddAPIParam("item_id", strconv.Itoa(int(itemID.Int64)))
+  }
+
+
+  if sellerSKU.Valid {
+    lc.AddAPIParam("seller_sku", sellerSKU.String)
+  }
+
+	// add query params
+	values := url.Values{}
+	for key, val := range lc.SysParams {
+		values.Add(key, val)
+	}
+
+  for key, val := range lc.APIParams {
+    values.Add(key, val)
+  }
+
+	apiPath := "/product/item/get"
+	apiServerURL := "https://api.lazada.vn/rest"
+
+	values.Add("sign", lc.sign(apiPath))
+	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
+
+  lc.Logger.Debug("Making '/product/item/get' query", "url", fullURL)
+
+	req, err = http.NewRequest("GET", fullURL, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	httpResp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer httpResp.Body.Close()
+
+
+	respBody, err := ioutil.ReadAll(httpResp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+  resp := &ProductResponse{}
+  err = json.Unmarshal(respBody, resp)
+
+  if err != nil {
+    return nil, err
+  }
+
+  resp.RawData = respBody
+
+  if resp.Code != "0" {
+    return nil, ErrProductsFailed
+  }
+
+  //@TODO: parse time
+
+	return resp, err
 }
 
 func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResponse, error) {
@@ -241,7 +332,7 @@ func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResp
 	values.Add("sign", lc.sign(apiPath))
 	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
 
-  lc.Logger.Debug("Making product query", "url", fullURL)
+  lc.Logger.Debug("Making '/products/get' query", "url", fullURL)
 
 	req, err = http.NewRequest("GET", fullURL, nil)
 
@@ -270,6 +361,8 @@ func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResp
   if err != nil {
     return nil, err
   }
+
+  resp.RawData = respBody
 
   if resp.Code != "0" {
     return nil, ErrProductsFailed
