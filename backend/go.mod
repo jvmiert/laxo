@@ -18,6 +18,7 @@ require (
 	github.com/mediocregopher/radix/v4 v4.0.0
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/stretchr/testify v1.7.1
+	github.com/tidwall/gjson v1.14.1
 	github.com/urfave/negroni v1.0.0
 	go.temporal.io/sdk v1.14.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519

@@ -53,6 +53,155 @@ func (q *Queries) CreateLazadaProduct(ctx context.Context, arg CreateLazadaProdu
 	return i, err
 }
 
+const createLazadaProductAttribute = `-- name: CreateLazadaProductAttribute :one
+INSERT INTO products_attribute_lazada (
+  name, short_description, description, brand, model, headphone_features,
+  bluetooth, warranty_type, warranty, hazmat, expire_date,
+  brand_classification, ingredient_preference, lot_number, units_hb,
+  fmlt_skincare, quantitative, skincare_by_age, skin_benefit, skin_type,
+  user_manual, country_origin_hb, color_family, fragrance_family,
+  source, product_id
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7,
+  $8, $9, $10, $11, $12, $13, $14,
+  $15, $16, $17, $18, $19, $20, $21,
+  $22, $23, $24, $25, $26
+)
+RETURNING id, name, short_description, description, brand, model, headphone_features, bluetooth, warranty_type, warranty, hazmat, expire_date, brand_classification, ingredient_preference, lot_number, units_hb, fmlt_skincare, quantitative, skincare_by_age, skin_benefit, skin_type, user_manual, country_origin_hb, color_family, fragrance_family, source, product_id
+`
+
+type CreateLazadaProductAttributeParams struct {
+	Name                 sql.NullString `json:"name"`
+	ShortDescription     sql.NullString `json:"shortDescription"`
+	Description          sql.NullString `json:"description"`
+	Brand                sql.NullString `json:"brand"`
+	Model                sql.NullString `json:"model"`
+	HeadphoneFeatures    sql.NullString `json:"headphoneFeatures"`
+	Bluetooth            sql.NullString `json:"bluetooth"`
+	WarrantyType         sql.NullString `json:"warrantyType"`
+	Warranty             sql.NullString `json:"warranty"`
+	Hazmat               sql.NullString `json:"hazmat"`
+	ExpireDate           sql.NullString `json:"expireDate"`
+	BrandClassification  sql.NullString `json:"brandClassification"`
+	IngredientPreference sql.NullString `json:"ingredientPreference"`
+	LotNumber            sql.NullString `json:"lotNumber"`
+	UnitsHb              sql.NullString `json:"unitsHb"`
+	FmltSkincare         sql.NullString `json:"fmltSkincare"`
+	Quantitative         sql.NullString `json:"quantitative"`
+	SkincareByAge        sql.NullString `json:"skincareByAge"`
+	SkinBenefit          sql.NullString `json:"skinBenefit"`
+	SkinType             sql.NullString `json:"skinType"`
+	UserManual           sql.NullString `json:"userManual"`
+	CountryOriginHb      sql.NullString `json:"countryOriginHb"`
+	ColorFamily          sql.NullString `json:"colorFamily"`
+	FragranceFamily      sql.NullString `json:"fragranceFamily"`
+	Source               sql.NullString `json:"source"`
+	ProductID            string         `json:"productID"`
+}
+
+func (q *Queries) CreateLazadaProductAttribute(ctx context.Context, arg CreateLazadaProductAttributeParams) (ProductsAttributeLazada, error) {
+	row := q.db.QueryRow(ctx, createLazadaProductAttribute,
+		arg.Name,
+		arg.ShortDescription,
+		arg.Description,
+		arg.Brand,
+		arg.Model,
+		arg.HeadphoneFeatures,
+		arg.Bluetooth,
+		arg.WarrantyType,
+		arg.Warranty,
+		arg.Hazmat,
+		arg.ExpireDate,
+		arg.BrandClassification,
+		arg.IngredientPreference,
+		arg.LotNumber,
+		arg.UnitsHb,
+		arg.FmltSkincare,
+		arg.Quantitative,
+		arg.SkincareByAge,
+		arg.SkinBenefit,
+		arg.SkinType,
+		arg.UserManual,
+		arg.CountryOriginHb,
+		arg.ColorFamily,
+		arg.FragranceFamily,
+		arg.Source,
+		arg.ProductID,
+	)
+	var i ProductsAttributeLazada
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.ShortDescription,
+		&i.Description,
+		&i.Brand,
+		&i.Model,
+		&i.HeadphoneFeatures,
+		&i.Bluetooth,
+		&i.WarrantyType,
+		&i.Warranty,
+		&i.Hazmat,
+		&i.ExpireDate,
+		&i.BrandClassification,
+		&i.IngredientPreference,
+		&i.LotNumber,
+		&i.UnitsHb,
+		&i.FmltSkincare,
+		&i.Quantitative,
+		&i.SkincareByAge,
+		&i.SkinBenefit,
+		&i.SkinType,
+		&i.UserManual,
+		&i.CountryOriginHb,
+		&i.ColorFamily,
+		&i.FragranceFamily,
+		&i.Source,
+		&i.ProductID,
+	)
+	return i, err
+}
+
+const getLazadaProductAttributeByProductID = `-- name: GetLazadaProductAttributeByProductID :one
+SELECT id, name, short_description, description, brand, model, headphone_features, bluetooth, warranty_type, warranty, hazmat, expire_date, brand_classification, ingredient_preference, lot_number, units_hb, fmlt_skincare, quantitative, skincare_by_age, skin_benefit, skin_type, user_manual, country_origin_hb, color_family, fragrance_family, source, product_id FROM products_attribute_lazada
+WHERE product_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetLazadaProductAttributeByProductID(ctx context.Context, productID string) (ProductsAttributeLazada, error) {
+	row := q.db.QueryRow(ctx, getLazadaProductAttributeByProductID, productID)
+	var i ProductsAttributeLazada
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.ShortDescription,
+		&i.Description,
+		&i.Brand,
+		&i.Model,
+		&i.HeadphoneFeatures,
+		&i.Bluetooth,
+		&i.WarrantyType,
+		&i.Warranty,
+		&i.Hazmat,
+		&i.ExpireDate,
+		&i.BrandClassification,
+		&i.IngredientPreference,
+		&i.LotNumber,
+		&i.UnitsHb,
+		&i.FmltSkincare,
+		&i.Quantitative,
+		&i.SkincareByAge,
+		&i.SkinBenefit,
+		&i.SkinType,
+		&i.UserManual,
+		&i.CountryOriginHb,
+		&i.ColorFamily,
+		&i.FragranceFamily,
+		&i.Source,
+		&i.ProductID,
+	)
+	return i, err
+}
+
 const getLazadaProductByLazadaID = `-- name: GetLazadaProductByLazadaID :one
 SELECT id, lazada_id, lazada_primary_category, created, updated, status, sub_status, shop_id FROM products_lazada
 WHERE lazada_id = $1 AND shop_id = $2
@@ -105,6 +254,80 @@ func (q *Queries) UpdateLazadaProduct(ctx context.Context, arg UpdateLazadaProdu
 		arg.Updated,
 		arg.Status,
 		arg.SubStatus,
+		arg.ID,
+	)
+	return err
+}
+
+const updateLazadaProductAttribute = `-- name: UpdateLazadaProductAttribute :exec
+UPDATE products_attribute_lazada SET
+  name = $1, short_description = $2, description = $3, brand = $4, model = $5,
+  headphone_features = $6, bluetooth = $7, warranty_type = $8, warranty = $9,
+  hazmat = $10, expire_date = $11, brand_classification = $12,
+  ingredient_preference = $13, lot_number = $14, units_hb = $15,
+  fmlt_skincare = $16, quantitative = $17, skincare_by_age = $18,
+  skin_benefit = $19, skin_type = $20, user_manual = $21,
+  country_origin_hb = $22, color_family = $23, fragrance_family = $24,
+  source = $25
+WHERE id = $26
+`
+
+type UpdateLazadaProductAttributeParams struct {
+	Name                 sql.NullString `json:"name"`
+	ShortDescription     sql.NullString `json:"shortDescription"`
+	Description          sql.NullString `json:"description"`
+	Brand                sql.NullString `json:"brand"`
+	Model                sql.NullString `json:"model"`
+	HeadphoneFeatures    sql.NullString `json:"headphoneFeatures"`
+	Bluetooth            sql.NullString `json:"bluetooth"`
+	WarrantyType         sql.NullString `json:"warrantyType"`
+	Warranty             sql.NullString `json:"warranty"`
+	Hazmat               sql.NullString `json:"hazmat"`
+	ExpireDate           sql.NullString `json:"expireDate"`
+	BrandClassification  sql.NullString `json:"brandClassification"`
+	IngredientPreference sql.NullString `json:"ingredientPreference"`
+	LotNumber            sql.NullString `json:"lotNumber"`
+	UnitsHb              sql.NullString `json:"unitsHb"`
+	FmltSkincare         sql.NullString `json:"fmltSkincare"`
+	Quantitative         sql.NullString `json:"quantitative"`
+	SkincareByAge        sql.NullString `json:"skincareByAge"`
+	SkinBenefit          sql.NullString `json:"skinBenefit"`
+	SkinType             sql.NullString `json:"skinType"`
+	UserManual           sql.NullString `json:"userManual"`
+	CountryOriginHb      sql.NullString `json:"countryOriginHb"`
+	ColorFamily          sql.NullString `json:"colorFamily"`
+	FragranceFamily      sql.NullString `json:"fragranceFamily"`
+	Source               sql.NullString `json:"source"`
+	ID                   string         `json:"id"`
+}
+
+func (q *Queries) UpdateLazadaProductAttribute(ctx context.Context, arg UpdateLazadaProductAttributeParams) error {
+	_, err := q.db.Exec(ctx, updateLazadaProductAttribute,
+		arg.Name,
+		arg.ShortDescription,
+		arg.Description,
+		arg.Brand,
+		arg.Model,
+		arg.HeadphoneFeatures,
+		arg.Bluetooth,
+		arg.WarrantyType,
+		arg.Warranty,
+		arg.Hazmat,
+		arg.ExpireDate,
+		arg.BrandClassification,
+		arg.IngredientPreference,
+		arg.LotNumber,
+		arg.UnitsHb,
+		arg.FmltSkincare,
+		arg.Quantitative,
+		arg.SkincareByAge,
+		arg.SkinBenefit,
+		arg.SkinType,
+		arg.UserManual,
+		arg.CountryOriginHb,
+		arg.ColorFamily,
+		arg.FragranceFamily,
+		arg.Source,
 		arg.ID,
 	)
 	return err

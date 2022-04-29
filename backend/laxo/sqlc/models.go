@@ -68,13 +68,13 @@ type ProductsSkuLazada struct {
 	ID              string         `json:"id"`
 	Status          sql.NullString `json:"status"`
 	Quantity        sql.NullInt32  `json:"quantity"`
-	SellerSku       sql.NullString `json:"sellerSku"`
-	ShopSku         sql.NullString `json:"shopSku"`
+	SellerSku       string         `json:"sellerSku"`
+	ShopSku         string         `json:"shopSku"`
+	SkuID           sql.NullInt64  `json:"skuID"`
 	Url             sql.NullString `json:"url"`
 	ColorFamily     sql.NullString `json:"colorFamily"`
 	Price           sql.NullInt32  `json:"price"`
 	Available       sql.NullInt32  `json:"available"`
-	SkuID           sql.NullInt64  `json:"skuID"`
 	PackageContent  sql.NullString `json:"packageContent"`
 	PackageWidth    sql.NullString `json:"packageWidth"`
 	PackageWeight   sql.NullString `json:"packageWeight"`
@@ -86,6 +86,7 @@ type ProductsSkuLazada struct {
 	SpecialFromDate sql.NullTime   `json:"specialFromDate"`
 	SpecialToDate   sql.NullTime   `json:"specialToDate"`
 	ProductID       string         `json:"productID"`
+	ShopID          string         `json:"shopID"`
 }
 
 type Shop struct {

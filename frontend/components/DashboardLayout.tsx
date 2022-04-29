@@ -37,7 +37,7 @@ export default function DashboardLayout({
                   <DashboardNotificationControl />
                 </div>
               </div>
-              <div className="flex">
+              <div className="flex justify-between">
                 <main className="shrink">{children}</main>
                 <DashboardNotificationArea />
               </div>

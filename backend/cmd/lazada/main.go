@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/store"
@@ -27,7 +28,7 @@ func main() {
     return
   }
 
-  lazadaService := lazada.NewService(store, logger)
+  _ = lazada.NewService(store, logger)
 
   if err = laxo.InitDatabase(dbURI); err != nil {
     logger.Error("Failed to init Database", "uri", dbURI, "error", err)
@@ -39,7 +40,7 @@ func main() {
 
   accessToken, err := laxo.Queries.GetValidAccessTokenByShopID(
     context.Background(),
-    "01FZQNSR6AQCZ5CZ09QB80AH3C",
+    "01G1FZCVYH9J47DB2HZENSBC6E",
   )
 
   if err != nil {
@@ -49,23 +50,31 @@ func main() {
 
   client := lazada.NewClient(clientID, clientSecret, accessToken, logger)
 
-  response, err := client.QueryProducts(lazada.QueryProductsParams{
-    Limit: 50,
-    Offset: 0,
-  })
+  //response, err := client.QueryProduct(null.NewInt(0, false), null.NewString("fasldfjaffad333", true))
+  response, err := client.QueryProduct(null.NewInt(1829634167, true), null.NewString("", false))
+
+  //response, err := client.QueryProducts(lazada.QueryProductsParams{
+  //  Limit: 50,
+  //  Offset: 0,
+  //})
 
   if err != nil {
-    logger.Error("QueryPructs failed", "error", err)
+    logger.Error("QueryProduct failed", "error", err)
     return
   }
 
   //logger.Info("Query succeeded", "response", fmt.Sprintf("%+v", response))
-  logger.Info("Query succeeded", "total", response.Data.TotalProducts)
+  logger.Info("Query succeeded", "variations", response.Data.Variations)
 
-  for _, product := range response.Data.Products {
-    if err = lazadaService.SaveOrUpdateProduct(product, "01FZQNSR6AQCZ5CZ09QB80AH3C"); err != nil {
-      logger.Error("SaveOrUpdateProduct return error", "error", err)
-      return
-    }
-  }
+  // FOR SAVING THE REPLY
+  //file, _ := json.MarshalIndent(response, "", " ")
+  //_ = ioutil.WriteFile("test.json", file, 0644)
+
+  // FOR SAVING PRODUCTS
+  //for _, product := range response.Data.Products {
+  //  if err = lazadaService.SaveOrUpdateProduct(product, "01G1FZCVYH9J47DB2HZENSBC6E"); err != nil {
+  //    logger.Error("SaveOrUpdateProduct return error", "error", err)
+  //    return
+  //  }
+  //}
 }

@@ -47,13 +47,13 @@ CREATE TABLE IF NOT EXISTS products_sku_lazada(
   id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
   status VARCHAR(128),
   quantity INTEGER,
-  seller_sku VARCHAR(128),
-  shop_sku VARCHAR(128),
+  seller_sku VARCHAR(200) NOT NULL,
+  shop_sku VARCHAR(200) NOT NULL,
+  sku_id BIGINT,
   url TEXT,
   color_family VARCHAR(64),
   price INTEGER,
   available INTEGER,
-  sku_id BIGINT,
   package_content TEXT,
   package_width VARCHAR(64),
   package_weight VARCHAR(64),
@@ -65,6 +65,11 @@ CREATE TABLE IF NOT EXISTS products_sku_lazada(
   special_from_date TIMESTAMP WITH TIME ZONE,
   special_to_date TIMESTAMP WITH TIME ZONE,
   product_id CHAR(26) NOT NULL,
-  CONSTRAINT fk_sku_products_lazada FOREIGN KEY(product_id) REFERENCES products_lazada(id)
+  shop_id CHAR(26) NOT NULL,
+  UNIQUE(seller_sku, shop_id),
+  UNIQUE(shop_sku, shop_id),
+  UNIQUE(sku_id),
+  CONSTRAINT fk_sku_products_lazada FOREIGN KEY(product_id) REFERENCES products_lazada(id),
+  CONSTRAINT fk_sku_shop_lazada FOREIGN KEY(shop_id) REFERENCES shops(id)
 );
 COMMIT;

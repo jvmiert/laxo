@@ -14,8 +14,7 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
     - Progress visualization
   - Document functionality
 - Create data storage for Lazada product retrieval
-  - Use null values to avoid database mess
-  - Store date/time values as date/time after parsing, also keep raw values
+  - Figure out how to store the variations values of the product skus
 - Make the dashboard page
   - Store that platform is connected in database
   - Handle error messages in callback page
@@ -32,6 +31,12 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
 
 # Long-term to-do
+- Make product dashboard page
+- Make order dashboard page
+- Make stock dashboard page
+- Make a password strength indicator
+  - https://www.openwall.com/passwdqc/
+  - https://github.com/odin-public/passwdqc-js
 - Make all logging follow the same format
 - Figure out how to handle multiple shops / transition between shops
 - Properly type the axios posts/errors/returns in my post hooks (e.g. the useOAuthApi)
@@ -116,6 +121,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://www.anchanto.com
 - https://www.crescodata.com/
 - https://www.onpoint.vn/
+- https://ginee.com/
 
 # Random
 - https://github.com/charithe/durationcheck
@@ -132,6 +138,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://www.airtable.com/
 - https://www.float.com/
 - https://clickup.com/
+- https://polypane.app/
 
 # Programming
 - For API design: https://stripe.com/docs/api/promotion_codes/list
