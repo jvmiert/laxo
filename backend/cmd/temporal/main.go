@@ -9,6 +9,9 @@ import (
 	"github.com/mediocregopher/radix/v4"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
+	"laxo.vn/laxo/laxo"
+	"laxo.vn/laxo/laxo/notification"
+	"laxo.vn/laxo/laxo/store"
 	"laxo.vn/laxo/processing"
 )
 
@@ -40,11 +43,23 @@ func main() {
 		log.Fatalln("Unable to connect to Redis", err)
   }
 
+  logger, _ := laxo.InitConfig(false)
+
+  dbURI := os.Getenv("POSTGRESQL_URL")
+  store, err := store.NewStore(dbURI, logger)
+
+  if err != nil {
+    log.Fatalln("Failed to create new store",  err)
+    return
+  }
+
+  notificationService := notification.NewService(store, logger, client)
+
 	w := worker.New(c, "product", worker.Options{})
 
 	w.RegisterWorkflow(processing.ProcessLazadaProducts)
 
-	activities := &processing.Activities{RedisClient: client}
+  activities := &processing.Activities{RedisClient: client, NotificationService: notificationService}
 	w.RegisterActivity(activities)
 
 	err = w.Run(worker.InterruptCh())

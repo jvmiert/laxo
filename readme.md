@@ -5,18 +5,17 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Work on real-time product importing feedback interface
-  - Figure out a way for clients to figure out in-progress event from a backend endpoint
-  - Come up with a timeout functionality to ensure the client doesn't wait too long if for whatever reason the task fails
-    - Figure out how GRPC returns error-ed request/response
-  - Design the interface
-    - Position
-    - Progress visualization
-  - Document functionality
-- Create data storage for Lazada product retrieval
-  - Figure out how to store the variations values of the product skus
+- Create notification system
+  - Create service function to store notifications
+    - Store in postgres
+    - Store in redis
+  - Create service function to retrieve notifications
+    - retrieve from postgres
+    - listen for incoming notifications
+- Create products dashboard page
+  - Retrieve product and their attributes
 - Make the dashboard page
-  - Store that platform is connected in database
+  - Store that platform is connected in database - do we really need this?
   - Handle error messages in callback page
   - Handle successful redirect in callback page
 - Write test for get shop
@@ -139,6 +138,8 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://www.float.com/
 - https://clickup.com/
 - https://polypane.app/
+- https://www.honeycomb.io/#
+- https://hireproof.io/
 
 # Programming
 - For API design: https://stripe.com/docs/api/promotion_codes/list

@@ -7,6 +7,7 @@ import (
 
 	"github.com/mediocregopher/radix/v4"
 	"go.temporal.io/sdk/activity"
+	"laxo.vn/laxo/laxo/notification"
 )
 
 type LazadaFetchResult struct {
@@ -22,6 +23,7 @@ type LazadaSaveParam struct {
 
 type Activities struct {
   RedisClient radix.Client
+  NotificationService notification.Service
 }
 
 func (a *Activities) FetchLazadaProductsFromAPI(ctx context.Context, shopID string) (LazadaFetchResult, error) {

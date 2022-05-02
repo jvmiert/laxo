@@ -7,6 +7,28 @@ import (
 	"time"
 )
 
+type Notification struct {
+	ID                  string         `json:"id"`
+	RedisID             sql.NullString `json:"redisID"`
+	NotificationGroupID string         `json:"notificationGroupID"`
+	Created             sql.NullTime   `json:"created"`
+	Read                sql.NullTime   `json:"read"`
+	CurrentMainStep     sql.NullInt64  `json:"currentMainStep"`
+	CurrentSubStep      sql.NullInt64  `json:"currentSubStep"`
+	MainMessage         sql.NullString `json:"mainMessage"`
+	SubMessage          sql.NullString `json:"subMessage"`
+}
+
+type NotificationsGroup struct {
+	ID             string        `json:"id"`
+	UserID         string        `json:"userID"`
+	WorkflowID     string        `json:"workflowID"`
+	EntityID       string        `json:"entityID"`
+	EntityType     string        `json:"entityType"`
+	TotalMainSteps sql.NullInt64 `json:"totalMainSteps"`
+	TotalSubSteps  sql.NullInt64 `json:"totalSubSteps"`
+}
+
 type PlatformLazada struct {
 	ID               string       `json:"id"`
 	ShopID           string       `json:"shopID"`
