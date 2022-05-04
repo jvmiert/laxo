@@ -1,0 +1,43 @@
+
+syntax = "proto3";
+
+option go_package = "laxo.vn/laxo/laxo/proto/gen";
+
+package user;
+
+service UserService {
+  rpc GetNotificationUpdate (NotificationUpdateRequest) returns (stream NotificationUpdateReply) {}
+}
+
+message Notification {
+  string ID = 1;
+  string redisID = 2;
+  string groupID = 3;
+  int64  created = 4;
+  int64  read = 5;
+  int64  currentMainStep = 6;
+  int64  currentSubStep = 7;
+  string mainMessage = 8;
+  string subMessage = 9;
+}
+
+message NotificationGroup {
+  string ID = 1;
+  string userID = 2;
+  string workflowID = 3;
+  string entityID = 4;
+  string entityType = 5;
+  int64  totalMainSteps = 6;
+  int64  totalSubSteps = 7;
+}
+
+message NotificationUpdateRequest {
+  string userID = 1;
+  Notification latestNotification = 2;
+  NotificationGroup latestNotificationGroup = 3;
+}
+
+message NotificationUpdateReply {
+  Notification notification = 1;
+  NotificationGroup notificationGroup = 2;
+}

@@ -20,13 +20,13 @@ type Notification struct {
 }
 
 type NotificationsGroup struct {
-	ID             string        `json:"id"`
-	UserID         string        `json:"userID"`
-	WorkflowID     string        `json:"workflowID"`
-	EntityID       string        `json:"entityID"`
-	EntityType     string        `json:"entityType"`
-	TotalMainSteps sql.NullInt64 `json:"totalMainSteps"`
-	TotalSubSteps  sql.NullInt64 `json:"totalSubSteps"`
+	ID             string         `json:"id"`
+	UserID         string         `json:"userID"`
+	WorkflowID     sql.NullString `json:"workflowID"`
+	EntityID       string         `json:"entityID"`
+	EntityType     string         `json:"entityType"`
+	TotalMainSteps sql.NullInt64  `json:"totalMainSteps"`
+	TotalSubSteps  sql.NullInt64  `json:"totalSubSteps"`
 }
 
 type PlatformLazada struct {

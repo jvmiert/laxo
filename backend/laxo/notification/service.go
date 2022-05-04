@@ -18,18 +18,35 @@ const (
 )
 
 type Store interface {
-  SaveNotification(*AddNotificationParam) (*Notification, error)
+  SaveNotification(*NotificationCreateParam) (*Notification, error)
   UpdateNotificationRedisID(string, string) error
+  GetNotificationGroupIDByWorkflowID(string, string) (string, error)
+  CreateNotificationGroup(*NotificationGroupCreateParam) (string, error)
+  UpdateNotificationGroup(*NotificationGroupUpdateParam) error
 }
 
-type AddNotificationParam struct {
-  WorkflowID       null.String
-  GroupID          null.String
+type NotificationGroupCreateParam struct {
   UserID           string
+  WorkflowID       null.String
   EntityID         string
   EntityType       string
   TotalMainSteps   null.Int
   TotalSubSteps    null.Int
+}
+
+type NotificationGroupUpdateParam struct {
+  UserID           null.String
+  WorkflowID       null.String
+  EntityID         null.String
+  EntityType       null.String
+  TotalMainSteps   null.Int
+  TotalSubSteps    null.Int
+  ID               string
+}
+
+type NotificationCreateParam struct {
+  GroupID          string
+  RedisID          null.String
   CurrentMainStep  null.Int
   CurrentSubStep   null.Int
   MainMessage      null.String
@@ -82,21 +99,25 @@ func (s *Service) UpdateRedisIDToStore(notificationID string, redisID string) er
   return err
 }
 
-func (s *Service) SaveNotificationToStore(param AddNotificationParam) (*Notification, error) {
-  if !param.WorkflowID.Valid && !param.GroupID.Valid {
-    return nil, ErrNotificationNeedsWorkflowOrGroup
-  }
-
+func (s *Service) SaveNotificationToStore(param NotificationCreateParam) (*Notification, error) {
   n, err := s.store.SaveNotification(&param)
 
   return n, err
 }
 
-func (s *Service) AddNotification(param AddNotificationParam) error {
-  if !param.WorkflowID.Valid && !param.GroupID.Valid {
-    return ErrNotificationNeedsWorkflowOrGroup
-  }
+func (s *Service) UpdateNotificationGroup(param NotificationGroupUpdateParam) error {
+  return s.store.UpdateNotificationGroup(&param)
+}
 
+func (s *Service) CreateNotificationGroup(param NotificationGroupCreateParam) (string, error) {
+  return s.store.CreateNotificationGroup(&param)
+}
+
+func (s *Service) GetNotificationGroupIDByWorkflowID(workflowID, userID string) (string, error) {
+  return s.store.GetNotificationGroupIDByWorkflowID(workflowID, userID)
+}
+
+func (s *Service) CreateNotification(param NotificationCreateParam) error {
   n, err := s.SaveNotificationToStore(param)
   if err != nil {
     return err
@@ -107,7 +128,6 @@ func (s *Service) AddNotification(param AddNotificationParam) error {
     return err
   }
 
-  err = s.UpdateRedisIDToStore(param.UserID,redisID)
-
-  return err
+  return s.UpdateRedisIDToStore(n.Model.ID, redisID)
 }
+

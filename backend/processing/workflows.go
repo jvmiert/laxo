@@ -14,7 +14,7 @@ type QueryStateResult struct {
 
 }
 
-func ProcessLazadaProducts(ctx workflow.Context, shopID string) (err error) {
+func ProcessLazadaProducts(ctx workflow.Context, shopID, userID string) (err error) {
   processState := QueryStateResult{
     State: "fetch",
     Total: -1,
@@ -32,7 +32,6 @@ func ProcessLazadaProducts(ctx workflow.Context, shopID string) (err error) {
     return err
   }
 
-
 	ao := workflow.ActivityOptions{
 		StartToCloseTimeout: 5 * time.Minute,
 	}
@@ -41,7 +40,7 @@ func ProcessLazadaProducts(ctx workflow.Context, shopID string) (err error) {
   var fetchData LazadaFetchResult
   var a *Activities
 
-  err = workflow.ExecuteActivity(sessionCtx, a.FetchLazadaProductsFromAPI, shopID).Get(sessionCtx, &fetchData)
+  err = workflow.ExecuteActivity(sessionCtx, a.FetchLazadaProductsFromAPI, shopID, userID).Get(sessionCtx, &fetchData)
 
 	if err != nil {
     processState.State = "failed"
@@ -53,7 +52,16 @@ func ProcessLazadaProducts(ctx workflow.Context, shopID string) (err error) {
 
   for i := 0; i < fetchData.TotalProducts; i++ {
     processState.Current = i
-    err = workflow.ExecuteActivity(sessionCtx, a.SaveLazadaProducts, LazadaSaveParam{DataKey: fetchData.DataKey, ProductIndex: i, ProductTotal: fetchData.TotalProducts}).Get(sessionCtx, nil)
+    err = workflow.ExecuteActivity(
+      sessionCtx,
+      a.SaveLazadaProducts,
+      LazadaSaveParam{
+        UserID: userID,
+        DataKey: fetchData.DataKey,
+        ProductIndex: i,
+        ProductTotal: fetchData.TotalProducts,
+      },
+    ).Get(sessionCtx, nil)
 
     if err != nil {
       processState.State = "failed"

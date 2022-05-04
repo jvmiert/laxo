@@ -2,13 +2,12 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS notifications_group(
   id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
   user_id CHAR(26) NOT NULL,
-  workflow_id CHAR(64) NOT NULL,
+  workflow_id CHAR(64),
   entity_id CHAR(26) NOT NULL,
   entity_type CHAR(32) NOT NULL,
   total_main_steps BIGINT,
   total_sub_steps BIGINT,
-  CONSTRAINT fk_user_notification_group FOREIGN KEY(user_id) REFERENCES users(id),
-  UNIQUE (user_id, workflow_id)
+  CONSTRAINT fk_user_notification_group FOREIGN KEY(user_id) REFERENCES users(id)
 );
 CREATE TABLE IF NOT EXISTS notifications(
   id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,

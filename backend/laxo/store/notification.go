@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/jackc/pgx/v4"
 	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo/notification"
 	"laxo.vn/laxo/laxo/sqlc"
@@ -32,69 +31,6 @@ func newNotificationStore(store *Store) notificationStore {
   }
 }
 
-func (s *notificationStore) GetOrCreateProductGroup(param ProductGroupParam) (*sqlc.NotificationsGroup, error) {
-  if !param.ID.Valid && !param.WorkflowID.Valid {
-    return nil, ErrNotificationGroupCreateUpdate
-  }
-
-  var g sqlc.NotificationsGroup
-  var err error
-
-  if param.ID.Valid {
-    g, err = s.queries.GetNotificationsGroupByID(
-      context.Background(),
-      param.ID.String,
-    )
-
-    if err != pgx.ErrNoRows && err != nil {
-      return nil, err
-    }
-  }
-
-  if param.WorkflowID.Valid {
-    getParam := sqlc.GetNotificationsGroupByWorkflowIDParams{
-      WorkflowID: param.WorkflowID.String,
-      UserID: param.UserID,
-    }
-
-    g, err = s.queries.GetNotificationsGroupByWorkflowID(
-      context.Background(),
-      getParam,
-    )
-
-    if err != pgx.ErrNoRows && err != nil {
-      return nil, err
-    }
-  }
-
-  // We didn't retrieve a valid notification group
-  if g.ID == "" {
-    if !param.WorkflowID.Valid {
-      return nil, ErrNotificationGroupCreateUpdate
-    }
-
-    createParam := sqlc.CreateNotificationsGroupParams{
-      UserID: param.UserID,
-      WorkflowID: param.WorkflowID.String,
-      EntityID: param.EntityID,
-      EntityType: param.EntityType,
-      TotalMainSteps: param.TotalMainSteps.NullInt64,
-      TotalSubSteps: param.TotalSubSteps.NullInt64,
-    }
-
-    g, err = s.queries.CreateNotificationsGroup(
-      context.Background(),
-      createParam,
-    )
-
-    if err != nil {
-      return nil, err
-    }
-  }
-
-  return &g, nil
-}
-
 func (s *notificationStore) UpdateNotificationRedisID(notificationID string, redisID string) error {
   updateParam :=  sqlc.UpdateRedisIDByNotificationIDParams{
     RedisID: null.NewString(redisID, true).NullString,
@@ -108,24 +44,72 @@ func (s *notificationStore) UpdateNotificationRedisID(notificationID string, red
   return err
 }
 
-func (s *notificationStore) SaveNotification(p *notification.AddNotificationParam) (*notification.Notification, error) {
-  groupParam := ProductGroupParam{
-    ID: p.GroupID,
-    WorkflowID: p.WorkflowID,
-    UserID: p.UserID,
-    EntityID: p.EntityID,
-    EntityType: p.EntityType,
-    TotalMainSteps: p.TotalMainSteps,
-    TotalSubSteps: p.TotalSubSteps,
+func (s *notificationStore) UpdateNotificationGroup(param *notification.NotificationGroupUpdateParam) error {
+  updateParam := sqlc.UpdateNotificationGroupParams{
+    UserIDDoUpdate: param.UserID.Valid,
+    UserID: param.UserID.String,
+    WorkflowIDDoUpdate: param.WorkflowID.Valid,
+    WorkflowID: param.WorkflowID.String,
+    EntityIDDoUpdate: param.EntityID.Valid,
+    EntityID: param.EntityID.String,
+    EntityTypeDoUpdate: param.EntityType.Valid,
+    EntityType: param.EntityType.String,
+    TotalMainStepsDoUpdate: param.TotalMainSteps.Valid,
+    TotalMainSteps: param.TotalMainSteps.Int64,
+    TotalSubStepsDoUpdate: param.TotalSubSteps.Valid,
+    TotalSubSteps: param.TotalSubSteps.Int64,
+    ID: param.ID,
   }
 
-  group, err := s.GetOrCreateProductGroup(groupParam)
+  _, err := s.queries.UpdateNotificationGroup(
+    context.Background(),
+    updateParam,
+  )
+
+  return err
+}
+
+func (s *notificationStore) CreateNotificationGroup(param *notification.NotificationGroupCreateParam) (string, error) {
+    createParam := sqlc.CreateNotificationsGroupParams{
+      UserID: param.UserID,
+      WorkflowID: param.WorkflowID.NullString,
+      EntityID: param.EntityID,
+      EntityType: param.EntityType,
+      TotalMainSteps: param.TotalMainSteps.NullInt64,
+      TotalSubSteps: param.TotalSubSteps.NullInt64,
+    }
+
+  g, err := s.queries.CreateNotificationsGroup(
+    context.Background(),
+    createParam,
+  )
+
   if err != nil {
-    return nil, err
+    return "", err
   }
 
+  return g.ID, nil
+ }
+
+func (s *notificationStore) GetNotificationGroupIDByWorkflowID(workflowID, userID string) (string, error) {
+  param := sqlc.GetNotificationsGroupByWorkflowIDParams{
+    WorkflowID: null.NewString(workflowID, true).NullString,
+    UserID: userID,
+  }
+  n, err := s.queries.GetNotificationsGroupByWorkflowID(
+    context.Background(),
+    param,
+  )
+  if err != nil {
+    return "", err
+  }
+
+  return n.ID, nil
+}
+
+func (s *notificationStore) SaveNotification(p *notification.NotificationCreateParam) (*notification.Notification, error) {
   createParam := sqlc.CreateNotificationParams {
-    NotificationGroupID: group.ID,
+    NotificationGroupID: p.GroupID,
     Read: p.ReadTime.NullTime,
     CurrentMainStep: p.CurrentMainStep.NullInt64,
     CurrentSubStep: p.CurrentSubStep.NullInt64,
@@ -141,9 +125,17 @@ func (s *notificationStore) SaveNotification(p *notification.AddNotificationPara
     return nil, err
   }
 
+  gModel, err := s.queries.GetNotificationsGroupByID(
+    context.Background(),
+    pModel.NotificationGroupID,
+  )
+  if err != nil {
+    return nil, err
+  }
+
   return &notification.Notification{
     Model: &pModel,
-    GroupModel: group,
+    GroupModel: &gModel,
   }, nil
 }
 

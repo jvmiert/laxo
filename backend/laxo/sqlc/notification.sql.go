@@ -62,12 +62,12 @@ RETURNING id, user_id, workflow_id, entity_id, entity_type, total_main_steps, to
 `
 
 type CreateNotificationsGroupParams struct {
-	UserID         string        `json:"userID"`
-	WorkflowID     string        `json:"workflowID"`
-	EntityID       string        `json:"entityID"`
-	EntityType     string        `json:"entityType"`
-	TotalMainSteps sql.NullInt64 `json:"totalMainSteps"`
-	TotalSubSteps  sql.NullInt64 `json:"totalSubSteps"`
+	UserID         string         `json:"userID"`
+	WorkflowID     sql.NullString `json:"workflowID"`
+	EntityID       string         `json:"entityID"`
+	EntityType     string         `json:"entityType"`
+	TotalMainSteps sql.NullInt64  `json:"totalMainSteps"`
+	TotalSubSteps  sql.NullInt64  `json:"totalSubSteps"`
 }
 
 func (q *Queries) CreateNotificationsGroup(ctx context.Context, arg CreateNotificationsGroupParams) (NotificationsGroup, error) {
@@ -143,12 +143,81 @@ LIMIT 1
 `
 
 type GetNotificationsGroupByWorkflowIDParams struct {
-	WorkflowID string `json:"workflowID"`
-	UserID     string `json:"userID"`
+	WorkflowID sql.NullString `json:"workflowID"`
+	UserID     string         `json:"userID"`
 }
 
 func (q *Queries) GetNotificationsGroupByWorkflowID(ctx context.Context, arg GetNotificationsGroupByWorkflowIDParams) (NotificationsGroup, error) {
 	row := q.db.QueryRow(ctx, getNotificationsGroupByWorkflowID, arg.WorkflowID, arg.UserID)
+	var i NotificationsGroup
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.WorkflowID,
+		&i.EntityID,
+		&i.EntityType,
+		&i.TotalMainSteps,
+		&i.TotalSubSteps,
+	)
+	return i, err
+}
+
+const updateNotificationGroup = `-- name: UpdateNotificationGroup :one
+UPDATE notifications_group SET
+  user_id = CASE WHEN $1::boolean
+    THEN $2::CHAR(26) ELSE user_id END,
+
+  workflow_id = CASE WHEN $3::boolean
+    THEN $4::CHAR(64) ELSE workflow_id END,
+
+  entity_id = CASE WHEN $5::boolean
+    THEN $6::CHAR(64) ELSE entity_id END,
+
+  entity_type = CASE WHEN $7::boolean
+    THEN $8::CHAR(64) ELSE entity_type END,
+
+  total_main_steps = CASE WHEN $9::boolean
+    THEN $10::BIGINT ELSE total_main_steps END,
+
+  total_sub_steps = CASE WHEN $11::boolean
+    THEN $12::BIGINT ELSE total_sub_steps END
+
+WHERE id = $13
+RETURNING id, user_id, workflow_id, entity_id, entity_type, total_main_steps, total_sub_steps
+`
+
+type UpdateNotificationGroupParams struct {
+	UserIDDoUpdate         bool   `json:"userIDDoUpdate"`
+	UserID                 string `json:"userID"`
+	WorkflowIDDoUpdate     bool   `json:"workflowIDDoUpdate"`
+	WorkflowID             string `json:"workflowID"`
+	EntityIDDoUpdate       bool   `json:"entityIDDoUpdate"`
+	EntityID               string `json:"entityID"`
+	EntityTypeDoUpdate     bool   `json:"entityTypeDoUpdate"`
+	EntityType             string `json:"entityType"`
+	TotalMainStepsDoUpdate bool   `json:"totalMainStepsDoUpdate"`
+	TotalMainSteps         int64  `json:"totalMainSteps"`
+	TotalSubStepsDoUpdate  bool   `json:"totalSubStepsDoUpdate"`
+	TotalSubSteps          int64  `json:"totalSubSteps"`
+	ID                     string `json:"id"`
+}
+
+func (q *Queries) UpdateNotificationGroup(ctx context.Context, arg UpdateNotificationGroupParams) (NotificationsGroup, error) {
+	row := q.db.QueryRow(ctx, updateNotificationGroup,
+		arg.UserIDDoUpdate,
+		arg.UserID,
+		arg.WorkflowIDDoUpdate,
+		arg.WorkflowID,
+		arg.EntityIDDoUpdate,
+		arg.EntityID,
+		arg.EntityTypeDoUpdate,
+		arg.EntityType,
+		arg.TotalMainStepsDoUpdate,
+		arg.TotalMainSteps,
+		arg.TotalSubStepsDoUpdate,
+		arg.TotalSubSteps,
+		arg.ID,
+	)
 	var i NotificationsGroup
 	err := row.Scan(
 		&i.ID,

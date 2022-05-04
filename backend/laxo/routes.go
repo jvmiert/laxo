@@ -11,7 +11,7 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request, uID string) {
 }
 
 func HandleTest(w http.ResponseWriter, r *http.Request, uID string) {
-  wfID, err := startTask("cool shop")
+  wfID, err := startTask("cool shop", uID)
 
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
