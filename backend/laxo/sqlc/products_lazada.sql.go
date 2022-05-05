@@ -5,8 +5,9 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
 	"time"
+
+	null "gopkg.in/guregu/null.v4"
 )
 
 const createLazadaProduct = `-- name: CreateLazadaProduct :one
@@ -20,13 +21,13 @@ RETURNING id, lazada_id, lazada_primary_category, created, updated, status, sub_
 `
 
 type CreateLazadaProductParams struct {
-	LazadaID              int64          `json:"lazadaID"`
-	LazadaPrimaryCategory int64          `json:"lazadaPrimaryCategory"`
-	Created               time.Time      `json:"created"`
-	Updated               time.Time      `json:"updated"`
-	Status                sql.NullString `json:"status"`
-	SubStatus             sql.NullString `json:"subStatus"`
-	ShopID                string         `json:"shopID"`
+	LazadaID              int64       `json:"lazadaID"`
+	LazadaPrimaryCategory int64       `json:"lazadaPrimaryCategory"`
+	Created               time.Time   `json:"created"`
+	Updated               time.Time   `json:"updated"`
+	Status                null.String `json:"status"`
+	SubStatus             null.String `json:"subStatus"`
+	ShopID                string      `json:"shopID"`
 }
 
 func (q *Queries) CreateLazadaProduct(ctx context.Context, arg CreateLazadaProductParams) (ProductsLazada, error) {
@@ -71,32 +72,32 @@ RETURNING id, name, short_description, description, brand, model, headphone_feat
 `
 
 type CreateLazadaProductAttributeParams struct {
-	Name                 sql.NullString `json:"name"`
-	ShortDescription     sql.NullString `json:"shortDescription"`
-	Description          sql.NullString `json:"description"`
-	Brand                sql.NullString `json:"brand"`
-	Model                sql.NullString `json:"model"`
-	HeadphoneFeatures    sql.NullString `json:"headphoneFeatures"`
-	Bluetooth            sql.NullString `json:"bluetooth"`
-	WarrantyType         sql.NullString `json:"warrantyType"`
-	Warranty             sql.NullString `json:"warranty"`
-	Hazmat               sql.NullString `json:"hazmat"`
-	ExpireDate           sql.NullString `json:"expireDate"`
-	BrandClassification  sql.NullString `json:"brandClassification"`
-	IngredientPreference sql.NullString `json:"ingredientPreference"`
-	LotNumber            sql.NullString `json:"lotNumber"`
-	UnitsHb              sql.NullString `json:"unitsHb"`
-	FmltSkincare         sql.NullString `json:"fmltSkincare"`
-	Quantitative         sql.NullString `json:"quantitative"`
-	SkincareByAge        sql.NullString `json:"skincareByAge"`
-	SkinBenefit          sql.NullString `json:"skinBenefit"`
-	SkinType             sql.NullString `json:"skinType"`
-	UserManual           sql.NullString `json:"userManual"`
-	CountryOriginHb      sql.NullString `json:"countryOriginHb"`
-	ColorFamily          sql.NullString `json:"colorFamily"`
-	FragranceFamily      sql.NullString `json:"fragranceFamily"`
-	Source               sql.NullString `json:"source"`
-	ProductID            string         `json:"productID"`
+	Name                 null.String `json:"name"`
+	ShortDescription     null.String `json:"shortDescription"`
+	Description          null.String `json:"description"`
+	Brand                null.String `json:"brand"`
+	Model                null.String `json:"model"`
+	HeadphoneFeatures    null.String `json:"headphoneFeatures"`
+	Bluetooth            null.String `json:"bluetooth"`
+	WarrantyType         null.String `json:"warrantyType"`
+	Warranty             null.String `json:"warranty"`
+	Hazmat               null.String `json:"hazmat"`
+	ExpireDate           null.String `json:"expireDate"`
+	BrandClassification  null.String `json:"brandClassification"`
+	IngredientPreference null.String `json:"ingredientPreference"`
+	LotNumber            null.String `json:"lotNumber"`
+	UnitsHb              null.String `json:"unitsHb"`
+	FmltSkincare         null.String `json:"fmltSkincare"`
+	Quantitative         null.String `json:"quantitative"`
+	SkincareByAge        null.String `json:"skincareByAge"`
+	SkinBenefit          null.String `json:"skinBenefit"`
+	SkinType             null.String `json:"skinType"`
+	UserManual           null.String `json:"userManual"`
+	CountryOriginHb      null.String `json:"countryOriginHb"`
+	ColorFamily          null.String `json:"colorFamily"`
+	FragranceFamily      null.String `json:"fragranceFamily"`
+	Source               null.String `json:"source"`
+	ProductID            string      `json:"productID"`
 }
 
 func (q *Queries) CreateLazadaProductAttribute(ctx context.Context, arg CreateLazadaProductAttributeParams) (ProductsAttributeLazada, error) {
@@ -237,13 +238,13 @@ WHERE id = $7
 `
 
 type UpdateLazadaProductParams struct {
-	LazadaID              int64          `json:"lazadaID"`
-	LazadaPrimaryCategory int64          `json:"lazadaPrimaryCategory"`
-	Created               time.Time      `json:"created"`
-	Updated               time.Time      `json:"updated"`
-	Status                sql.NullString `json:"status"`
-	SubStatus             sql.NullString `json:"subStatus"`
-	ID                    string         `json:"id"`
+	LazadaID              int64       `json:"lazadaID"`
+	LazadaPrimaryCategory int64       `json:"lazadaPrimaryCategory"`
+	Created               time.Time   `json:"created"`
+	Updated               time.Time   `json:"updated"`
+	Status                null.String `json:"status"`
+	SubStatus             null.String `json:"subStatus"`
+	ID                    string      `json:"id"`
 }
 
 func (q *Queries) UpdateLazadaProduct(ctx context.Context, arg UpdateLazadaProductParams) error {
@@ -273,32 +274,32 @@ WHERE id = $26
 `
 
 type UpdateLazadaProductAttributeParams struct {
-	Name                 sql.NullString `json:"name"`
-	ShortDescription     sql.NullString `json:"shortDescription"`
-	Description          sql.NullString `json:"description"`
-	Brand                sql.NullString `json:"brand"`
-	Model                sql.NullString `json:"model"`
-	HeadphoneFeatures    sql.NullString `json:"headphoneFeatures"`
-	Bluetooth            sql.NullString `json:"bluetooth"`
-	WarrantyType         sql.NullString `json:"warrantyType"`
-	Warranty             sql.NullString `json:"warranty"`
-	Hazmat               sql.NullString `json:"hazmat"`
-	ExpireDate           sql.NullString `json:"expireDate"`
-	BrandClassification  sql.NullString `json:"brandClassification"`
-	IngredientPreference sql.NullString `json:"ingredientPreference"`
-	LotNumber            sql.NullString `json:"lotNumber"`
-	UnitsHb              sql.NullString `json:"unitsHb"`
-	FmltSkincare         sql.NullString `json:"fmltSkincare"`
-	Quantitative         sql.NullString `json:"quantitative"`
-	SkincareByAge        sql.NullString `json:"skincareByAge"`
-	SkinBenefit          sql.NullString `json:"skinBenefit"`
-	SkinType             sql.NullString `json:"skinType"`
-	UserManual           sql.NullString `json:"userManual"`
-	CountryOriginHb      sql.NullString `json:"countryOriginHb"`
-	ColorFamily          sql.NullString `json:"colorFamily"`
-	FragranceFamily      sql.NullString `json:"fragranceFamily"`
-	Source               sql.NullString `json:"source"`
-	ID                   string         `json:"id"`
+	Name                 null.String `json:"name"`
+	ShortDescription     null.String `json:"shortDescription"`
+	Description          null.String `json:"description"`
+	Brand                null.String `json:"brand"`
+	Model                null.String `json:"model"`
+	HeadphoneFeatures    null.String `json:"headphoneFeatures"`
+	Bluetooth            null.String `json:"bluetooth"`
+	WarrantyType         null.String `json:"warrantyType"`
+	Warranty             null.String `json:"warranty"`
+	Hazmat               null.String `json:"hazmat"`
+	ExpireDate           null.String `json:"expireDate"`
+	BrandClassification  null.String `json:"brandClassification"`
+	IngredientPreference null.String `json:"ingredientPreference"`
+	LotNumber            null.String `json:"lotNumber"`
+	UnitsHb              null.String `json:"unitsHb"`
+	FmltSkincare         null.String `json:"fmltSkincare"`
+	Quantitative         null.String `json:"quantitative"`
+	SkincareByAge        null.String `json:"skincareByAge"`
+	SkinBenefit          null.String `json:"skinBenefit"`
+	SkinType             null.String `json:"skinType"`
+	UserManual           null.String `json:"userManual"`
+	CountryOriginHb      null.String `json:"countryOriginHb"`
+	ColorFamily          null.String `json:"colorFamily"`
+	FragranceFamily      null.String `json:"fragranceFamily"`
+	Source               null.String `json:"source"`
+	ID                   string      `json:"id"`
 }
 
 func (q *Queries) UpdateLazadaProductAttribute(ctx context.Context, arg UpdateLazadaProductAttributeParams) error {

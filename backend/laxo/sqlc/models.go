@@ -3,133 +3,134 @@
 package sqlc
 
 import (
-	"database/sql"
 	"time"
+
+	null "gopkg.in/guregu/null.v4"
 )
 
 type Notification struct {
-	ID                  string         `json:"id"`
-	RedisID             sql.NullString `json:"redisID"`
-	NotificationGroupID string         `json:"notificationGroupID"`
-	Created             sql.NullTime   `json:"created"`
-	Read                sql.NullTime   `json:"read"`
-	CurrentMainStep     sql.NullInt64  `json:"currentMainStep"`
-	CurrentSubStep      sql.NullInt64  `json:"currentSubStep"`
-	MainMessage         sql.NullString `json:"mainMessage"`
-	SubMessage          sql.NullString `json:"subMessage"`
+	ID                  string      `json:"id"`
+	RedisID             null.String `json:"redisID"`
+	NotificationGroupID string      `json:"notificationGroupID"`
+	Created             null.Time   `json:"created"`
+	Read                null.Time   `json:"read"`
+	CurrentMainStep     null.Int    `json:"currentMainStep"`
+	CurrentSubStep      null.Int    `json:"currentSubStep"`
+	MainMessage         null.String `json:"mainMessage"`
+	SubMessage          null.String `json:"subMessage"`
 }
 
 type NotificationsGroup struct {
-	ID             string         `json:"id"`
-	UserID         string         `json:"userID"`
-	WorkflowID     sql.NullString `json:"workflowID"`
-	EntityID       string         `json:"entityID"`
-	EntityType     string         `json:"entityType"`
-	TotalMainSteps sql.NullInt64  `json:"totalMainSteps"`
-	TotalSubSteps  sql.NullInt64  `json:"totalSubSteps"`
+	ID             string      `json:"id"`
+	UserID         string      `json:"userID"`
+	WorkflowID     null.String `json:"workflowID"`
+	EntityID       string      `json:"entityID"`
+	EntityType     string      `json:"entityType"`
+	TotalMainSteps null.Int    `json:"totalMainSteps"`
+	TotalSubSteps  null.Int    `json:"totalSubSteps"`
 }
 
 type PlatformLazada struct {
-	ID               string       `json:"id"`
-	ShopID           string       `json:"shopID"`
-	AccessToken      string       `json:"accessToken"`
-	Country          string       `json:"country"`
-	RefreshToken     string       `json:"refreshToken"`
-	AccountPlatform  string       `json:"accountPlatform"`
-	Account          string       `json:"account"`
-	UserIDVn         string       `json:"userIDVn"`
-	SellerIDVn       string       `json:"sellerIDVn"`
-	ShortCodeVn      string       `json:"shortCodeVn"`
-	RefreshExpiresIn sql.NullTime `json:"refreshExpiresIn"`
-	AccessExpiresIn  sql.NullTime `json:"accessExpiresIn"`
-	Created          sql.NullTime `json:"created"`
+	ID               string    `json:"id"`
+	ShopID           string    `json:"shopID"`
+	AccessToken      string    `json:"accessToken"`
+	Country          string    `json:"country"`
+	RefreshToken     string    `json:"refreshToken"`
+	AccountPlatform  string    `json:"accountPlatform"`
+	Account          string    `json:"account"`
+	UserIDVn         string    `json:"userIDVn"`
+	SellerIDVn       string    `json:"sellerIDVn"`
+	ShortCodeVn      string    `json:"shortCodeVn"`
+	RefreshExpiresIn null.Time `json:"refreshExpiresIn"`
+	AccessExpiresIn  null.Time `json:"accessExpiresIn"`
+	Created          null.Time `json:"created"`
 }
 
 type ProductsAttributeLazada struct {
-	ID                   string         `json:"id"`
-	Name                 sql.NullString `json:"name"`
-	ShortDescription     sql.NullString `json:"shortDescription"`
-	Description          sql.NullString `json:"description"`
-	Brand                sql.NullString `json:"brand"`
-	Model                sql.NullString `json:"model"`
-	HeadphoneFeatures    sql.NullString `json:"headphoneFeatures"`
-	Bluetooth            sql.NullString `json:"bluetooth"`
-	WarrantyType         sql.NullString `json:"warrantyType"`
-	Warranty             sql.NullString `json:"warranty"`
-	Hazmat               sql.NullString `json:"hazmat"`
-	ExpireDate           sql.NullString `json:"expireDate"`
-	BrandClassification  sql.NullString `json:"brandClassification"`
-	IngredientPreference sql.NullString `json:"ingredientPreference"`
-	LotNumber            sql.NullString `json:"lotNumber"`
-	UnitsHb              sql.NullString `json:"unitsHb"`
-	FmltSkincare         sql.NullString `json:"fmltSkincare"`
-	Quantitative         sql.NullString `json:"quantitative"`
-	SkincareByAge        sql.NullString `json:"skincareByAge"`
-	SkinBenefit          sql.NullString `json:"skinBenefit"`
-	SkinType             sql.NullString `json:"skinType"`
-	UserManual           sql.NullString `json:"userManual"`
-	CountryOriginHb      sql.NullString `json:"countryOriginHb"`
-	ColorFamily          sql.NullString `json:"colorFamily"`
-	FragranceFamily      sql.NullString `json:"fragranceFamily"`
-	Source               sql.NullString `json:"source"`
-	ProductID            string         `json:"productID"`
+	ID                   string      `json:"id"`
+	Name                 null.String `json:"name"`
+	ShortDescription     null.String `json:"shortDescription"`
+	Description          null.String `json:"description"`
+	Brand                null.String `json:"brand"`
+	Model                null.String `json:"model"`
+	HeadphoneFeatures    null.String `json:"headphoneFeatures"`
+	Bluetooth            null.String `json:"bluetooth"`
+	WarrantyType         null.String `json:"warrantyType"`
+	Warranty             null.String `json:"warranty"`
+	Hazmat               null.String `json:"hazmat"`
+	ExpireDate           null.String `json:"expireDate"`
+	BrandClassification  null.String `json:"brandClassification"`
+	IngredientPreference null.String `json:"ingredientPreference"`
+	LotNumber            null.String `json:"lotNumber"`
+	UnitsHb              null.String `json:"unitsHb"`
+	FmltSkincare         null.String `json:"fmltSkincare"`
+	Quantitative         null.String `json:"quantitative"`
+	SkincareByAge        null.String `json:"skincareByAge"`
+	SkinBenefit          null.String `json:"skinBenefit"`
+	SkinType             null.String `json:"skinType"`
+	UserManual           null.String `json:"userManual"`
+	CountryOriginHb      null.String `json:"countryOriginHb"`
+	ColorFamily          null.String `json:"colorFamily"`
+	FragranceFamily      null.String `json:"fragranceFamily"`
+	Source               null.String `json:"source"`
+	ProductID            string      `json:"productID"`
 }
 
 type ProductsLazada struct {
-	ID                    string         `json:"id"`
-	LazadaID              int64          `json:"lazadaID"`
-	LazadaPrimaryCategory int64          `json:"lazadaPrimaryCategory"`
-	Created               time.Time      `json:"created"`
-	Updated               time.Time      `json:"updated"`
-	Status                sql.NullString `json:"status"`
-	SubStatus             sql.NullString `json:"subStatus"`
-	ShopID                string         `json:"shopID"`
+	ID                    string      `json:"id"`
+	LazadaID              int64       `json:"lazadaID"`
+	LazadaPrimaryCategory int64       `json:"lazadaPrimaryCategory"`
+	Created               time.Time   `json:"created"`
+	Updated               time.Time   `json:"updated"`
+	Status                null.String `json:"status"`
+	SubStatus             null.String `json:"subStatus"`
+	ShopID                string      `json:"shopID"`
 }
 
 type ProductsSkuLazada struct {
-	ID              string         `json:"id"`
-	Status          sql.NullString `json:"status"`
-	Quantity        sql.NullInt32  `json:"quantity"`
-	SellerSku       string         `json:"sellerSku"`
-	ShopSku         string         `json:"shopSku"`
-	SkuID           sql.NullInt64  `json:"skuID"`
-	Url             sql.NullString `json:"url"`
-	ColorFamily     sql.NullString `json:"colorFamily"`
-	Price           sql.NullInt32  `json:"price"`
-	Available       sql.NullInt32  `json:"available"`
-	PackageContent  sql.NullString `json:"packageContent"`
-	PackageWidth    sql.NullString `json:"packageWidth"`
-	PackageWeight   sql.NullString `json:"packageWeight"`
-	PackageLength   sql.NullString `json:"packageLength"`
-	PackageHeight   sql.NullString `json:"packageHeight"`
-	SpecialPrice    sql.NullString `json:"specialPrice"`
-	SpecialToTime   sql.NullTime   `json:"specialToTime"`
-	SpecialFromTime sql.NullTime   `json:"specialFromTime"`
-	SpecialFromDate sql.NullTime   `json:"specialFromDate"`
-	SpecialToDate   sql.NullTime   `json:"specialToDate"`
-	ProductID       string         `json:"productID"`
-	ShopID          string         `json:"shopID"`
+	ID              string      `json:"id"`
+	Status          null.String `json:"status"`
+	Quantity        null.Int    `json:"quantity"`
+	SellerSku       string      `json:"sellerSku"`
+	ShopSku         string      `json:"shopSku"`
+	SkuID           null.Int    `json:"skuID"`
+	Url             null.String `json:"url"`
+	ColorFamily     null.String `json:"colorFamily"`
+	Price           null.Int    `json:"price"`
+	Available       null.Int    `json:"available"`
+	PackageContent  null.String `json:"packageContent"`
+	PackageWidth    null.String `json:"packageWidth"`
+	PackageWeight   null.String `json:"packageWeight"`
+	PackageLength   null.String `json:"packageLength"`
+	PackageHeight   null.String `json:"packageHeight"`
+	SpecialPrice    null.String `json:"specialPrice"`
+	SpecialToTime   null.Time   `json:"specialToTime"`
+	SpecialFromTime null.Time   `json:"specialFromTime"`
+	SpecialFromDate null.Time   `json:"specialFromDate"`
+	SpecialToDate   null.Time   `json:"specialToDate"`
+	ProductID       string      `json:"productID"`
+	ShopID          string      `json:"shopID"`
 }
 
 type Shop struct {
-	ID         string       `json:"id"`
-	UserID     string       `json:"userID"`
-	ShopName   string       `json:"shopName"`
-	Created    sql.NullTime `json:"created"`
-	LastUpdate sql.NullTime `json:"lastUpdate"`
+	ID         string    `json:"id"`
+	UserID     string    `json:"userID"`
+	ShopName   string    `json:"shopName"`
+	Created    null.Time `json:"created"`
+	LastUpdate null.Time `json:"lastUpdate"`
 }
 
 type ShopsPlatform struct {
-	ID           string       `json:"id"`
-	ShopID       string       `json:"shopID"`
-	PlatformName string       `json:"platformName"`
-	Created      sql.NullTime `json:"created"`
+	ID           string    `json:"id"`
+	ShopID       string    `json:"shopID"`
+	PlatformName string    `json:"platformName"`
+	Created      null.Time `json:"created"`
 }
 
 type User struct {
-	ID       string       `json:"id"`
-	Password string       `json:"password"`
-	Email    string       `json:"email"`
-	Created  sql.NullTime `json:"created"`
-	Fullname string       `json:"fullname"`
+	ID       string    `json:"id"`
+	Password string    `json:"password"`
+	Email    string    `json:"email"`
+	Created  null.Time `json:"created"`
+	Fullname string    `json:"fullname"`
 }

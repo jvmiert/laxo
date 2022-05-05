@@ -33,7 +33,7 @@ func newNotificationStore(store *Store) notificationStore {
 
 func (s *notificationStore) UpdateNotificationRedisID(notificationID string, redisID string) error {
   updateParam :=  sqlc.UpdateRedisIDByNotificationIDParams{
-    RedisID: null.NewString(redisID, true).NullString,
+    RedisID: null.StringFrom(redisID),
     ID:      notificationID,
   }
   err := s.queries.UpdateRedisIDByNotificationID(
@@ -72,11 +72,11 @@ func (s *notificationStore) UpdateNotificationGroup(param *notification.Notifica
 func (s *notificationStore) CreateNotificationGroup(param *notification.NotificationGroupCreateParam) (string, error) {
     createParam := sqlc.CreateNotificationsGroupParams{
       UserID: param.UserID,
-      WorkflowID: param.WorkflowID.NullString,
+      WorkflowID: param.WorkflowID,
       EntityID: param.EntityID,
       EntityType: param.EntityType,
-      TotalMainSteps: param.TotalMainSteps.NullInt64,
-      TotalSubSteps: param.TotalSubSteps.NullInt64,
+      TotalMainSteps: param.TotalMainSteps,
+      TotalSubSteps: param.TotalSubSteps,
     }
 
   g, err := s.queries.CreateNotificationsGroup(
@@ -93,7 +93,7 @@ func (s *notificationStore) CreateNotificationGroup(param *notification.Notifica
 
 func (s *notificationStore) GetNotificationGroupIDByWorkflowID(workflowID, userID string) (string, error) {
   param := sqlc.GetNotificationsGroupByWorkflowIDParams{
-    WorkflowID: null.NewString(workflowID, true).NullString,
+    WorkflowID: null.StringFrom(workflowID),
     UserID: userID,
   }
   n, err := s.queries.GetNotificationsGroupByWorkflowID(
@@ -110,11 +110,11 @@ func (s *notificationStore) GetNotificationGroupIDByWorkflowID(workflowID, userI
 func (s *notificationStore) SaveNotification(p *notification.NotificationCreateParam) (*notification.Notification, error) {
   createParam := sqlc.CreateNotificationParams {
     NotificationGroupID: p.GroupID,
-    Read: p.ReadTime.NullTime,
-    CurrentMainStep: p.CurrentMainStep.NullInt64,
-    CurrentSubStep: p.CurrentSubStep.NullInt64,
-    MainMessage: p.MainMessage.NullString,
-    SubMessage: p.SubMessage.NullString,
+    Read: p.ReadTime,
+    CurrentMainStep: p.CurrentMainStep,
+    CurrentSubStep: p.CurrentSubStep,
+    MainMessage: p.MainMessage,
+    SubMessage: p.SubMessage,
   }
 
   pModel, err := s.queries.CreateNotification(
@@ -139,3 +139,50 @@ func (s *notificationStore) SaveNotification(p *notification.NotificationCreateP
   }, nil
 }
 
+func (s *notificationStore) GetNotifications(userID string, offset, limit int32) ([]notification.Notification, error) {
+  getParam := sqlc.GetNotificationsByUserIDParams {
+    UserID: userID,
+    Offset: offset,
+    Limit: limit,
+  }
+
+  results, err := s.queries.GetNotificationsByUserID(
+    context.Background(),
+    getParam,
+  )
+  if err != nil {
+    return nil, err
+  }
+
+  returnList := []notification.Notification{}
+
+  for _, v := range results {
+    returnList = append(
+      returnList,
+      notification.Notification{
+        Model: &sqlc.Notification{
+          ID: v.NotificationID,
+          RedisID: v.NotificationRedisID,
+          NotificationGroupID: v.ID,
+          Created: v.NotificationCreated,
+          Read: v.NotificationRead,
+          CurrentMainStep: v.NotificationCurrentMainStep,
+          CurrentSubStep: v.NotificationCurrentSubStep,
+          MainMessage: v.NotificationMainMessage,
+          SubMessage: v.NotificationSubMessage,
+        },
+        GroupModel: &sqlc.NotificationsGroup{
+          ID: v.ID,
+          UserID: v.UserID,
+          WorkflowID: v.WorkflowID,
+          EntityID: v.EntityID,
+          EntityType: v.EntityType,
+          TotalMainSteps: v.TotalMainSteps,
+          TotalSubSteps: v.TotalSubSteps,
+        },
+      },
+    )
+  }
+
+  return returnList, nil
+}

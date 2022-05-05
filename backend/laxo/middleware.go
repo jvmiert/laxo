@@ -13,7 +13,7 @@ import (
 
 type AuthHandlerFunc func(w http.ResponseWriter, r *http.Request, u string)
 
-func assureJSON(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func AssureJSON(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
   contentType := r.Header.Get("Content-type")
 
 	for _, v := range strings.Split(contentType, ",") {
@@ -37,7 +37,7 @@ func assureJSON(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 // it will call the auth typed route function with the extra userID parameter. If the
 // token does not exist in Redis or the token is not present in the cookie it will
 // return a 403 forbidden code.
-func assureAuth(handler AuthHandlerFunc) http.HandlerFunc {
+func AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
   return func(w http.ResponseWriter, r *http.Request) {
     c, err := r.Cookie(AppConfig.AuthCookieName)
 

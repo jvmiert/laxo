@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"github.com/hashicorp/go-hclog"
@@ -23,6 +24,7 @@ type Store interface {
   GetNotificationGroupIDByWorkflowID(string, string) (string, error)
   CreateNotificationGroup(*NotificationGroupCreateParam) (string, error)
   UpdateNotificationGroup(*NotificationGroupUpdateParam) error
+  GetNotifications(string, int32, int32) ([]Notification, error)
 }
 
 type NotificationGroupCreateParam struct {
@@ -129,5 +131,46 @@ func (s *Service) CreateNotification(param NotificationCreateParam) error {
   }
 
   return s.UpdateRedisIDToStore(n.Model.ID, redisID)
+}
+
+func (s *Service) GetNotifications(userID string, offset, limit int32) ([]Notification, error) {
+  nn, err := s.store.GetNotifications(userID, offset, limit)
+  if err != nil {
+    return nil, err
+  }
+
+  return nn, nil
+}
+
+
+func (s *Service) GetNotificationsJSON(userID string, offset, limit int32) ([]byte, error) {
+  nn, err := s.GetNotifications(userID, offset, limit)
+  if err != nil {
+    return nil, err
+  }
+
+  nList := []json.RawMessage{}
+  for _, s := range nn {
+    b, errJ := s.JSON()
+    if errJ != nil {
+      return nil, errJ
+    }
+    j := json.RawMessage(b)
+    nList = append(nList, j)
+  }
+
+	notificationData := map[string]interface{}{
+		"notifications": nList,
+		"total": len(nList),
+	}
+
+  bytes, err := json.Marshal(notificationData)
+
+  if err != nil {
+    s.logger.Error("Notification list marshal error", "error", err)
+    return bytes, err
+  }
+
+  return bytes, nil
 }
 

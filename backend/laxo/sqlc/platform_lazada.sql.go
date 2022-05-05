@@ -5,7 +5,8 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
+
+	null "gopkg.in/guregu/null.v4"
 )
 
 const createLazadaPlatform = `-- name: CreateLazadaPlatform :one
@@ -20,17 +21,17 @@ RETURNING id, shop_id, access_token, country, refresh_token, account_platform, a
 `
 
 type CreateLazadaPlatformParams struct {
-	ShopID           string       `json:"shopID"`
-	AccessToken      string       `json:"accessToken"`
-	Country          string       `json:"country"`
-	RefreshToken     string       `json:"refreshToken"`
-	AccountPlatform  string       `json:"accountPlatform"`
-	Account          string       `json:"account"`
-	UserIDVn         string       `json:"userIDVn"`
-	SellerIDVn       string       `json:"sellerIDVn"`
-	ShortCodeVn      string       `json:"shortCodeVn"`
-	RefreshExpiresIn sql.NullTime `json:"refreshExpiresIn"`
-	AccessExpiresIn  sql.NullTime `json:"accessExpiresIn"`
+	ShopID           string    `json:"shopID"`
+	AccessToken      string    `json:"accessToken"`
+	Country          string    `json:"country"`
+	RefreshToken     string    `json:"refreshToken"`
+	AccountPlatform  string    `json:"accountPlatform"`
+	Account          string    `json:"account"`
+	UserIDVn         string    `json:"userIDVn"`
+	SellerIDVn       string    `json:"sellerIDVn"`
+	ShortCodeVn      string    `json:"shortCodeVn"`
+	RefreshExpiresIn null.Time `json:"refreshExpiresIn"`
+	AccessExpiresIn  null.Time `json:"accessExpiresIn"`
 }
 
 func (q *Queries) CreateLazadaPlatform(ctx context.Context, arg CreateLazadaPlatformParams) (PlatformLazada, error) {
@@ -113,11 +114,11 @@ WHERE id = $5
 `
 
 type UpdateLazadaPlatformParams struct {
-	AccessToken      string       `json:"accessToken"`
-	RefreshToken     string       `json:"refreshToken"`
-	RefreshExpiresIn sql.NullTime `json:"refreshExpiresIn"`
-	AccessExpiresIn  sql.NullTime `json:"accessExpiresIn"`
-	ID               string       `json:"id"`
+	AccessToken      string    `json:"accessToken"`
+	RefreshToken     string    `json:"refreshToken"`
+	RefreshExpiresIn null.Time `json:"refreshExpiresIn"`
+	AccessExpiresIn  null.Time `json:"accessExpiresIn"`
+	ID               string    `json:"id"`
 }
 
 func (q *Queries) UpdateLazadaPlatform(ctx context.Context, arg UpdateLazadaPlatformParams) error {

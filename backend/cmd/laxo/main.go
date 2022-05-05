@@ -14,8 +14,11 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"laxo.vn/laxo/laxo"
+	"laxo.vn/laxo/laxo/http/rest"
+	"laxo.vn/laxo/laxo/notification"
 	laxo_proto "laxo.vn/laxo/laxo/proto"
 	laxo_proto_gen "laxo.vn/laxo/laxo/proto/gen"
+	"laxo.vn/laxo/laxo/store"
 )
 
 func main() {
@@ -40,12 +43,23 @@ func main() {
   }
 
   temporalClient, err := laxo.InitTemporal()
-
   if err != nil {
     logger.Error("Failed to retrieve Temporal client", "error", err)
   }
 
-  r := laxo.SetupRouter(false)
+  server, err := laxo.NewServer()
+  if err != nil {
+    logger.Error("Failed to get server struct", "error", err)
+  }
+
+  store, err := store.NewStore(dbURI, logger)
+  if err != nil {
+    logger.Error("Failed to create new store", "error", err)
+    return
+  }
+
+  notificationService := notification.NewService(store, logger, laxo.RedisClient)
+  rest.InitNotificationHandler(&notificationService, server.Router, server.Negroni)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)
@@ -63,14 +77,14 @@ func main() {
 
   g.Go(func() error {
     httpServer = &http.Server{
-      Handler:      r,
+      Handler:      server.Router,
       Addr:         "127.0.0.1:" + config.Port,
       WriteTimeout: 15 * time.Second,
       ReadTimeout:  15 * time.Second,
     }
 
-    if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
-      return err
+    if errServer := httpServer.ListenAndServe(); err != http.ErrServerClosed {
+      return errServer
     }
 
     return nil
@@ -110,8 +124,8 @@ func main() {
       Handler: http.HandlerFunc(handler),
     }
 
-    if err := grpcHttpServer.ListenAndServe(); err != http.ErrServerClosed {
-      return err
+    if errGRPC := grpcHttpServer.ListenAndServe(); err != http.ErrServerClosed {
+      return errGRPC
     }
 
     return nil

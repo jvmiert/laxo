@@ -7,13 +7,12 @@ import (
 	"regexp"
 	"strings"
 
-	"database/sql"
-
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/jackc/pgx/v4"
 	"golang.org/x/text/message"
 	"golang.org/x/text/number"
+	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
@@ -29,7 +28,7 @@ var ValidationErrPwReqLetter = "password_requires_letter"
 type UserReturn struct {
 	ID         string       `json:"id"`
 	Email      string       `json:"email"`
-	Created    sql.NullTime `json:"created"`
+	Created    null.Time    `json:"created"`
 	Fullname   string       `json:"fullname"`
 }
 

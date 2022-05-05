@@ -75,7 +75,7 @@ func HandleGetMyShops(w http.ResponseWriter, r *http.Request, uID string) {
   shops, err := RetrieveShopsPlatformsByUserID(uID)
 
   if err != nil {
-    ErrorJSONEncode(w, err, http.StatusUnauthorized)
+    ErrorJSONEncode(w, err, http.StatusInternalServerError)
     return
   }
 

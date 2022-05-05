@@ -5,7 +5,8 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
+
+	null "gopkg.in/guregu/null.v4"
 )
 
 const createNotification = `-- name: CreateNotification :one
@@ -19,12 +20,12 @@ RETURNING id, redis_id, notification_group_id, created, read, current_main_step,
 `
 
 type CreateNotificationParams struct {
-	NotificationGroupID string         `json:"notificationGroupID"`
-	Read                sql.NullTime   `json:"read"`
-	CurrentMainStep     sql.NullInt64  `json:"currentMainStep"`
-	CurrentSubStep      sql.NullInt64  `json:"currentSubStep"`
-	MainMessage         sql.NullString `json:"mainMessage"`
-	SubMessage          sql.NullString `json:"subMessage"`
+	NotificationGroupID string      `json:"notificationGroupID"`
+	Read                null.Time   `json:"read"`
+	CurrentMainStep     null.Int    `json:"currentMainStep"`
+	CurrentSubStep      null.Int    `json:"currentSubStep"`
+	MainMessage         null.String `json:"mainMessage"`
+	SubMessage          null.String `json:"subMessage"`
 }
 
 func (q *Queries) CreateNotification(ctx context.Context, arg CreateNotificationParams) (Notification, error) {
@@ -62,12 +63,12 @@ RETURNING id, user_id, workflow_id, entity_id, entity_type, total_main_steps, to
 `
 
 type CreateNotificationsGroupParams struct {
-	UserID         string         `json:"userID"`
-	WorkflowID     sql.NullString `json:"workflowID"`
-	EntityID       string         `json:"entityID"`
-	EntityType     string         `json:"entityType"`
-	TotalMainSteps sql.NullInt64  `json:"totalMainSteps"`
-	TotalSubSteps  sql.NullInt64  `json:"totalSubSteps"`
+	UserID         string      `json:"userID"`
+	WorkflowID     null.String `json:"workflowID"`
+	EntityID       string      `json:"entityID"`
+	EntityType     string      `json:"entityType"`
+	TotalMainSteps null.Int    `json:"totalMainSteps"`
+	TotalSubSteps  null.Int    `json:"totalSubSteps"`
 }
 
 func (q *Queries) CreateNotificationsGroup(ctx context.Context, arg CreateNotificationsGroupParams) (NotificationsGroup, error) {
@@ -115,6 +116,89 @@ func (q *Queries) GetNotificationByID(ctx context.Context, id string) (Notificat
 	return i, err
 }
 
+const getNotificationsByUserID = `-- name: GetNotificationsByUserID :many
+SELECT notifications_group.id,
+       notifications_group.user_id,
+       notifications_group.workflow_id,
+       notifications_group.entity_id,
+       notifications_group.entity_type,
+       notifications_group.total_main_steps,
+       notifications_group.total_sub_steps,
+       notifications.id as notification_id,
+       notifications.redis_id as notification_redis_id,
+       notifications.created as notification_created,
+       notifications.read as notification_read,
+       notifications.current_main_step as notification_current_main_step,
+       notifications.current_sub_step as notification_current_sub_step,
+       notifications.main_message as notification_main_message,
+       notifications.sub_message as notification_sub_message
+FROM notifications_group
+JOIN notifications
+  ON notifications_group.id = notifications.notification_group_id
+WHERE notifications_group.user_id = $1
+LIMIT $2 OFFSET $3
+`
+
+type GetNotificationsByUserIDParams struct {
+	UserID string `json:"userID"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+type GetNotificationsByUserIDRow struct {
+	ID                          string      `json:"id"`
+	UserID                      string      `json:"userID"`
+	WorkflowID                  null.String `json:"workflowID"`
+	EntityID                    string      `json:"entityID"`
+	EntityType                  string      `json:"entityType"`
+	TotalMainSteps              null.Int    `json:"totalMainSteps"`
+	TotalSubSteps               null.Int    `json:"totalSubSteps"`
+	NotificationID              string      `json:"notificationID"`
+	NotificationRedisID         null.String `json:"notificationRedisID"`
+	NotificationCreated         null.Time   `json:"notificationCreated"`
+	NotificationRead            null.Time   `json:"notificationRead"`
+	NotificationCurrentMainStep null.Int    `json:"notificationCurrentMainStep"`
+	NotificationCurrentSubStep  null.Int    `json:"notificationCurrentSubStep"`
+	NotificationMainMessage     null.String `json:"notificationMainMessage"`
+	NotificationSubMessage      null.String `json:"notificationSubMessage"`
+}
+
+func (q *Queries) GetNotificationsByUserID(ctx context.Context, arg GetNotificationsByUserIDParams) ([]GetNotificationsByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, getNotificationsByUserID, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetNotificationsByUserIDRow
+	for rows.Next() {
+		var i GetNotificationsByUserIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.WorkflowID,
+			&i.EntityID,
+			&i.EntityType,
+			&i.TotalMainSteps,
+			&i.TotalSubSteps,
+			&i.NotificationID,
+			&i.NotificationRedisID,
+			&i.NotificationCreated,
+			&i.NotificationRead,
+			&i.NotificationCurrentMainStep,
+			&i.NotificationCurrentSubStep,
+			&i.NotificationMainMessage,
+			&i.NotificationSubMessage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getNotificationsGroupByID = `-- name: GetNotificationsGroupByID :one
 SELECT id, user_id, workflow_id, entity_id, entity_type, total_main_steps, total_sub_steps FROM notifications_group
 WHERE id = $1
@@ -143,8 +227,8 @@ LIMIT 1
 `
 
 type GetNotificationsGroupByWorkflowIDParams struct {
-	WorkflowID sql.NullString `json:"workflowID"`
-	UserID     string         `json:"userID"`
+	WorkflowID null.String `json:"workflowID"`
+	UserID     string      `json:"userID"`
 }
 
 func (q *Queries) GetNotificationsGroupByWorkflowID(ctx context.Context, arg GetNotificationsGroupByWorkflowIDParams) (NotificationsGroup, error) {
@@ -238,8 +322,8 @@ WHERE id = $2
 `
 
 type UpdateRedisIDByNotificationIDParams struct {
-	RedisID sql.NullString `json:"redisID"`
-	ID      string         `json:"id"`
+	RedisID null.String `json:"redisID"`
+	ID      string      `json:"id"`
 }
 
 func (q *Queries) UpdateRedisIDByNotificationID(ctx context.Context, arg UpdateRedisIDByNotificationIDParams) error {

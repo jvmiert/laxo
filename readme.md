@@ -7,15 +7,16 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 # Tech to-do
 - Create notification system
   - Create service function to retrieve notifications
-    - retrieve from postgres
+    - setup frontend reducer/initial state with immer
+      - retrieve initial state from ssr after making REST API?
     - setup frontend to retrieve initial request from postgres through REST
     - then listen for incoming notifications with GRPC (redis)
-- Create products dashboard page
-  - Retrieve product and their attributes
 - Make the dashboard page
   - Store that platform is connected in database - do we really need this?
   - Handle error messages in callback page
   - Handle successful redirect in callback page
+- Create products dashboard page
+  - Retrieve product and their attributes
 - Write test for get shop
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.
@@ -139,6 +140,8 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://www.honeycomb.io/#
 - https://hireproof.io/
 - https://www.convex.dev/
+- https://indent.com/
+- https://tailscale.com/
 
 # Programming
 - For API design: https://stripe.com/docs/api/promotion_codes/list

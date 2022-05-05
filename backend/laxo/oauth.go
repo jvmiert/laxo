@@ -13,11 +13,10 @@ import (
 	"sort"
 	"strings"
 
-	"database/sql"
-
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jackc/pgx/v4"
 	"golang.org/x/text/message"
+	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/sqlc"
 )
@@ -136,8 +135,8 @@ func (o *OAuthVerifyRequest) Verify(uID string, printer *message.Printer) error 
             UserIDVn: authResp.CountryUserInfo[0].UserID,
             SellerIDVn: authResp.CountryUserInfo[0].SellerID,
             ShortCodeVn: authResp.CountryUserInfo[0].ShortCode,
-            RefreshExpiresIn: sql.NullTime{Time: authResp.DateRefreshExpired, Valid: true},
-            AccessExpiresIn: sql.NullTime{Time: authResp.DateAccessExpired, Valid: true},
+            RefreshExpiresIn: null.TimeFrom(authResp.DateRefreshExpired),
+            AccessExpiresIn: null.TimeFrom(authResp.DateAccessExpired),
           },
         )
 
@@ -158,8 +157,8 @@ func (o *OAuthVerifyRequest) Verify(uID string, printer *message.Printer) error 
         sqlc.UpdateLazadaPlatformParams{
           AccessToken: authResp.AccessToken,
           RefreshToken: authResp.RefreshToken,
-          RefreshExpiresIn: sql.NullTime{Time: authResp.DateRefreshExpired, Valid: true},
-          AccessExpiresIn: sql.NullTime{Time: authResp.DateAccessExpired, Valid: true},
+          RefreshExpiresIn: null.TimeFrom(authResp.DateRefreshExpired),
+          AccessExpiresIn: null.TimeFrom(authResp.DateAccessExpired),
           ID: lazInfo.ID,
         },
       )

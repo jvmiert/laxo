@@ -5,7 +5,8 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
+
+	null "gopkg.in/guregu/null.v4"
 )
 
 const createShop = `-- name: CreateShop :one
@@ -99,13 +100,13 @@ WHERE user_id = $1
 `
 
 type GetShopsPlatformsByUserIDRow struct {
-	ID              string         `json:"id"`
-	UserID          string         `json:"userID"`
-	ShopName        string         `json:"shopName"`
-	Created         sql.NullTime   `json:"created"`
-	PlatformID      sql.NullString `json:"platformID"`
-	PlatformName    sql.NullString `json:"platformName"`
-	PlatformCreated sql.NullTime   `json:"platformCreated"`
+	ID              string      `json:"id"`
+	UserID          string      `json:"userID"`
+	ShopName        string      `json:"shopName"`
+	Created         null.Time   `json:"created"`
+	PlatformID      null.String `json:"platformID"`
+	PlatformName    null.String `json:"platformName"`
+	PlatformCreated null.Time   `json:"platformCreated"`
 }
 
 func (q *Queries) GetShopsPlatformsByUserID(ctx context.Context, userID string) ([]GetShopsPlatformsByUserIDRow, error) {

@@ -8,6 +8,8 @@ export interface DashboardConsumerProps {
   toggleNotification: () => void;
 }
 
+interface DashboardState {}
+
 export const [useDashboard, Provider] =
   createSafeContext<DashboardConsumerProps>();
 
