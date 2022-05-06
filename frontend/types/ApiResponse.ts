@@ -35,3 +35,35 @@ export type GetPlatformsResponse = {
   shopID: string;
   platforms: Array<GetPlatformsPlatforms>;
 };
+
+export type Notification = {
+  id: string;
+  redisID: string;
+  notificationGroupID: string;
+  created: string;
+  read: string;
+  currentMainStep: number;
+  currentSubStep: number;
+  mainMessage: string;
+  subMessage: string;
+};
+
+export type NotificationGroup = {
+  id: string;
+  userID: string;
+  workflowID: string;
+  entityID: string;
+  entityType: string;
+  TotalMainSteps: number;
+  totalSubSteps: number;
+};
+
+export type NotificationResponseObject = {
+  notification: Notification;
+  notificationGroup: NotificationGroup;
+};
+
+export type GetNotificationResponse = {
+  notifications: Array<NotificationResponseObject>;
+  total: number;
+};

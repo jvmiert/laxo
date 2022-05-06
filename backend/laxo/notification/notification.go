@@ -7,8 +7,8 @@ import (
 )
 
 type Notification struct {
-  Model       *sqlc.Notification
-  GroupModel  *sqlc.NotificationsGroup
+  Model       *sqlc.Notification       `json:"notification"`
+  GroupModel  *sqlc.NotificationsGroup `json:"notificationGroup"`
 }
 
 func (n *Notification) JSON() ([]byte, error) {

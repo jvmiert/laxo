@@ -1,9 +1,11 @@
 import { AxiosError, AxiosResponse } from "axios";
 import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 import { useAxios } from "@/providers/AxiosProvider";
 import type {
   GetShopResponse,
   GetPlatformsResponse,
+  GetNotificationResponse,
 } from "@/types/ApiResponse";
 
 export function useGetAuth() {
@@ -35,6 +37,26 @@ export function useGetShop(): {
 
   return {
     shops: data ? data.data : { shops: [], total: 0 },
+    error,
+    loading: isValidating,
+  };
+}
+
+export function useGetNotifications(): {
+  notifications: GetNotificationResponse;
+  error: AxiosError | undefined;
+  loading: boolean;
+} {
+  const { axiosClient } = useAxios();
+  const { data, error, isValidating } = useSWRImmutable<
+    AxiosResponse<GetNotificationResponse>,
+    AxiosError<unknown>
+  >("/notifications", (url) => axiosClient.get<GetNotificationResponse>(url), {
+    shouldRetryOnError: true,
+  });
+
+  return {
+    notifications: data ? data.data : { notifications: [], total: 0 },
     error,
     loading: isValidating,
   };
