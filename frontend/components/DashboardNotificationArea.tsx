@@ -1,10 +1,11 @@
 import { Transition } from "@headlessui/react";
 import { useDashboard } from "@/providers/DashboardProvider";
-import DashboardLoadingEvent from "@/components/DashboardLoadingEvent";
+import DashboardNotification from "@/components/DashboardNotification";
 import { XIcon } from "@heroicons/react/outline";
 
 export default function DashboardNotificationArea() {
-  const { notificationOpen, closeNotification } = useDashboard();
+  const { notificationOpen, closeNotification, dashboardState } =
+    useDashboard();
 
   return (
     <Transition
@@ -26,9 +27,13 @@ export default function DashboardNotificationArea() {
         </div>
         <h2 className="py-6 text-center text-xl font-bold">Notifications</h2>
         <div className="flex flex-col items-center gap-y-4 self-center">
-          <DashboardLoadingEvent />
-          <DashboardLoadingEvent />
-          <DashboardLoadingEvent />
+          {dashboardState.notifications.map((n) => (
+            <DashboardNotification
+              key={n.notification.id}
+              notification={n.notification}
+              notificationGroup={n.notificationGroup}
+            />
+          ))}
         </div>
       </div>
     </Transition>

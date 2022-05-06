@@ -54,7 +54,7 @@ export type NotificationGroup = {
   workflowID: string;
   entityID: string;
   entityType: string;
-  TotalMainSteps: number;
+  totalMainSteps: number;
   totalSubSteps: number;
 };
 

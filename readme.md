@@ -7,9 +7,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 # Tech to-do
 - Create notification system
   - Create service function to retrieve notifications
-    - setup frontend reducer/initial state with immer
-      - retrieve initial state from ssr after making REST API?
-    - setup frontend to retrieve initial request from postgres through REST
     - then listen for incoming notifications with GRPC (redis)
 - Make the dashboard page
   - Store that platform is connected in database - do we really need this?

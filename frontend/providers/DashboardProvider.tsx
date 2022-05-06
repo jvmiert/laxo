@@ -1,4 +1,4 @@
-import { ReactChildren, ReactNode, useState, useEffect } from "react";
+import { ReactChildren, ReactNode, useState, useEffect, Dispatch } from "react";
 import { Draft } from "immer";
 import { useImmerReducer } from "use-immer";
 import createSafeContext from "@/lib/useSafeContext";
@@ -10,7 +10,8 @@ export interface DashboardConsumerProps {
   closeNotification: () => void;
   openNotification: () => void;
   toggleNotification: () => void;
-  notificationState: DashboardState;
+  dashboardState: DashboardState;
+  dashboardDispatch: Dispatch<DashboardAction>;
 }
 
 interface DashboardState {
@@ -21,11 +22,11 @@ const initialState: DashboardState = {
   notifications: [],
 };
 
-type Action =
+export type DashboardAction =
   | { type: "reset"; state: DashboardState }
   | { type: "add"; notification: NotificationResponseObject };
 
-function reducer(draft: Draft<DashboardState>, action: Action) {
+function reducer(draft: Draft<DashboardState>, action: DashboardAction) {
   switch (action.type) {
     case "reset":
       return action.state;
@@ -72,7 +73,8 @@ export const DashboardProvider = ({
     closeNotification,
     openNotification,
     toggleNotification,
-    notificationState: state,
+    dashboardState: state,
+    dashboardDispatch: dispatch,
   };
 
   return <Provider value={providerValues}>{children}</Provider>;
