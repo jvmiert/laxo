@@ -100,18 +100,11 @@ export namespace NotificationGroup {
 }
 
 export class NotificationUpdateRequest extends jspb.Message {
-  getUserid(): string;
-  setUserid(value: string): void;
+  getNotificationid(): string;
+  setNotificationid(value: string): void;
 
-  hasLatestnotification(): boolean;
-  clearLatestnotification(): void;
-  getLatestnotification(): Notification | undefined;
-  setLatestnotification(value?: Notification): void;
-
-  hasLatestnotificationgroup(): boolean;
-  clearLatestnotificationgroup(): void;
-  getLatestnotificationgroup(): NotificationGroup | undefined;
-  setLatestnotificationgroup(value?: NotificationGroup): void;
+  getNotificationgroupid(): string;
+  setNotificationgroupid(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): NotificationUpdateRequest.AsObject;
@@ -125,9 +118,8 @@ export class NotificationUpdateRequest extends jspb.Message {
 
 export namespace NotificationUpdateRequest {
   export type AsObject = {
-    userid: string,
-    latestnotification?: Notification.AsObject,
-    latestnotificationgroup?: NotificationGroup.AsObject,
+    notificationid: string,
+    notificationgroupid: string,
   }
 }
 

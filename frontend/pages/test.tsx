@@ -1,30 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import type { ReactElement } from "react";
 import { useIntl } from "react-intl";
 import axios from "axios";
 import Head from "next/head";
 import DefaultLayout from "@/components/DefaultLayout";
-import useShopApi from "@/hooks/useShopApi";
 
 export default function TestPage() {
   const t = useIntl();
-  const { getProductRetrieveStatusUpdate } = useShopApi();
-
-  const [state, setState] = useState(null);
-  const [called, setCalled] = useState(false);
-
-  useEffect(() => {
-    if (state && !called) {
-      getProductRetrieveStatusUpdate(state);
-      setCalled(true);
-    }
-  }, [state, getProductRetrieveStatusUpdate, called]);
 
   useEffect(() => {
     const executeTask = async () => {
       const result = await axios("/api/test");
 
-      setState(result.data);
+      console.log(result.data);
     };
 
     executeTask();

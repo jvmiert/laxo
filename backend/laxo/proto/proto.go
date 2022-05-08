@@ -8,66 +8,25 @@ import (
 	"github.com/mediocregopher/radix/v4"
 	"laxo.vn/laxo/laxo"
 	gen "laxo.vn/laxo/laxo/proto/gen"
-	"laxo.vn/laxo/processing"
 )
 
 type ProtoServer struct {
-  gen.UnimplementedProductServiceServer
+  gen.UnimplementedUserServiceServer
 }
 
-func (s *ProtoServer) CreateFrame(req *gen.CreateFrameRequest, stream gen.ProductService_CreateFrameServer) error {
+//@TODO: adjust below function to read the current latest notification and start listening to Redis
+
+func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, stream gen.UserService_GetNotificationUpdateServer) error {
   uID := stream.Context().Value(keyUID)
-  laxo.Logger.Info("Received CreateFrame", "content", req.ImgID, "uID", uID)
-
-  if err := stream.Send(&gen.CreateFrameReply{ImgID: "test1"}); err != nil {
-    return err
-  }
-
-  time.Sleep(2 * time.Second)
-
-  if err := stream.Send(&gen.CreateFrameReply{ImgID: "test2"}); err != nil {
-    return err
-  }
-
-  return nil
-}
-
-func (s *ProtoServer) GetProductRetrieveUpdate(req *gen.ProductRetrieveUpdateRequest, stream gen.ProductService_GetProductRetrieveUpdateServer) error {
-  uID := stream.Context().Value(keyUID)
-  laxo.Logger.Info("Received GetProductRetrieveUpdate", "content", req.RetrieveID, "uID", uID)
-
-  resp, err := laxo.TemporalClient.QueryWorkflow(context.Background(), req.RetrieveID, "", "current_state")
-  if err != nil {
-    laxo.Logger.Error("Unable to query workflow", "error", err)
-  }
-
-  var result processing.QueryStateResult
-
-  if err := resp.Get(&result); err != nil {
-    laxo.Logger.Error("Unable to decode query result", "error", err)
-  }
-
-  if err := stream.Send(&gen.ProductRetrieveUpdateReply{
-    CurrentStatus: result.State,
-    TotalProducts: int32(result.Total),
-    CurrentProducts: int32(result.Current),
-  }); err != nil {
-    return err
-  }
-
-  if result.State == "complete" {
-    return nil
-  }
+  laxo.Logger.Info("Received GetProductRetrieveUpdate", "NotificationID", req.NotificationID, "NotificationGroupID", req.NotificationGroupID, "uID", uID)
 
   var entries []radix.StreamEntry
   laxo.RedisClient.Do(context.Background(), radix.Cmd(&entries, "XRANGE", req.RetrieveID, "-", "+"))
 
-  var latestID radix.StreamEntryID
+  latestID := entries[len(entries)-1].ID
   state := ""
 
   for _, e := range entries {
-    latestID = e.ID
-
     state = ""
     total, complete := -1, -1
     for _, f := range e.Fields {

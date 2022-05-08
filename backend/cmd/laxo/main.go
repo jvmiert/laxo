@@ -101,7 +101,7 @@ func main() {
     }
     grpcServer := grpc.NewServer(opts...)
     protoServer := &laxo_proto.ProtoServer{}
-    laxo_proto_gen.RegisterProductServiceServer(grpcServer, protoServer)
+    laxo_proto_gen.RegisterUserServiceServer(grpcServer, protoServer)
 
     option := []grpcweb.Option{
       grpcweb.WithWebsockets(true),

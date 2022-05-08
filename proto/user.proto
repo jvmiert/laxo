@@ -32,9 +32,8 @@ message NotificationGroup {
 }
 
 message NotificationUpdateRequest {
-  string userID = 1;
-  Notification latestNotification = 2;
-  NotificationGroup latestNotificationGroup = 3;
+  string notificationID = 1;
+  string notificationGroupID = 2;
 }
 
 message NotificationUpdateReply {

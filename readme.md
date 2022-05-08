@@ -139,6 +139,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://www.convex.dev/
 - https://indent.com/
 - https://tailscale.com/
+- https://sellerportal.deliverr.com/
 
 # Programming
 - For API design: https://stripe.com/docs/api/promotion_codes/list

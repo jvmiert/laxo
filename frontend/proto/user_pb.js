@@ -821,9 +821,8 @@ proto.user.NotificationUpdateRequest.prototype.toObject = function(opt_includeIn
  */
 proto.user.NotificationUpdateRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userid: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    latestnotification: (f = msg.getLatestnotification()) && proto.user.Notification.toObject(includeInstance, f),
-    latestnotificationgroup: (f = msg.getLatestnotificationgroup()) && proto.user.NotificationGroup.toObject(includeInstance, f)
+    notificationid: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    notificationgroupid: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -862,17 +861,11 @@ proto.user.NotificationUpdateRequest.deserializeBinaryFromReader = function(msg,
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUserid(value);
+      msg.setNotificationid(value);
       break;
     case 2:
-      var value = new proto.user.Notification;
-      reader.readMessage(value,proto.user.Notification.deserializeBinaryFromReader);
-      msg.setLatestnotification(value);
-      break;
-    case 3:
-      var value = new proto.user.NotificationGroup;
-      reader.readMessage(value,proto.user.NotificationGroup.deserializeBinaryFromReader);
-      msg.setLatestnotificationgroup(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNotificationgroupid(value);
       break;
     default:
       reader.skipField();
@@ -903,37 +896,28 @@ proto.user.NotificationUpdateRequest.prototype.serializeBinary = function() {
  */
 proto.user.NotificationUpdateRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getUserid();
+  f = message.getNotificationid();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getLatestnotification();
-  if (f != null) {
-    writer.writeMessage(
+  f = message.getNotificationgroupid();
+  if (f.length > 0) {
+    writer.writeString(
       2,
-      f,
-      proto.user.Notification.serializeBinaryToWriter
-    );
-  }
-  f = message.getLatestnotificationgroup();
-  if (f != null) {
-    writer.writeMessage(
-      3,
-      f,
-      proto.user.NotificationGroup.serializeBinaryToWriter
+      f
     );
   }
 };
 
 
 /**
- * optional string userID = 1;
+ * optional string notificationID = 1;
  * @return {string}
  */
-proto.user.NotificationUpdateRequest.prototype.getUserid = function() {
+proto.user.NotificationUpdateRequest.prototype.getNotificationid = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -942,82 +926,26 @@ proto.user.NotificationUpdateRequest.prototype.getUserid = function() {
  * @param {string} value
  * @return {!proto.user.NotificationUpdateRequest} returns this
  */
-proto.user.NotificationUpdateRequest.prototype.setUserid = function(value) {
+proto.user.NotificationUpdateRequest.prototype.setNotificationid = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional Notification latestNotification = 2;
- * @return {?proto.user.Notification}
+ * optional string notificationGroupID = 2;
+ * @return {string}
  */
-proto.user.NotificationUpdateRequest.prototype.getLatestnotification = function() {
-  return /** @type{?proto.user.Notification} */ (
-    jspb.Message.getWrapperField(this, proto.user.Notification, 2));
+proto.user.NotificationUpdateRequest.prototype.getNotificationgroupid = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /**
- * @param {?proto.user.Notification|undefined} value
- * @return {!proto.user.NotificationUpdateRequest} returns this
-*/
-proto.user.NotificationUpdateRequest.prototype.setLatestnotification = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
+ * @param {string} value
  * @return {!proto.user.NotificationUpdateRequest} returns this
  */
-proto.user.NotificationUpdateRequest.prototype.clearLatestnotification = function() {
-  return this.setLatestnotification(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.user.NotificationUpdateRequest.prototype.hasLatestnotification = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
-
-/**
- * optional NotificationGroup latestNotificationGroup = 3;
- * @return {?proto.user.NotificationGroup}
- */
-proto.user.NotificationUpdateRequest.prototype.getLatestnotificationgroup = function() {
-  return /** @type{?proto.user.NotificationGroup} */ (
-    jspb.Message.getWrapperField(this, proto.user.NotificationGroup, 3));
-};
-
-
-/**
- * @param {?proto.user.NotificationGroup|undefined} value
- * @return {!proto.user.NotificationUpdateRequest} returns this
-*/
-proto.user.NotificationUpdateRequest.prototype.setLatestnotificationgroup = function(value) {
-  return jspb.Message.setWrapperField(this, 3, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.user.NotificationUpdateRequest} returns this
- */
-proto.user.NotificationUpdateRequest.prototype.clearLatestnotificationgroup = function() {
-  return this.setLatestnotificationgroup(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.user.NotificationUpdateRequest.prototype.hasLatestnotificationgroup = function() {
-  return jspb.Message.getField(this, 3) != null;
+proto.user.NotificationUpdateRequest.prototype.setNotificationgroupid = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
