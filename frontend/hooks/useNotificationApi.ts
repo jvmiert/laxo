@@ -1,35 +1,37 @@
 import { grpc } from "@improbable-eng/grpc-web";
 import { UserService } from "@/proto/user_pb_service";
-import { NotificationUpdateRequest } from "@/proto/user_pb";
+import {
+  NotificationUpdateRequest,
+  NotificationUpdateReply,
+} from "@/proto/user_pb";
 
 const myTransport = grpc.CrossBrowserHttpTransport({ withCredentials: true });
 
 export default function useNotificationApi(): {
   getNotificationUpdate: (
-    notificationID: string,
-    notificationGroupID: string,
-  ) => void;
+    notificationRedisID: string,
+    onMessage: (res: NotificationUpdateReply) => void,
+    onEnd: (code: grpc.Code, message: string, trailers: grpc.Metadata) => void,
+  ) => grpc.Request;
 } {
-  const getNotificationUpdate = async (
-    notificationID: string,
-    notificationGroupID: string,
-  ) => {
+  const getNotificationUpdate = (
+    notificationRedisID: string,
+    onMessage: (res: NotificationUpdateReply) => void,
+    onEnd: (code: grpc.Code, message: string, trailers: grpc.Metadata) => void,
+  ): grpc.Request => {
     const notificationUpdateRequest = new NotificationUpdateRequest();
 
-    notificationUpdateRequest.setNotificationid(notificationID);
-    notificationUpdateRequest.setNotificationgroupid(notificationGroupID);
+    notificationUpdateRequest.setNotificationredisid(notificationRedisID);
 
-    grpc.invoke(UserService.GetNotificationUpdate, {
+    const request = grpc.invoke(UserService.GetNotificationUpdate, {
       request: notificationUpdateRequest,
       host: "http://localhost:8081",
       transport: myTransport,
-      onMessage: (res) => {
-        console.log("onMessage", res);
-      },
-      onEnd: (res) => {
-        console.log("onEnd", res);
-      },
+      onMessage: onMessage,
+      onEnd: onEnd,
     });
+
+    return request;
   };
 
   return { getNotificationUpdate };

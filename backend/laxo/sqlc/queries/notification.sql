@@ -6,18 +6,22 @@ SELECT notifications_group.id,
        notifications_group.entity_type,
        notifications_group.total_main_steps,
        notifications_group.total_sub_steps,
-       notifications.id as notification_id,
-       notifications.redis_id as notification_redis_id,
-       notifications.created as notification_created,
-       notifications.read as notification_read,
-       notifications.current_main_step as notification_current_main_step,
-       notifications.current_sub_step as notification_current_sub_step,
-       notifications.main_message as notification_main_message,
-       notifications.sub_message as notification_sub_message
+       n.id as notification_id,
+       n.redis_id as notification_redis_id,
+       n.created as notification_created,
+       n.read as notification_read,
+       n.current_main_step as notification_current_main_step,
+       n.current_sub_step as notification_current_sub_step,
+       n.main_message as notification_main_message,
+       n.sub_message as notification_sub_message
 FROM notifications_group
-JOIN notifications
-  ON notifications_group.id = notifications.notification_group_id
-WHERE notifications_group.user_id = $1
+JOIN (
+  SELECT DISTINCT ON (notification_group_id) *
+	FROM notifications
+	ORDER BY notification_group_id, id desc
+) n ON notifications_group.id = n.notification_group_id
+WHERE notifications_group.user_id = $1 AND n.redis_id IS NOT NULL
+ORDER BY notifications_group.id desc
 LIMIT $2 OFFSET $3;
 
 -- name: GetNotificationByID :one

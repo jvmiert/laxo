@@ -41,7 +41,7 @@ export type Notification = {
   redisID: string;
   notificationGroupID: string;
   created: Date;
-  read: Date;
+  read?: Date;
   currentMainStep: number;
   currentSubStep: number;
   mainMessage: string;

@@ -2,73 +2,63 @@ package proto
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/mediocregopher/radix/v4"
-	"laxo.vn/laxo/laxo"
+	"laxo.vn/laxo/laxo/notification"
 	gen "laxo.vn/laxo/laxo/proto/gen"
 )
 
 type ProtoServer struct {
   gen.UnimplementedUserServiceServer
+  service *notification.Service
+  logger      hclog.Logger
+  redisClient radix.Client
 }
 
-//@TODO: adjust below function to read the current latest notification and start listening to Redis
+func NewServer(service *notification.Service, logger hclog.Logger, redisClient radix.Client) *ProtoServer {
+  return &ProtoServer {
+    service: service,
+    logger: logger,
+    redisClient: redisClient,
+  }
+}
 
 func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, stream gen.UserService_GetNotificationUpdateServer) error {
-  uID := stream.Context().Value(keyUID)
-  laxo.Logger.Info("Received GetProductRetrieveUpdate", "NotificationID", req.NotificationID, "NotificationGroupID", req.NotificationGroupID, "uID", uID)
+  uID := stream.Context().Value(keyUID).(string)
+  s.logger.Info("Received GetProductRetrieveUpdate", "NotificationRedisID", req.NotificationRedisID, "uID", uID)
 
-  var entries []radix.StreamEntry
-  laxo.RedisClient.Do(context.Background(), radix.Cmd(&entries, "XRANGE", req.RetrieveID, "-", "+"))
+  channelID := notification.NotificationPrefix + uID
 
-  latestID := entries[len(entries)-1].ID
-  state := ""
+  var latestID radix.StreamEntryID
+  streamConfig := make(map[string]radix.StreamConfig)
+  sc := radix.StreamConfig{}
 
-  for _, e := range entries {
-    state = ""
-    total, complete := -1, -1
-    for _, f := range e.Fields {
-      key := f[0]
-      value := f[1]
+  if req.NotificationRedisID != "" {
+    sRedisID := strings.Split(req.NotificationRedisID, "-")
 
-      if key == "state" {
-        state = value
-      }
-
-      if key == "complete" {
-        i, errConvert := strconv.Atoi(value)
-        if errConvert != nil {
-          laxo.Logger.Error("couldn't convert complete string to int", "error", errConvert)
-        }
-
-        complete = i
-      }
-
-      if key == "total" {
-        i, errConvert := strconv.Atoi(value)
-        if errConvert != nil {
-          laxo.Logger.Error("couldn't convert total string to int", "error", errConvert)
-        }
-
-        total = i
-      }
+    time, err := strconv.ParseUint(sRedisID[0], 10, 64)
+    if err != nil {
+      s.logger.Error("strconv error", "error", err)
+      return err
     }
 
-    if state != "" {
-      if errStream := stream.Send(&gen.ProductRetrieveUpdateReply{
-        CurrentStatus: state,
-        TotalProducts: int32(total),
-        CurrentProducts: int32(complete),
-      }); errStream != nil {
-        return errStream
-      }
+    seq, err := strconv.ParseUint(sRedisID[1], 10, 64)
+    if err != nil {
+      s.logger.Error("strconv error", "error", err)
+      return err
     }
-  }
 
-  if state == "complete" {
-    return nil
+    latestID.Time = time
+    latestID.Seq = seq
+
+    sc.After = latestID
+  } else {
+    sc.Latest = true
   }
 
   streamReaderConfig := radix.StreamReaderConfig{
@@ -77,71 +67,86 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
     Count:     -1,
     NoBlock: false,
   }
-  r := streamReaderConfig.New(laxo.RedisClient, map[string]radix.StreamConfig{
-    req.RetrieveID: {
-      After: latestID,
-      Latest: true,
-    },
-  })
 
-  state = ""
+  streamConfig[channelID] = sc
 
-  for state != "complete" {
-    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+  r := streamReaderConfig.New(s.redisClient, streamConfig)
 
+  keepAliveErrs := make(chan error, 1)
+  go func() {
+    for {
+      time.Sleep(30 * time.Second)
+
+      err := stream.Send(&gen.NotificationUpdateReply{
+        KeepAlive: true,
+      })
+      if err != nil {
+        keepAliveErrs <- err
+        close(keepAliveErrs)
+        return
+      }
+    }
+  }()
+
+  for {
+    select {
+    case msg := <-keepAliveErrs:
+      s.logger.Error("Keepalive error", "error", msg)
+      return msg
+    default:
+    }
+
+    ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Minute)
     _, entry, err := r.Next(ctx)
 
     if err != nil {
       if err != radix.ErrNoStreamEntries {
-        laxo.Logger.Error("Redis stream Next() returned error", "error", err)
-      } else {
-        laxo.Logger.Error("ErrNoStreamEntries")
+        s.logger.Error("Redis stream Next() returned error", "error", err)
+        cancel()
+        return err
       }
     }
 
     cancel()
 
-    total, complete := -1, -1
+    if err != radix.ErrNoStreamEntries {
+      if len(entry.Fields) > 0 {
+        if entry.Fields[0][0] == "notification" {
+          var n notification.Notification
 
-    for _, f := range entry.Fields {
-      key := f[0]
-      value := f[1]
+          if err = json.Unmarshal([]byte(entry.Fields[0][1]), &n); err != nil {
+            s.logger.Error("notification json unmarshal error", "error", err)
+            return err
+          }
 
-      if key == "state" {
-        state = value
-      }
+          //@TODO: The ValueOrZero approach is not correct for Created and Read
 
-      if key == "complete" {
-        i, errConvert := strconv.Atoi(value)
-        if errConvert != nil {
-          laxo.Logger.Error("couldn't convert complete string to int", "error", errConvert)
+          if err = stream.Send(&gen.NotificationUpdateReply{
+            Notification: &gen.Notification{
+              ID: n.Model.ID,
+              RedisID: n.Model.RedisID.ValueOrZero(),
+              GroupID: n.Model.NotificationGroupID,
+              Created: n.Model.Created.ValueOrZero().Unix(),
+              Read: n.Model.Read.ValueOrZero().Unix(),
+              CurrentMainStep: n.Model.CurrentMainStep.ValueOrZero(),
+              CurrentSubStep: n.Model.CurrentSubStep.ValueOrZero(),
+              MainMessage: n.Model.MainMessage.ValueOrZero(),
+              SubMessage: n.Model.SubMessage.ValueOrZero(),
+            },
+            NotificationGroup: &gen.NotificationGroup{
+              ID: n.GroupModel.ID,
+              UserID: n.GroupModel.UserID,
+              WorkflowID: n.GroupModel.WorkflowID.ValueOrZero(),
+              EntityID: n.GroupModel.EntityID,
+              EntityType: n.GroupModel.EntityType,
+              TotalMainSteps: n.GroupModel.TotalMainSteps.ValueOrZero(),
+              TotalSubSteps: n.GroupModel.TotalSubSteps.ValueOrZero(),
+            },
+          }); err != nil {
+            return err
+          }
         }
-
-        complete = i
-      }
-
-      if key == "total" {
-        i, errConvert := strconv.Atoi(value)
-        if errConvert != nil {
-          laxo.Logger.Error("couldn't convert total string to int", "error", errConvert)
-        }
-
-        total = i
-      }
-
-    }
-
-    if state != "" {
-      laxo.Logger.Debug("sending new state", "total", total, "complete", complete, "state", state)
-      if errStream := stream.Send(&gen.ProductRetrieveUpdateReply{
-        CurrentStatus: state,
-        TotalProducts: int32(total),
-        CurrentProducts: int32(complete),
-      }); errStream != nil {
-        return errStream
       }
     }
   }
-
-  return nil
 }

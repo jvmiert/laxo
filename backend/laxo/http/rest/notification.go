@@ -26,6 +26,7 @@ func InitNotificationHandler(s *notification.Service, r *mux.Router, n *negroni.
 func (h *notificationHandler) GetNotifications(w http.ResponseWriter, r *http.Request, uID string) {
   js, err := h.service.GetNotificationsJSON(uID, 0, 50)
   if err != nil {
+    laxo.Logger.Error("GetNotifications handler error", "error", err)
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }

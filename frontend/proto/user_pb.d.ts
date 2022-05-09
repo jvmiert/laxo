@@ -100,11 +100,8 @@ export namespace NotificationGroup {
 }
 
 export class NotificationUpdateRequest extends jspb.Message {
-  getNotificationid(): string;
-  setNotificationid(value: string): void;
-
-  getNotificationgroupid(): string;
-  setNotificationgroupid(value: string): void;
+  getNotificationredisid(): string;
+  setNotificationredisid(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): NotificationUpdateRequest.AsObject;
@@ -118,12 +115,14 @@ export class NotificationUpdateRequest extends jspb.Message {
 
 export namespace NotificationUpdateRequest {
   export type AsObject = {
-    notificationid: string,
-    notificationgroupid: string,
+    notificationredisid: string,
   }
 }
 
 export class NotificationUpdateReply extends jspb.Message {
+  getKeepalive(): boolean;
+  setKeepalive(value: boolean): void;
+
   hasNotification(): boolean;
   clearNotification(): void;
   getNotification(): Notification | undefined;
@@ -146,6 +145,7 @@ export class NotificationUpdateReply extends jspb.Message {
 
 export namespace NotificationUpdateReply {
   export type AsObject = {
+    keepalive: boolean,
     notification?: Notification.AsObject,
     notificationgroup?: NotificationGroup.AsObject,
   }

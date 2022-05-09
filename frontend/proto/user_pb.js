@@ -821,8 +821,7 @@ proto.user.NotificationUpdateRequest.prototype.toObject = function(opt_includeIn
  */
 proto.user.NotificationUpdateRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    notificationid: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    notificationgroupid: jspb.Message.getFieldWithDefault(msg, 2, "")
+    notificationredisid: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -861,11 +860,7 @@ proto.user.NotificationUpdateRequest.deserializeBinaryFromReader = function(msg,
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setNotificationid(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNotificationgroupid(value);
+      msg.setNotificationredisid(value);
       break;
     default:
       reader.skipField();
@@ -896,17 +891,10 @@ proto.user.NotificationUpdateRequest.prototype.serializeBinary = function() {
  */
 proto.user.NotificationUpdateRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getNotificationid();
+  f = message.getNotificationredisid();
   if (f.length > 0) {
     writer.writeString(
       1,
-      f
-    );
-  }
-  f = message.getNotificationgroupid();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
       f
     );
   }
@@ -914,10 +902,10 @@ proto.user.NotificationUpdateRequest.serializeBinaryToWriter = function(message,
 
 
 /**
- * optional string notificationID = 1;
+ * optional string notificationRedisID = 1;
  * @return {string}
  */
-proto.user.NotificationUpdateRequest.prototype.getNotificationid = function() {
+proto.user.NotificationUpdateRequest.prototype.getNotificationredisid = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -926,26 +914,8 @@ proto.user.NotificationUpdateRequest.prototype.getNotificationid = function() {
  * @param {string} value
  * @return {!proto.user.NotificationUpdateRequest} returns this
  */
-proto.user.NotificationUpdateRequest.prototype.setNotificationid = function(value) {
+proto.user.NotificationUpdateRequest.prototype.setNotificationredisid = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * optional string notificationGroupID = 2;
- * @return {string}
- */
-proto.user.NotificationUpdateRequest.prototype.getNotificationgroupid = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.user.NotificationUpdateRequest} returns this
- */
-proto.user.NotificationUpdateRequest.prototype.setNotificationgroupid = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -981,6 +951,7 @@ proto.user.NotificationUpdateReply.prototype.toObject = function(opt_includeInst
  */
 proto.user.NotificationUpdateReply.toObject = function(includeInstance, msg) {
   var f, obj = {
+    keepalive: jspb.Message.getBooleanFieldWithDefault(msg, 1, false),
     notification: (f = msg.getNotification()) && proto.user.Notification.toObject(includeInstance, f),
     notificationgroup: (f = msg.getNotificationgroup()) && proto.user.NotificationGroup.toObject(includeInstance, f)
   };
@@ -1020,11 +991,15 @@ proto.user.NotificationUpdateReply.deserializeBinaryFromReader = function(msg, r
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setKeepalive(value);
+      break;
+    case 2:
       var value = new proto.user.Notification;
       reader.readMessage(value,proto.user.Notification.deserializeBinaryFromReader);
       msg.setNotification(value);
       break;
-    case 2:
+    case 3:
       var value = new proto.user.NotificationGroup;
       reader.readMessage(value,proto.user.NotificationGroup.deserializeBinaryFromReader);
       msg.setNotificationgroup(value);
@@ -1058,10 +1033,17 @@ proto.user.NotificationUpdateReply.prototype.serializeBinary = function() {
  */
 proto.user.NotificationUpdateReply.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = message.getKeepalive();
+  if (f) {
+    writer.writeBool(
+      1,
+      f
+    );
+  }
   f = message.getNotification();
   if (f != null) {
     writer.writeMessage(
-      1,
+      2,
       f,
       proto.user.Notification.serializeBinaryToWriter
     );
@@ -1069,7 +1051,7 @@ proto.user.NotificationUpdateReply.serializeBinaryToWriter = function(message, w
   f = message.getNotificationgroup();
   if (f != null) {
     writer.writeMessage(
-      2,
+      3,
       f,
       proto.user.NotificationGroup.serializeBinaryToWriter
     );
@@ -1078,12 +1060,30 @@ proto.user.NotificationUpdateReply.serializeBinaryToWriter = function(message, w
 
 
 /**
- * optional Notification notification = 1;
+ * optional bool keepAlive = 1;
+ * @return {boolean}
+ */
+proto.user.NotificationUpdateReply.prototype.getKeepalive = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 1, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.user.NotificationUpdateReply} returns this
+ */
+proto.user.NotificationUpdateReply.prototype.setKeepalive = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 1, value);
+};
+
+
+/**
+ * optional Notification notification = 2;
  * @return {?proto.user.Notification}
  */
 proto.user.NotificationUpdateReply.prototype.getNotification = function() {
   return /** @type{?proto.user.Notification} */ (
-    jspb.Message.getWrapperField(this, proto.user.Notification, 1));
+    jspb.Message.getWrapperField(this, proto.user.Notification, 2));
 };
 
 
@@ -1092,7 +1092,7 @@ proto.user.NotificationUpdateReply.prototype.getNotification = function() {
  * @return {!proto.user.NotificationUpdateReply} returns this
 */
 proto.user.NotificationUpdateReply.prototype.setNotification = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 2, value);
 };
 
 
@@ -1110,17 +1110,17 @@ proto.user.NotificationUpdateReply.prototype.clearNotification = function() {
  * @return {boolean}
  */
 proto.user.NotificationUpdateReply.prototype.hasNotification = function() {
-  return jspb.Message.getField(this, 1) != null;
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
 /**
- * optional NotificationGroup notificationGroup = 2;
+ * optional NotificationGroup notificationGroup = 3;
  * @return {?proto.user.NotificationGroup}
  */
 proto.user.NotificationUpdateReply.prototype.getNotificationgroup = function() {
   return /** @type{?proto.user.NotificationGroup} */ (
-    jspb.Message.getWrapperField(this, proto.user.NotificationGroup, 2));
+    jspb.Message.getWrapperField(this, proto.user.NotificationGroup, 3));
 };
 
 
@@ -1129,7 +1129,7 @@ proto.user.NotificationUpdateReply.prototype.getNotificationgroup = function() {
  * @return {!proto.user.NotificationUpdateReply} returns this
 */
 proto.user.NotificationUpdateReply.prototype.setNotificationgroup = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
+  return jspb.Message.setWrapperField(this, 3, value);
 };
 
 
@@ -1147,7 +1147,7 @@ proto.user.NotificationUpdateReply.prototype.clearNotificationgroup = function()
  * @return {boolean}
  */
 proto.user.NotificationUpdateReply.prototype.hasNotificationgroup = function() {
-  return jspb.Message.getField(this, 2) != null;
+  return jspb.Message.getField(this, 3) != null;
 };
 
 

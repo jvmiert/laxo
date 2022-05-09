@@ -69,15 +69,6 @@ func ProcessLazadaProducts(ctx workflow.Context, shopID, userID string) (err err
     }
   }
 
-  processState.State = "process"
-
-  err = workflow.ExecuteActivity(sessionCtx, a.ProcessLazadaProducts, shopID).Get(sessionCtx, nil)
-
-	if err != nil {
-    processState.State = "failed"
-		return err
-	}
-
   processState.State = "complete"
 
   return err

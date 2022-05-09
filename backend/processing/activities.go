@@ -2,7 +2,6 @@ package processing
 
 import (
 	"context"
-	"strconv"
 	"time"
 
 	"github.com/mediocregopher/radix/v4"
@@ -69,9 +68,6 @@ func (a *Activities) FetchLazadaProductsFromAPI(ctx context.Context, shopID stri
   logger.Info("Retrieving Lazada products", "shopID", shopID)
   time.Sleep(5 * time.Second)
 
-  var StreamID radix.StreamEntryID
-  a.RedisClient.Do(context.Background(), radix.Cmd(&StreamID, "XADD", workflowID, "*", "state", "save", "complete", "-1", "total", "5"))
-
   updateParam := notification.NotificationGroupUpdateParam{
     TotalSubSteps: null.NewInt(5, true),
     ID: notificationGroupID,
@@ -103,12 +99,6 @@ func (a *Activities) SaveLazadaProducts(ctx context.Context, param LazadaSavePar
 
   time.Sleep(5 * time.Second)
 
-  strIndex := strconv.Itoa(param.ProductIndex + 1)
-  strTotal := strconv.Itoa(param.ProductTotal)
-
-  var StreamID radix.StreamEntryID
-  a.RedisClient.Do(context.Background(), radix.Cmd(&StreamID, "XADD", workflowID, "*", "state", "save", "complete", strIndex, "total", strTotal))
-
   notificationGroupID, err := a.NotificationService.GetNotificationGroupIDByWorkflowID(workflowID, param.UserID)
   if err != nil {
     return err
@@ -131,19 +121,3 @@ func (a *Activities) SaveLazadaProducts(ctx context.Context, param LazadaSavePar
   return nil
 }
 
-func (a *Activities) ProcessLazadaProducts(ctx context.Context, userID string) error {
-  logger := activity.GetLogger(ctx)
-  info := activity.GetInfo(ctx)
-  workflowID := info.WorkflowExecution.ID
-
-  logger.Info("Processing Lazada products", "userID", userID)
-
-  var StreamID radix.StreamEntryID
-  a.RedisClient.Do(context.Background(), radix.Cmd(&StreamID, "XADD", workflowID, "*", "state", "process"))
-  time.Sleep(5 * time.Second)
-  a.RedisClient.Do(context.Background(), radix.Cmd(&StreamID, "XADD", workflowID, "*", "state", "complete"))
-
-  // expire the key in a day
-  a.RedisClient.Do(context.Background(), radix.Cmd("EXPIRE", workflowID, "86400"))
-  return nil
-}

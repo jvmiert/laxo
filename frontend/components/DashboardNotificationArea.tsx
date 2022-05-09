@@ -29,7 +29,7 @@ export default function DashboardNotificationArea() {
         <div className="flex flex-col items-center gap-y-4 self-center">
           {dashboardState.notifications.map((n) => (
             <DashboardNotification
-              key={n.notification.id}
+              key={n.notificationGroup.id}
               notification={n.notification}
               notificationGroup={n.notificationGroup}
             />

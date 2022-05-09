@@ -32,11 +32,11 @@ message NotificationGroup {
 }
 
 message NotificationUpdateRequest {
-  string notificationID = 1;
-  string notificationGroupID = 2;
+  string notificationRedisID = 1;
 }
 
 message NotificationUpdateReply {
-  Notification notification = 1;
-  NotificationGroup notificationGroup = 2;
+  bool     keepAlive = 1;
+  optional Notification notification = 2;
+  optional NotificationGroup notificationGroup = 3;
 }

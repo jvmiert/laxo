@@ -90,7 +90,6 @@ func main() {
     return nil
   })
 
-
   var grpcHttpServer *http.Server
 
   logger.Info("Serving GRPC...", "port", "8081")
@@ -100,7 +99,11 @@ func main() {
       grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(laxo_proto.StreamAuthFunc)),
     }
     grpcServer := grpc.NewServer(opts...)
-    protoServer := &laxo_proto.ProtoServer{}
+    protoServer := laxo_proto.NewServer(
+      &notificationService,
+      logger,
+      laxo.RedisClient,
+    )
     laxo_proto_gen.RegisterUserServiceServer(grpcServer, protoServer)
 
     option := []grpcweb.Option{

@@ -5,9 +5,12 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- We are passing the Radix Redis client pool to the GRPC service. When the pool is full, it freezes. Maybe create a new client for each connection?
+- Changing the order of the notification list resets the css animation
+- When we close the dashboard, we're not cleaning up the notification listening function. This is complicated
+  by useEffect messiness -> clean it up
 - Create notification system
-  - Create service function to retrieve notifications
-    - then listen for incoming notifications with GRPC (redis)
+  - Process incoming GRPC messages in the frontend and dispatch action to reducer
 - Make the dashboard page
   - Store that platform is connected in database - do we really need this?
   - Handle error messages in callback page
