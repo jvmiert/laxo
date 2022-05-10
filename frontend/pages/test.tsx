@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { ReactElement } from "react";
 import { useIntl } from "react-intl";
 import axios from "axios";
@@ -8,14 +8,17 @@ import DefaultLayout from "@/components/DefaultLayout";
 export default function TestPage() {
   const t = useIntl();
 
+  const runRef = useRef(false);
+
   useEffect(() => {
     const executeTask = async () => {
-      const result = await axios("/api/test");
-
-      console.log(result.data);
+      await axios("/api/test");
     };
 
-    executeTask();
+    if (!runRef.current) {
+      executeTask();
+      runRef.current = true;
+    }
   }, []);
 
   return (
