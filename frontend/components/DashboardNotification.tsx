@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import cc from "classcat";
 import { defineMessage, useIntl, MessageDescriptor } from "react-intl";
 import { CollectionIcon, CheckIcon } from "@heroicons/react/outline";
@@ -53,14 +54,29 @@ export default function DashboardNotification({
 }: DashboardNotificationProps) {
   const t = useIntl();
 
-  const totalSteps =
-    notificationGroup.totalMainSteps + notificationGroup.totalSubSteps;
-  const totalCompletedSteps =
-    notification.currentMainStep + notification.currentSubStep;
+  const getProgress = useCallback((): number => {
+    const currentMainStep = notification.currentMainStep;
+    const currentSubStep = notification.currentSubStep;
 
-  const progress = (totalCompletedSteps / totalSteps) * 100;
+    if (currentMainStep == 0 && currentSubStep == 0) return 10;
 
-  const done = totalCompletedSteps === totalSteps;
+    const totalMainSteps = notificationGroup.totalMainSteps;
+    const totalSubSteps = notificationGroup.totalSubSteps;
+
+    const mainPercentagePerStep = 50 / totalMainSteps;
+    const mainPercentage = currentMainStep * mainPercentagePerStep;
+
+    if (totalSubSteps == null || currentSubStep == null) return mainPercentage;
+
+    if (totalSubSteps == 0) return mainPercentage;
+
+    const subPercentagePerStep = 50 / totalSubSteps;
+    const subPercentage = currentSubStep * subPercentagePerStep;
+
+    return mainPercentage + subPercentage;
+  }, [notification, notificationGroup]);
+
+  const done = getProgress() === 100;
 
   return (
     <div className="flex min-w-full flex-row rounded px-4">
@@ -83,7 +99,7 @@ export default function DashboardNotification({
           <div className="flex h-2 overflow-hidden rounded bg-indigo-200 shadow-md shadow-indigo-500/20">
             <div
               style={{
-                width: `${progress}%`,
+                width: `${getProgress()}%`,
                 transitionTimingFunction: "ease-out",
                 transition: "width 2s",
               }}

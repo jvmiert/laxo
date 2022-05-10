@@ -5,9 +5,9 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Figure out how to handle progress steps: The total steps isn't know, causing the loading bar to jump back as soon as total steps
-  increase after finding out the total sub  steps. This is not good. How can we prevent this?
-- Changing the order of the notification list gives the illusion that the css animation is reset
+- Send null values of the total step numbers through grpc (fix the ValueOrZero usage)
+- Figure out completion state of the notifications
+  - Can we transition from incompleted to complete?
 - When we close the dashboard, we're not cleaning up the notification listening function. This is complicated
   by useEffect messiness -> clean it up
 - Create notification system

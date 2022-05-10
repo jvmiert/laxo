@@ -38,8 +38,11 @@ function reducer(draft: Draft<DashboardState>, action: DashboardAction) {
         (n) =>
           n.notificationGroup.id === action.notification.notificationGroup.id,
       );
-      if (index !== -1) draft.notifications.splice(index, 1);
-      draft.notifications.unshift(action.notification);
+      if (index !== -1) {
+        draft.notifications[index] = action.notification;
+      } else {
+        draft.notifications.unshift(action.notification);
+      }
       break;
   }
 }
