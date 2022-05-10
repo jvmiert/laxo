@@ -1,4 +1,4 @@
-import { ReactChildren, ReactNode, useState, useEffect, Dispatch } from "react";
+import { ReactNode, useState, useEffect, Dispatch } from "react";
 import { Draft } from "immer";
 import { useImmerReducer } from "use-immer";
 import { grpc } from "@improbable-eng/grpc-web";
@@ -103,11 +103,7 @@ const onMessageFunc = (dispatch: Dispatch<DashboardAction>) => {
 export const [useDashboard, Provider] =
   createSafeContext<DashboardConsumerProps>();
 
-export const DashboardProvider = ({
-  children,
-}: {
-  children: ReactChildren | ReactNode;
-}) => {
+export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
 
   const closeNotification = () => setNotificationOpen(false);

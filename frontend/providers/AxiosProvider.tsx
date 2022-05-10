@@ -1,4 +1,4 @@
-import { ReactChildren, ReactNode, useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { useRouter } from "next/router";
 import { AxiosInstance } from "axios";
 import { AxiosClient } from "@/lib/axios";
@@ -10,11 +10,7 @@ export interface AxiosConsumerProps {
 
 export const [useAxios, Provider] = createSafeContext<AxiosConsumerProps>();
 
-export const AxiosProvider = ({
-  children,
-}: {
-  children: ReactChildren | ReactNode;
-}) => {
+export const AxiosProvider = ({ children }: { children: ReactNode }) => {
   const { locale } = useRouter();
 
   const axiosClient = useMemo(() => AxiosClient(locale), [locale]);

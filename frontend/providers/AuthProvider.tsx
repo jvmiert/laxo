@@ -1,4 +1,4 @@
-import { ReactChildren, ReactNode } from "react";
+import { ReactNode } from "react";
 import createSafeContext from "@/lib/useSafeContext";
 import { useGetAuth } from "@/hooks/swrHooks";
 
@@ -8,11 +8,7 @@ export interface AuthConsumerProps {
 
 export const [useAuth, Provider] = createSafeContext<AuthConsumerProps>();
 
-export const AuthProvider = ({
-  children,
-}: {
-  children: ReactChildren | ReactNode;
-}) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { auth } = useGetAuth();
 
   const providerValues: AuthConsumerProps = {
