@@ -99,11 +99,16 @@ func main() {
       grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(laxo_proto.StreamAuthFunc)),
     }
     grpcServer := grpc.NewServer(opts...)
-    protoServer := laxo_proto.NewServer(
+    protoServer, errGRPC := laxo_proto.NewServer(
       &notificationService,
       logger,
-      laxo.RedisClient,
+      redisURI,
     )
+    if errGRPC != nil {
+      logger.Error("GRPC Redis error", "error", errGRPC)
+      return errGRPC
+    }
+
     laxo_proto_gen.RegisterUserServiceServer(grpcServer, protoServer)
 
     option := []grpcweb.Option{
@@ -127,7 +132,7 @@ func main() {
       Handler: http.HandlerFunc(handler),
     }
 
-    if errGRPC := grpcHttpServer.ListenAndServe(); err != http.ErrServerClosed {
+    if errGRPC = grpcHttpServer.ListenAndServe(); err != http.ErrServerClosed {
       return errGRPC
     }
 

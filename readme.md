@@ -5,8 +5,9 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- We are passing the Radix Redis client pool to the GRPC service. When the pool is full, it freezes. Maybe create a new client for each connection?
-- Changing the order of the notification list resets the css animation
+- Figure out how to handle progress steps: The total steps isn't know, causing the loading bar to jump back as soon as total steps
+  increase after finding out the total sub  steps. This is not good. How can we prevent this?
+- Changing the order of the notification list gives the illusion that the css animation is reset
 - When we close the dashboard, we're not cleaning up the notification listening function. This is complicated
   by useEffect messiness -> clean it up
 - Create notification system
@@ -120,6 +121,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://www.crescodata.com/
 - https://www.onpoint.vn/
 - https://ginee.com/
+- https://www.octosells.com/
 
 # Random
 - https://github.com/charithe/durationcheck

@@ -20,12 +20,19 @@ type ProtoServer struct {
   redisClient radix.Client
 }
 
-func NewServer(service *notification.Service, logger hclog.Logger, redisClient radix.Client) *ProtoServer {
+func NewServer(service *notification.Service, logger hclog.Logger, redisURI string) (*ProtoServer, error) {
+  client, err := (radix.PoolConfig{
+    Size: 50,
+  }).New(context.Background(), "tcp", redisURI)
+  if err != nil {
+    return nil, err
+  }
+
   return &ProtoServer {
     service: service,
     logger: logger,
-    redisClient: redisClient,
-  }
+    redisClient: client,
+  }, nil
 }
 
 func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, stream gen.UserService_GetNotificationUpdateServer) error {
