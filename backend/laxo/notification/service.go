@@ -85,11 +85,12 @@ func (s *Service) PublishNotification(n *Notification) (string, error) {
     "notification", string(bytes),
   ))
 
-  // expire the key in a day
+  // expire the key in 2 hours
   s.redisClient.Do(context.Background(), radix.Cmd(
+    nil,
     "EXPIRE",
     NotificationPrefix + n.GroupModel.UserID,
-    "86400",
+    "7200",
   ))
 
   return StreamID.String(), nil
