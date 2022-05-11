@@ -103,10 +103,9 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
   for {
     select {
       case msg := <-keepAliveErrs:
-        s.logger.Error("Keepalive error", "error", msg)
+        //s.logger.Error("Keepalive error", "error", msg)
         return msg
       case <-s.ctx.Done():
-        s.logger.Debug("Got done")
         return nil
       default:
     }
