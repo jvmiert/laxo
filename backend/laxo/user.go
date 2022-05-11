@@ -77,7 +77,8 @@ func (u *User) CheckPassword(p string) error {
     return ErrModelUnpopulated
   }
 
-  match, err := ComparePasswordAndHash(u.Model.Password, p)
+  match, err := ComparePasswordAndHash(p, u.Model.Password)
+  Logger.Debug("MATCH!!!", p)
 
   if err != nil {
     return err
