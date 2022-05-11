@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Head from "next/head";
-import { DashboardProvider } from "@/providers/DashboardProvider";
 import Navigation from "@/components/Navigation";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import DashboardNotificationControl from "@/components/DashboardNotificationControl";
@@ -22,29 +21,27 @@ export default function DashboardLayout({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navigation />
-      <DashboardProvider>
-        <div className="container mx-auto px-4 pt-4">
-          <div className="flex w-full flex-row flex-nowrap">
-            <div className="flex shrink-0 grow-0 basis-auto">
-              <DashboardNavigation />
+      <div className="container mx-auto px-4 pt-4">
+        <div className="flex w-full flex-row flex-nowrap">
+          <div className="flex shrink-0 grow-0 basis-auto">
+            <DashboardNavigation />
+          </div>
+          <div className="ml-6 flex grow flex-col">
+            <div className="flex">
+              <div className="flex-grow">
+                <h1 className="mb-4 text-xl font-semibold">{title}</h1>
+              </div>
+              <div>
+                <DashboardNotificationControl />
+              </div>
             </div>
-            <div className="ml-6 flex grow flex-col">
-              <div className="flex">
-                <div className="flex-grow">
-                  <h1 className="mb-4 text-xl font-semibold">{title}</h1>
-                </div>
-                <div>
-                  <DashboardNotificationControl />
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <main className="shrink">{children}</main>
-                <DashboardNotificationArea />
-              </div>
+            <div className="flex justify-between">
+              <main className="shrink">{children}</main>
+              <DashboardNotificationArea />
             </div>
           </div>
         </div>
-      </DashboardProvider>
+      </div>
     </>
   );
 }

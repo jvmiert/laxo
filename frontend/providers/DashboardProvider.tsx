@@ -1,4 +1,12 @@
-import { ReactNode, useState, useEffect, Dispatch } from "react";
+import {
+  ReactNode,
+  useState,
+  useEffect,
+  Dispatch,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { Draft } from "immer";
 import { useImmerReducer } from "use-immer";
 import { grpc } from "@improbable-eng/grpc-web";
@@ -7,6 +15,8 @@ import { useGetNotifications } from "@/hooks/swrHooks";
 import useNotificationApi from "@/hooks/useNotificationApi";
 import type { NotificationResponseObject } from "@/types/ApiResponse";
 import { NotificationUpdateReply } from "@/proto/user_pb";
+import { useAuth } from "@/providers/AuthProvider";
+import { useRouter } from "next/router";
 
 export interface DashboardConsumerProps {
   notificationOpen: boolean;
@@ -106,16 +116,22 @@ export const [useDashboard, Provider] =
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
 
-  const closeNotification = () => setNotificationOpen(false);
-  const openNotification = () => setNotificationOpen(true);
-  const toggleNotification = () => setNotificationOpen(!notificationOpen);
+  const closeNotification = useCallback(() => setNotificationOpen(false), []);
+  const openNotification = useCallback(() => setNotificationOpen(true), []);
+  const toggleNotification = useCallback(
+    () => setNotificationOpen(!notificationOpen),
+    [notificationOpen],
+  );
 
-  const [notificationStreamActive, setNotificationStreamActive] =
-    useState(false);
+  const notificationListenRef = useRef(false);
+  const notificationCleanupRef = useRef<grpc.Request | undefined>(undefined);
 
   const [state, dispatch] = useImmerReducer(reducer, initialState);
 
   const { getNotificationUpdate } = useNotificationApi();
+
+  const { auth } = useAuth();
+  const { route } = useRouter();
 
   const {
     notifications,
@@ -133,46 +149,61 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   }, [notifications, dispatch]);
 
   useEffect(() => {
-    //@TODO: implement cleanup - close the notification request
+    const inDashboard = route.includes("dashboard");
     if (
       !notificationLoading &&
       !notificationError &&
-      !notificationStreamActive
+      !notificationListenRef.current &&
+      auth &&
+      inDashboard
     ) {
       const onMessage = onMessageFunc(dispatch);
       if (notifications.notifications.length > 0) {
         const latestNotification = notifications.notifications[0];
-        console.log(
-          "listen for notifications",
-          latestNotification.notification.redisID,
-        );
-        getNotificationUpdate(
+        notificationCleanupRef.current = getNotificationUpdate(
           latestNotification.notification.redisID,
           onMessage,
           onEnd,
         );
       } else {
-        getNotificationUpdate("", onMessage, onEnd);
+        notificationCleanupRef.current = getNotificationUpdate("", onMessage, onEnd);
       }
-      setNotificationStreamActive(true);
+      notificationListenRef.current = true;
+    }
+
+    if (!inDashboard && notificationCleanupRef.current) {
+      notificationCleanupRef.current.close();
+      notificationListenRef.current = false;
+      notificationCleanupRef.current = undefined;
     }
   }, [
     notificationLoading,
     notificationError,
-    notificationStreamActive,
     getNotificationUpdate,
     notifications,
     dispatch,
+    auth,
+    route,
   ]);
 
-  const providerValues: DashboardConsumerProps = {
-    notificationOpen,
-    closeNotification,
-    openNotification,
-    toggleNotification,
-    dashboardState: state,
-    dashboardDispatch: dispatch,
-  };
+  const providerValues: DashboardConsumerProps = useMemo(
+    () => ({
+      notificationOpen,
+      closeNotification,
+      openNotification,
+      toggleNotification,
+      dashboardState: state,
+      dashboardDispatch: dispatch,
+    }),
+    [
+      notificationOpen,
+      closeNotification,
+      openNotification,
+      toggleNotification,
+      state,
+      dispatch,
+    ],
+  );
 
   return <Provider value={providerValues}>{children}</Provider>;
 };

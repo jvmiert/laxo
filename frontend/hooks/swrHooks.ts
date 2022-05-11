@@ -1,4 +1,5 @@
 import { AxiosError, AxiosResponse } from "axios";
+import { useMemo } from "react";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import { useAxios } from "@/providers/AxiosProvider";
@@ -17,8 +18,10 @@ export function useGetAuth() {
   // @TODO: the data is actually in data.data since we don't process the
   //        JSON anymore.
 
+  const auth = useMemo(() => !!data && !error, [data, error]);
+
   return {
-    auth: !!data && !error,
+    auth,
   };
 }
 
@@ -47,16 +50,21 @@ export function useGetNotifications(): {
   error: AxiosError | undefined;
   loading: boolean;
 } {
+  const emptyNotifications = useMemo(
+    () => ({ notifications: [], total: 0 }),
+    [],
+  );
+
   const { axiosClient } = useAxios();
   const { data, error, isValidating } = useSWRImmutable<
     AxiosResponse<GetNotificationResponse>,
     AxiosError<unknown>
   >("/notifications", (url) => axiosClient.get<GetNotificationResponse>(url), {
-    shouldRetryOnError: true,
+    shouldRetryOnError: false,
   });
 
   return {
-    notifications: data ? data.data : { notifications: [], total: 0 },
+    notifications: data ? data.data : emptyNotifications,
     error,
     loading: isValidating,
   };

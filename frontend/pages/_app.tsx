@@ -5,6 +5,7 @@ import { SWRConfig } from "swr";
 import { useRouter } from "next/router";
 import { AxiosProvider } from "@/providers/AxiosProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { DashboardProvider } from "@/providers/DashboardProvider";
 import { AppPropsWithLayout } from "@/types/pages";
 
 import messages_en from "../compiled-lang/en.json";
@@ -34,7 +35,11 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         messages={languages[locale]}
       >
         <AxiosProvider>
-          <AuthProvider>{getLayout(<Component {...pageProps} />)}</AuthProvider>
+          <AuthProvider>
+            <DashboardProvider>
+              {getLayout(<Component {...pageProps} />)}
+            </DashboardProvider>
+          </AuthProvider>
         </AxiosProvider>
       </IntlProvider>
     </SWRConfig>
