@@ -111,7 +111,9 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
       default:
     }
 
-    _, entry, err := r.Next(s.ctx)
+    ctx, cancel := context.WithTimeout(s.ctx, 1*time.Second)
+    _, entry, err := r.Next(ctx)
+    cancel()
 
     if err != nil {
       if err != radix.ErrNoStreamEntries {
