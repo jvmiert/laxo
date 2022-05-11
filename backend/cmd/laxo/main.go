@@ -103,6 +103,7 @@ func main() {
       &notificationService,
       logger,
       redisURI,
+      ctx,
     )
     if errGRPC != nil {
       logger.Error("GRPC Redis error", "error", errGRPC)

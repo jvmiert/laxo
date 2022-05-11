@@ -25,6 +25,7 @@ export interface DashboardConsumerProps {
   toggleNotification: () => void;
   dashboardState: DashboardState;
   dashboardDispatch: Dispatch<DashboardAction>;
+  notificationLoading: boolean;
 }
 
 interface DashboardState {
@@ -85,10 +86,13 @@ const onMessageFunc = (dispatch: Dispatch<DashboardAction>) => {
         redisID: notiObject.redisid,
         notificationGroupID: notiObject.groupid,
         created: new Date(notiObject.created * 1000),
-        read:
-          notiObject.read > 0 ? new Date(notiObject.read * 1000) : undefined,
+        read: notification.hasRead()
+          ? new Date(notiObject.read * 1000)
+          : undefined,
         currentMainStep: notiObject.currentmainstep,
-        currentSubStep: notiObject.currentsubstep,
+        currentSubStep: notification.hasCurrentsubstep()
+          ? notiObject.currentsubstep
+          : undefined,
         mainMessage: notiObject.mainmessage,
         subMessage: notiObject.submessage,
       },
@@ -99,7 +103,9 @@ const onMessageFunc = (dispatch: Dispatch<DashboardAction>) => {
         entityID: notiGroupObject.entityid,
         entityType: notiGroupObject.entitytype,
         totalMainSteps: notiGroupObject.totalmainsteps,
-        totalSubSteps: notiGroupObject.totalsubsteps,
+        totalSubSteps: notificationGroup.hasTotalsubsteps()
+          ? notiGroupObject.totalsubsteps
+          : undefined,
       },
     };
 
@@ -166,7 +172,11 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
           onEnd,
         );
       } else {
-        notificationCleanupRef.current = getNotificationUpdate("", onMessage, onEnd);
+        notificationCleanupRef.current = getNotificationUpdate(
+          "",
+          onMessage,
+          onEnd,
+        );
       }
       notificationListenRef.current = true;
     }
@@ -194,6 +204,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       toggleNotification,
       dashboardState: state,
       dashboardDispatch: dispatch,
+      notificationLoading,
     }),
     [
       notificationOpen,
@@ -202,6 +213,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       toggleNotification,
       state,
       dispatch,
+      notificationLoading,
     ],
   );
 

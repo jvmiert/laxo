@@ -66,7 +66,7 @@ export default function DashboardNotification({
     const mainPercentagePerStep = 50 / totalMainSteps;
     const mainPercentage = currentMainStep * mainPercentagePerStep;
 
-    if (totalSubSteps == null || currentSubStep == null) return mainPercentage;
+    if (totalSubSteps == undefined || currentSubStep == undefined) return mainPercentage;
 
     if (totalSubSteps == 0) return mainPercentage;
 
@@ -118,8 +118,7 @@ export default function DashboardNotification({
               )}
               ...
             </p>
-
-            {notification.currentSubStep > 0 && (
+            {!!notification.currentSubStep && notification.currentSubStep > 0 && (
               <p className="mt-2 text-right text-xs">
                 {notification.currentSubStep} /{" "}
                 {notificationGroup.totalSubSteps}

@@ -5,7 +5,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Send null values of the total step numbers through grpc (fix the ValueOrZero usage)
 - Figure out completion state of the notifications
   - Can we transition from incompleted to complete?
 - Make the dashboard page

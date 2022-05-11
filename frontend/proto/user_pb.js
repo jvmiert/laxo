@@ -279,8 +279,8 @@ proto.user.Notification.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getRead();
-  if (f !== 0) {
+  f = /** @type {number} */ (jspb.Message.getField(message, 5));
+  if (f != null) {
     writer.writeInt64(
       5,
       f
@@ -293,8 +293,8 @@ proto.user.Notification.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getCurrentsubstep();
-  if (f !== 0) {
+  f = /** @type {number} */ (jspb.Message.getField(message, 7));
+  if (f != null) {
     writer.writeInt64(
       7,
       f
@@ -403,7 +403,25 @@ proto.user.Notification.prototype.getRead = function() {
  * @return {!proto.user.Notification} returns this
  */
 proto.user.Notification.prototype.setRead = function(value) {
-  return jspb.Message.setProto3IntField(this, 5, value);
+  return jspb.Message.setField(this, 5, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.user.Notification} returns this
+ */
+proto.user.Notification.prototype.clearRead = function() {
+  return jspb.Message.setField(this, 5, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.user.Notification.prototype.hasRead = function() {
+  return jspb.Message.getField(this, 5) != null;
 };
 
 
@@ -439,7 +457,25 @@ proto.user.Notification.prototype.getCurrentsubstep = function() {
  * @return {!proto.user.Notification} returns this
  */
 proto.user.Notification.prototype.setCurrentsubstep = function(value) {
-  return jspb.Message.setProto3IntField(this, 7, value);
+  return jspb.Message.setField(this, 7, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.user.Notification} returns this
+ */
+proto.user.Notification.prototype.clearCurrentsubstep = function() {
+  return jspb.Message.setField(this, 7, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.user.Notification.prototype.hasCurrentsubstep = function() {
+  return jspb.Message.getField(this, 7) != null;
 };
 
 
@@ -653,8 +689,8 @@ proto.user.NotificationGroup.serializeBinaryToWriter = function(message, writer)
       f
     );
   }
-  f = message.getTotalsubsteps();
-  if (f !== 0) {
+  f = /** @type {number} */ (jspb.Message.getField(message, 7));
+  if (f != null) {
     writer.writeInt64(
       7,
       f
@@ -785,7 +821,25 @@ proto.user.NotificationGroup.prototype.getTotalsubsteps = function() {
  * @return {!proto.user.NotificationGroup} returns this
  */
 proto.user.NotificationGroup.prototype.setTotalsubsteps = function(value) {
-  return jspb.Message.setProto3IntField(this, 7, value);
+  return jspb.Message.setField(this, 7, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.user.NotificationGroup} returns this
+ */
+proto.user.NotificationGroup.prototype.clearTotalsubsteps = function() {
+  return jspb.Message.setField(this, 7, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.user.NotificationGroup.prototype.hasTotalsubsteps = function() {
+  return jspb.Message.getField(this, 7) != null;
 };
 
 

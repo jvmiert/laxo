@@ -43,7 +43,7 @@ export type Notification = {
   created: Date;
   read?: Date;
   currentMainStep: number;
-  currentSubStep: number;
+  currentSubStep?: number;
   mainMessage: string;
   subMessage: string;
 };
@@ -55,7 +55,7 @@ export type NotificationGroup = {
   entityID: string;
   entityType: string;
   totalMainSteps: number;
-  totalSubSteps: number;
+  totalSubSteps?: number;
 };
 
 export type NotificationResponseObject = {

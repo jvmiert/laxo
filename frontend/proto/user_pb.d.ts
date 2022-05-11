@@ -16,12 +16,16 @@ export class Notification extends jspb.Message {
   getCreated(): number;
   setCreated(value: number): void;
 
+  hasRead(): boolean;
+  clearRead(): void;
   getRead(): number;
   setRead(value: number): void;
 
   getCurrentmainstep(): number;
   setCurrentmainstep(value: number): void;
 
+  hasCurrentsubstep(): boolean;
+  clearCurrentsubstep(): void;
   getCurrentsubstep(): number;
   setCurrentsubstep(value: number): void;
 
@@ -74,6 +78,8 @@ export class NotificationGroup extends jspb.Message {
   getTotalmainsteps(): number;
   setTotalmainsteps(value: number): void;
 
+  hasTotalsubsteps(): boolean;
+  clearTotalsubsteps(): void;
   getTotalsubsteps(): number;
   setTotalsubsteps(value: number): void;
 

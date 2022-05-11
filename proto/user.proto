@@ -14,9 +14,9 @@ message Notification {
   string redisID = 2;
   string groupID = 3;
   int64  created = 4;
-  int64  read = 5;
+  optional int64  read = 5;
   int64  currentMainStep = 6;
-  int64  currentSubStep = 7;
+  optional int64  currentSubStep = 7;
   string mainMessage = 8;
   string subMessage = 9;
 }
@@ -28,7 +28,7 @@ message NotificationGroup {
   string entityID = 4;
   string entityType = 5;
   int64  totalMainSteps = 6;
-  int64  totalSubSteps = 7;
+  optional int64  totalSubSteps = 7;
 }
 
 message NotificationUpdateRequest {
