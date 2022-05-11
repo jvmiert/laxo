@@ -13,6 +13,7 @@ import (
 const (
   ActivityStateFetch = "fetch"
   ActivityStateSave = "save"
+  ActivityStateComplete = "complete"
 )
 
 type LazadaFetchResult struct {
@@ -121,3 +122,27 @@ func (a *Activities) SaveLazadaProducts(ctx context.Context, param LazadaSavePar
   return nil
 }
 
+func (a *Activities) CompleteLazadaProducts(ctx context.Context, userID string) error {
+  logger := activity.GetLogger(ctx)
+  info := activity.GetInfo(ctx)
+  workflowID := info.WorkflowExecution.ID
+
+  logger.Info("Complete Lazada products")
+
+  notificationGroupID, err := a.NotificationService.GetNotificationGroupIDByWorkflowID(workflowID, userID)
+  if err != nil {
+    return err
+  }
+
+  notifyParam := notification.NotificationCreateParam{
+    GroupID: notificationGroupID,
+    CurrentMainStep: null.IntFrom(2),
+    MainMessage: null.StringFrom(ActivityStateComplete),
+  }
+
+  err = a.NotificationService.CreateNotification(notifyParam)
+  if err != nil {
+    return err
+  }
+  return nil
+}

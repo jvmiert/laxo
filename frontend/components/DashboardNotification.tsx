@@ -27,12 +27,30 @@ const notificationSubTranslate = function (key: string): MessageDescriptor {
   }
 };
 
+const notificationCompleteTranslate = function (
+  key: string,
+): MessageDescriptor {
+  switch (key) {
+    case "product_add":
+      return defineMessage({
+        description: "notification complete message: product sync",
+        defaultMessage: "Finished synchronizing your products",
+      });
+
+    default:
+      return defineMessage({
+        description: "notification complete message: default",
+        defaultMessage: "Success",
+      });
+  }
+};
+
 const notificationMainTranslate = function (key: string): MessageDescriptor {
   switch (key) {
     case "product_add":
       return defineMessage({
         description: "notification message: product sync",
-        defaultMessage: "Synchronizing your products",
+        defaultMessage: "Synchronizing your products...",
       });
 
     default:
@@ -54,7 +72,11 @@ export default function DashboardNotification({
 }: DashboardNotificationProps) {
   const t = useIntl();
 
+  const done = notification.mainMessage == "complete";
+
   const getProgress = useCallback((): number => {
+    if (notification.mainMessage == "complete") return 100;
+
     const currentMainStep = notification.currentMainStep;
     const currentSubStep = notification.currentSubStep;
 
@@ -66,7 +88,8 @@ export default function DashboardNotification({
     const mainPercentagePerStep = 50 / totalMainSteps;
     const mainPercentage = currentMainStep * mainPercentagePerStep;
 
-    if (totalSubSteps == undefined || currentSubStep == undefined) return mainPercentage;
+    if (totalSubSteps == undefined || currentSubStep == undefined)
+      return mainPercentage;
 
     if (totalSubSteps == 0) return mainPercentage;
 
@@ -75,8 +98,6 @@ export default function DashboardNotification({
 
     return mainPercentage + subPercentage;
   }, [notification, notificationGroup]);
-
-  const done = getProgress() === 100;
 
   return (
     <div className="flex min-w-full flex-row rounded px-4">
@@ -91,9 +112,13 @@ export default function DashboardNotification({
       </div>
       <div className="max-w-[400px] flex-grow space-y-2">
         <p className="text-sm font-medium">
-          {t.formatMessage(
-            notificationMainTranslate(notificationGroup.entityType),
-          )}
+          {!done
+            ? t.formatMessage(
+                notificationMainTranslate(notificationGroup.entityType),
+              )
+            : t.formatMessage(
+                notificationCompleteTranslate(notificationGroup.entityType),
+              )}
         </p>
         <div className="relative py-1">
           <div className="flex h-2 overflow-hidden rounded bg-indigo-200 shadow-md shadow-indigo-500/20">
@@ -113,10 +138,10 @@ export default function DashboardNotification({
           </div>
           <div className="flex place-content-between">
             <p className="mt-2 text-xs">
-              {t.formatMessage(
-                notificationSubTranslate(notification.mainMessage),
-              )}
-              ...
+              {!done &&
+                `${t.formatMessage(
+                  notificationSubTranslate(notification.mainMessage),
+                )}...`}
             </p>
             {!!notification.currentSubStep && notification.currentSubStep > 0 && (
               <p className="mt-2 text-right text-xs">
