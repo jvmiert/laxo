@@ -39,7 +39,7 @@ func NewServer(service *notification.Service, logger hclog.Logger, redisURI stri
 
 func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, stream gen.UserService_GetNotificationUpdateServer) error {
   uID := stream.Context().Value(keyUID).(string)
-  s.logger.Info("Received GetProductRetrieveUpdate", "NotificationRedisID", req.NotificationRedisID, "uID", uID)
+  s.logger.Info("Received GetNotificationUpdate", "NotificationRedisID", req.NotificationRedisID, "uID", uID)
 
   channelID := notification.NotificationPrefix + uID
 

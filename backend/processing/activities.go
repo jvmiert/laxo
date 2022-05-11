@@ -38,11 +38,11 @@ func (a *Activities) FetchLazadaProductsFromAPI(ctx context.Context, shopID stri
   workflowID := info.WorkflowExecution.ID
 
   notifyGroupParam := notification.NotificationGroupCreateParam{
-    WorkflowID: null.NewString(workflowID, true),
+    WorkflowID: null.StringFrom(workflowID),
     UserID: userID,
     EntityID: shopID,
     EntityType: notification.EntityTypeProductAdd,
-    TotalMainSteps: null.NewInt(2, true),
+    TotalMainSteps: null.IntFrom(2),
     TotalSubSteps: null.NewInt(0, false),
   }
 
@@ -53,9 +53,9 @@ func (a *Activities) FetchLazadaProductsFromAPI(ctx context.Context, shopID stri
 
   notifyParam := notification.NotificationCreateParam{
     GroupID: notificationGroupID,
-    CurrentMainStep: null.NewInt(1, true),
+    CurrentMainStep: null.IntFrom(1),
     CurrentSubStep: null.NewInt(0, false),
-    MainMessage: null.NewString(ActivityStateFetch, true),
+    MainMessage: null.StringFrom(ActivityStateFetch),
     SubMessage: null.NewString("", false),
     ReadTime: null.NewTime(time.Time{}, false),
   }
@@ -69,7 +69,7 @@ func (a *Activities) FetchLazadaProductsFromAPI(ctx context.Context, shopID stri
   time.Sleep(5 * time.Second)
 
   updateParam := notification.NotificationGroupUpdateParam{
-    TotalSubSteps: null.NewInt(5, true),
+    TotalSubSteps: null.IntFrom(5),
     ID: notificationGroupID,
   }
 
@@ -78,9 +78,9 @@ func (a *Activities) FetchLazadaProductsFromAPI(ctx context.Context, shopID stri
     return LazadaFetchResult{}, err
   }
 
-  notifyParam.MainMessage = null.NewString(ActivityStateSave, true)
-  notifyParam.CurrentMainStep = null.NewInt(2, true)
-  notifyParam.CurrentSubStep = null.NewInt(0, true)
+  notifyParam.MainMessage = null.StringFrom(ActivityStateSave)
+  notifyParam.CurrentMainStep = null.IntFrom(2)
+  notifyParam.CurrentSubStep = null.IntFrom(0)
 
   err = a.NotificationService.CreateNotification(notifyParam)
   if err != nil {
@@ -106,9 +106,9 @@ func (a *Activities) SaveLazadaProducts(ctx context.Context, param LazadaSavePar
 
   notifyParam := notification.NotificationCreateParam{
     GroupID: notificationGroupID,
-    CurrentMainStep: null.NewInt(2, true),
-    CurrentSubStep: null.NewInt(int64(param.ProductIndex + 1), true),
-    MainMessage: null.NewString(ActivityStateSave, true),
+    CurrentMainStep: null.IntFrom(2),
+    CurrentSubStep: null.IntFrom(int64(param.ProductIndex + 1)),
+    MainMessage: null.StringFrom(ActivityStateSave),
     SubMessage: null.NewString("", false),
     ReadTime: null.NewTime(time.Time{}, false),
   }
