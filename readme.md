@@ -5,6 +5,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Change language (LangMenu.tsx) popover into menu
+  - https://headlessui.dev/react/menu
 - Create no notification look
 - Mutate notifications after login
 - Make the dashboard page
