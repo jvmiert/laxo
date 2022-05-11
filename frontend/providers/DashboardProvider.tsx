@@ -120,7 +120,7 @@ export const [useDashboard, Provider] =
   createSafeContext<DashboardConsumerProps>();
 
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
-  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(true);
 
   const closeNotification = useCallback(() => setNotificationOpen(false), []);
   const openNotification = useCallback(() => setNotificationOpen(true), []);

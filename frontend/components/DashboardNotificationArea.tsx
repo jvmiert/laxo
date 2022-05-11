@@ -25,8 +25,10 @@ export default function DashboardNotificationArea() {
             <XIcon className="h-4 w-4" />
           </button>
         </div>
-        <h2 className="py-6 text-center text-xl font-bold">Notifications</h2>
-        <div className="flex flex-col items-center gap-y-4 self-center">
+        <h2 className="pt-6 pb-4 text-center text-xl font-bold">
+          Notifications
+        </h2>
+        <div className="flex max-h-[45vh] flex-col items-center gap-y-4 self-center overflow-y-scroll overscroll-y-contain">
           {dashboardState.notifications.map((n) => (
             <DashboardNotification
               key={n.notificationGroup.id}

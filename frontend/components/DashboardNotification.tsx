@@ -3,6 +3,9 @@ import cc from "classcat";
 import { defineMessage, useIntl, MessageDescriptor } from "react-intl";
 import { CollectionIcon, CheckIcon } from "@heroicons/react/outline";
 import type { Notification, NotificationGroup } from "@/types/ApiResponse";
+import { formatDistance } from "date-fns";
+import { useRouter } from "next/router";
+import { enUS, vi } from "date-fns/locale";
 
 const notificationSubTranslate = function (key: string): MessageDescriptor {
   switch (key) {
@@ -22,7 +25,7 @@ const notificationSubTranslate = function (key: string): MessageDescriptor {
       return defineMessage({
         id: "notification_sub_message_default",
         description: "notification sub message: default",
-        defaultMessage: "",
+        defaultMessage: "...",
       });
   }
 };
@@ -34,7 +37,7 @@ const notificationCompleteTranslate = function (
     case "product_add":
       return defineMessage({
         description: "notification complete message: product sync",
-        defaultMessage: "Finished synchronizing your products",
+        defaultMessage: "Synchronized your products",
       });
 
     default:
@@ -71,8 +74,12 @@ export default function DashboardNotification({
   notificationGroup,
 }: DashboardNotificationProps) {
   const t = useIntl();
+  const { locale } = useRouter();
 
   const done = notification.mainMessage == "complete";
+
+  const showSubCount =
+    !!notification.currentSubStep && notification.currentSubStep;
 
   const getProgress = useCallback((): number => {
     if (notification.mainMessage == "complete") return 100;
@@ -101,7 +108,7 @@ export default function DashboardNotification({
 
   return (
     <div className="flex min-w-full flex-row rounded px-4">
-      <div className="pr-4">
+      <div className="flex items-center pr-4">
         <div className="rounded-full bg-indigo-100 p-4">
           {done ? (
             <CheckIcon className="h-4 w-4 text-indigo-500" />
@@ -111,17 +118,53 @@ export default function DashboardNotification({
         </div>
       </div>
       <div className="max-w-[400px] flex-grow space-y-2">
-        <p className="text-sm font-medium">
-          {!done
-            ? t.formatMessage(
-                notificationMainTranslate(notificationGroup.entityType),
-              )
-            : t.formatMessage(
-                notificationCompleteTranslate(notificationGroup.entityType),
-              )}
-        </p>
+        <div
+          className="relative"
+          style={{
+            transform: `translate(0, ${done ? 20 : 0}px)`,
+            transitionDelay: "0.40s",
+            transition: "transform 0.25s",
+            transitionTimingFunction: "ease-in",
+            transformOrigin: "top",
+          }}
+        >
+          <p className="text-sm font-medium">
+            {!done
+              ? t.formatMessage(
+                  notificationMainTranslate(notificationGroup.entityType),
+                )
+              : t.formatMessage(
+                  notificationCompleteTranslate(notificationGroup.entityType),
+                )}
+          </p>
+          <div
+            className="absolute left-0 top-full"
+            style={{
+              transform: `scaleY(${done ? 1.0 : 0})`,
+              transitionDelay: "0.75s",
+              transition: "transform 0.25s",
+              transitionTimingFunction: "ease-in",
+              transformOrigin: "bottom",
+            }}
+          >
+            <span className="text-xs font-light">
+              {formatDistance(notification.created, new Date(), {
+                addSuffix: true,
+                locale: locale == "vi" ? vi : enUS,
+              })}
+            </span>
+          </div>
+        </div>
         <div className="relative py-1">
-          <div className="flex h-2 overflow-hidden rounded bg-indigo-200 shadow-md shadow-indigo-500/20">
+          <div
+            className="flex h-2 overflow-hidden rounded bg-indigo-200 shadow-md shadow-indigo-500/20"
+            style={{
+              transform: `scaleY(${done ? 0 : 1.0})`,
+              transition: "transform 0.15s",
+              transitionTimingFunction: "ease-in",
+              transformOrigin: "top",
+            }}
+          >
             <div
               style={{
                 width: `${getProgress()}%`,
@@ -137,18 +180,30 @@ export default function DashboardNotification({
             ></div>
           </div>
           <div className="flex place-content-between">
-            <p className="mt-2 text-xs">
-              {!done &&
-                `${t.formatMessage(
-                  notificationSubTranslate(notification.mainMessage),
-                )}...`}
+            <p
+              className="mt-2 text-xs"
+              style={{
+                transform: `scaleY(${done ? 0 : 1.0})`,
+                transition: "transform 0.15s",
+                transitionTimingFunction: "ease-in",
+                transformOrigin: "top",
+              }}
+            >
+              {`${t.formatMessage(
+                notificationSubTranslate(notification.mainMessage),
+              )}...`}
             </p>
-            {!!notification.currentSubStep && notification.currentSubStep > 0 && (
-              <p className="mt-2 text-right text-xs">
-                {notification.currentSubStep} /{" "}
-                {notificationGroup.totalSubSteps}
-              </p>
-            )}
+            <p
+              className="mt-2 text-right text-xs"
+              style={{
+                transform: `scaleY(${showSubCount ? 1.0 : 0})`,
+                transition: "transform 0.25s",
+                transitionTimingFunction: "ease-in",
+                transformOrigin: "top",
+              }}
+            >
+              {notification.currentSubStep} / {notificationGroup.totalSubSteps}
+            </p>
           </div>
         </div>
       </div>

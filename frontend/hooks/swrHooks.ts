@@ -7,6 +7,7 @@ import type {
   GetShopResponse,
   GetPlatformsResponse,
   GetNotificationResponse,
+  NotificationResponseObject,
 } from "@/types/ApiResponse";
 
 export function useGetAuth() {
@@ -45,6 +46,14 @@ export function useGetShop(): {
   };
 }
 
+function transformNotification(r: any): GetNotificationResponse {
+  const resp = JSON.parse(r);
+  resp.notifications.forEach((n: NotificationResponseObject) => {
+    n.notification.created = new Date(n.notification.created);
+  });
+  return resp;
+}
+
 export function useGetNotifications(): {
   notifications: GetNotificationResponse;
   error: AxiosError | undefined;
@@ -59,9 +68,16 @@ export function useGetNotifications(): {
   const { data, error, isValidating } = useSWRImmutable<
     AxiosResponse<GetNotificationResponse>,
     AxiosError<unknown>
-  >("/notifications", (url) => axiosClient.get<GetNotificationResponse>(url), {
-    shouldRetryOnError: false,
-  });
+  >(
+    "/notifications",
+    (url) =>
+      axiosClient.get<GetNotificationResponse>(url, {
+        transformResponse: transformNotification,
+      }),
+    {
+      shouldRetryOnError: false,
+    },
+  );
 
   return {
     notifications: data ? data.data : emptyNotifications,
