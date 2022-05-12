@@ -111,6 +111,7 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
     }
 
     ctx, cancel := context.WithTimeout(s.ctx, 1*time.Second)
+    defer cancel()
     _, entry, err := r.Next(ctx)
     cancel()
 
