@@ -5,7 +5,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Create no notification look
 - Make the dashboard page
   - Store that platform is connected in database - do we really need this?
   - Handle error messages in callback page

@@ -1,6 +1,7 @@
 import { Transition } from "@headlessui/react";
 import { useDashboard } from "@/providers/DashboardProvider";
 import DashboardNotification from "@/components/DashboardNotification";
+import NotificationEmpty from "@/components/NotificationEmpty";
 import { XIcon } from "@heroicons/react/outline";
 
 export default function DashboardNotificationArea() {
@@ -28,7 +29,8 @@ export default function DashboardNotificationArea() {
         <h2 className="pt-6 pb-4 text-center text-xl font-bold">
           Notifications
         </h2>
-        <div className="flex max-h-[45vh] flex-col items-center gap-y-4 self-center overflow-y-scroll overscroll-y-contain">
+        <div className="flex max-h-[45vh] flex-col items-center gap-y-4 self-center overflow-y-auto overscroll-y-contain">
+          {dashboardState.notifications.length == 0 && <NotificationEmpty />}
           {dashboardState.notifications.map((n) => (
             <DashboardNotification
               key={n.notificationGroup.id}
