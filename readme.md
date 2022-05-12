@@ -6,7 +6,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Create no notification look
-- Mutate notifications after login
 - Make the dashboard page
   - Store that platform is connected in database - do we really need this?
   - Handle error messages in callback page

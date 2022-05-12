@@ -32,7 +32,7 @@ interface DashboardState {
   notifications: Array<NotificationResponseObject>;
 }
 
-const initialState: DashboardState = {
+export const InitialDashboardState: DashboardState = {
   notifications: [],
 };
 
@@ -132,7 +132,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const notificationListenRef = useRef(false);
   const notificationCleanupRef = useRef<grpc.Request | undefined>(undefined);
 
-  const [state, dispatch] = useImmerReducer(reducer, initialState);
+  const [state, dispatch] = useImmerReducer(reducer, InitialDashboardState);
 
   const { getNotificationUpdate } = useNotificationApi();
 
