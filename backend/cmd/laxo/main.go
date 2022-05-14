@@ -15,7 +15,9 @@ import (
 	"google.golang.org/grpc"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/http/rest"
+	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/notification"
+	"laxo.vn/laxo/laxo/product"
 	laxo_proto "laxo.vn/laxo/laxo/proto"
 	laxo_proto_gen "laxo.vn/laxo/laxo/proto/gen"
 	"laxo.vn/laxo/laxo/store"
@@ -60,6 +62,14 @@ func main() {
 
   notificationService := notification.NewService(store, logger, laxo.RedisClient)
   rest.InitNotificationHandler(&notificationService, server.Router, server.Negroni)
+
+  productService := product.NewService(store, logger, laxo.RedisClient)
+  rest.InitProductHandler(&productService, server.Router, server.Negroni)
+
+  lazadaID := os.Getenv("LAZADA_ID")
+  lazadaSecret := os.Getenv("LAZADA_SECRET")
+  lazadaService := lazada.NewService(store, logger, laxo.RedisClient, lazadaID, lazadaSecret)
+  rest.InitTestHandler(&lazadaService, server.Router, server.Negroni)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)

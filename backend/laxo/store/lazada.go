@@ -18,6 +18,17 @@ func newLazadaStore(store *Store) lazadaStore {
   }
 }
 
+func (s *lazadaStore) GetValidTokenByShopID(shopID string) (string, error) {
+  accessToken, err := s.queries.GetValidAccessTokenByShopID(
+    context.Background(),
+    shopID,
+  )
+  if err != nil {
+    return "", err
+  }
+
+  return accessToken, nil
+}
 
 func (s *lazadaStore) SaveOrUpdateProductAttirube(a *lazada.ProductsResponseAttributes, productID string) error {
   attr, err := s.queries.GetLazadaProductAttributeByProductID(
