@@ -3,7 +3,7 @@ SELECT * FROM products_attribute_lazada
 WHERE product_id = $1
 LIMIT 1;
 
--- name: UpdateLazadaProductAttribute :exec
+-- name: UpdateLazadaProductAttribute :one
 UPDATE products_attribute_lazada SET
   name = $1, short_description = $2, description = $3, brand = $4, model = $5,
   headphone_features = $6, bluetooth = $7, warranty_type = $8, warranty = $9,
@@ -13,7 +13,8 @@ UPDATE products_attribute_lazada SET
   skin_benefit = $19, skin_type = $20, user_manual = $21,
   country_origin_hb = $22, color_family = $23, fragrance_family = $24,
   source = $25
-WHERE id = $26;
+WHERE id = $26
+RETURNING *;
 
 -- name: CreateLazadaProductAttribute :one
 INSERT INTO products_attribute_lazada (
@@ -36,11 +37,12 @@ SELECT * FROM products_lazada
 WHERE lazada_id = $1 AND shop_id = $2
 LIMIT 1;
 
--- name: UpdateLazadaProduct :exec
+-- name: UpdateLazadaProduct :one
 UPDATE products_lazada SET
   lazada_id = $1, lazada_primary_category = $2, created = $3, updated = $4,
   status = $5, sub_status = $6
-WHERE id = $7;
+WHERE id = $7
+RETURNING *;
 
 -- name: CreateLazadaProduct :one
 INSERT INTO products_lazada (

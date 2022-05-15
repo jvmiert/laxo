@@ -51,3 +51,9 @@ overrides:
       type: Int
     db_type: "pg_catalog.int4"
     nullable: true
+  - go_type:
+      import: gopkg.in/guregu/null.v4
+      package: 'null'
+      type: Int
+    db_type: "bigserial"
+    nullable: true

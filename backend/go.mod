@@ -11,6 +11,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/jackc/pgconn v1.10.1
+	github.com/jackc/pgtype v1.9.1
 	github.com/jackc/pgx/v4 v4.14.1
 	github.com/joho/godotenv v1.4.0
 	github.com/kr/pretty v0.2.1 // indirect
@@ -18,7 +19,6 @@ require (
 	github.com/mediocregopher/radix/v4 v4.0.0
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/stretchr/testify v1.7.1
-	github.com/tidwall/gjson v1.14.1
 	github.com/urfave/negroni v1.0.0
 	go.temporal.io/sdk v1.14.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519

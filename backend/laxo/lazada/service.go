@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/mediocregopher/radix/v4"
+	"laxo.vn/laxo/laxo/sqlc"
 )
 
 var ErrNoValidToken = errors.New("no valid token was found")
@@ -20,7 +21,7 @@ var ErrProductIndexNotFound = errors.New("the index returned empty")
 const redisKeyPrefix = "product_lazada_"
 
 type Store interface {
-  SaveOrUpdateProduct(ProductsResponseProducts, string) error
+  SaveOrUpdateLazadaProduct(*ProductsResponseProducts, string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, error)
   GetValidTokenByShopID(string) (string, error)
 }
 
@@ -61,7 +62,7 @@ func (s *Service) GetValidTokenByShopID(shopID string) (string, error) {
   return token, nil
 }
 
-func (s *Service) RetrieveProductToRedis(keyID string, index int) (*ProductsResponseProducts, error) {
+func (s *Service) RetrieveProductFromRedis(keyID string, index int) (*ProductsResponseProducts, error) {
   i := strconv.Itoa(index)
   ctx := context.Background()
 
@@ -126,6 +127,7 @@ func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, error) 
 
   //-------------------------------------
   // for reading json file
+  // so we don't have to bother Lazada
   //-------------------------------------
   jsonFile, err := os.Open(".\\laxo\\lazada\\test.json")
   if err != nil {
@@ -180,18 +182,6 @@ func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, error) 
   return "", nil
 }
 
-
-func (s *Service) SaveOrUpdateLaxoProduct(p ProductsResponseProducts, shopID string) error {
-  //@TODO: - Make a laxo product saving function in the store
-  //        - Add to interface and call here
-  //        - Do we return the resulting laxo product? Maybe not
-  return nil
-}
-
-func (s *Service) SaveOrUpdateProduct(p ProductsResponseProducts, shopID string) error {
-  if err := s.store.SaveOrUpdateProduct(p, shopID); err != nil {
-    return err
-  }
-
-  return nil
+func (s *Service) SaveOrUpdateLazadaProduct(p *ProductsResponseProducts, shopID string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, error) {
+  return s.store.SaveOrUpdateLazadaProduct(p, shopID)
 }

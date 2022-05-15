@@ -1,6 +1,6 @@
 include .env
 MIGRATE_VERSION_TAG=v4.15.1
-SQLC_VERSION_TAG=v1.11.0
+SQLC_VERSION_TAG=996a73a
 
 .PHONY: install migrate upgrade generate test testrace translate serve migrate-version
 

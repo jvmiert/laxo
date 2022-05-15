@@ -7,9 +7,10 @@ CREATE TABLE IF NOT EXISTS products(
   selling_price NUMERIC(21,2),
   cost_price NUMERIC(21,2),
   shop_id CHAR(26) NOT NULL,
-  media_id CHAR(26) NOT NULL,
+  media_id CHAR(26),
   created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated TIMESTAMP WITH TIME ZONE,
+  UNIQUE (msku, shop_id),
   CONSTRAINT fk_shop_products FOREIGN KEY(shop_id) REFERENCES shops(id)
 );
 
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS products_media(
   id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
   product_id CHAR(26) NOT NULL,
   original_filename TEXT,
+  murmur_hash BIGSERIAL,
   CONSTRAINT fk_products_products_media FOREIGN KEY(product_id) REFERENCES products(id)
 );
 

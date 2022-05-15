@@ -7,6 +7,12 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 # Tech to-do
 - Create product page
   - Create lazada service function that retrieves the Redis stored information and saves the lazada and laxo product db models
+    - We need the SellerSKU from Lazada >:( -> I believe we are not currently storing this
+      - Create an SKU save function in the store
+      - Create an SKU save function in the service
+      - Make sure to ignore products that have multiple SKU until the Lazada API supports it properly?
+      - We should strip HTML from description I think
+    - Figure out how to handle the price (numeric) properly in postgres, redis, frontend <-> backend
   - Create lazada service function that stores images
 - Make the dashboard page
   - Store that platform is connected in database - do we really need this?

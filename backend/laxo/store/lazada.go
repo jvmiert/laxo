@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 	"laxo.vn/laxo/laxo/lazada"
@@ -30,16 +31,17 @@ func (s *lazadaStore) GetValidTokenByShopID(shopID string) (string, error) {
   return accessToken, nil
 }
 
-func (s *lazadaStore) SaveOrUpdateProductAttirube(a *lazada.ProductsResponseAttributes, productID string) error {
+func (s *lazadaStore) SaveOrUpdateLazadaProductAttribute(a *lazada.ProductsResponseAttributes, productID string) (*sqlc.ProductsAttributeLazada, error) {
   attr, err := s.queries.GetLazadaProductAttributeByProductID(
     context.Background(),
     productID,
   )
 
   if err != pgx.ErrNoRows && err != nil {
-    return err
+    return nil, err
   }
 
+  var pAttributeModel sqlc.ProductsAttributeLazada
 
   if attr.ID == "" {
     paramsAttribute := sqlc.CreateLazadaProductAttributeParams{
@@ -70,16 +72,16 @@ func (s *lazadaStore) SaveOrUpdateProductAttirube(a *lazada.ProductsResponseAttr
       Source: a.Source,
       ProductID: productID,
     }
-    _, err = s.queries.CreateLazadaProductAttribute(
+    pAttributeModel, err = s.queries.CreateLazadaProductAttribute(
       context.Background(),
       paramsAttribute,
     )
 
     if err != nil {
-      return err
+      return nil, err
     }
 
-    return nil
+    return &pAttributeModel, nil
   }
 
   paramsAttribute := sqlc.UpdateLazadaProductAttributeParams{
@@ -111,28 +113,32 @@ func (s *lazadaStore) SaveOrUpdateProductAttirube(a *lazada.ProductsResponseAttr
     ID: attr.ID,
   }
 
-  err = s.queries.UpdateLazadaProductAttribute(
+  pAttributeModel, err = s.queries.UpdateLazadaProductAttribute(
     context.Background(),
     paramsAttribute,
   )
 
   if err != nil {
-    return err
+    return nil, err
   }
 
-  return nil
+  return &pAttributeModel, nil
 }
 
-func (s *lazadaStore) SaveOrUpdateProduct(p lazada.ProductsResponseProducts, shopID string) error {
+func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProducts, shopID string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, error) {
   qParam := sqlc.GetLazadaProductByLazadaIDParams{
     LazadaID: p.ItemID,
     ShopID: shopID,
   }
 
-  pModel, err := s.queries.GetLazadaProductByLazadaID(context.Background(), qParam)
+  var pModel sqlc.ProductsLazada
+  var pModelAttributes *sqlc.ProductsAttributeLazada
+  var err error
+
+  pModel, err = s.queries.GetLazadaProductByLazadaID(context.Background(), qParam)
 
   if err != pgx.ErrNoRows && err != nil {
-    return err
+    return nil, nil, err
   }
 
   if pModel.ID == "" {
@@ -140,7 +146,7 @@ func (s *lazadaStore) SaveOrUpdateProduct(p lazada.ProductsResponseProducts, sho
       LazadaID: p.ItemID,
       LazadaPrimaryCategory: p.PrimaryCategory,
       Created: p.Created,
-      Updated: p.Updated,
+      Updated: time.Now(),
       Status: p.Status,
       SubStatus: p.SubStatus,
       ShopID: shopID,
@@ -152,38 +158,40 @@ func (s *lazadaStore) SaveOrUpdateProduct(p lazada.ProductsResponseProducts, sho
     )
 
     if err != nil {
-      return err
+      return nil, nil, err
     }
 
-    if err = s.SaveOrUpdateProductAttirube(&p.Attributes, pModel.ID); err != nil {
-      return err
+    pModelAttributes, err = s.SaveOrUpdateLazadaProductAttribute(&p.Attributes, pModel.ID)
+    if err != nil {
+      return nil, nil, err
     }
 
-    return nil
+    return &pModel, pModelAttributes, nil
   }
 
   params := sqlc.UpdateLazadaProductParams {
     LazadaID: p.ItemID,
     LazadaPrimaryCategory: p.PrimaryCategory,
     Created: p.Created,
-    Updated: p.Updated,
+    Updated: time.Now(),
     Status: p.Status,
     SubStatus: p.SubStatus,
     ID: pModel.ID,
   }
 
-  err = s.queries.UpdateLazadaProduct(
+  pModel, err = s.queries.UpdateLazadaProduct(
     context.Background(),
     params,
   )
 
   if err != nil {
-    return err
+    return nil, nil, err
   }
 
-  if err = s.SaveOrUpdateProductAttirube(&p.Attributes, pModel.ID); err != nil {
-    return err
+  pModelAttributes, err = s.SaveOrUpdateLazadaProductAttribute(&p.Attributes, pModel.ID)
+  if err != nil {
+    return nil, nil, err
   }
 
-  return nil
+  return &pModel, pModelAttributes, nil
 }

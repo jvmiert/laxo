@@ -69,7 +69,7 @@ func main() {
   lazadaID := os.Getenv("LAZADA_ID")
   lazadaSecret := os.Getenv("LAZADA_SECRET")
   lazadaService := lazada.NewService(store, logger, laxo.RedisClient, lazadaID, lazadaSecret)
-  rest.InitTestHandler(&lazadaService, server.Router, server.Negroni)
+  rest.InitTestHandler(&lazadaService, &productService, server.Router, server.Negroni)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)
