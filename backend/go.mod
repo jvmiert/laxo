@@ -17,6 +17,7 @@ require (
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mediocregopher/radix/v4 v4.0.0
+	github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/negroni v1.0.0

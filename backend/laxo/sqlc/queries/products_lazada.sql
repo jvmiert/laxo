@@ -32,6 +32,33 @@ INSERT INTO products_attribute_lazada (
 )
 RETURNING *;
 
+-- name: GetLazadaProductSKUByProductID :one
+SELECT * FROM products_sku_lazada
+WHERE product_id = $1
+LIMIT 1;
+
+-- name: CreateLazadaProductSKU :one
+INSERT INTO products_sku_lazada (
+  status, quantity, seller_sku, shop_sku, sku_id, url,
+  price, available, package_content, package_width, package_weight,
+  package_length, package_height, special_price, special_to_time,
+  special_from_time, special_from_date, special_to_date, product_id, shop_id
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7,
+  $8, $9, $10, $11, $12, $13, $14,
+  $15, $16, $17, $18, $19, $20
+)
+RETURNING *;
+
+-- name: UpdateLazadaProductSKU :one
+UPDATE products_sku_lazada SET
+  status = $1, quantity = $2, seller_sku = $3, shop_sku = $4, sku_id = $5, url = $6,
+  price = $7, available = $8, package_content = $9, package_width = $10, package_weight = $11,
+  package_length = $12, package_height = $13, special_price = $14, special_to_time = $15,
+  special_from_time = $16, special_from_date = $17, special_to_date = $18, product_id = $19, shop_id = $20
+WHERE id = $21
+RETURNING *;
+
 -- name: GetLazadaProductByLazadaID :one
 SELECT * FROM products_lazada
 WHERE lazada_id = $1 AND shop_id = $2

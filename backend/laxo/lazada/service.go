@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/mediocregopher/radix/v4"
+	"github.com/microcosm-cc/bluemonday"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
@@ -21,7 +22,7 @@ var ErrProductIndexNotFound = errors.New("the index returned empty")
 const redisKeyPrefix = "product_lazada_"
 
 type Store interface {
-  SaveOrUpdateLazadaProduct(*ProductsResponseProducts, string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, error)
+  SaveOrUpdateLazadaProduct(*ProductsResponseProducts, string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, *sqlc.ProductsSkuLazada, error)
   GetValidTokenByShopID(string) (string, error)
 }
 
@@ -51,6 +52,13 @@ func (s *Service) NewLazadaClient(token string) (*LazadaClient, error) {
   client := NewClient(s.clientID, s.clientSecret, token, s.logger)
 
   return client, nil
+}
+
+func (s *Service) GetSantizedDescription(d string) (string) {
+  p := bluemonday.StrictPolicy()
+  santized := p.Sanitize(d)
+
+  return santized
 }
 
 func (s *Service) GetValidTokenByShopID(shopID string) (string, error) {
@@ -182,6 +190,6 @@ func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, error) 
   return "", nil
 }
 
-func (s *Service) SaveOrUpdateLazadaProduct(p *ProductsResponseProducts, shopID string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, error) {
+func (s *Service) SaveOrUpdateLazadaProduct(p *ProductsResponseProducts, shopID string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, *sqlc.ProductsSkuLazada, error) {
   return s.store.SaveOrUpdateLazadaProduct(p, shopID)
 }

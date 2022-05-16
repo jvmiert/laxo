@@ -98,8 +98,8 @@ type ProductsResponseSkus struct {
   PackageWidth         null.String   `json:"package_width"`
   ColorFamily          null.String   `json:"color_family"`
   PackageHeight        null.String   `json:"package_height"`
-  SpecialPrice         null.Float    `json:"special_price"`
-  Price                null.Float    `json:"price"`
+  SpecialPrice         null.Int      `json:"special_price"`
+  Price                null.Int      `json:"price"`
   PackageLength        null.String   `json:"package_length"`
   PackageWeight        null.String   `json:"package_weight"`
   Available            null.Int      `json:"Available"`

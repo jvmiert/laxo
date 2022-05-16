@@ -2,9 +2,12 @@ package store
 
 import (
 	"context"
+	"errors"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v4"
+	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/sqlc"
 )
@@ -29,6 +32,97 @@ func (s *lazadaStore) GetValidTokenByShopID(shopID string) (string, error) {
   }
 
   return accessToken, nil
+}
+
+func (s *lazadaStore) SaveOrUpdateLazadaProductSKU(sku []lazada.ProductsResponseSkus, productID, shopID string) (*sqlc.ProductsSkuLazada, error) {
+  if len(sku) == 0 {
+    return nil, errors.New("product does not have Lazada SKU")
+  }
+
+  priceString := strconv.FormatInt(sku[0].Price.Int64, 10)
+  specialPriceString := strconv.FormatInt(sku[0].SpecialPrice.Int64, 10)
+
+  skuModel, err := s.queries.GetLazadaProductSKUByProductID(
+    context.Background(),
+    productID,
+  )
+
+  if err != pgx.ErrNoRows && err != nil {
+    return nil, err
+  }
+
+  var pSKUModel sqlc.ProductsSkuLazada
+
+  if skuModel.ID == "" {
+    params := sqlc.CreateLazadaProductSKUParams{
+      Status: sku[0].Status,
+      Quantity: sku[0].Quantity,
+      SellerSku: sku[0].SellerSku.String,
+      ShopSku: sku[0].ShopSku.String,
+      SkuID: sku[0].SkuID,
+      Url: sku[0].URL,
+      Price: null.StringFrom(priceString),
+      Available: sku[0].Available,
+      PackageContent: sku[0].PackageContent,
+      PackageWidth: sku[0].PackageWidth,
+      PackageWeight: sku[0].PackageWeight,
+      PackageLength: sku[0].PackageLength,
+      PackageHeight: sku[0].PackageHeight,
+      SpecialPrice: null.StringFrom(specialPriceString),
+      SpecialToTime: null.TimeFrom(sku[0].SpecialToTime),
+      SpecialFromTime: null.TimeFrom(sku[0].SpecialFromTime),
+      SpecialFromDate: null.TimeFrom(sku[0].SpecialFromDate),
+      SpecialToDate: null.TimeFrom(sku[0].SpecialToDate),
+      ProductID: productID,
+      ShopID: shopID,
+    }
+
+    pSKUModel, err = s.queries.CreateLazadaProductSKU(
+      context.Background(),
+      params,
+    )
+
+    if err != nil {
+      return nil, err
+    }
+
+    return &pSKUModel, nil
+  }
+
+  params := sqlc.UpdateLazadaProductSKUParams{
+    Status: sku[0].Status,
+    Quantity: sku[0].Quantity,
+    SellerSku: sku[0].SellerSku.String,
+    ShopSku: sku[0].ShopSku.String,
+    SkuID: sku[0].SkuID,
+    Url: sku[0].URL,
+    Price: null.StringFrom(priceString),
+    Available: sku[0].Available,
+    PackageContent: sku[0].PackageContent,
+    PackageWidth: sku[0].PackageWidth,
+    PackageWeight: sku[0].PackageWeight,
+    PackageLength: sku[0].PackageLength,
+    PackageHeight: sku[0].PackageHeight,
+    SpecialPrice: null.StringFrom(specialPriceString),
+    SpecialToTime: null.TimeFrom(sku[0].SpecialToTime),
+    SpecialFromTime: null.TimeFrom(sku[0].SpecialFromTime),
+    SpecialFromDate: null.TimeFrom(sku[0].SpecialFromDate),
+    SpecialToDate: null.TimeFrom(sku[0].SpecialToDate),
+    ProductID: productID,
+    ShopID: shopID,
+    ID: skuModel.ID,
+  }
+
+  pSKUModel, err = s.queries.UpdateLazadaProductSKU(
+    context.Background(),
+    params,
+  )
+
+  if err != nil {
+    return nil, err
+  }
+
+  return &pSKUModel, nil
 }
 
 func (s *lazadaStore) SaveOrUpdateLazadaProductAttribute(a *lazada.ProductsResponseAttributes, productID string) (*sqlc.ProductsAttributeLazada, error) {
@@ -125,7 +219,7 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductAttribute(a *lazada.ProductsRespo
   return &pAttributeModel, nil
 }
 
-func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProducts, shopID string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, error) {
+func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProducts, shopID string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, *sqlc.ProductsSkuLazada, error) {
   qParam := sqlc.GetLazadaProductByLazadaIDParams{
     LazadaID: p.ItemID,
     ShopID: shopID,
@@ -133,12 +227,13 @@ func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProduc
 
   var pModel sqlc.ProductsLazada
   var pModelAttributes *sqlc.ProductsAttributeLazada
+  var pModelSKU *sqlc.ProductsSkuLazada
   var err error
 
   pModel, err = s.queries.GetLazadaProductByLazadaID(context.Background(), qParam)
 
   if err != pgx.ErrNoRows && err != nil {
-    return nil, nil, err
+    return nil, nil, nil, err
   }
 
   if pModel.ID == "" {
@@ -158,15 +253,20 @@ func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProduc
     )
 
     if err != nil {
-      return nil, nil, err
+      return nil, nil, nil, err
     }
 
     pModelAttributes, err = s.SaveOrUpdateLazadaProductAttribute(&p.Attributes, pModel.ID)
     if err != nil {
-      return nil, nil, err
+      return nil, nil, nil, err
     }
 
-    return &pModel, pModelAttributes, nil
+    pModelSKU, err = s.SaveOrUpdateLazadaProductSKU(p.Skus, pModel.ID, shopID)
+    if err != nil {
+      return nil, nil, nil, err
+    }
+
+    return &pModel, pModelAttributes, pModelSKU, nil
   }
 
   params := sqlc.UpdateLazadaProductParams {
@@ -185,13 +285,19 @@ func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProduc
   )
 
   if err != nil {
-    return nil, nil, err
+    return nil, nil, nil, err
   }
 
   pModelAttributes, err = s.SaveOrUpdateLazadaProductAttribute(&p.Attributes, pModel.ID)
   if err != nil {
-    return nil, nil, err
+    return nil, nil, nil, err
   }
 
-  return &pModel, pModelAttributes, nil
+
+  pModelSKU, err = s.SaveOrUpdateLazadaProductSKU(p.Skus, pModel.ID, shopID)
+  if err != nil {
+    return nil, nil, nil, err
+  }
+
+  return &pModel, pModelAttributes, pModelSKU, nil
 }

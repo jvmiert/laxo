@@ -47,7 +47,7 @@ func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID str
     return
   }
 
-  pModel, pModelAttributes, err := h.service.lazada.SaveOrUpdateLazadaProduct(p, "01G1FZCVYH9J47DB2HZENSBC6E")
+  pModel, pModelAttributes, pModelSKU, err := h.service.lazada.SaveOrUpdateLazadaProduct(p, "01G1FZCVYH9J47DB2HZENSBC6E")
   if err != nil {
     laxo.Logger.Error("SaveOrUpdateLazadaProduct error", "error", err)
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -55,15 +55,17 @@ func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID str
   }
 
   numericPrice := pgtype.Numeric{}
-  numericPrice.Set("13.37")
+  numericPrice.Set(pModelSKU.Price.String)
+
+  sanitzedDescription := h.service.lazada.GetSantizedDescription(pModelAttributes.Description.String)
 
   product := &product.Product{
     Model: &sqlc.Product{
       ID: "",
       Name: pModelAttributes.Name,
-      Description : pModelAttributes.Description,
-      Msku: null.StringFrom("POOP"), //@TODO: FIX THIS
-      SellingPrice: numericPrice,  //@TODO: FIX THIS
+      Description : null.StringFrom(sanitzedDescription),
+      Msku: null.StringFrom(pModelSKU.SellerSku),
+      SellingPrice: numericPrice,
       CostPrice: pgtype.Numeric{Status: pgtype.Null},
       ShopID: pModel.ShopID,
     },

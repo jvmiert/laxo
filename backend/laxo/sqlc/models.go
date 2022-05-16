@@ -123,8 +123,7 @@ type ProductsSkuLazada struct {
 	ShopSku         string      `json:"shopSku"`
 	SkuID           null.Int    `json:"skuID"`
 	Url             null.String `json:"url"`
-	ColorFamily     null.String `json:"colorFamily"`
-	Price           null.Int    `json:"price"`
+	Price           null.String `json:"price"`
 	Available       null.Int    `json:"available"`
 	PackageContent  null.String `json:"packageContent"`
 	PackageWidth    null.String `json:"packageWidth"`

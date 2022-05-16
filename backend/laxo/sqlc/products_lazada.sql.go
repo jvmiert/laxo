@@ -164,6 +164,93 @@ func (q *Queries) CreateLazadaProductAttribute(ctx context.Context, arg CreateLa
 	return i, err
 }
 
+const createLazadaProductSKU = `-- name: CreateLazadaProductSKU :one
+INSERT INTO products_sku_lazada (
+  status, quantity, seller_sku, shop_sku, sku_id, url,
+  price, available, package_content, package_width, package_weight,
+  package_length, package_height, special_price, special_to_time,
+  special_from_time, special_from_date, special_to_date, product_id, shop_id
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7,
+  $8, $9, $10, $11, $12, $13, $14,
+  $15, $16, $17, $18, $19, $20
+)
+RETURNING id, status, quantity, seller_sku, shop_sku, sku_id, url, price, available, package_content, package_width, package_weight, package_length, package_height, special_price, special_to_time, special_from_time, special_from_date, special_to_date, product_id, shop_id
+`
+
+type CreateLazadaProductSKUParams struct {
+	Status          null.String `json:"status"`
+	Quantity        null.Int    `json:"quantity"`
+	SellerSku       string      `json:"sellerSku"`
+	ShopSku         string      `json:"shopSku"`
+	SkuID           null.Int    `json:"skuID"`
+	Url             null.String `json:"url"`
+	Price           null.String `json:"price"`
+	Available       null.Int    `json:"available"`
+	PackageContent  null.String `json:"packageContent"`
+	PackageWidth    null.String `json:"packageWidth"`
+	PackageWeight   null.String `json:"packageWeight"`
+	PackageLength   null.String `json:"packageLength"`
+	PackageHeight   null.String `json:"packageHeight"`
+	SpecialPrice    null.String `json:"specialPrice"`
+	SpecialToTime   null.Time   `json:"specialToTime"`
+	SpecialFromTime null.Time   `json:"specialFromTime"`
+	SpecialFromDate null.Time   `json:"specialFromDate"`
+	SpecialToDate   null.Time   `json:"specialToDate"`
+	ProductID       string      `json:"productID"`
+	ShopID          string      `json:"shopID"`
+}
+
+func (q *Queries) CreateLazadaProductSKU(ctx context.Context, arg CreateLazadaProductSKUParams) (ProductsSkuLazada, error) {
+	row := q.db.QueryRow(ctx, createLazadaProductSKU,
+		arg.Status,
+		arg.Quantity,
+		arg.SellerSku,
+		arg.ShopSku,
+		arg.SkuID,
+		arg.Url,
+		arg.Price,
+		arg.Available,
+		arg.PackageContent,
+		arg.PackageWidth,
+		arg.PackageWeight,
+		arg.PackageLength,
+		arg.PackageHeight,
+		arg.SpecialPrice,
+		arg.SpecialToTime,
+		arg.SpecialFromTime,
+		arg.SpecialFromDate,
+		arg.SpecialToDate,
+		arg.ProductID,
+		arg.ShopID,
+	)
+	var i ProductsSkuLazada
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.Quantity,
+		&i.SellerSku,
+		&i.ShopSku,
+		&i.SkuID,
+		&i.Url,
+		&i.Price,
+		&i.Available,
+		&i.PackageContent,
+		&i.PackageWidth,
+		&i.PackageWeight,
+		&i.PackageLength,
+		&i.PackageHeight,
+		&i.SpecialPrice,
+		&i.SpecialToTime,
+		&i.SpecialFromTime,
+		&i.SpecialFromDate,
+		&i.SpecialToDate,
+		&i.ProductID,
+		&i.ShopID,
+	)
+	return i, err
+}
+
 const getLazadaProductAttributeByProductID = `-- name: GetLazadaProductAttributeByProductID :one
 SELECT id, name, short_description, description, brand, model, headphone_features, bluetooth, warranty_type, warranty, hazmat, expire_date, brand_classification, ingredient_preference, lot_number, units_hb, fmlt_skincare, quantitative, skincare_by_age, skin_benefit, skin_type, user_manual, country_origin_hb, color_family, fragrance_family, source, product_id FROM products_attribute_lazada
 WHERE product_id = $1
@@ -227,6 +314,41 @@ func (q *Queries) GetLazadaProductByLazadaID(ctx context.Context, arg GetLazadaP
 		&i.Updated,
 		&i.Status,
 		&i.SubStatus,
+		&i.ShopID,
+	)
+	return i, err
+}
+
+const getLazadaProductSKUByProductID = `-- name: GetLazadaProductSKUByProductID :one
+SELECT id, status, quantity, seller_sku, shop_sku, sku_id, url, price, available, package_content, package_width, package_weight, package_length, package_height, special_price, special_to_time, special_from_time, special_from_date, special_to_date, product_id, shop_id FROM products_sku_lazada
+WHERE product_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetLazadaProductSKUByProductID(ctx context.Context, productID string) (ProductsSkuLazada, error) {
+	row := q.db.QueryRow(ctx, getLazadaProductSKUByProductID, productID)
+	var i ProductsSkuLazada
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.Quantity,
+		&i.SellerSku,
+		&i.ShopSku,
+		&i.SkuID,
+		&i.Url,
+		&i.Price,
+		&i.Available,
+		&i.PackageContent,
+		&i.PackageWidth,
+		&i.PackageWeight,
+		&i.PackageLength,
+		&i.PackageHeight,
+		&i.SpecialPrice,
+		&i.SpecialToTime,
+		&i.SpecialFromTime,
+		&i.SpecialFromDate,
+		&i.SpecialToDate,
+		&i.ProductID,
 		&i.ShopID,
 	)
 	return i, err
@@ -375,6 +497,91 @@ func (q *Queries) UpdateLazadaProductAttribute(ctx context.Context, arg UpdateLa
 		&i.FragranceFamily,
 		&i.Source,
 		&i.ProductID,
+	)
+	return i, err
+}
+
+const updateLazadaProductSKU = `-- name: UpdateLazadaProductSKU :one
+UPDATE products_sku_lazada SET
+  status = $1, quantity = $2, seller_sku = $3, shop_sku = $4, sku_id = $5, url = $6,
+  price = $7, available = $8, package_content = $9, package_width = $10, package_weight = $11,
+  package_length = $12, package_height = $13, special_price = $14, special_to_time = $15,
+  special_from_time = $16, special_from_date = $17, special_to_date = $18, product_id = $19, shop_id = $20
+WHERE id = $21
+RETURNING id, status, quantity, seller_sku, shop_sku, sku_id, url, price, available, package_content, package_width, package_weight, package_length, package_height, special_price, special_to_time, special_from_time, special_from_date, special_to_date, product_id, shop_id
+`
+
+type UpdateLazadaProductSKUParams struct {
+	Status          null.String `json:"status"`
+	Quantity        null.Int    `json:"quantity"`
+	SellerSku       string      `json:"sellerSku"`
+	ShopSku         string      `json:"shopSku"`
+	SkuID           null.Int    `json:"skuID"`
+	Url             null.String `json:"url"`
+	Price           null.String `json:"price"`
+	Available       null.Int    `json:"available"`
+	PackageContent  null.String `json:"packageContent"`
+	PackageWidth    null.String `json:"packageWidth"`
+	PackageWeight   null.String `json:"packageWeight"`
+	PackageLength   null.String `json:"packageLength"`
+	PackageHeight   null.String `json:"packageHeight"`
+	SpecialPrice    null.String `json:"specialPrice"`
+	SpecialToTime   null.Time   `json:"specialToTime"`
+	SpecialFromTime null.Time   `json:"specialFromTime"`
+	SpecialFromDate null.Time   `json:"specialFromDate"`
+	SpecialToDate   null.Time   `json:"specialToDate"`
+	ProductID       string      `json:"productID"`
+	ShopID          string      `json:"shopID"`
+	ID              string      `json:"id"`
+}
+
+func (q *Queries) UpdateLazadaProductSKU(ctx context.Context, arg UpdateLazadaProductSKUParams) (ProductsSkuLazada, error) {
+	row := q.db.QueryRow(ctx, updateLazadaProductSKU,
+		arg.Status,
+		arg.Quantity,
+		arg.SellerSku,
+		arg.ShopSku,
+		arg.SkuID,
+		arg.Url,
+		arg.Price,
+		arg.Available,
+		arg.PackageContent,
+		arg.PackageWidth,
+		arg.PackageWeight,
+		arg.PackageLength,
+		arg.PackageHeight,
+		arg.SpecialPrice,
+		arg.SpecialToTime,
+		arg.SpecialFromTime,
+		arg.SpecialFromDate,
+		arg.SpecialToDate,
+		arg.ProductID,
+		arg.ShopID,
+		arg.ID,
+	)
+	var i ProductsSkuLazada
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.Quantity,
+		&i.SellerSku,
+		&i.ShopSku,
+		&i.SkuID,
+		&i.Url,
+		&i.Price,
+		&i.Available,
+		&i.PackageContent,
+		&i.PackageWidth,
+		&i.PackageWeight,
+		&i.PackageLength,
+		&i.PackageHeight,
+		&i.SpecialPrice,
+		&i.SpecialToTime,
+		&i.SpecialFromTime,
+		&i.SpecialFromDate,
+		&i.SpecialToDate,
+		&i.ProductID,
+		&i.ShopID,
 	)
 	return i, err
 }
