@@ -6,7 +6,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Create product page
-  - Create lazada service function that stores images
+  - Retrieve products from database
+    - Join platform data to products
 - Make the dashboard page
   - Store that platform is connected in database - do we really need this?
   - Handle error messages in callback page

@@ -20,6 +20,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/stretchr/testify v1.7.1
+	github.com/twmb/murmur3 v1.1.6
 	github.com/urfave/negroni v1.0.0
 	go.temporal.io/sdk v1.14.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519

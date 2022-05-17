@@ -14,6 +14,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"laxo.vn/laxo/laxo"
+	"laxo.vn/laxo/laxo/assets"
 	"laxo.vn/laxo/laxo/http/rest"
 	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/notification"
@@ -54,7 +55,9 @@ func main() {
     logger.Error("Failed to get server struct", "error", err)
   }
 
-  store, err := store.NewStore(dbURI, logger)
+  assetsBasePath := os.Getenv("ASSETS_BASE_PATH")
+
+  store, err := store.NewStore(dbURI, logger, assetsBasePath)
   if err != nil {
     logger.Error("Failed to create new store", "error", err)
     return
@@ -66,10 +69,12 @@ func main() {
   productService := product.NewService(store, logger, laxo.RedisClient)
   rest.InitProductHandler(&productService, server.Router, server.Negroni)
 
+  assetsService := assets.NewService(store, logger, laxo.RedisClient)
+
   lazadaID := os.Getenv("LAZADA_ID")
   lazadaSecret := os.Getenv("LAZADA_SECRET")
   lazadaService := lazada.NewService(store, logger, laxo.RedisClient, lazadaID, lazadaSecret)
-  rest.InitTestHandler(&lazadaService, &productService, server.Router, server.Negroni)
+  rest.InitTestHandler(&lazadaService, &productService, &assetsService, server.Router, server.Negroni)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)

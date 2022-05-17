@@ -103,7 +103,7 @@ type ProductsLazada struct {
 	ShopID                string      `json:"shopID"`
 }
 
-type ProductsMedium struct {
+type ProductsMedia struct {
 	ID               string      `json:"id"`
 	ProductID        string      `json:"productID"`
 	OriginalFilename null.String `json:"originalFilename"`

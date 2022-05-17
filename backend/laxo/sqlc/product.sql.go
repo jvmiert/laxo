@@ -77,9 +77,9 @@ type CreateProductMediaParams struct {
 	MurmurHash       null.Int    `json:"murmurHash"`
 }
 
-func (q *Queries) CreateProductMedia(ctx context.Context, arg CreateProductMediaParams) (ProductsMedium, error) {
+func (q *Queries) CreateProductMedia(ctx context.Context, arg CreateProductMediaParams) (ProductsMedia, error) {
 	row := q.db.QueryRow(ctx, createProductMedia, arg.ProductID, arg.OriginalFilename, arg.MurmurHash)
-	var i ProductsMedium
+	var i ProductsMedia
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,
@@ -169,9 +169,9 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetProductMediaByID(ctx context.Context, id string) (ProductsMedium, error) {
+func (q *Queries) GetProductMediaByID(ctx context.Context, id string) (ProductsMedia, error) {
 	row := q.db.QueryRow(ctx, getProductMediaByID, id)
-	var i ProductsMedium
+	var i ProductsMedia
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,
@@ -183,13 +183,18 @@ func (q *Queries) GetProductMediaByID(ctx context.Context, id string) (ProductsM
 
 const getProductMediaByMurmur = `-- name: GetProductMediaByMurmur :one
 SELECT id, product_id, original_filename, murmur_hash FROM products_media
-WHERE murmur_hash = $1
+WHERE murmur_hash = $1 AND product_id = $2
 LIMIT 1
 `
 
-func (q *Queries) GetProductMediaByMurmur(ctx context.Context, murmurHash null.Int) (ProductsMedium, error) {
-	row := q.db.QueryRow(ctx, getProductMediaByMurmur, murmurHash)
-	var i ProductsMedium
+type GetProductMediaByMurmurParams struct {
+	MurmurHash null.Int `json:"murmurHash"`
+	ProductID  string   `json:"productID"`
+}
+
+func (q *Queries) GetProductMediaByMurmur(ctx context.Context, arg GetProductMediaByMurmurParams) (ProductsMedia, error) {
+	row := q.db.QueryRow(ctx, getProductMediaByMurmur, arg.MurmurHash, arg.ProductID)
+	var i ProductsMedia
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,
@@ -205,9 +210,9 @@ WHERE product_id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetProductMediaByProductID(ctx context.Context, productID string) (ProductsMedium, error) {
+func (q *Queries) GetProductMediaByProductID(ctx context.Context, productID string) (ProductsMedia, error) {
 	row := q.db.QueryRow(ctx, getProductMediaByProductID, productID)
-	var i ProductsMedium
+	var i ProductsMedia
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,
@@ -315,14 +320,14 @@ type UpdateProductMediaParams struct {
 	ID               string      `json:"id"`
 }
 
-func (q *Queries) UpdateProductMedia(ctx context.Context, arg UpdateProductMediaParams) (ProductsMedium, error) {
+func (q *Queries) UpdateProductMedia(ctx context.Context, arg UpdateProductMediaParams) (ProductsMedia, error) {
 	row := q.db.QueryRow(ctx, updateProductMedia,
 		arg.ProductID,
 		arg.OriginalFilename,
 		arg.MurmurHash,
 		arg.ID,
 	)
-	var i ProductsMedium
+	var i ProductsMedia
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,

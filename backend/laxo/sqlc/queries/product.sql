@@ -70,7 +70,7 @@ LIMIT 1;
 
 -- name: GetProductMediaByMurmur :one
 SELECT * FROM products_media
-WHERE murmur_hash = $1
+WHERE murmur_hash = $1 AND product_id = $2
 LIMIT 1;
 
 -- name: GetProductByID :one

@@ -13,12 +13,13 @@ type Store struct {
   lazadaStore
   notificationStore
   productStore
+  assetsStore
   logger    hclog.Logger
   pglClient *pgxpool.Pool
   queries   *sqlc.Queries
 }
 
-func NewStore(uri string, logger hclog.Logger) (*Store, error) {
+func NewStore(uri string, logger hclog.Logger, assetsBasePath string) (*Store, error) {
   config, err := pgxpool.ParseConfig(uri)
   if err != nil {
     return nil, err
@@ -44,6 +45,13 @@ func NewStore(uri string, logger hclog.Logger) (*Store, error) {
   s.lazadaStore = newLazadaStore(&s)
   s.notificationStore = newNotificationStore(&s)
   s.productStore = newProductStore(&s)
+
+  a, err := newAssetsStore(&s, assetsBasePath)
+  if err != nil {
+    return nil, err
+  }
+
+  s.assetsStore = *a
 
   return &s, nil
 }

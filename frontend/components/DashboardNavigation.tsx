@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment } from "React";
 import { useGetShop } from "@/hooks/swrHooks";
 import DashboardNavItem from "@/components/DashboardNavItem";
 
