@@ -1,7 +1,9 @@
 -- name: GetProductsByShopID :many
-SELECT *
+SELECT products.*, STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list
 FROM products
-WHERE shop_id = $1;
+JOIN products_media ON products_media.product_id = products.id
+WHERE shop_id = $1
+GROUP BY products.id;
 
 -- name: CreateProduct :one
 INSERT INTO products (
@@ -16,9 +18,9 @@ RETURNING *;
 -- name: CreateProductMedia :one
 INSERT INTO products_media (
   product_id, original_filename,
-  murmur_hash
+  murmur_hash, extension
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
 RETURNING *;
 

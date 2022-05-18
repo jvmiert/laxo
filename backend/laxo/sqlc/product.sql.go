@@ -64,26 +64,33 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 const createProductMedia = `-- name: CreateProductMedia :one
 INSERT INTO products_media (
   product_id, original_filename,
-  murmur_hash
+  murmur_hash, extension
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
-RETURNING id, product_id, original_filename, murmur_hash
+RETURNING id, product_id, original_filename, extension, murmur_hash
 `
 
 type CreateProductMediaParams struct {
 	ProductID        string      `json:"productID"`
 	OriginalFilename null.String `json:"originalFilename"`
 	MurmurHash       null.Int    `json:"murmurHash"`
+	Extension        null.String `json:"extension"`
 }
 
 func (q *Queries) CreateProductMedia(ctx context.Context, arg CreateProductMediaParams) (ProductsMedia, error) {
-	row := q.db.QueryRow(ctx, createProductMedia, arg.ProductID, arg.OriginalFilename, arg.MurmurHash)
+	row := q.db.QueryRow(ctx, createProductMedia,
+		arg.ProductID,
+		arg.OriginalFilename,
+		arg.MurmurHash,
+		arg.Extension,
+	)
 	var i ProductsMedia
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,
 		&i.OriginalFilename,
+		&i.Extension,
 		&i.MurmurHash,
 	)
 	return i, err
@@ -164,7 +171,7 @@ func (q *Queries) GetProductByProductMSKU(ctx context.Context, arg GetProductByP
 }
 
 const getProductMediaByID = `-- name: GetProductMediaByID :one
-SELECT id, product_id, original_filename, murmur_hash FROM products_media
+SELECT id, product_id, original_filename, extension, murmur_hash FROM products_media
 WHERE id = $1
 LIMIT 1
 `
@@ -176,13 +183,14 @@ func (q *Queries) GetProductMediaByID(ctx context.Context, id string) (ProductsM
 		&i.ID,
 		&i.ProductID,
 		&i.OriginalFilename,
+		&i.Extension,
 		&i.MurmurHash,
 	)
 	return i, err
 }
 
 const getProductMediaByMurmur = `-- name: GetProductMediaByMurmur :one
-SELECT id, product_id, original_filename, murmur_hash FROM products_media
+SELECT id, product_id, original_filename, extension, murmur_hash FROM products_media
 WHERE murmur_hash = $1 AND product_id = $2
 LIMIT 1
 `
@@ -199,13 +207,14 @@ func (q *Queries) GetProductMediaByMurmur(ctx context.Context, arg GetProductMed
 		&i.ID,
 		&i.ProductID,
 		&i.OriginalFilename,
+		&i.Extension,
 		&i.MurmurHash,
 	)
 	return i, err
 }
 
 const getProductMediaByProductID = `-- name: GetProductMediaByProductID :one
-SELECT id, product_id, original_filename, murmur_hash FROM products_media
+SELECT id, product_id, original_filename, extension, murmur_hash FROM products_media
 WHERE product_id = $1
 LIMIT 1
 `
@@ -217,6 +226,7 @@ func (q *Queries) GetProductMediaByProductID(ctx context.Context, productID stri
 		&i.ID,
 		&i.ProductID,
 		&i.OriginalFilename,
+		&i.Extension,
 		&i.MurmurHash,
 	)
 	return i, err
@@ -249,20 +259,36 @@ func (q *Queries) GetProductPlatformByProductID(ctx context.Context, productID s
 }
 
 const getProductsByShopID = `-- name: GetProductsByShopID :many
-SELECT id, name, description, msku, selling_price, cost_price, shop_id, media_id, created, updated
+SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated, STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list
 FROM products
+JOIN products_media ON products_media.product_id = products.id
 WHERE shop_id = $1
+GROUP BY products.id
 `
 
-func (q *Queries) GetProductsByShopID(ctx context.Context, shopID string) ([]Product, error) {
+type GetProductsByShopIDRow struct {
+	ID           string         `json:"id"`
+	Name         null.String    `json:"name"`
+	Description  null.String    `json:"description"`
+	Msku         null.String    `json:"msku"`
+	SellingPrice pgtype.Numeric `json:"sellingPrice"`
+	CostPrice    pgtype.Numeric `json:"costPrice"`
+	ShopID       string         `json:"shopID"`
+	MediaID      null.String    `json:"mediaID"`
+	Created      null.Time      `json:"created"`
+	Updated      null.Time      `json:"updated"`
+	MediaIDList  []byte         `json:"mediaIDList"`
+}
+
+func (q *Queries) GetProductsByShopID(ctx context.Context, shopID string) ([]GetProductsByShopIDRow, error) {
 	rows, err := q.db.Query(ctx, getProductsByShopID, shopID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Product
+	var items []GetProductsByShopIDRow
 	for rows.Next() {
-		var i Product
+		var i GetProductsByShopIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -274,6 +300,7 @@ func (q *Queries) GetProductsByShopID(ctx context.Context, shopID string) ([]Pro
 			&i.MediaID,
 			&i.Created,
 			&i.Updated,
+			&i.MediaIDList,
 		); err != nil {
 			return nil, err
 		}
@@ -347,7 +374,7 @@ SET
  original_filename = coalesce($2, original_filename),
  murmur_hash = coalesce($3, murmur_hash)
 WHERE id = $4
-RETURNING id, product_id, original_filename, murmur_hash
+RETURNING id, product_id, original_filename, extension, murmur_hash
 `
 
 type UpdateProductMediaParams struct {
@@ -369,6 +396,7 @@ func (q *Queries) UpdateProductMedia(ctx context.Context, arg UpdateProductMedia
 		&i.ID,
 		&i.ProductID,
 		&i.OriginalFilename,
+		&i.Extension,
 		&i.MurmurHash,
 	)
 	return i, err

@@ -10,6 +10,7 @@ type Product struct {
   Model          *sqlc.Product              `json:"product"`
   MediaModels    []sqlc.ProductsMedia       `json:"-"`
   PlatformModel  *sqlc.ProductsPlatform     `json:"-"`
+  MediaList      []string                   `json:"mediaList"`
 }
 
 func (p *Product) JSON() ([]byte, error) {

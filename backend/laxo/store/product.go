@@ -20,7 +20,7 @@ func newProductStore(store *Store) productStore{
   }
 }
 
-func (s *productStore) GetProductsByShopID(shopID string) ([]sqlc.Product, error) {
+func (s *productStore) GetProductsByShopID(shopID string) ([]sqlc.GetProductsByShopIDRow, error) {
   products, err := s.queries.GetProductsByShopID(
     context.Background(),
     shopID,

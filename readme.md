@@ -6,7 +6,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Create product page
-  - Join image data to products
   - Join platform data to products
 - Make the dashboard page
   - Store that platform is connected in database - do we really need this?

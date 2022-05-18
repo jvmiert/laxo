@@ -107,6 +107,7 @@ type ProductsMedia struct {
 	ID               string      `json:"id"`
 	ProductID        string      `json:"productID"`
 	OriginalFilename null.String `json:"originalFilename"`
+	Extension        null.String `json:"extension"`
 	MurmurHash       null.Int    `json:"murmurHash"`
 }
 

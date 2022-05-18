@@ -3,6 +3,7 @@ package product
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/jackc/pgx/v4"
@@ -19,7 +20,7 @@ type Store interface {
   CreateProductPlatform(*sqlc.CreateProductPlatformParams) (*sqlc.ProductsPlatform, error)
   UpdateProductToStore(*Product) (*sqlc.Product, error)
   RetrieveShopsByUserID(string) ([]laxo.Shop, error)
-  GetProductsByShopID(string) ([]sqlc.Product, error)
+  GetProductsByShopID(string) ([]sqlc.GetProductsByShopIDRow, error)
 
 }
 
@@ -84,6 +85,9 @@ func (s *Service) GetProductsByUserID(userID string) ([]Product, error) {
   }
 
   for _, pModel := range pModelList {
+    mediaListString := string(pModel.MediaIDList)
+    mediaList := strings.Split(mediaListString, ",")
+
     pList = append(pList, Product{
       Model: &sqlc.Product{
         ID: pModel.ID,
@@ -97,6 +101,7 @@ func (s *Service) GetProductsByUserID(userID string) ([]Product, error) {
         Created: pModel.Created,
         Updated: pModel.Updated,
       },
+      MediaList: mediaList,
     })
   }
 

@@ -66,19 +66,6 @@ func (s *assetsStore) GetProductMediaByProductID(productID string) (*sqlc.Produc
 }
 
 func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte, shopID string, productID string) error {
-  params := sqlc.CreateProductMediaParams{
-    ProductID: productID,
-    OriginalFilename: null.StringFrom(oFilename),
-    MurmurHash: null.IntFrom(mID),
-  }
-
-  pMModel, err := s.queries.CreateProductMedia(
-    context.Background(),
-    params,
-  )
-  if err != nil {
-    return err
-  }
   filetype := http.DetectContentType(b)
 
   ext, err := mime.ExtensionsByType(filetype)
@@ -88,6 +75,21 @@ func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte,
 
   if len(ext) == 0 {
     return errors.New("no extension found for image")
+  }
+
+  params := sqlc.CreateProductMediaParams{
+    ProductID: productID,
+    OriginalFilename: null.StringFrom(oFilename),
+    MurmurHash: null.IntFrom(mID),
+    Extension: null.StringFrom(ext[0]),
+  }
+
+  pMModel, err := s.queries.CreateProductMedia(
+    context.Background(),
+    params,
+  )
+  if err != nil {
+    return err
   }
 
   filename := pMModel.ID + ext[0]

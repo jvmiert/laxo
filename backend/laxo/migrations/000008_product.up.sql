@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS products_media(
   id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
   product_id CHAR(26) NOT NULL,
   original_filename TEXT,
+  extension VARCHAR(32),
   murmur_hash BIGINT,
   CONSTRAINT fk_products_products_media FOREIGN KEY(product_id) REFERENCES products(id)
 );
