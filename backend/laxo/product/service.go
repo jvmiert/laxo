@@ -3,6 +3,7 @@ package product
 import (
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
@@ -85,8 +86,20 @@ func (s *Service) GetProductsByUserID(userID string) ([]Product, error) {
   }
 
   for _, pModel := range pModelList {
+    s.logger.Debug("Lazada ID", pModel.LazadaID)
+
     mediaListString := string(pModel.MediaIDList)
     mediaList := strings.Split(mediaListString, ",")
+
+    var platformList []ProductPlatformInformation
+
+    lazadaPlatform := ProductPlatformInformation{
+      ID: strconv.FormatInt(pModel.LazadaID, 10),
+      ProductURL: pModel.LazadaUrl,
+      Name: pModel.LazadaName,
+    }
+
+    platformList = append(platformList, lazadaPlatform)
 
     pList = append(pList, Product{
       Model: &sqlc.Product{
@@ -102,6 +115,7 @@ func (s *Service) GetProductsByUserID(userID string) ([]Product, error) {
         Updated: pModel.Updated,
       },
       MediaList: mediaList,
+      Platforms: platformList,
     })
   }
 

@@ -1,9 +1,17 @@
 -- name: GetProductsByShopID :many
-SELECT products.*, STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list
+SELECT products.*,
+       STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+       products_lazada.lazada_id as lazada_id,
+	     products_sku_lazada.url as lazada_url,
+	     products_attribute_lazada.name as lazada_name
 FROM products
 JOIN products_media ON products_media.product_id = products.id
-WHERE shop_id = $1
-GROUP BY products.id;
+JOIN products_platform ON products_platform.product_id = products.id
+JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+WHERE products.shop_id = $1
+GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id;
 
 -- name: CreateProduct :one
 INSERT INTO products (
