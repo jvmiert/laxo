@@ -1,3 +1,8 @@
+-- name: GetProductsByShopID :many
+SELECT *
+FROM products
+WHERE shop_id = $1;
+
 -- name: CreateProduct :one
 INSERT INTO products (
   name, description, msku, selling_price, cost_price, shop_id,

@@ -248,6 +248,43 @@ func (q *Queries) GetProductPlatformByProductID(ctx context.Context, productID s
 	return i, err
 }
 
+const getProductsByShopID = `-- name: GetProductsByShopID :many
+SELECT id, name, description, msku, selling_price, cost_price, shop_id, media_id, created, updated
+FROM products
+WHERE shop_id = $1
+`
+
+func (q *Queries) GetProductsByShopID(ctx context.Context, shopID string) ([]Product, error) {
+	rows, err := q.db.Query(ctx, getProductsByShopID, shopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Product
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Msku,
+			&i.SellingPrice,
+			&i.CostPrice,
+			&i.ShopID,
+			&i.MediaID,
+			&i.Created,
+			&i.Updated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
 SET

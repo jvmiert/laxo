@@ -78,7 +78,6 @@ func (u *User) CheckPassword(p string) error {
   }
 
   match, err := ComparePasswordAndHash(p, u.Model.Password)
-  Logger.Debug("MATCH!!!", p)
 
   if err != nil {
     return err

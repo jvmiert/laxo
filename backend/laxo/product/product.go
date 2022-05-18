@@ -8,8 +8,8 @@ import (
 
 type Product struct {
   Model          *sqlc.Product              `json:"product"`
-  MediaModels    []sqlc.NotificationsGroup  `json:"productMedia"`
-  PlatformModel  *sqlc.ProductsPlatform     `json:"productPlatform"`
+  MediaModels    []sqlc.ProductsMedia       `json:"-"`
+  PlatformModel  *sqlc.ProductsPlatform     `json:"-"`
 }
 
 func (p *Product) JSON() ([]byte, error) {

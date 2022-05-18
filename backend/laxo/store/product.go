@@ -20,6 +20,18 @@ func newProductStore(store *Store) productStore{
   }
 }
 
+func (s *productStore) GetProductsByShopID(shopID string) ([]sqlc.Product, error) {
+  products, err := s.queries.GetProductsByShopID(
+    context.Background(),
+    shopID,
+  )
+  if err != nil {
+    return nil, err
+  }
+
+  return products, nil
+}
+
 func (s *productStore) GetProductPlatformByProductID(productID string) (*sqlc.ProductsPlatform, error) {
   pPlatform, err := s.queries.GetProductPlatformByProductID(
     context.Background(),
