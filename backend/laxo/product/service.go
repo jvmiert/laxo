@@ -86,8 +86,6 @@ func (s *Service) GetProductsByUserID(userID string) ([]Product, error) {
   }
 
   for _, pModel := range pModelList {
-    s.logger.Debug("Lazada ID", pModel.LazadaID)
-
     mediaListString := string(pModel.MediaIDList)
     mediaList := strings.Split(mediaListString, ",")
 

@@ -67,10 +67,6 @@ func (s *Server) SetupRouter(testing bool) {
 		negroni.WrapFunc(AssureAuth(HandleVerifyOAuth)),
 	)).Methods("POST")
 
-	subRouter.Handle("/test/task", common.With(
-		negroni.WrapFunc(AssureAuth(HandleTest)),
-	)).Methods("GET")
-
 	subRouter.Handle("/oauth/redirects", common.With(
 		negroni.WrapFunc(AssureAuth(HandleOAuthRedirects)),
 	)).Methods("GET")
