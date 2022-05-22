@@ -100,7 +100,7 @@ func main() {
   lazadaService := lazada.NewService(store, logger, server, lazadaID, lazadaSecret)
   rest.InitTestHandler(server, &lazadaService, &shopService, &assetsService, server.Router, server.Negroni)
 
-  server.InitMiddleware()
+  server.InitMiddleware(&userService)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)
@@ -136,10 +136,6 @@ func main() {
   logger.Info("Serving GRPC...", "port", "8081")
 
   g.Go(func() error {
-    opts := []grpc.ServerOption{
-      grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(laxo_proto.StreamAuthFunc)),
-    }
-    grpcServer := grpc.NewServer(opts...)
     protoServer, errGRPC := laxo_proto.NewServer(
       &notificationService,
       logger,
@@ -151,6 +147,13 @@ func main() {
       logger.Error("GRPC Redis error", "error", errGRPC)
       return errGRPC
     }
+
+    protoMiddleware := laxo_proto.NewGRPCMiddleware(server)
+
+    opts := []grpc.ServerOption{
+      grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(protoMiddleware.StreamAuthFunc)),
+    }
+    grpcServer := grpc.NewServer(opts...)
 
     laxo_proto_gen.RegisterUserServiceServer(grpcServer, protoServer)
 

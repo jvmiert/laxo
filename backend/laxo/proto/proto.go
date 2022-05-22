@@ -41,7 +41,10 @@ func NewServer(service *notification.Service, logger *laxo.Logger, redisURI stri
 
 func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, stream gen.UserService_GetNotificationUpdateServer) error {
   uID := stream.Context().Value(keyUID).(string)
-  s.logger.Info("Received GetNotificationUpdate", "NotificationRedisID", req.NotificationRedisID, "uID", uID)
+  s.logger.Infow("Received GetNotificationUpdate",
+    "NotificationRedisID", req.NotificationRedisID,
+    "uID", uID,
+  )
 
   channelID := notification.NotificationPrefix + uID
 
@@ -54,13 +57,17 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
 
     time, err := strconv.ParseUint(sRedisID[0], 10, 64)
     if err != nil {
-      s.logger.Error("strconv error", "error", err)
+      s.logger.Errorw("strconv error",
+        "error", err,
+      )
       return err
     }
 
     seq, err := strconv.ParseUint(sRedisID[1], 10, 64)
     if err != nil {
-      s.logger.Error("strconv error", "error", err)
+      s.logger.Errorw("strconv error",
+        "error", err,
+      )
       return err
     }
 
@@ -119,7 +126,9 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
 
     if err != nil {
       if err != radix.ErrNoStreamEntries {
-        s.logger.Error("Redis stream Next() returned error", "error", err)
+        s.logger.Errorw("Redis stream Next() returned error",
+          "error", err,
+        )
         return err
       }
     }
@@ -130,7 +139,9 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
           var n notification.Notification
 
           if err = json.Unmarshal([]byte(entry.Fields[0][1]), &n); err != nil {
-            s.logger.Error("notification json unmarshal error", "error", err)
+            s.logger.Errorw("notification json unmarshal error",
+              "error", err,
+            )
             return err
           }
 
