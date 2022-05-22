@@ -4,23 +4,23 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
 type Store struct {
   lazadaStore
   notificationStore
-  productStore
+  shopStore
   assetsStore
   userStore
-  logger    hclog.Logger
+  logger    *laxo.Logger
   pglClient *pgxpool.Pool
   queries   *sqlc.Queries
 }
 
-func NewStore(uri string, logger hclog.Logger, assetsBasePath string) (*Store, error) {
+func NewStore(uri string, logger *laxo.Logger, assetsBasePath string) (*Store, error) {
   config, err := pgxpool.ParseConfig(uri)
   if err != nil {
     return nil, err
@@ -45,7 +45,7 @@ func NewStore(uri string, logger hclog.Logger, assetsBasePath string) (*Store, e
 
   s.lazadaStore = newLazadaStore(&s)
   s.notificationStore = newNotificationStore(&s)
-  s.productStore = newProductStore(&s)
+  s.shopStore = newShopStore(&s)
   s.userStore = newUserStore(&s)
 
   a, err := newAssetsStore(&s, assetsBasePath)

@@ -51,16 +51,16 @@ func GenerateRandomString(n int) ([]byte, error) {
   return b, nil
 }
 
-type malformedRequest struct {
-  status int
-  msg    string
+type MalformedRequest struct {
+  Status int
+  Msg    string
 }
 
-func (mr *malformedRequest) Error() string {
-    return mr.msg
+func (mr *MalformedRequest) Error() string {
+    return mr.Msg
 }
 
-func decodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+func DecodeJSONBody(logger *Logger, w http.ResponseWriter, r *http.Request, dst interface{}) error {
   // Don't accept JSON larger than 10MB
   r.Body = http.MaxBytesReader(w, r.Body, 10485760)
 
@@ -74,37 +74,57 @@ func decodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
     switch {
     case errors.As(err, &syntaxError):
       msg := fmt.Sprintf("Request body contains badly-formed JSON (at position %d)", syntaxError.Offset)
-      Logger.Info("Decode error", "error", err, "msg", msg)
-      return &malformedRequest{status: http.StatusBadRequest, msg: msg}
+      logger.Errorw("Decode error",
+        "error", err,
+        "msg", msg,
+      )
+      return &MalformedRequest{Status: http.StatusBadRequest, Msg: msg}
 
     case errors.Is(err, io.ErrUnexpectedEOF):
       msg := "Request body contains badly-formed JSON"
-      Logger.Info("Decode error", "error", err, "msg", msg)
-      return &malformedRequest{status: http.StatusBadRequest, msg: msg}
+      logger.Errorw("Decode error",
+        "error", err,
+        "msg", msg,
+      )
+      return &MalformedRequest{Status: http.StatusBadRequest, Msg: msg}
 
     case errors.As(err, &unmarshalTypeError):
       msg := fmt.Sprintf("Request body contains an invalid value for the %q field (at position %d)", unmarshalTypeError.Field, unmarshalTypeError.Offset)
-      Logger.Info("Decode error", "error", err, "msg", msg)
-      return &malformedRequest{status: http.StatusBadRequest, msg: msg}
+      logger.Errorw("Decode error",
+        "error", err,
+        "msg", msg,
+      )
+      return &MalformedRequest{Status: http.StatusBadRequest, Msg: msg}
 
     case strings.HasPrefix(err.Error(), "json: unknown field "):
       fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
       msg := fmt.Sprintf("Request body contains unknown field %s", fieldName)
-      Logger.Info("Decode error", "error", err, "msg", msg)
-      return &malformedRequest{status: http.StatusBadRequest, msg: msg}
+      logger.Errorw("Decode error",
+        "error", err,
+        "msg", msg,
+      )
+      return &MalformedRequest{Status: http.StatusBadRequest, Msg: msg}
 
     case errors.Is(err, io.EOF):
       msg := "Request body must not be empty"
-      Logger.Info("Decode error", "error", err, "msg", msg)
-      return &malformedRequest{status: http.StatusBadRequest, msg: msg}
+      logger.Errorw("Decode error",
+        "error", err,
+        "msg", msg,
+      )
+      return &MalformedRequest{Status: http.StatusBadRequest, Msg: msg}
 
     case err.Error() == "http: request body too large":
       msg := "Request body must not be larger than 10MB"
-      Logger.Info("Decode error", "error", err, "msg", msg)
-      return &malformedRequest{status: http.StatusRequestEntityTooLarge, msg: msg}
+      logger.Errorw("Decode error",
+        "error", err,
+        "msg", msg,
+      )
+      return &MalformedRequest{Status: http.StatusRequestEntityTooLarge, Msg: msg}
 
     default:
-      Logger.Error("Unknown decode error", "error", err)
+      logger.Errorw("Unknown decode error",
+        "error", err,
+      )
       return err
     }
   }
@@ -112,8 +132,11 @@ func decodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 	err = dec.Decode(&struct{}{})
   if err != io.EOF {
     msg := "Request body must only contain a single JSON object"
-    Logger.Info("Decode error", "error", err, "msg", msg)
-    return &malformedRequest{status: http.StatusBadRequest, msg: msg}
+    logger.Errorw("Decode error",
+      "error", err,
+      "msg", msg,
+    )
+    return &MalformedRequest{Status: http.StatusBadRequest, Msg: msg}
   }
 
   return nil

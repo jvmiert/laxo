@@ -18,41 +18,61 @@ import (
 	"laxo.vn/laxo/laxo/http/rest"
 	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/notification"
-	"laxo.vn/laxo/laxo/product"
 	laxo_proto "laxo.vn/laxo/laxo/proto"
 	laxo_proto_gen "laxo.vn/laxo/laxo/proto/gen"
+	"laxo.vn/laxo/laxo/shop"
 	"laxo.vn/laxo/laxo/store"
+	temporal_client "laxo.vn/laxo/temporal/client"
 )
 
 func main() {
-  logger, config := laxo.InitConfig(false)
+  logger := laxo.NewLogger()
+  defer logger.Zap.Sync()
 
-  if err := godotenv.Load(".env"); err != nil {
-    logger.Error("Failed to load .env file")
+  config, err := laxo.InitConfig()
+  if err != nil {
+    logger.Errorw("Could not init config",
+      "error", err,
+    )
+  }
+
+  if err = godotenv.Load(".env"); err != nil {
+    logger.Errorw("Failed to load .env file",
+      "error", err,
+    )
+  }
+
+  server, err := laxo.NewServer(logger, config)
+  if err != nil {
+    logger.Errorw("Failed to get server struct",
+      "error", err,
+    )
   }
 
   redisURI := os.Getenv("REDIS_URL")
 
-  if err := laxo.InitRedis(redisURI); err != nil {
-    logger.Error("Failed to init Redis", "error", err)
+  if err = server.InitRedis(redisURI); err != nil {
+    logger.Errorw("Failed to init Redis",
+      "error", err,
+    )
     return
   }
 
   dbURI := os.Getenv("POSTGRESQL_URL")
 
-  if err := laxo.InitDatabase(dbURI); err != nil {
-    logger.Error("Failed to init Database", "uri", dbURI, "error", err)
+  if err = server.InitDatabase(dbURI); err != nil {
+    logger.Errorw("Failed to init Database",
+      "error", err,
+      "uri", dbURI,
+    )
     return
   }
 
-  temporalClient, err := laxo.InitTemporal()
+  temporalClient, err := temporal_client.NewClient()
   if err != nil {
-    logger.Error("Failed to retrieve Temporal client", "error", err)
-  }
-
-  server, err := laxo.NewServer()
-  if err != nil {
-    logger.Error("Failed to get server struct", "error", err)
+    logger.Errorw("Failed to create Temporal client",
+      "error", err,
+    )
   }
 
   assetsBasePath := os.Getenv("ASSETS_BASE_PATH")
@@ -63,18 +83,18 @@ func main() {
     return
   }
 
-  notificationService := notification.NewService(store, logger, laxo.RedisClient)
+  notificationService := notification.NewService(store, logger, server)
   rest.InitNotificationHandler(&notificationService, server.Router, server.Negroni)
 
-  productService := product.NewService(store, logger, laxo.RedisClient)
-  rest.InitProductHandler(&productService, server.Router, server.Negroni)
+  shopService := shop.NewService(store, logger, server)
+  rest.InitProductHandler(server, &shopService, server.Router, server.Negroni)
 
-  assetsService := assets.NewService(store, logger, laxo.RedisClient)
+  assetsService := assets.NewService(store, logger, server)
 
   lazadaID := os.Getenv("LAZADA_ID")
   lazadaSecret := os.Getenv("LAZADA_SECRET")
-  lazadaService := lazada.NewService(store, logger, laxo.RedisClient, lazadaID, lazadaSecret)
-  rest.InitTestHandler(&lazadaService, &productService, &assetsService, server.Router, server.Negroni)
+  lazadaService := lazada.NewService(store, logger, server, lazadaID, lazadaSecret)
+  rest.InitTestHandler(server, &lazadaService, &shopService, &assetsService, server.Router, server.Negroni)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)
@@ -119,6 +139,7 @@ func main() {
       logger,
       redisURI,
       ctx,
+      server,
     )
     if errGRPC != nil {
       logger.Error("GRPC Redis error", "error", errGRPC)
@@ -170,7 +191,7 @@ func main() {
   defer shutdownCancel()
 
   if temporalClient != nil {
-    temporalClient.Close()
+    temporalClient.Temporal.Close()
   }
 
   _ = httpServer.Shutdown(shutdownCtx)

@@ -12,7 +12,7 @@ import (
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/notification"
 	"laxo.vn/laxo/laxo/store"
-	"laxo.vn/laxo/processing"
+	"laxo.vn/laxo/temporal/lazada"
 )
 
 func main() {
@@ -45,8 +45,9 @@ func main() {
 
   logger, _ := laxo.InitConfig(false)
 
+  assetsBasePath := os.Getenv("ASSETS_BASE_PATH")
   dbURI := os.Getenv("POSTGRESQL_URL")
-  store, err := store.NewStore(dbURI, logger)
+  store, err := store.NewStore(dbURI, logger, assetsBasePath)
 
   if err != nil {
     log.Fatalln("Failed to create new store",  err)
@@ -57,9 +58,9 @@ func main() {
 
 	w := worker.New(c, "product", worker.Options{})
 
-	w.RegisterWorkflow(processing.ProcessLazadaProducts)
+	w.RegisterWorkflow(lazada.SyncLazadaPlatform)
 
-  activities := &processing.Activities{RedisClient: client, NotificationService: notificationService}
+  activities := &lazada.Activities{RedisClient: client, NotificationService: notificationService}
 	w.RegisterActivity(activities)
 
 	err = w.Run(worker.InterruptCh())

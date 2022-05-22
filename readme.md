@@ -5,6 +5,9 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Remove legacy structure
+  - Fix the middleware -> move to a struct and init in cmd
+  - Move user routes to user service/user rest handler
 - Create product page
   - Figure out visual look
 - Make the dashboard page

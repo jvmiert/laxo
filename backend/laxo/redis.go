@@ -6,10 +6,11 @@ import (
 	"github.com/mediocregopher/radix/v4"
 )
 
-var RedisClient radix.Client
+func (s *Server) InitRedis(uri string) error {
+  s.Logger.Infow("Connecting to Redis...",
+    "uri", uri,
+  )
 
-func InitRedis(uri string) error {
-  Logger.Debug("Connecting to Redis", "uri", uri)
   client, err := (radix.PoolConfig{
     Size: 10,
   }).New(context.Background(), "tcp", uri)
@@ -17,6 +18,6 @@ func InitRedis(uri string) error {
     return err
   }
 
-  RedisClient = client
+  s.RedisClient = client
   return nil
 }

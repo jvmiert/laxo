@@ -17,8 +17,8 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
-	"github.com/hashicorp/go-hclog"
 	"gopkg.in/guregu/null.v4"
+	"laxo.vn/laxo/laxo"
 )
 
 var ErrPlatformFailed = errors.New("platform returned failed message")
@@ -229,7 +229,7 @@ type LazadaClient struct {
 	APISecret string
 	Region    string
 
-  Logger    hclog.Logger
+  Logger    *laxo.Logger
 
 	Method     string
 	SysParams  map[string]string
@@ -265,8 +265,6 @@ func (lc *LazadaClient) QueryProduct(itemID null.Int, sellerSKU null.String) (*P
 
 	values.Add("sign", lc.sign(apiPath))
 	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
-
-  lc.Logger.Debug("Making '/product/item/get' query", "url", fullURL)
 
 	req, err = http.NewRequest("GET", fullURL, nil)
 
@@ -331,8 +329,6 @@ func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResp
 
 	values.Add("sign", lc.sign(apiPath))
 	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
-
-  lc.Logger.Debug("Making '/products/get' query", "url", fullURL)
 
 	req, err = http.NewRequest("GET", fullURL, nil)
 
@@ -483,7 +479,7 @@ func (lc *LazadaClient) Auth(code string) (*AuthResponse, error) {
 	return resp, err
 }
 
-func NewClient(id string, secret string, access string, logger hclog.Logger) *LazadaClient {
+func NewClient(id string, secret string, access string, logger *laxo.Logger) *LazadaClient {
   client := &LazadaClient{
 		APIKey:    id,
 		APISecret: secret,

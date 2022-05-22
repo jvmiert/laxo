@@ -22,6 +22,40 @@ func newLazadaStore(store *Store) lazadaStore {
   }
 }
 
+func (s *lazadaStore) UpdateLazadaPlatform(pID string, authResp *lazada.AuthResponse) error {
+  return s.queries.UpdateLazadaPlatform(
+    context.Background(),
+    sqlc.UpdateLazadaPlatformParams{
+      AccessToken: authResp.AccessToken,
+      RefreshToken: authResp.RefreshToken,
+      RefreshExpiresIn: null.TimeFrom(authResp.DateRefreshExpired),
+      AccessExpiresIn: null.TimeFrom(authResp.DateAccessExpired),
+      ID: pID,
+    },
+  )
+}
+
+func (s *lazadaStore) SaveNewLazadaPlatform(shopID string, authResp *lazada.AuthResponse) (*sqlc.PlatformLazada, error) {
+  pModel, err := s.queries.CreateLazadaPlatform(
+    context.Background(),
+    sqlc.CreateLazadaPlatformParams{
+      ShopID: shopID,
+      AccessToken: authResp.AccessToken,
+      Country: authResp.Country,
+      RefreshToken: authResp.RefreshToken,
+      AccountPlatform: authResp.AccountPlatform,
+      Account: authResp.Account,
+      UserIDVn: authResp.CountryUserInfo[0].UserID,
+      SellerIDVn: authResp.CountryUserInfo[0].SellerID,
+      ShortCodeVn: authResp.CountryUserInfo[0].ShortCode,
+      RefreshExpiresIn: null.TimeFrom(authResp.DateRefreshExpired),
+      AccessExpiresIn: null.TimeFrom(authResp.DateAccessExpired),
+    },
+  )
+
+  return &pModel, err
+}
+
 func (s *lazadaStore) GetValidTokenByShopID(shopID string) (string, error) {
   accessToken, err := s.queries.GetValidAccessTokenByShopID(
     context.Background(),

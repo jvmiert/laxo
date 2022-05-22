@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/mediocregopher/radix/v4"
+	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/notification"
 	gen "laxo.vn/laxo/laxo/proto/gen"
 )
@@ -16,12 +16,13 @@ import (
 type ProtoServer struct {
   gen.UnimplementedUserServiceServer
   service     *notification.Service
-  logger      hclog.Logger
+  logger      *laxo.Logger
   redisClient radix.Client
   ctx         context.Context
+  server      *laxo.Server
 }
 
-func NewServer(service *notification.Service, logger hclog.Logger, redisURI string, ctx context.Context) (*ProtoServer, error) {
+func NewServer(service *notification.Service, logger *laxo.Logger, redisURI string, ctx context.Context, server *laxo.Server) (*ProtoServer, error) {
   client, err := (radix.PoolConfig{
     Size: 50,
   }).New(context.Background(), "tcp", redisURI)
@@ -34,6 +35,7 @@ func NewServer(service *notification.Service, logger hclog.Logger, redisURI stri
     logger: logger,
     redisClient: client,
     ctx: ctx,
+    server: server,
   }, nil
 }
 

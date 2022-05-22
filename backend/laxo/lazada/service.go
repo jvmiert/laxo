@@ -9,9 +9,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/mediocregopher/radix/v4"
 	"github.com/microcosm-cc/bluemonday"
+	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
@@ -24,21 +24,23 @@ const redisKeyPrefix = "product_lazada_"
 type Store interface {
   SaveOrUpdateLazadaProduct(*ProductsResponseProducts, string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, *sqlc.ProductsSkuLazada, error)
   GetValidTokenByShopID(string) (string, error)
+  SaveNewLazadaPlatform(string, *AuthResponse) (*sqlc.PlatformLazada, error)
+  UpdateLazadaPlatform(string, *AuthResponse) error
 }
 
 type Service struct {
   store Store
-  logger hclog.Logger
-  redisClient radix.Client
+  logger *laxo.Logger
+  server *laxo.Server
   clientID string
   clientSecret string
 }
 
-func NewService(store Store, logger hclog.Logger, redisClient radix.Client, clientID, clientSecret string) Service {
+func NewService(store Store, logger *laxo.Logger, server *laxo.Server, clientID, clientSecret string) Service {
   return Service {
     store: store,
     logger: logger,
-    redisClient: redisClient,
+    server: server,
     clientID: clientID,
     clientSecret: clientSecret,
   }
@@ -77,7 +79,7 @@ func (s *Service) RetrieveProductFromRedis(keyID string, index int) (*ProductsRe
   var rcv string
   mb := radix.Maybe{Rcv: &rcv}
 
-  if err := s.redisClient.Do(ctx, radix.Cmd(&mb, "HGET", keyID, i)); err != nil {
+  if err := s.server.RedisClient.Do(ctx, radix.Cmd(&mb, "HGET", keyID, i)); err != nil {
     return nil, err
   }
 
@@ -104,7 +106,7 @@ func (s *Service) SaveProductToRedis(keyID string, index int, p ProductsResponse
   i := strconv.Itoa(index)
   m := map[string]string{i: string(bytes)}
   ctx := context.Background()
-  if err := s.redisClient.Do(ctx, radix.FlatCmd(nil, "HMSET", keyID, m)); err != nil {
+  if err := s.server.RedisClient.Do(ctx, radix.FlatCmd(nil, "HMSET", keyID, m)); err != nil {
     return err
   }
   return nil

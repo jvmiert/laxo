@@ -1,4 +1,4 @@
-package laxo
+package user
 
 import (
 	"crypto/subtle"
@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/argon2"
+	"laxo.vn/laxo/laxo"
 )
 
 // Credit to: https://github.com/alexedwards/argon2id
@@ -35,7 +36,7 @@ func CreateHash(password string) (hash string, err error) {
     KeyLength:   48,
   }
 
-	salt, err := GenerateRandomString(int(params.SaltLength))
+	salt, err := laxo.GenerateRandomString(int(params.SaltLength))
 	if err != nil {
 		return "", err
 	}

@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/jackc/pgx/v4"
-	"github.com/mediocregopher/radix/v4"
 	"github.com/twmb/murmur3"
+	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/sqlc"
 )
@@ -22,13 +21,15 @@ type Store interface {
 
 type Service struct {
   store       Store
-  logger      hclog.Logger
+  logger      *laxo.Logger
+  server      *laxo.Server
 }
 
-func NewService(store Store, logger hclog.Logger, redisClient radix.Client) Service {
+func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
   return Service {
     store: store,
     logger: logger,
+    server: server,
   }
 }
 

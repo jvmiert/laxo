@@ -6,21 +6,61 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"gopkg.in/guregu/null.v4"
-	"laxo.vn/laxo/laxo/product"
+	"laxo.vn/laxo/laxo/shop"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
-type productStore struct {
+type shopStore struct {
   *Store
 }
 
-func newProductStore(store *Store) productStore{
-  return productStore{
+func newShopStore(store *Store) shopStore{
+  return shopStore{
     store,
   }
 }
 
-func (s *productStore) GetProductsByShopID(shopID string) ([]sqlc.GetProductsByShopIDRow, error) {
+func (s *shopStore) GetShopByID(shopID string) (*sqlc.Shop, error) {
+  sModel, err := s.queries.GetShopByID(context.Background(), shopID)
+  return &sModel, err
+}
+
+func (s *shopStore) GetLazadaPlatformByShopID(shopID string) (*sqlc.PlatformLazada, error) {
+  lazInfo, err := s.queries.GetLazadaPlatformByShopID(
+    context.Background(),
+    shopID,
+  )
+
+  return &lazInfo, err
+}
+
+func (s *shopStore) SaveNewShopToStore(shop *shop.Shop, u string) (*sqlc.Shop, error) {
+  savedShop, err := s.queries.CreateShop(
+    context.Background(),
+    sqlc.CreateShopParams{
+      ShopName: shop.Model.ShopName,
+      UserID: u,
+    },
+  )
+
+  return &savedShop, err
+}
+
+func (s *shopStore) RetrieveShopsPlatformsByUserID(userID string) ([]sqlc.GetShopsPlatformsByUserIDRow, error){
+  return s.queries.GetShopsPlatformsByUserID(
+    context.Background(),
+    userID,
+  )
+}
+
+func (s *shopStore) RetrieveShopsPlatformsByShopID(shopID string) ([]sqlc.ShopsPlatform, error){
+  return s.queries.GetPlatformsByShopID(
+    context.Background(),
+    shopID,
+  )
+}
+
+func (s *shopStore) GetProductsByShopID(shopID string) ([]sqlc.GetProductsByShopIDRow, error) {
   products, err := s.queries.GetProductsByShopID(
     context.Background(),
     shopID,
@@ -32,7 +72,7 @@ func (s *productStore) GetProductsByShopID(shopID string) ([]sqlc.GetProductsByS
   return products, nil
 }
 
-func (s *productStore) GetProductPlatformByProductID(productID string) (*sqlc.ProductsPlatform, error) {
+func (s *shopStore) GetProductPlatformByProductID(productID string) (*sqlc.ProductsPlatform, error) {
   pPlatform, err := s.queries.GetProductPlatformByProductID(
     context.Background(),
     productID,
@@ -45,7 +85,7 @@ func (s *productStore) GetProductPlatformByProductID(productID string) (*sqlc.Pr
 }
 
 
-func (s *productStore) GetProductPlatformByLazadaID(lazadaID string) (*sqlc.ProductsPlatform, error) {
+func (s *shopStore) GetProductPlatformByLazadaID(lazadaID string) (*sqlc.ProductsPlatform, error) {
   pPlatform, err := s.queries.GetProductPlatformByLazadaID(
     context.Background(),
     null.StringFrom(lazadaID),
@@ -57,7 +97,7 @@ func (s *productStore) GetProductPlatformByLazadaID(lazadaID string) (*sqlc.Prod
   return &pPlatform, nil
 }
 
-func (s *productStore) CreateProductPlatform(param *sqlc.CreateProductPlatformParams) (*sqlc.ProductsPlatform, error) {
+func (s *shopStore) CreateProductPlatform(param *sqlc.CreateProductPlatformParams) (*sqlc.ProductsPlatform, error) {
   pPlatform, err := s.queries.CreateProductPlatform(
     context.Background(),
     *param,
@@ -66,7 +106,7 @@ func (s *productStore) CreateProductPlatform(param *sqlc.CreateProductPlatformPa
   return &pPlatform, err
 }
 
-func (s *productStore) UpdateProductToStore(p *product.Product) (*sqlc.Product, error) {
+func (s *shopStore) UpdateProductToStore(p *shop.Product) (*sqlc.Product, error) {
   params := sqlc.UpdateProductParams{
     Name: p.Model.Name,
     Description: p.Model.Description,
@@ -86,7 +126,7 @@ func (s *productStore) UpdateProductToStore(p *product.Product) (*sqlc.Product, 
   return &newModel, err
 }
 
-func (s *productStore) SaveNewProductToStore(p *product.Product, shopID string) (*sqlc.Product, error) {
+func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc.Product, error) {
   var pModel sqlc.Product
   var err error
 
@@ -132,7 +172,6 @@ func (s *productStore) SaveNewProductToStore(p *product.Product, shopID string) 
       params,
     )
     if err != nil {
-      s.logger.Error("CreateProduct error", "params", params)
       return nil, err
     }
 

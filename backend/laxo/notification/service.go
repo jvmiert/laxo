@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/mediocregopher/radix/v4"
 	"gopkg.in/guregu/null.v4"
+	"laxo.vn/laxo/laxo"
 )
 
 var ErrNotificationNeedsWorkflowOrGroup = errors.New("notification needs either a workflowID or groupID")
@@ -58,15 +58,15 @@ type NotificationCreateParam struct {
 
 type Service struct {
   store       Store
-  logger      hclog.Logger
-  redisClient radix.Client
+  logger      *laxo.Logger
+  server      *laxo.Server
 }
 
-func NewService(store Store, logger hclog.Logger, redisClient radix.Client) Service {
+func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
   return Service {
     store: store,
     logger: logger,
-    redisClient: redisClient,
+    server: server,
   }
 }
 
@@ -77,7 +77,7 @@ func (s *Service) PublishNotification(n *Notification) (string, error) {
   }
 
   var StreamID radix.StreamEntryID
-  s.redisClient.Do(context.Background(), radix.Cmd(
+  s.server.RedisClient.Do(context.Background(), radix.Cmd(
     &StreamID,
     "XADD",
     NotificationPrefix + n.GroupModel.UserID,
@@ -86,7 +86,7 @@ func (s *Service) PublishNotification(n *Notification) (string, error) {
   ))
 
   // expire the key in 2 hours
-  s.redisClient.Do(context.Background(), radix.Cmd(
+  s.server.RedisClient.Do(context.Background(), radix.Cmd(
     nil,
     "EXPIRE",
     NotificationPrefix + n.GroupModel.UserID,
@@ -168,7 +168,9 @@ func (s *Service) GetNotificationsJSON(userID string, offset, limit int32) ([]by
   bytes, err := json.Marshal(notificationData)
 
   if err != nil {
-    s.logger.Error("Notification list marshal error", "error", err)
+    s.logger.Errorw("Notification list marshal error",
+      "error", err,
+    )
     return bytes, err
   }
 

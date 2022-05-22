@@ -11,29 +11,31 @@ import (
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/assets"
 	"laxo.vn/laxo/laxo/lazada"
-	"laxo.vn/laxo/laxo/product"
+	"laxo.vn/laxo/laxo/shop"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
 type testHandlerService struct {
   lazada *lazada.Service
-  product *product.Service
-  assets  *assets.Service
+  shop   *shop.Service
+  assets *assets.Service
 }
 
 type testHandler struct {
+  server *laxo.Server
   service *testHandlerService
 }
 
 
-func InitTestHandler(l *lazada.Service, p *product.Service, a *assets.Service, r *mux.Router, n *negroni.Negroni) {
+func InitTestHandler(server *laxo.Server, l *lazada.Service, p *shop.Service, a *assets.Service, r *mux.Router, n *negroni.Negroni) {
   s := &testHandlerService{
     lazada: l,
-    product: p,
+    shop: p,
     assets: a,
   }
 
   h := testHandler{
+    server: server,
 		service: s,
 	}
 
@@ -45,14 +47,18 @@ func InitTestHandler(l *lazada.Service, p *product.Service, a *assets.Service, r
 func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID string) {
   p, err := h.service.lazada.RetrieveProductFromRedis("product_lazada_test", 1)
   if err != nil {
-    laxo.Logger.Error("RetrieveProductFromRedis error", "error", err)
+    h.server.Logger.Errorw("RetrieveProductFromRedis error",
+      "error", err,
+    )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
   pModel, pModelAttributes, pModelSKU, err := h.service.lazada.SaveOrUpdateLazadaProduct(p, "01G1FZCVYH9J47DB2HZENSBC6E")
   if err != nil {
-    laxo.Logger.Error("SaveOrUpdateLazadaProduct error", "error", err)
+    h.server.Logger.Errorw("SaveOrUpdateLazadaProduct error",
+      "error", err,
+    )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
@@ -62,7 +68,7 @@ func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID str
 
   sanitzedDescription := h.service.lazada.GetSantizedDescription(pModelAttributes.Description.String)
 
-  product := &product.Product{
+  product := &shop.Product{
     Model: &sqlc.Product{
       ID: "",
       Name: pModelAttributes.Name,
@@ -74,23 +80,29 @@ func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID str
     },
   }
 
-  laxoP, err := h.service.product.SaveOrUpdateProductToStore(product, "01G1FZCVYH9J47DB2HZENSBC6E", pModel.ID)
+  laxoP, err := h.service.shop.SaveOrUpdateProductToStore(product, "01G1FZCVYH9J47DB2HZENSBC6E", pModel.ID)
   if err != nil {
-    laxo.Logger.Error("SaveOrUpdateProductToStore error", "error", err)
+    h.server.Logger.Errorw("SaveOrUpdateProductToStore error",
+      "error", err,
+    )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
   images, err := h.service.assets.ExtractImagesListFromProductResponse(p)
   if err != nil {
-    laxo.Logger.Error("ExtractImagesListFromProductResponse error", "error", err)
+    h.server.Logger.Errorw("ExtractImagesListFromProductResponse error",
+      "error", err,
+    )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
   err = h.service.assets.SaveProductImages(images, "01G1FZCVYH9J47DB2HZENSBC6E", laxoP.Model.ID)
   if err != nil {
-    laxo.Logger.Error("SaveProductImages error", "error", err)
+    h.server.Logger.Errorw("SaveProductImages error",
+      "error", err,
+    )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }

@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"go.temporal.io/sdk/client"
 	"laxo.vn/laxo/laxo"
-	"laxo.vn/laxo/processing"
+	"laxo.vn/laxo/temporal/lazada"
 )
 
 type Client struct {
@@ -32,11 +32,11 @@ func NewClient() (*Client, error) {
 
 func (c *Client) StartLazadaPlatformSync(shopID string, userID string) (string, error) {
   workflowOptions := client.StartWorkflowOptions{
-    ID:        "product_" + laxo.GetUILD(), //@FIX: This should be moved to a service
+    ID:        "product_" + laxo.GetUILD(),
     TaskQueue: "product",
   }
 
-	we, err := c.Temporal.ExecuteWorkflow(context.Background(), workflowOptions, processing.ProcessLazadaProducts, shopID, userID)
+	we, err := c.Temporal.ExecuteWorkflow(context.Background(), workflowOptions, lazada.SyncLazadaPlatform, shopID, userID)
 	if err != nil {
     c.logger.Error("Unable to execute workflow", "error", err)
     return "", err

@@ -1,21 +1,17 @@
 package laxo
 
 import (
-  "context"
-  "time"
+	"context"
+	"time"
 
-  //"github.com/sirupsen/logrus"
-  //"github.com/jackc/pgx/v4/log/logrusadapter"
-  "github.com/jackc/pgx/v4/pgxpool"
-  //"github.com/jackc/pgx/v4"
-  "laxo.vn/laxo/laxo/sqlc"
+	"github.com/jackc/pgx/v4/pgxpool"
+	"laxo.vn/laxo/laxo/sqlc"
 )
 
-var PglClient *pgxpool.Pool
-var Queries *sqlc.Queries
-
-func InitDatabase(uri string) error {
-  Logger.Debug("Connecting to Postgres", "uri", uri)
+func (s *Server) InitDatabase(uri string) error {
+  s.Logger.Infow("Connecting to Postgres",
+    "uri", uri,
+  )
 
   config, err := pgxpool.ParseConfig(uri)
   if err != nil {
@@ -34,10 +30,8 @@ func InitDatabase(uri string) error {
     return err
   }
 
-  PglClient = dbpool
-
-  queries := sqlc.New(PglClient)
-  Queries = queries
+  s.PglClient = dbpool
+  s.Queries = sqlc.New(s.PglClient)
 
   return nil
 }
