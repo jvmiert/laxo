@@ -22,6 +22,7 @@ import (
 	laxo_proto_gen "laxo.vn/laxo/laxo/proto/gen"
 	"laxo.vn/laxo/laxo/shop"
 	"laxo.vn/laxo/laxo/store"
+	"laxo.vn/laxo/laxo/user"
 	temporal_client "laxo.vn/laxo/temporal/client"
 )
 
@@ -88,6 +89,9 @@ func main() {
 
   shopService := shop.NewService(store, logger, server)
   rest.InitProductHandler(server, &shopService, server.Router, server.Negroni)
+
+  userService := user.NewService(store, logger, server)
+  rest.InitUserHandler(server, &userService, server.Router, server.Negroni)
 
   assetsService := assets.NewService(store, logger, server)
 
