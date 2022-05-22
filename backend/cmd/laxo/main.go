@@ -50,6 +50,8 @@ func main() {
     )
   }
 
+  server.InitMiddleware()
+
   redisURI := os.Getenv("REDIS_URL")
 
   if err = server.InitRedis(redisURI); err != nil {
@@ -100,7 +102,6 @@ func main() {
   lazadaService := lazada.NewService(store, logger, server, lazadaID, lazadaSecret)
   rest.InitTestHandler(server, &lazadaService, &shopService, &assetsService, server.Router, server.Negroni)
 
-  server.InitMiddleware(&userService)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)

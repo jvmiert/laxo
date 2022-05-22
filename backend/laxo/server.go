@@ -50,8 +50,8 @@ func NewServer(l *Logger, c *Config) (*Server, error) {
   return s, nil
 }
 
-func (s *Server) InitMiddleware(service CookieService) {
-  m := NewMiddleware(s, service)
+func (s *Server) InitMiddleware() {
+  m := NewMiddleware(s)
   s.Middleware = &m
 }
 

@@ -11,22 +11,15 @@ import (
 	"github.com/mediocregopher/radix/v4"
 )
 
-type CookieService interface {
-  SetUserCookie(string, http.ResponseWriter, time.Time)
-  RemoveUserCookie(w http.ResponseWriter)
-}
-
 type AuthHandlerFunc func(w http.ResponseWriter, r *http.Request, u string)
 
 type Middleware struct {
   server         *Server
-  cookieService  CookieService
 }
 
-func NewMiddleware(server *Server, service CookieService) Middleware {
+func NewMiddleware(server *Server) Middleware {
   return Middleware {
     server: server,
-    cookieService: service,
   }
 }
 
@@ -86,7 +79,15 @@ func (m *Middleware) AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
     }
 
     if uID == "" {
-      m.cookieService.RemoveUserCookie(w)
+      authCookie := &http.Cookie{
+        Name:     m.server.Config.AuthCookieName,
+        Value:    "",
+        HttpOnly: true,
+        Secure:   true,
+        Expires:  time.Unix(0, 0),
+      }
+
+      http.SetCookie(w, authCookie)
       http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
       return
     }
@@ -124,7 +125,16 @@ func (m *Middleware) AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
         return
       }
 
-      m.cookieService.SetUserCookie(c.Value, w, newExpireTime)
+      authCookie := &http.Cookie{
+        Name:     m.server.Config.AuthCookieName,
+        Path:     "/",
+        Value:    c.Value,
+        HttpOnly: true,
+        Secure:   true,
+        Expires:  newExpireTime,
+      }
+
+      http.SetCookie(w, authCookie)
     }
 
     handler(w, r, uID)
