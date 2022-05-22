@@ -25,6 +25,7 @@ type Server struct {
   RedisClient  radix.Client
   PglClient    *pgxpool.Pool
   Queries      *sqlc.Queries
+  Middleware   *Middleware
 }
 
 func NewServer(l *Logger, c *Config) (*Server, error) {
@@ -47,6 +48,11 @@ func NewServer(l *Logger, c *Config) (*Server, error) {
   }
 
   return s, nil
+}
+
+func (s *Server) InitMiddleware(service CookieService) {
+  m := NewMiddleware(s, service)
+  s.Middleware = &m
 }
 
 func InitConfig() (*Config, error) {

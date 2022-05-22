@@ -40,7 +40,7 @@ func InitTestHandler(server *laxo.Server, l *lazada.Service, p *shop.Service, a 
 	}
 
 	r.Handle("/test/lazada", n.With(
-		negroni.WrapFunc(laxo.AssureAuth(h.TestLazada)),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.TestLazada)),
 	)).Methods("GET")
 }
 

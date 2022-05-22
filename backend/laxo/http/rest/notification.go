@@ -10,23 +10,27 @@ import (
 )
 
 type notificationHandler struct {
+  server *laxo.Server
   service *notification.Service
 }
 
-func InitNotificationHandler(s *notification.Service, r *mux.Router, n *negroni.Negroni) {
+func InitNotificationHandler(server *laxo.Server, s *notification.Service, r *mux.Router, n *negroni.Negroni) {
   h := notificationHandler{
+    server: server,
 		service: s,
 	}
 
 	r.Handle("/notifications", n.With(
-		negroni.WrapFunc(laxo.AssureAuth(h.GetNotifications)),
+		negroni.WrapFunc(server.Middleware.AssureAuth(h.GetNotifications)),
 	)).Methods("GET")
 }
 
 func (h *notificationHandler) GetNotifications(w http.ResponseWriter, r *http.Request, uID string) {
   js, err := h.service.GetNotificationsJSON(uID, 0, 50)
   if err != nil {
-    laxo.Logger.Error("GetNotifications handler error", "error", err)
+    h.server.Logger.Errorw("GetNotifications handler error",
+      "error", err,
+    )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }

@@ -23,20 +23,20 @@ func InitProductHandler(server *laxo.Server, s *shop.Service, r *mux.Router, n *
 	}
 
 	r.Handle("/product", n.With(
-		negroni.WrapFunc(laxo.AssureAuth(h.GetProduct)),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.GetProduct)),
 	)).Methods("GET")
 
 	r.Handle("/shop", n.With(
-		negroni.WrapFunc(laxo.AssureAuth(h.HandleGetMyShops)),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleGetMyShops)),
 	)).Methods("GET")
 
 	r.Handle("/oauth/verify", n.With(
-		negroni.HandlerFunc(laxo.AssureJSON),
-		negroni.WrapFunc(laxo.AssureAuth(h.HandleVerifyOAuth)),
+		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleVerifyOAuth)),
 	)).Methods("POST")
 
 	r.Handle("/oauth/redirects", n.With(
-		negroni.WrapFunc(laxo.AssureAuth(h.HandleOAuthRedirects)),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleOAuthRedirects)),
 	)).Methods("GET")
 }
 

@@ -11,15 +11,34 @@ import (
 	"github.com/mediocregopher/radix/v4"
 )
 
+type CookieService interface {
+  SetUserCookie(string, http.ResponseWriter, time.Time)
+  RemoveUserCookie(w http.ResponseWriter)
+}
+
 type AuthHandlerFunc func(w http.ResponseWriter, r *http.Request, u string)
 
-func AssureJSON(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+type Middleware struct {
+  server         *Server
+  cookieService  CookieService
+}
+
+func NewMiddleware(server *Server, service CookieService) Middleware {
+  return Middleware {
+    server: server,
+    cookieService: service,
+  }
+}
+
+func (m *Middleware) AssureJSON(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
   contentType := r.Header.Get("Content-type")
 
 	for _, v := range strings.Split(contentType, ",") {
 		t, _, err := mime.ParseMediaType(v)
 		if err != nil {
-      Logger.Error("MIME parse error", "error", err)
+      m.server.Logger.Errorw("MIME parse error",
+        "error", err,
+      )
       http.Error(w, http.StatusText(http.StatusUnsupportedMediaType), http.StatusUnsupportedMediaType)
       return
 		}
@@ -37,16 +56,18 @@ func AssureJSON(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 // it will call the auth typed route function with the extra userID parameter. If the
 // token does not exist in Redis or the token is not present in the cookie it will
 // return a 403 forbidden code.
-func AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
+func (m *Middleware) AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
   return func(w http.ResponseWriter, r *http.Request) {
-    c, err := r.Cookie(AppConfig.AuthCookieName)
+    c, err := r.Cookie(m.server.Config.AuthCookieName)
 
     if err == http.ErrNoCookie {
       http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
       return
     } else if err != nil {
       http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-      Logger.Error("Error in auth handler function (cookie parsing)", "error", err)
+      m.server.Logger.Errorw("Error in auth handler function (cookie parsing)",
+        "error", err,
+      )
       return
     }
 
@@ -54,16 +75,18 @@ func AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
     var uID string
 
     ctx := context.Background()
-    err = RedisClient.Do(ctx, radix.Cmd(&uID, "GET", c.Value))
+    err = m.server.RedisClient.Do(ctx, radix.Cmd(&uID, "GET", c.Value))
 
     if err != nil {
       http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-      Logger.Error("Error in auth handler function (Redis)", "error", err)
+      m.server.Logger.Errorw("Error in auth handler function (Redis)",
+        "error", err,
+      )
       return
     }
 
     if uID == "" {
-      RemoveUserCookie(w)
+      m.cookieService.RemoveUserCookie(w)
       http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
       return
     }
@@ -71,15 +94,17 @@ func AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
     // Extend expire if older than a day
     var eTTL int
     ctx = context.Background()
-    err = RedisClient.Do(ctx, radix.Cmd(&eTTL, "TTL", c.Value))
+    err = m.server.RedisClient.Do(ctx, radix.Cmd(&eTTL, "TTL", c.Value))
 
     if err != nil {
       http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-      Logger.Error("Error in auth handler function (Redis)", "error", err)
+      m.server.Logger.Errorw("Error in auth handler function (Redis)",
+        "error", err,
+      )
       return
     }
 
-    newExpireTime := time.Now().AddDate(0, 0, AppConfig.AuthCookieExpire)
+    newExpireTime := time.Now().AddDate(0, 0, m.server.Config.AuthCookieExpire)
     newExpireDuration := time.Until(newExpireTime)
 
     oldExpireDuration := time.Duration(eTTL) * time.Second
@@ -91,13 +116,15 @@ func AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
       nExpireString := fmt.Sprintf("%.0f", newExpireDuration.Seconds())
 
       ctx = context.Background()
-      if err := RedisClient.Do(ctx, radix.Cmd(nil, "EXPIRE", c.Value, nExpireString)); err != nil {
+      if err := m.server.RedisClient.Do(ctx, radix.Cmd(nil, "EXPIRE", c.Value, nExpireString)); err != nil {
         http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-        Logger.Error("Couldn't set user session in Redis", "error", err)
+        m.server.Logger.Errorw("Couldn't set user session in Redis",
+          "error", err,
+        )
         return
       }
 
-      SetUserCookie(c.Value, w, newExpireTime)
+      m.cookieService.SetUserCookie(c.Value, w, newExpireTime)
     }
 
     handler(w, r, uID)

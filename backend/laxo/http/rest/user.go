@@ -23,7 +23,7 @@ func InitUserHandler(server *laxo.Server, u *user.Service, r *mux.Router, n *neg
 	}
 
 	r.Handle("/user", n.With(
-		negroni.WrapFunc(laxo.AssureAuth(h.HandleGetUser)),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleGetUser)),
 	)).Methods("GET")
 
 	r.Handle("/logout", n.With(
@@ -31,12 +31,12 @@ func InitUserHandler(server *laxo.Server, u *user.Service, r *mux.Router, n *neg
 	)).Methods("POST")
 
 	r.Handle("/login", n.With(
-		negroni.HandlerFunc(laxo.AssureJSON),
+		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
 		negroni.WrapFunc(h.HandleLogin),
 	)).Methods("POST")
 
 	r.Handle("/user", n.With(
-		negroni.HandlerFunc(laxo.AssureJSON),
+		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
 		negroni.WrapFunc(h.HandleCreateUser),
 	)).Methods("POST")
 }
