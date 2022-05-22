@@ -34,7 +34,7 @@ func NewServer(l *Logger, c *Config) (*Server, error) {
   // Common middlewares
   var commonMiddlewares []negroni.Handler
 
-  commonMiddlewares = append(commonMiddlewares, negroni.NewLogger())
+  commonMiddlewares = append(commonMiddlewares, NewNegroniZapLogger(l))
 
   n := negroni.New(
     commonMiddlewares...

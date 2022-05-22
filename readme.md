@@ -34,7 +34,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Make a password strength indicator
   - https://www.openwall.com/passwdqc/
   - https://github.com/odin-public/passwdqc-js
-- Make all logging follow the same format
 - Figure out how to handle multiple shops / transition between shops
 - Properly type the axios posts/errors/returns in my post hooks (e.g. the useOAuthApi)
 - Interesting layout example for nextjs:
