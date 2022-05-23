@@ -110,20 +110,22 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
   }(s.ctx)
 
   for {
+    ctx, cancel := context.WithTimeout(s.ctx, 1*time.Second)
+    defer cancel()
+
     select {
       case msg := <-keepAliveErrs:
-        //s.logger.Error("Keepalive error", "error", msg)
+        //s.logger.Errorw("Keepalive error",
+        //  "error", msg,
+        //)
         return msg
       case <-s.ctx.Done():
         return nil
       default:
     }
 
-    ctx, cancel := context.WithTimeout(s.ctx, 1*time.Second)
-    defer cancel()
     _, entry, err := r.Next(ctx)
     cancel()
-
     if err != nil {
       if err != radix.ErrNoStreamEntries {
         s.logger.Errorw("Redis stream Next() returned error",
