@@ -241,10 +241,34 @@ func (s *Service) ValidateOAuthVerifyRequest(o OAuthVerifyRequest, uID string, p
             printer.Sprintf("something went wrong")),
         }
       }
-      err = s.store.UpdateLazadaPlatform(lazInfo.ID, authResp)
 
+      err = s.store.UpdateLazadaPlatform(lazInfo.ID, authResp)
       if err != nil {
-        s.server.Logger.Errorw("Platform update error",
+        s.server.Logger.Errorw("UpdateLazadaPlatform update error",
+          "error", err,
+        )
+        return validation.Errors{
+          "code": validation.NewError(
+            "general_failure",
+            printer.Sprintf("something went wrong")),
+        }
+      }
+
+      _, err = s.store.RetrieveSpecificPlatformByShopID(shop.Model.ID, "lazada")
+      if err == pgx.ErrNoRows {
+        _, err = s.store.CreateShopsPlatforms(shop.Model.ID, "lazada")
+        if err != nil {
+          s.server.Logger.Errorw("Platform creation error",
+            "error", err,
+            )
+          return validation.Errors{
+            "code": validation.NewError(
+              "general_failure",
+              printer.Sprintf("something went wrong")),
+          }
+        }
+      } else if err != nil {
+        s.server.Logger.Errorw("RetrieveSpecificPlatformByShopID retrieval error",
           "error", err,
         )
         return validation.Errors{
@@ -255,7 +279,6 @@ func (s *Service) ValidateOAuthVerifyRequest(o OAuthVerifyRequest, uID string, p
       }
     }
   }
-
 
   return nil
 }

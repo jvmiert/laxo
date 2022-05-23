@@ -4,7 +4,7 @@ import { FormattedMessage, MessageDescriptor } from "react-intl";
 import { useRouter } from "next/router";
 import { fromUnixTime, formatDistance } from "date-fns";
 import { enUS, vi } from "date-fns/locale";
-import { useGetShop, useGetShopPlatforms } from "@/hooks/swrHooks";
+import { useGetShop, useGetShopPlatformsRedirect } from "@/hooks/swrHooks";
 import { DotsVerticalIcon } from "@heroicons/react/outline";
 import LazadaIcon from "@/components/icons/LazadaIcon";
 import ShopeeIcon from "@/components/icons/ShopeeIcon";
@@ -71,7 +71,7 @@ export default function PlatformConnect() {
 
   const shopID = shops.shops.length > 0 ? shops.shops[0].id : "";
 
-  const { platforms } = useGetShopPlatforms(shopID);
+  const { platforms } = useGetShopPlatformsRedirect(shopID);
 
   if (shops.total < 1) return <ShopNotMadeNotification />;
 

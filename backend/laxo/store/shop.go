@@ -46,17 +46,37 @@ func (s *shopStore) SaveNewShopToStore(shop *shop.Shop, u string) (*sqlc.Shop, e
   return &savedShop, err
 }
 
-func (s *shopStore) RetrieveShopsPlatformsByUserID(userID string) ([]sqlc.GetShopsPlatformsByUserIDRow, error){
+func (s *shopStore) RetrieveShopsPlatformsByUserID(userID string) ([]sqlc.GetShopsPlatformsByUserIDRow, error) {
   return s.queries.GetShopsPlatformsByUserID(
     context.Background(),
     userID,
   )
 }
 
-func (s *shopStore) RetrieveShopsPlatformsByShopID(shopID string) ([]sqlc.ShopsPlatform, error){
+func (s *shopStore) RetrieveShopsPlatformsByShopID(shopID string) ([]sqlc.ShopsPlatform, error) {
   return s.queries.GetPlatformsByShopID(
     context.Background(),
     shopID,
+  )
+}
+
+func (s *shopStore) RetrieveSpecificPlatformByShopID(shopID string, platformName string) (sqlc.ShopsPlatform, error) {
+  return s.queries.GetSpecificPlatformByShopID(
+    context.Background(),
+    sqlc.GetSpecificPlatformByShopIDParams{
+      ShopID: shopID,
+      PlatformName: platformName,
+    },
+  )
+}
+
+func (s *shopStore) CreateShopsPlatforms(shopID string, platformName string) (sqlc.ShopsPlatform, error) {
+  return s.queries.CreatePlatform(
+    context.Background(),
+    sqlc.CreatePlatformParams{
+      ShopID: shopID,
+      PlatformName: platformName,
+    },
   )
 }
 

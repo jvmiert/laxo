@@ -9,6 +9,32 @@ import (
 	"context"
 )
 
+const createPlatform = `-- name: CreatePlatform :one
+INSERT INTO shops_platforms (
+  shop_id, platform_name
+) VALUES (
+  $1, $2
+)
+RETURNING id, shop_id, platform_name, created
+`
+
+type CreatePlatformParams struct {
+	ShopID       string `json:"shopID"`
+	PlatformName string `json:"platformName"`
+}
+
+func (q *Queries) CreatePlatform(ctx context.Context, arg CreatePlatformParams) (ShopsPlatform, error) {
+	row := q.db.QueryRow(ctx, createPlatform, arg.ShopID, arg.PlatformName)
+	var i ShopsPlatform
+	err := row.Scan(
+		&i.ID,
+		&i.ShopID,
+		&i.PlatformName,
+		&i.Created,
+	)
+	return i, err
+}
+
 const getPlatformsByShopID = `-- name: GetPlatformsByShopID :many
 SELECT id, shop_id, platform_name, created FROM shops_platforms
 WHERE shop_id = $1
@@ -38,4 +64,27 @@ func (q *Queries) GetPlatformsByShopID(ctx context.Context, shopID string) ([]Sh
 		return nil, err
 	}
 	return items, nil
+}
+
+const getSpecificPlatformByShopID = `-- name: GetSpecificPlatformByShopID :one
+SELECT id, shop_id, platform_name, created FROM shops_platforms
+WHERE shop_id = $1 AND platform_name = $2
+LIMIT 1
+`
+
+type GetSpecificPlatformByShopIDParams struct {
+	ShopID       string `json:"shopID"`
+	PlatformName string `json:"platformName"`
+}
+
+func (q *Queries) GetSpecificPlatformByShopID(ctx context.Context, arg GetSpecificPlatformByShopIDParams) (ShopsPlatform, error) {
+	row := q.db.QueryRow(ctx, getSpecificPlatformByShopID, arg.ShopID, arg.PlatformName)
+	var i ShopsPlatform
+	err := row.Scan(
+		&i.ID,
+		&i.ShopID,
+		&i.PlatformName,
+		&i.Created,
+	)
+	return i, err
 }

@@ -1,9 +1,10 @@
 import React from "react";
 
-function LazadaIcon() {
+function LazadaIcon({ className }: { className?: string }) {
+  const clsName = className ? className : "mr-2 inline h-6 w-6";
   return (
     <svg
-      className={"mr-2 inline h-6 w-6"}
+      className={clsName}
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 133.5 107.51"

@@ -4,43 +4,52 @@ import { useRouter } from "next/router";
 
 type DashboardNavItemProps = {
   href: string;
-  name: string;
+  name: JSX.Element;
   depth?: number;
+  icon?: JSX.Element;
 };
 
 export default function DashboardNavItem({
   href,
   name,
   depth = 0,
+  icon,
 }: DashboardNavItemProps) {
   const { pathname } = useRouter();
 
   const active = pathname === href;
 
   return (
-    <div
-      className={cc([
-        "mb-1",
-        { "ml-0.5": !active },
-        { "border-l-2 border-indigo-700": active },
-        { "pl-2": depth === 0 },
-        { "pl-6": depth > 0 },
-        { "hover:ml-0 hover:border-l-2 hover:border-gray-50": !active },
-      ])}
-    >
-      <Link href={href}>
-        <a
+    <Link href={href}>
+      <a href={href}>
+        <div
           className={cc([
-            "block rounded",
-            { "bg-indigo-50": active },
-            "py-2 px-3 font-medium",
-            { "text-indigo-700": active },
-            { "hover:bg-gray-50": !active },
+            "cursor-pointer rounded border-l-2 py-2 px-3",
+            {
+              "border-indigo-700 bg-indigo-50 text-indigo-700": active,
+            },
+            {
+              "border-transparent hover:border-gray-50 hover:bg-gray-50":
+                !active,
+            },
           ])}
         >
-          {name}
-        </a>
-      </Link>
-    </div>
+          <div className="flex items-center">
+            <div className="pr-3">
+              <div className="h-4 w-4">{icon && icon}</div>
+            </div>
+            <div
+              className={cc([
+                "font-medium",
+                { "pl-2": depth === 0 },
+                { "pl-5": depth > 0 },
+              ])}
+            >
+              {name}
+            </div>
+          </div>
+        </div>
+      </a>
+    </Link>
   );
 }

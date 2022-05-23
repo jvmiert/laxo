@@ -33,6 +33,8 @@ type Store interface {
   UpdateLazadaPlatform(string, *lazada.AuthResponse) error
   GetShopByID(string) (*sqlc.Shop, error)
   RetrieveShopsPlatformsByShopID(string) ([]sqlc.ShopsPlatform, error)
+  CreateShopsPlatforms(string, string) (sqlc.ShopsPlatform, error)
+  RetrieveSpecificPlatformByShopID(string, string) (sqlc.ShopsPlatform, error)
 }
 
 type Service struct {

@@ -5,15 +5,16 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Remove legacy structure
-  - Fix the middleware -> move to a struct and init in cmd
-  - Move user routes to user service/user rest handler
-- Create product page
-  - Figure out visual look
 - Make the dashboard page
-  - Store that platform is connected in database - do we really need this?
+  - Create the platform connected pages
+    - Retrieve data from backend for platform specific information and general platform info
+    - Include a button to refresh the platform products
+    - Add notification showing refresh token status
+      - Allow user to re-auth in order to refresh the tokens
   - Handle error messages in callback page
   - Handle successful redirect in callback page
+- Create product page
+  - Figure out visual look
 - Create products dashboard page
   - Retrieve product and their attributes
 - Write test for get shop

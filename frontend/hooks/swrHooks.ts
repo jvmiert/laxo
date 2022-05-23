@@ -86,7 +86,7 @@ export function useGetNotifications(): {
   };
 }
 
-export function useGetShopPlatforms(shopID: string): {
+export function useGetShopPlatformsRedirect(shopID: string): {
   platforms: GetPlatformsResponse;
   error: AxiosError | undefined;
   loading: boolean;

@@ -7,7 +7,7 @@ import DashboardNotificationArea from "@/components/DashboardNotificationArea";
 
 type DefaultLayoutProps = {
   children: ReactNode;
-  title: string;
+  title: string | ReactNode;
 };
 
 export default function DashboardLayout({
@@ -23,7 +23,7 @@ export default function DashboardLayout({
       <Navigation />
       <div className="container mx-auto px-4 pt-4">
         <div className="flex w-full flex-row flex-nowrap">
-          <div className="flex shrink-0 grow-0 basis-auto">
+          <div className="flex min-h-[55vh] shrink-0 grow-0 basis-auto">
             <DashboardNavigation />
           </div>
           <div className="ml-6 flex grow flex-col">
