@@ -9,6 +9,8 @@ import type {
   GetNotificationResponse,
   NotificationResponseObject,
   GetLazadaPlatformResponse,
+  LaxoProductResponse,
+  LaxoProduct,
 } from "@/types/ApiResponse";
 
 export function useGetAuth() {
@@ -105,9 +107,7 @@ export function useGetShopPlatformsRedirect(shopID: string): {
   );
 
   return {
-    platforms: data
-      ? data.data
-      : { shopID: "", platforms: [], connectedPlatforms: [] },
+    platforms: data ? data.data : <GetPlatformsResponse>{},
     error,
     loading: isValidating,
   };
@@ -143,6 +143,42 @@ export function useGetLazadaPlatform(): {
 
   return {
     platform: data ? data.data : undefined,
+    error,
+    loading: isValidating,
+  };
+}
+
+function transformLaxoProducts(r: any): LaxoProductResponse {
+  const resp = JSON.parse(r);
+  resp.products.forEach((p: LaxoProduct) => {
+    p.product.created = new Date(p.product.created);
+    p.product.updated = new Date(p.product.updated);
+  });
+  return resp;
+}
+
+export function useGetLaxoProducts(): {
+  products: LaxoProductResponse;
+  error: AxiosError | undefined;
+  loading: boolean;
+} {
+  const { axiosClient } = useAxios();
+  const { data, error, isValidating } = useSWR<
+    AxiosResponse<LaxoProductResponse>,
+    AxiosError<unknown>
+  >(
+    "/product",
+    (url) =>
+      axiosClient.get<LaxoProductResponse>(url, {
+        transformResponse: transformLaxoProducts,
+      }),
+    {
+      shouldRetryOnError: true,
+    },
+  );
+
+  return {
+    products: data ? data.data : <LaxoProductResponse>{},
     error,
     loading: isValidating,
   };

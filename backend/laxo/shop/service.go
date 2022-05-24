@@ -245,6 +245,7 @@ func (s *Service) GetProductsByUserID(userID string) ([]Product, error) {
       ID: strconv.FormatInt(pModel.LazadaID, 10),
       ProductURL: pModel.LazadaUrl,
       Name: pModel.LazadaName,
+      PlatformName: "lazada",
     }
 
     platformList = append(platformList, lazadaPlatform)

@@ -30,9 +30,9 @@ function PlatformLazadaSettings(props: PlatformLazadaSettingsProps) {
 
   const { platforms } = useGetShopPlatformsRedirect(shopID);
 
-  const lazadaLink = platforms.platforms.find(
-    (p) => p.platform == "lazada",
-  )?.url;
+  const lazadaLink =
+    platforms.platforms?.length > 0 &&
+    platforms.platforms.find((p) => p.platform == "lazada")?.url;
 
   const { platform: platformData } = useGetLazadaPlatform();
 

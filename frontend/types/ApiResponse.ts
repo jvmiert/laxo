@@ -82,3 +82,40 @@ export type GetLazadaPlatformResponse = {
   accessExpiresIn: Date;
   created: Date;
 };
+
+export type LaxoProductPlatforms = {
+  id: string;
+  platformName: string;
+  name: string;
+  productURL: string;
+};
+
+export type LaxoProduct = {
+  product: {
+    id: string;
+    name: string;
+    description: string;
+    msku: string;
+    shopID: string;
+    mediaID?: string;
+    created: Date;
+    updated: Date;
+    sellingPrice: {
+      Int: number;
+      Exp: number;
+      Status: number;
+    };
+    costPrice: {
+      Int: number;
+      Exp: number;
+      Status: number;
+    };
+  };
+  mediaList: Array<string>;
+  platforms: Array<LaxoProductPlatforms>;
+};
+
+export type LaxoProductResponse = {
+  products: Array<LaxoProduct>;
+  total: number;
+};

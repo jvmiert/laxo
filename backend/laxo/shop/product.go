@@ -9,6 +9,7 @@ import (
 
 type ProductPlatformInformation struct {
   ID           string          `json:"id"`
+  PlatformName string          `json:"platformName"`
   Name         null.String     `json:"name"`
   ProductURL   null.String     `json:"productURL"`
 }
