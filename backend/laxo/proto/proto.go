@@ -25,7 +25,7 @@ type ProtoServer struct {
 func NewServer(service *notification.Service, logger *laxo.Logger, redisURI string, ctx context.Context, server *laxo.Server) (*ProtoServer, error) {
   client, err := (radix.PoolConfig{
     Size: 50,
-  }).New(context.Background(), "tcp", redisURI)
+  }).New(ctx, "tcp", redisURI)
   if err != nil {
     return nil, err
   }
@@ -90,35 +90,35 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
 
   r := streamReaderConfig.New(s.redisClient, streamConfig)
 
-  keepAliveErrs := make(chan error, 1)
-  go func(ctx context.Context) {
-    d := time.NewTicker(30 * time.Second)
+  timeoutCtx, cancelTimeout := context.WithCancel(s.ctx)
+  defer cancelTimeout()
 
-    select {
-      case <-d.C:
-        err := stream.Send(&gen.NotificationUpdateReply{
-          KeepAlive: true,
-        })
-        if err != nil {
-          keepAliveErrs <- err
-          close(keepAliveErrs)
+  go func(ctx context.Context) {
+    defer cancelTimeout()
+    d := time.NewTicker(5 * time.Second)
+
+    for {
+      select {
+        case <-d.C:
+          err := stream.Send(&gen.NotificationUpdateReply{
+            KeepAlive: true,
+          })
+          if err != nil {
+            return
+          }
+        case <-ctx.Done():
           return
-        }
-      case <-ctx.Done():
-        return
+      }
     }
-  }(s.ctx)
+  }(timeoutCtx)
 
   for {
-    ctx, cancel := context.WithTimeout(s.ctx, 1*time.Second)
+    ctx, cancel := context.WithCancel(timeoutCtx)
     defer cancel()
 
     select {
-      case msg := <-keepAliveErrs:
-        //s.logger.Errorw("Keepalive error",
-        //  "error", msg,
-        //)
-        return msg
+      case <-timeoutCtx.Done():
+        return nil
       case <-s.ctx.Done():
         return nil
       default:
