@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useIntl } from "react-intl";
+import { useIntl, defineMessage } from "react-intl";
 import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
 import ShopNotMadeNotification from "@/components/ShopNotMadeNotification";
@@ -47,7 +47,16 @@ function DashboardPage(props: DashboardPageProps) {
 }
 
 DashboardPage.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout title={"Home"}>{page}</DashboardLayout>;
+  return (
+    <DashboardLayout
+      title={defineMessage({
+        description: "Dashboard home title",
+        defaultMessage: "Home",
+      })}
+    >
+      {page}
+    </DashboardLayout>
+  );
 };
 
 export default withAuthPage(DashboardPage);

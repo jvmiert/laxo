@@ -8,6 +8,7 @@ import type {
   GetPlatformsResponse,
   GetNotificationResponse,
   NotificationResponseObject,
+  GetLazadaPlatformResponse,
 } from "@/types/ApiResponse";
 
 export function useGetAuth() {
@@ -104,7 +105,44 @@ export function useGetShopPlatformsRedirect(shopID: string): {
   );
 
   return {
-    platforms: data ? data.data : { shopID: "", platforms: [] },
+    platforms: data
+      ? data.data
+      : { shopID: "", platforms: [], connectedPlatforms: [] },
+    error,
+    loading: isValidating,
+  };
+}
+
+function transformLazadaPlatform(r: any): GetLazadaPlatformResponse {
+  const resp = JSON.parse(r);
+  resp.refreshExpiresIn = new Date(resp.refreshExpiresIn);
+  resp.accessExpiresIn = new Date(resp.accessExpiresIn);
+  resp.created = new Date(resp.created);
+  return resp;
+}
+
+export function useGetLazadaPlatform(): {
+  platform: GetLazadaPlatformResponse | undefined;
+  error: AxiosError | undefined;
+  loading: boolean;
+} {
+  const { axiosClient } = useAxios();
+  const { data, error, isValidating } = useSWR<
+    AxiosResponse<GetLazadaPlatformResponse>,
+    AxiosError<unknown>
+  >(
+    "/platforms/lazada",
+    (url) =>
+      axiosClient.get<GetLazadaPlatformResponse>(url, {
+        transformResponse: transformLazadaPlatform,
+      }),
+    {
+      shouldRetryOnError: true,
+    },
+  );
+
+  return {
+    platform: data ? data.data : undefined,
     error,
     loading: isValidating,
   };

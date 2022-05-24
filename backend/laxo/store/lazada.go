@@ -22,6 +22,15 @@ func newLazadaStore(store *Store) lazadaStore {
   }
 }
 
+func (s *lazadaStore) GetLazadaPlatformByShopID(shopID string) (*sqlc.PlatformLazada, error) {
+  lazInfo, err := s.queries.GetLazadaPlatformByShopID(
+    context.Background(),
+    shopID,
+  )
+
+  return &lazInfo, err
+}
+
 func (s *lazadaStore) UpdateLazadaPlatform(pID string, authResp *lazada.AuthResponse) error {
   return s.queries.UpdateLazadaPlatform(
     context.Background(),

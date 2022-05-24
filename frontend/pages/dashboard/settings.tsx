@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useIntl } from "react-intl";
+import { useIntl, defineMessage } from "react-intl";
 import DashboardLayout from "@/components/DashboardLayout";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
@@ -45,7 +45,16 @@ function DashboardSettings(props: DashboardSettingsProps) {
 }
 
 DashboardSettings.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout title="Settings">{page}</DashboardLayout>;
+  return (
+    <DashboardLayout
+      title={defineMessage({
+        description: "Dashboard settings title",
+        defaultMessage: "Settings",
+      })}
+    >
+      {page}
+    </DashboardLayout>
+  );
 };
 
 export default withAuthPage(DashboardSettings);

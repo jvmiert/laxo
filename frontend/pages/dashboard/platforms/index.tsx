@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useIntl } from "react-intl";
+import { useIntl, defineMessage } from "react-intl";
 import DashboardLayout from "@/components/DashboardLayout";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
@@ -34,7 +34,16 @@ function PlatformSettings(props: PlatformSettingsProps) {
 }
 
 PlatformSettings.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout title="Platforms">{page}</DashboardLayout>;
+  return (
+    <DashboardLayout
+      title={defineMessage({
+        description: "Dashboard add platform title",
+        defaultMessage: "Add Platform",
+      })}
+    >
+      {page}
+    </DashboardLayout>
+  );
 };
 
 export default withAuthPage(PlatformSettings);

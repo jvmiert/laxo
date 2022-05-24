@@ -25,15 +25,6 @@ func (s *shopStore) GetShopByID(shopID string) (*sqlc.Shop, error) {
   return &sModel, err
 }
 
-func (s *shopStore) GetLazadaPlatformByShopID(shopID string) (*sqlc.PlatformLazada, error) {
-  lazInfo, err := s.queries.GetLazadaPlatformByShopID(
-    context.Background(),
-    shopID,
-  )
-
-  return &lazInfo, err
-}
-
 func (s *shopStore) SaveNewShopToStore(shop *shop.Shop, u string) (*sqlc.Shop, error) {
   savedShop, err := s.queries.CreateShop(
     context.Background(),

@@ -89,19 +89,19 @@ func main() {
   notificationService := notification.NewService(store, logger, server)
   rest.InitNotificationHandler(server, &notificationService, server.Router, server.Negroni)
 
+  lazadaID := os.Getenv("LAZADA_ID")
+  lazadaSecret := os.Getenv("LAZADA_SECRET")
+  lazadaService := lazada.NewService(store, logger, server, lazadaID, lazadaSecret)
+
   shopService := shop.NewService(store, logger, server)
-  rest.InitProductHandler(server, &shopService, server.Router, server.Negroni)
+  rest.InitProductHandler(server, &shopService, &lazadaService, server.Router, server.Negroni)
 
   userService := user.NewService(store, logger, server)
   rest.InitUserHandler(server, &userService, server.Router, server.Negroni)
 
   assetsService := assets.NewService(store, logger, server)
 
-  lazadaID := os.Getenv("LAZADA_ID")
-  lazadaSecret := os.Getenv("LAZADA_SECRET")
-  lazadaService := lazada.NewService(store, logger, server, lazadaID, lazadaSecret)
   rest.InitTestHandler(server, &lazadaService, &shopService, &assetsService, server.Router, server.Negroni)
-
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)

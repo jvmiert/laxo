@@ -95,7 +95,7 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
 
   go func(ctx context.Context) {
     defer cancelTimeout()
-    d := time.NewTicker(5 * time.Second)
+    d := time.NewTicker(30 * time.Second)
 
     for {
       select {

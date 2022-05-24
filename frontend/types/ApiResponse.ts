@@ -34,6 +34,7 @@ export type GetPlatformsPlatforms = {
 export type GetPlatformsResponse = {
   shopID: string;
   platforms: Array<GetPlatformsPlatforms>;
+  connectedPlatforms: Array<string>;
 };
 
 export type Notification = {
@@ -66,4 +67,18 @@ export type NotificationResponseObject = {
 export type GetNotificationResponse = {
   notifications: Array<NotificationResponseObject>;
   total: number;
+};
+
+export type GetLazadaPlatformResponse = {
+  id: string;
+  shopID: string;
+  country: string;
+  accountplatform: string;
+  account: string;
+  userIDVn: string;
+  sellerIDVn: string;
+  shortCodeVn: string;
+  refreshExpiresIn: Date;
+  accessExpiresIn: Date;
+  created: Date;
 };

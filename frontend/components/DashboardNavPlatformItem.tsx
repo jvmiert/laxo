@@ -25,11 +25,11 @@ function getIcon(platform: string): JSX.Element {
 export default function DashboardNavPlatformItem({
   platform,
 }: DashboardNavPlatformItemProps) {
-  const { query: { platform: queryPlatform } } = useRouter();
+  const { pathname } = useRouter();
 
   const href = `/dashboard/platforms/${platform.toLowerCase()}`;
 
-  const active = platform === queryPlatform;
+  const active = href === pathname;
 
   return (
     <Link href={href}>

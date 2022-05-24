@@ -23,6 +23,8 @@ func (s *Service) GenerateRedirect(r *OAuthRedirectRequest) error {
     "shopee": struct{}{},
   }
 
+  var cPlatforms []string
+
   connectedPlatforms, err := s.store.RetrieveShopsPlatformsByShopID(r.ShopID)
 
   if err != nil {
@@ -34,7 +36,7 @@ func (s *Service) GenerateRedirect(r *OAuthRedirectRequest) error {
 
   for _, v := range connectedPlatforms {
     if aPlatforms.Has(v.PlatformName) {
-      delete(aPlatforms, v.PlatformName);
+      cPlatforms = append(cPlatforms, v.PlatformName);
     }
   }
 
@@ -97,6 +99,7 @@ func (s *Service) GenerateRedirect(r *OAuthRedirectRequest) error {
     }
 
     r.ReturnRedirects = append(r.ReturnRedirects, &ReturnRedirect{Platform: platform,URL: fmt.Sprint(url.String())})
+    r.Connected = cPlatforms
   }
 
   return nil
@@ -219,7 +222,6 @@ func (s *Service) ValidateOAuthVerifyRequest(o OAuthVerifyRequest, uID string, p
             printer.Sprintf("something went wrong")),
         }
       }
-
 
       lazInfo, err := s.store.GetLazadaPlatformByShopID(
         shop.Model.ID,

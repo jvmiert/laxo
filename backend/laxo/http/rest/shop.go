@@ -8,15 +8,26 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"laxo.vn/laxo/laxo"
+	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/shop"
 )
 
-type shopHandler struct {
-  server *laxo.Server
-  service *shop.Service
+type shopHandlerService struct {
+  lazada *lazada.Service
+  shop   *shop.Service
 }
 
-func InitProductHandler(server *laxo.Server, s *shop.Service, r *mux.Router, n *negroni.Negroni) {
+type shopHandler struct {
+  server *laxo.Server
+  service *shopHandlerService
+}
+
+func InitProductHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service, r *mux.Router, n *negroni.Negroni) {
+  s := &shopHandlerService{
+    lazada: l,
+    shop: shop,
+  }
+
   h := shopHandler{
     server: server,
 		service: s,
@@ -38,6 +49,44 @@ func InitProductHandler(server *laxo.Server, s *shop.Service, r *mux.Router, n *
 	r.Handle("/oauth/redirects", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleOAuthRedirects)),
 	)).Methods("GET")
+
+	r.Handle("/platforms/lazada", n.With(
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleLazadaPlatformInfo)),
+	)).Methods("GET")
+}
+
+
+func (h *shopHandler) HandleLazadaPlatformInfo(w http.ResponseWriter, r *http.Request, uID string) {
+  shop, err := h.service.shop.GetActiveShopByUserID(uID)
+  if err != nil {
+    h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  lazInfo, err := h.service.lazada.GetLazadaPlatformByShopID(shop.Model.ID)
+  if err != nil {
+    //@TODO: Handle empty return by returning 404 instead of  500
+    h.server.Logger.Errorw("GetLazadaPlatformByShopID returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  js, err := h.service.lazada.GetLazadaPlatformJSON(lazInfo)
+  if err != nil {
+    h.server.Logger.Errorw("GetLazadaPlatformJSON returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+  w.Write(js)
 }
 
 func (h *shopHandler) HandleOAuthRedirects(w http.ResponseWriter, r *http.Request, uID string) {
@@ -45,12 +94,12 @@ func (h *shopHandler) HandleOAuthRedirects(w http.ResponseWriter, r *http.Reques
   o := &shop.OAuthRedirectRequest{ShopID: shopID}
 
   printer := laxo.GetLocalePrinter(r)
-  if err := h.service.ValidateOAuthRedirectRequest(o, uID, printer); err != nil {
+  if err := h.service.shop.ValidateOAuthRedirectRequest(o, uID, printer); err != nil {
     laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
     return
   }
 
-  err := h.service.GenerateRedirect(o)
+  err := h.service.shop.GenerateRedirect(o)
 
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -82,7 +131,7 @@ func (h *shopHandler) HandleVerifyOAuth(w http.ResponseWriter, r *http.Request, 
   }
 
   printer := laxo.GetLocalePrinter(r)
-  if err := h.service.ValidateOAuthVerifyRequest(o, uID, printer); err != nil {
+  if err := h.service.shop.ValidateOAuthVerifyRequest(o, uID, printer); err != nil {
     laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
     return
   }
@@ -91,7 +140,7 @@ func (h *shopHandler) HandleVerifyOAuth(w http.ResponseWriter, r *http.Request, 
 }
 
 func (h *shopHandler) GetProduct(w http.ResponseWriter, r *http.Request, uID string) {
-  products, err := h.service.GetProductsByUserID(uID)
+  products, err := h.service.shop.GetProductsByUserID(uID)
   if err != nil {
     h.server.Logger.Errorw("GetProductsByUserID error",
       "error", err,
@@ -100,7 +149,7 @@ func (h *shopHandler) GetProduct(w http.ResponseWriter, r *http.Request, uID str
     return
   }
 
-  js, err := h.service.GetProductListJSON(products)
+  js, err := h.service.shop.GetProductListJSON(products)
   if err != nil {
     h.server.Logger.Errorw("GetProductListJSON error",
       "error", err,
@@ -127,12 +176,12 @@ func (h *shopHandler) HandleCreateShop(w http.ResponseWriter, r *http.Request, u
   }
 
   printer := laxo.GetLocalePrinter(r)
-  if err := h.service.ValidateNewShop(&s, printer); err != nil {
+  if err := h.service.shop.ValidateNewShop(&s, printer); err != nil {
     laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
     return
   }
 
-  if err := h.service.SaveNewShopToDB(&s, uID); err != nil {
+  if err := h.service.shop.SaveNewShopToDB(&s, uID); err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
@@ -149,14 +198,14 @@ func (h *shopHandler) HandleCreateShop(w http.ResponseWriter, r *http.Request, u
 }
 
 func (h *shopHandler) HandleGetMyShops(w http.ResponseWriter, r *http.Request, uID string) {
-  shops, err := h.service.RetrieveShopsPlatformsByUserID(uID)
+  shops, err := h.service.shop.RetrieveShopsPlatformsByUserID(uID)
 
   if err != nil {
     laxo.ErrorJSONEncode(w, err, http.StatusInternalServerError)
     return
   }
 
-  js, err := h.service.GenerateShopPlatformList(shops)
+  js, err := h.service.shop.GenerateShopPlatformList(shops)
   if err != nil {
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return

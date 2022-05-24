@@ -4,20 +4,23 @@ import Navigation from "@/components/Navigation";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import DashboardNotificationControl from "@/components/DashboardNotificationControl";
 import DashboardNotificationArea from "@/components/DashboardNotificationArea";
+import { useIntl, MessageDescriptor } from "react-intl";
 
 type DefaultLayoutProps = {
   children: ReactNode;
-  title: string | ReactNode;
+  title: MessageDescriptor;
 };
 
 export default function DashboardLayout({
   children,
   title,
 }: DefaultLayoutProps) {
+  const t = useIntl();
+
   return (
     <>
       <Head>
-        <title>{`Laxo: ${title}`}</title>
+        <title>{`Laxo: ${t.formatMessage(title)}`}</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navigation />
@@ -29,7 +32,7 @@ export default function DashboardLayout({
           <div className="ml-6 flex grow flex-col">
             <div className="flex">
               <div className="flex-grow">
-                <h1 className="mb-4 text-xl font-semibold">{title}</h1>
+                <h1 className="mb-4 text-xl font-semibold">{t.formatMessage(title)}</h1>
               </div>
               <div>
                 <DashboardNotificationControl />

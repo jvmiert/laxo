@@ -6,11 +6,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 
 # Tech to-do
 - Make the dashboard page
-  - Create the platform connected pages
-    - Retrieve data from backend for platform specific information and general platform info
-    - Include a button to refresh the platform products
-    - Add notification showing refresh token status
-      - Allow user to re-auth in order to refresh the tokens
   - Handle error messages in callback page
   - Handle successful redirect in callback page
 - Create product page

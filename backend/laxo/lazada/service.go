@@ -26,6 +26,7 @@ type Store interface {
   GetValidTokenByShopID(string) (string, error)
   SaveNewLazadaPlatform(string, *AuthResponse) (*sqlc.PlatformLazada, error)
   UpdateLazadaPlatform(string, *AuthResponse) error
+  GetLazadaPlatformByShopID(string) (*sqlc.PlatformLazada, error)
 }
 
 type Service struct {
@@ -44,6 +45,28 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server, clientID,
     clientID: clientID,
     clientSecret: clientSecret,
   }
+}
+
+func (s *Service) GetLazadaPlatformJSON(p *sqlc.PlatformLazada) ([]byte, error) {
+  pReturn := PlatformLazadaReturn{
+    ID: p.ID,
+    ShopID: p.ShopID,
+    Country: p.Country,
+    AccountPlatform: p.AccountPlatform,
+    Account: p.Account,
+    UserIDVn: p.UserIDVn,
+    SellerIDVn: p.SellerIDVn,
+    ShortCodeVn: p.ShortCodeVn,
+    RefreshExpiresIn: p.RefreshExpiresIn,
+    AccessExpiresIn: p.AccessExpiresIn,
+    Created: p.Created,
+  }
+
+  return json.Marshal(pReturn)
+}
+
+func (s *Service) GetLazadaPlatformByShopID(shopID string) (*sqlc.PlatformLazada, error) {
+  return s.store.GetLazadaPlatformByShopID(shopID)
 }
 
 func (s *Service) NewLazadaClient(token string) (*LazadaClient, error) {
