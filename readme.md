@@ -5,8 +5,11 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
+- Make notifications a popover
+- Make dashboard main view take full width
 - Create product page
-  - Allow product fetch hook to paginate/offset
+  - Position elements of product pages properly
+  - Render items
   - Make a hook/component for normal pagination vs searching
   - Figure out visual look
 - Make the dashboard page
