@@ -3,6 +3,7 @@ package shop
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -25,7 +26,7 @@ type Store interface {
   CreateProductPlatform(*sqlc.CreateProductPlatformParams) (*sqlc.ProductsPlatform, error)
   UpdateProductToStore(*Product) (*sqlc.Product, error)
   RetrieveShopsByUserID(string) ([]Shop, error)
-  GetProductsByShopID(string) ([]sqlc.GetProductsByShopIDRow, error)
+  GetProductsByShopID(string, int32, int32) ([]sqlc.GetProductsByShopIDRow, error)
   RetrieveShopsPlatformsByUserID(string) ([]sqlc.GetShopsPlatformsByUserIDRow, error)
   SaveNewShopToStore(*Shop, string) (*sqlc.Shop, error)
   GetLazadaPlatformByShopID(string) (*sqlc.PlatformLazada, error)
@@ -190,7 +191,7 @@ func (s *Service) ValidateNewShop(shop *Shop, printer *message.Printer) error {
   return nil
 }
 
-func (s *Service) GetProductListJSON(pp []Product) ([]byte, error) {
+func (s *Service) GetProductListJSON(pp []Product, paginate *Paginate) ([]byte, error) {
   pList := []json.RawMessage{}
 
   for _, p := range pp {
@@ -204,7 +205,7 @@ func (s *Service) GetProductListJSON(pp []Product) ([]byte, error) {
 
 	productData := map[string]interface{}{
 		"products": pList,
-		"total": len(pp),
+		"paginate": paginate,
 	}
 
   bytes, err := json.Marshal(productData)
@@ -215,27 +216,47 @@ func (s *Service) GetProductListJSON(pp []Product) ([]byte, error) {
   return bytes, nil
 }
 
-func (s *Service) GetProductsByUserID(userID string) ([]Product, error) {
+func (s *Service) GetProductsByUserID(userID string, offset string, limit string) ([]Product, Paginate, error) {
   var pList []Product
+  var paginate Paginate
 
   shops, err := s.store.RetrieveShopsByUserID(userID)
   if err != nil {
-    return pList, err
+    return pList, paginate, fmt.Errorf("RetrieveShopsByUserID: %w", err)
   }
 
   if len(shops) == 0 {
-    return pList, errors.New("user has not setup any shops yet")
+    return pList, paginate, errors.New("user has not setup any shops yet")
   }
 
   //@TODO: we don't have an active store logic yet so for now we pick the first
   shopID := shops[0].Model.ID
 
-  pModelList, err := s.store.GetProductsByShopID(shopID)
+  offsetI, err := strconv.Atoi(offset)
   if err != nil {
-    return pList, err
+    return pList, paginate, fmt.Errorf("atoi offset: %w", err)
+  }
+
+  limitI, err := strconv.Atoi(limit)
+  if err != nil {
+    return pList, paginate, fmt.Errorf("atoi limit: %w", err)
+  }
+
+  pModelList, err := s.store.GetProductsByShopID(shopID, int32(limitI), int32(offsetI))
+  if err != nil {
+    return pList, paginate, fmt.Errorf("GetProductsByShopID: %w", err)
+  }
+
+  total := int64(0)
+
+  if len(pModelList) > 0 {
+    total = pModelList[0].Count
   }
 
   for _, pModel := range pModelList {
+    if pModel.ID == "" {
+      continue
+    }
     mediaListString := string(pModel.MediaIDList)
     mediaList := strings.Split(mediaListString, ",")
 
@@ -268,7 +289,12 @@ func (s *Service) GetProductsByUserID(userID string) ([]Product, error) {
     })
   }
 
-  return pList, nil
+  paginate.Total = total
+  paginate.Pages = (total + int64(limitI) - 1) / int64(limitI)
+  paginate.Limit = int64(limitI)
+  paginate.Offset = int64(offsetI)
+
+  return pList, paginate, nil
 }
 
 func (s *Service) GetProductPlatformByProductID(productID string) (*sqlc.ProductsPlatform, error) {

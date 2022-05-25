@@ -13,8 +13,8 @@ type DashboardProductsPageProps = InferGetServerSidePropsType<
 
 function DashboardProductsPage(props: DashboardProductsPageProps) {
   const t = useIntl();
-  const { products } = useGetLaxoProducts();
-  return <div>{JSON.stringify(products)}</div>;
+  const { products } = useGetLaxoProducts(0, 50);
+  return <div className="break-all">{JSON.stringify(products)}</div>;
 }
 
 DashboardProductsPage.getLayout = function getLayout(page: ReactElement) {

@@ -140,16 +140,27 @@ func (h *shopHandler) HandleVerifyOAuth(w http.ResponseWriter, r *http.Request, 
 }
 
 func (h *shopHandler) GetProduct(w http.ResponseWriter, r *http.Request, uID string) {
-  products, err := h.service.shop.GetProductsByUserID(uID)
+  offset := r.URL.Query().Get("offset")
+  limit := r.URL.Query().Get("limit")
+
+  if offset == "" {
+    offset = "0"
+  }
+
+  if limit == "" {
+    limit = "50"
+  }
+
+  products, paginate, err := h.service.shop.GetProductsByUserID(uID, offset, limit)
   if err != nil {
     h.server.Logger.Errorw("GetProductsByUserID error",
       "error", err,
     )
-    laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
-  js, err := h.service.shop.GetProductListJSON(products)
+  js, err := h.service.shop.GetProductListJSON(products, &paginate)
   if err != nil {
     h.server.Logger.Errorw("GetProductListJSON error",
       "error", err,

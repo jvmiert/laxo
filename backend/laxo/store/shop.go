@@ -71,10 +71,14 @@ func (s *shopStore) CreateShopsPlatforms(shopID string, platformName string) (sq
   )
 }
 
-func (s *shopStore) GetProductsByShopID(shopID string) ([]sqlc.GetProductsByShopIDRow, error) {
+func (s *shopStore) GetProductsByShopID(shopID string, limit int32, offset int32) ([]sqlc.GetProductsByShopIDRow, error) {
   products, err := s.queries.GetProductsByShopID(
     context.Background(),
-    shopID,
+    sqlc.GetProductsByShopIDParams{
+      ShopID: shopID,
+      Limit: limit,
+      Offset: offset,
+    },
   )
   if err != nil {
     return nil, err

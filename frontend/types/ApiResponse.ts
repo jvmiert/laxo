@@ -115,7 +115,14 @@ export type LaxoProduct = {
   platforms: Array<LaxoProductPlatforms>;
 };
 
+export type PaginateObject = {
+  total: number;
+  pages: number;
+  limit: number;
+  offset: number;
+};
+
 export type LaxoProductResponse = {
   products: Array<LaxoProduct>;
-  total: number;
+  paginate: PaginateObject;
 };
