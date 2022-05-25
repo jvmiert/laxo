@@ -208,7 +208,7 @@ func main() {
   _ = grpcHttpServer.Shutdown(shutdownCtx)
 
   err = g.Wait()
-  if err != nil {
+  if err != nil && err != http.ErrServerClosed {
     logger.Error("Server returning an error", "error", err)
     os.Exit(2)
   }
