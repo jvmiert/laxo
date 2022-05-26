@@ -45,7 +45,7 @@ function PlatformLazadaSettings(props: PlatformLazadaSettingsProps) {
 
   return (
     <>
-      <div className="flex content-between">
+      <div className="flex">
         <div className="flex items-center">
           <div className="mr-5">
             <LazadaIcon className="h-10 w-10" />

@@ -68,6 +68,10 @@ export default function PlatformConnect() {
 
   const { platforms } = useGetShopPlatformsRedirect(shopID);
 
+  //@TODO: Fix the loading state of this page
+
+  if (!platforms?.platforms) return <></>;
+
   const availablePlatforms = platforms.platforms.filter(
     (p) => !platforms.connectedPlatforms.includes(p.platform),
   );
