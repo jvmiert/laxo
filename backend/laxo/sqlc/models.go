@@ -21,6 +21,7 @@ type Notification struct {
 	CurrentSubStep      null.Int    `json:"currentSubStep"`
 	MainMessage         null.String `json:"mainMessage"`
 	SubMessage          null.String `json:"subMessage"`
+	Error               null.Bool   `json:"error"`
 }
 
 type NotificationsGroup struct {
@@ -29,6 +30,7 @@ type NotificationsGroup struct {
 	WorkflowID     null.String `json:"workflowID"`
 	EntityID       string      `json:"entityID"`
 	EntityType     string      `json:"entityType"`
+	PlatformName   string      `json:"platformName"`
 	TotalMainSteps null.Int    `json:"totalMainSteps"`
 	TotalSubSteps  null.Int    `json:"totalSubSteps"`
 }

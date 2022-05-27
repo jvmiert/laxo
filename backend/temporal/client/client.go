@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 
-	"github.com/hashicorp/go-hclog"
 	"go.temporal.io/sdk/client"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/temporal/lazada"
@@ -11,7 +10,7 @@ import (
 
 type Client struct {
   Temporal client.Client
-  logger   hclog.Logger
+  logger   laxo.Logger
 }
 
 func NewClient() (*Client, error) {

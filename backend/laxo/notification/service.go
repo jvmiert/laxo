@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"time"
 
 	"github.com/mediocregopher/radix/v4"
 	"gopkg.in/guregu/null.v4"
@@ -34,6 +35,7 @@ type NotificationGroupCreateParam struct {
   EntityType       string
   TotalMainSteps   null.Int
   TotalSubSteps    null.Int
+  PlatformName     string
 }
 
 type NotificationGroupUpdateParam struct {
@@ -44,6 +46,7 @@ type NotificationGroupUpdateParam struct {
   TotalMainSteps   null.Int
   TotalSubSteps    null.Int
   ID               string
+  PlatformName     null.String
 }
 
 type NotificationCreateParam struct {
@@ -54,6 +57,7 @@ type NotificationCreateParam struct {
   MainMessage      null.String
   SubMessage       null.String
   ReadTime         null.Time
+  Error            null.Bool
 }
 
 type Service struct {
@@ -177,3 +181,21 @@ func (s *Service) GetNotificationsJSON(userID string, offset, limit int32) ([]by
   return bytes, nil
 }
 
+func (s *Service) ErrorNotification(groupID string) error {
+  notifyParam := NotificationCreateParam{
+    GroupID: groupID,
+    CurrentMainStep: null.IntFrom(1),
+    CurrentSubStep: null.NewInt(0, false),
+    MainMessage: null.StringFrom(""),
+    SubMessage: null.NewString("", false),
+    ReadTime: null.NewTime(time.Time{}, false),
+    Error: null.BoolFrom(true),
+  }
+
+  err := s.CreateNotification(notifyParam)
+  if err != nil {
+    return err
+  }
+
+  return nil
+}

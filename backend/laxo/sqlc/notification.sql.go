@@ -14,11 +14,11 @@ import (
 const createNotification = `-- name: CreateNotification :one
 INSERT INTO notifications (
   notification_group_id, read, current_main_step,
-  current_sub_step, main_message, sub_message
+  current_sub_step, main_message, sub_message, error
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3, $4, $5, $6, $7
 )
-RETURNING id, redis_id, notification_group_id, created, read, current_main_step, current_sub_step, main_message, sub_message
+RETURNING id, redis_id, notification_group_id, created, read, current_main_step, current_sub_step, main_message, sub_message, error
 `
 
 type CreateNotificationParams struct {
@@ -28,6 +28,7 @@ type CreateNotificationParams struct {
 	CurrentSubStep      null.Int    `json:"currentSubStep"`
 	MainMessage         null.String `json:"mainMessage"`
 	SubMessage          null.String `json:"subMessage"`
+	Error               null.Bool   `json:"error"`
 }
 
 func (q *Queries) CreateNotification(ctx context.Context, arg CreateNotificationParams) (Notification, error) {
@@ -38,6 +39,7 @@ func (q *Queries) CreateNotification(ctx context.Context, arg CreateNotification
 		arg.CurrentSubStep,
 		arg.MainMessage,
 		arg.SubMessage,
+		arg.Error,
 	)
 	var i Notification
 	err := row.Scan(
@@ -50,6 +52,7 @@ func (q *Queries) CreateNotification(ctx context.Context, arg CreateNotification
 		&i.CurrentSubStep,
 		&i.MainMessage,
 		&i.SubMessage,
+		&i.Error,
 	)
 	return i, err
 }
@@ -57,11 +60,11 @@ func (q *Queries) CreateNotification(ctx context.Context, arg CreateNotification
 const createNotificationsGroup = `-- name: CreateNotificationsGroup :one
 INSERT INTO notifications_group (
   user_id, workflow_id, entity_id, entity_type,
-  total_main_steps, total_sub_steps
+  total_main_steps, total_sub_steps, platform_name
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3, $4, $5, $6, $7
 )
-RETURNING id, user_id, workflow_id, entity_id, entity_type, total_main_steps, total_sub_steps
+RETURNING id, user_id, workflow_id, entity_id, entity_type, platform_name, total_main_steps, total_sub_steps
 `
 
 type CreateNotificationsGroupParams struct {
@@ -71,6 +74,7 @@ type CreateNotificationsGroupParams struct {
 	EntityType     string      `json:"entityType"`
 	TotalMainSteps null.Int    `json:"totalMainSteps"`
 	TotalSubSteps  null.Int    `json:"totalSubSteps"`
+	PlatformName   string      `json:"platformName"`
 }
 
 func (q *Queries) CreateNotificationsGroup(ctx context.Context, arg CreateNotificationsGroupParams) (NotificationsGroup, error) {
@@ -81,6 +85,7 @@ func (q *Queries) CreateNotificationsGroup(ctx context.Context, arg CreateNotifi
 		arg.EntityType,
 		arg.TotalMainSteps,
 		arg.TotalSubSteps,
+		arg.PlatformName,
 	)
 	var i NotificationsGroup
 	err := row.Scan(
@@ -89,6 +94,7 @@ func (q *Queries) CreateNotificationsGroup(ctx context.Context, arg CreateNotifi
 		&i.WorkflowID,
 		&i.EntityID,
 		&i.EntityType,
+		&i.PlatformName,
 		&i.TotalMainSteps,
 		&i.TotalSubSteps,
 	)
@@ -96,7 +102,7 @@ func (q *Queries) CreateNotificationsGroup(ctx context.Context, arg CreateNotifi
 }
 
 const getNotificationByID = `-- name: GetNotificationByID :one
-SELECT id, redis_id, notification_group_id, created, read, current_main_step, current_sub_step, main_message, sub_message FROM notifications
+SELECT id, redis_id, notification_group_id, created, read, current_main_step, current_sub_step, main_message, sub_message, error FROM notifications
 WHERE id = $1
 LIMIT 1
 `
@@ -114,6 +120,7 @@ func (q *Queries) GetNotificationByID(ctx context.Context, id string) (Notificat
 		&i.CurrentSubStep,
 		&i.MainMessage,
 		&i.SubMessage,
+		&i.Error,
 	)
 	return i, err
 }
@@ -126,6 +133,7 @@ SELECT notifications_group.id,
        notifications_group.entity_type,
        notifications_group.total_main_steps,
        notifications_group.total_sub_steps,
+       notifications_group.platform_name,
        n.id as notification_id,
        n.redis_id as notification_redis_id,
        n.created as notification_created,
@@ -133,10 +141,11 @@ SELECT notifications_group.id,
        n.current_main_step as notification_current_main_step,
        n.current_sub_step as notification_current_sub_step,
        n.main_message as notification_main_message,
-       n.sub_message as notification_sub_message
+       n.sub_message as notification_sub_message,
+       n.error as notification_error
 FROM notifications_group
 JOIN (
-  SELECT DISTINCT ON (notification_group_id) id, redis_id, notification_group_id, created, read, current_main_step, current_sub_step, main_message, sub_message
+  SELECT DISTINCT ON (notification_group_id) id, redis_id, notification_group_id, created, read, current_main_step, current_sub_step, main_message, sub_message, error
 	FROM notifications
 	ORDER BY notification_group_id, id desc
 ) n ON notifications_group.id = n.notification_group_id
@@ -159,6 +168,7 @@ type GetNotificationsByUserIDRow struct {
 	EntityType                  string      `json:"entityType"`
 	TotalMainSteps              null.Int    `json:"totalMainSteps"`
 	TotalSubSteps               null.Int    `json:"totalSubSteps"`
+	PlatformName                string      `json:"platformName"`
 	NotificationID              string      `json:"notificationID"`
 	NotificationRedisID         null.String `json:"notificationRedisID"`
 	NotificationCreated         null.Time   `json:"notificationCreated"`
@@ -167,6 +177,7 @@ type GetNotificationsByUserIDRow struct {
 	NotificationCurrentSubStep  null.Int    `json:"notificationCurrentSubStep"`
 	NotificationMainMessage     null.String `json:"notificationMainMessage"`
 	NotificationSubMessage      null.String `json:"notificationSubMessage"`
+	NotificationError           null.Bool   `json:"notificationError"`
 }
 
 func (q *Queries) GetNotificationsByUserID(ctx context.Context, arg GetNotificationsByUserIDParams) ([]GetNotificationsByUserIDRow, error) {
@@ -186,6 +197,7 @@ func (q *Queries) GetNotificationsByUserID(ctx context.Context, arg GetNotificat
 			&i.EntityType,
 			&i.TotalMainSteps,
 			&i.TotalSubSteps,
+			&i.PlatformName,
 			&i.NotificationID,
 			&i.NotificationRedisID,
 			&i.NotificationCreated,
@@ -194,6 +206,7 @@ func (q *Queries) GetNotificationsByUserID(ctx context.Context, arg GetNotificat
 			&i.NotificationCurrentSubStep,
 			&i.NotificationMainMessage,
 			&i.NotificationSubMessage,
+			&i.NotificationError,
 		); err != nil {
 			return nil, err
 		}
@@ -206,7 +219,7 @@ func (q *Queries) GetNotificationsByUserID(ctx context.Context, arg GetNotificat
 }
 
 const getNotificationsGroupByID = `-- name: GetNotificationsGroupByID :one
-SELECT id, user_id, workflow_id, entity_id, entity_type, total_main_steps, total_sub_steps FROM notifications_group
+SELECT id, user_id, workflow_id, entity_id, entity_type, platform_name, total_main_steps, total_sub_steps FROM notifications_group
 WHERE id = $1
 LIMIT 1
 `
@@ -220,6 +233,7 @@ func (q *Queries) GetNotificationsGroupByID(ctx context.Context, id string) (Not
 		&i.WorkflowID,
 		&i.EntityID,
 		&i.EntityType,
+		&i.PlatformName,
 		&i.TotalMainSteps,
 		&i.TotalSubSteps,
 	)
@@ -227,7 +241,7 @@ func (q *Queries) GetNotificationsGroupByID(ctx context.Context, id string) (Not
 }
 
 const getNotificationsGroupByWorkflowID = `-- name: GetNotificationsGroupByWorkflowID :one
-SELECT id, user_id, workflow_id, entity_id, entity_type, total_main_steps, total_sub_steps FROM notifications_group
+SELECT id, user_id, workflow_id, entity_id, entity_type, platform_name, total_main_steps, total_sub_steps FROM notifications_group
 WHERE workflow_id = $1 AND user_id = $2
 LIMIT 1
 `
@@ -246,6 +260,7 @@ func (q *Queries) GetNotificationsGroupByWorkflowID(ctx context.Context, arg Get
 		&i.WorkflowID,
 		&i.EntityID,
 		&i.EntityType,
+		&i.PlatformName,
 		&i.TotalMainSteps,
 		&i.TotalSubSteps,
 	)
@@ -270,10 +285,13 @@ UPDATE notifications_group SET
     THEN $10::BIGINT ELSE total_main_steps END,
 
   total_sub_steps = CASE WHEN $11::boolean
-    THEN $12::BIGINT ELSE total_sub_steps END
+    THEN $12::BIGINT ELSE total_sub_steps END,
 
-WHERE id = $13
-RETURNING id, user_id, workflow_id, entity_id, entity_type, total_main_steps, total_sub_steps
+  platform_name = CASE WHEN $13::boolean
+    THEN $14::VARCHAR(300) ELSE platform_name END
+
+WHERE id = $15
+RETURNING id, user_id, workflow_id, entity_id, entity_type, platform_name, total_main_steps, total_sub_steps
 `
 
 type UpdateNotificationGroupParams struct {
@@ -289,6 +307,8 @@ type UpdateNotificationGroupParams struct {
 	TotalMainSteps         int64  `json:"totalMainSteps"`
 	TotalSubStepsDoUpdate  bool   `json:"totalSubStepsDoUpdate"`
 	TotalSubSteps          int64  `json:"totalSubSteps"`
+	PlatformNameDoUpdate   bool   `json:"platformNameDoUpdate"`
+	PlatformName           string `json:"platformName"`
 	ID                     string `json:"id"`
 }
 
@@ -306,6 +326,8 @@ func (q *Queries) UpdateNotificationGroup(ctx context.Context, arg UpdateNotific
 		arg.TotalMainSteps,
 		arg.TotalSubStepsDoUpdate,
 		arg.TotalSubSteps,
+		arg.PlatformNameDoUpdate,
+		arg.PlatformName,
 		arg.ID,
 	)
 	var i NotificationsGroup
@@ -315,6 +337,7 @@ func (q *Queries) UpdateNotificationGroup(ctx context.Context, arg UpdateNotific
 		&i.WorkflowID,
 		&i.EntityID,
 		&i.EntityType,
+		&i.PlatformName,
 		&i.TotalMainSteps,
 		&i.TotalSubSteps,
 	)

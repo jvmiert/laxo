@@ -47,6 +47,7 @@ export type Notification = {
   currentSubStep?: number;
   mainMessage: string;
   subMessage: string;
+  error: boolean;
 };
 
 export type NotificationGroup = {
@@ -57,6 +58,7 @@ export type NotificationGroup = {
   entityType: string;
   totalMainSteps: number;
   totalSubSteps?: number;
+  platformName: string;
 };
 
 export type NotificationResponseObject = {

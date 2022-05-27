@@ -66,7 +66,7 @@ func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID str
   numericPrice := pgtype.Numeric{}
   numericPrice.Set(pModelSKU.Price.String)
 
-  sanitzedDescription := h.service.lazada.GetSantizedDescription(pModelAttributes.Description.String)
+  sanitzedDescription := h.service.shop.GetSantizedString(pModelAttributes.Description.String)
 
   product := &shop.Product{
     Model: &sqlc.Product{

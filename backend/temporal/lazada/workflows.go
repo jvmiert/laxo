@@ -9,8 +9,8 @@ import (
 type QueryStateResult struct {
   // One of: fetch, save, process, failed, complete
   State    string
-  Total    int
-  Current  int
+  Total    int64
+  Current  int64
 
 }
 
@@ -50,13 +50,14 @@ func SyncLazadaPlatform(ctx workflow.Context, shopID, userID string) (err error)
   processState.State = "save"
   processState.Total = fetchData.TotalProducts
 
-  for i := 0; i < fetchData.TotalProducts; i++ {
+  for i := int64(0); i < fetchData.TotalProducts; i++ {
     processState.Current = i
     err = workflow.ExecuteActivity(
       sessionCtx,
       a.SaveLazadaProducts,
       LazadaSaveParam{
         UserID: userID,
+        ShopID: shopID,
         DataKey: fetchData.DataKey,
         ProductIndex: i,
         ProductTotal: fetchData.TotalProducts,
@@ -69,7 +70,7 @@ func SyncLazadaPlatform(ctx workflow.Context, shopID, userID string) (err error)
     }
   }
 
-  err = workflow.ExecuteActivity(sessionCtx, a.CompleteLazadaProducts, userID).Get(sessionCtx, nil)
+  err = workflow.ExecuteActivity(sessionCtx, a.CompleteLazadaProducts, userID, fetchData.DataKey).Get(sessionCtx, nil)
 	if err != nil {
     processState.State = "failed"
 		return err

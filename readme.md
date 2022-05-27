@@ -5,8 +5,9 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 - Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
 
 # Tech to-do
-- Try passing a ref of the popover button and see if clicking it in provider works
-- Make dashboard main view take full width
+- Create hook component for refreshing product platform sync
+- Implement product platform sync in product page UI
+- Handle error notifications
 - Create product page
   - Position elements of product pages properly
   - Render items

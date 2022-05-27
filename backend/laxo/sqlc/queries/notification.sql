@@ -6,6 +6,7 @@ SELECT notifications_group.id,
        notifications_group.entity_type,
        notifications_group.total_main_steps,
        notifications_group.total_sub_steps,
+       notifications_group.platform_name,
        n.id as notification_id,
        n.redis_id as notification_redis_id,
        n.created as notification_created,
@@ -13,7 +14,8 @@ SELECT notifications_group.id,
        n.current_main_step as notification_current_main_step,
        n.current_sub_step as notification_current_sub_step,
        n.main_message as notification_main_message,
-       n.sub_message as notification_sub_message
+       n.sub_message as notification_sub_message,
+       n.error as notification_error
 FROM notifications_group
 JOIN (
   SELECT DISTINCT ON (notification_group_id) *
@@ -42,9 +44,9 @@ LIMIT 1;
 -- name: CreateNotificationsGroup :one
 INSERT INTO notifications_group (
   user_id, workflow_id, entity_id, entity_type,
-  total_main_steps, total_sub_steps
+  total_main_steps, total_sub_steps, platform_name
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3, $4, $5, $6, $7
 )
 RETURNING *;
 
@@ -66,7 +68,10 @@ UPDATE notifications_group SET
     THEN @total_main_steps::BIGINT ELSE total_main_steps END,
 
   total_sub_steps = CASE WHEN @total_sub_steps_do_update::boolean
-    THEN @total_sub_steps::BIGINT ELSE total_sub_steps END
+    THEN @total_sub_steps::BIGINT ELSE total_sub_steps END,
+
+  platform_name = CASE WHEN @platform_name_do_update::boolean
+    THEN @platform_name::VARCHAR(300) ELSE platform_name END
 
 WHERE id = @id
 RETURNING *;
@@ -74,9 +79,9 @@ RETURNING *;
 -- name: CreateNotification :one
 INSERT INTO notifications (
   notification_group_id, read, current_main_step,
-  current_sub_step, main_message, sub_message
+  current_sub_step, main_message, sub_message, error
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  $1, $2, $3, $4, $5, $6, $7
 )
 RETURNING *;
 

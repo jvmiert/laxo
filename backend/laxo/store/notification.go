@@ -58,6 +58,8 @@ func (s *notificationStore) UpdateNotificationGroup(param *notification.Notifica
     TotalMainSteps: param.TotalMainSteps.Int64,
     TotalSubStepsDoUpdate: param.TotalSubSteps.Valid,
     TotalSubSteps: param.TotalSubSteps.Int64,
+    PlatformNameDoUpdate: param.PlatformName.Valid,
+    PlatformName: param.PlatformName.String,
     ID: param.ID,
   }
 
@@ -77,6 +79,7 @@ func (s *notificationStore) CreateNotificationGroup(param *notification.Notifica
       EntityType: param.EntityType,
       TotalMainSteps: param.TotalMainSteps,
       TotalSubSteps: param.TotalSubSteps,
+      PlatformName: param.PlatformName,
     }
 
   g, err := s.queries.CreateNotificationsGroup(
@@ -115,6 +118,7 @@ func (s *notificationStore) SaveNotification(p *notification.NotificationCreateP
     CurrentSubStep: p.CurrentSubStep,
     MainMessage: p.MainMessage,
     SubMessage: p.SubMessage,
+    Error: p.Error,
   }
 
   pModel, err := s.queries.CreateNotification(
@@ -170,6 +174,7 @@ func (s *notificationStore) GetNotifications(userID string, offset, limit int32)
           CurrentSubStep: v.NotificationCurrentSubStep,
           MainMessage: v.NotificationMainMessage,
           SubMessage: v.NotificationSubMessage,
+          Error: v.NotificationError,
         },
         GroupModel: &sqlc.NotificationsGroup{
           ID: v.ID,
@@ -179,6 +184,7 @@ func (s *notificationStore) GetNotifications(userID string, offset, limit int32)
           EntityType: v.EntityType,
           TotalMainSteps: v.TotalMainSteps,
           TotalSubSteps: v.TotalSubSteps,
+          PlatformName: v.PlatformName,
         },
       },
     )

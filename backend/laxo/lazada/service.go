@@ -4,13 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"math"
-	"os"
 	"strconv"
 
+	"github.com/jackc/pgx"
 	"github.com/mediocregopher/radix/v4"
-	"github.com/microcosm-cc/bluemonday"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/sqlc"
 )
@@ -79,13 +77,6 @@ func (s *Service) NewLazadaClient(token string) (*LazadaClient, error) {
   return client, nil
 }
 
-func (s *Service) GetSantizedDescription(d string) (string) {
-  p := bluemonday.StrictPolicy()
-  santized := p.Sanitize(d)
-
-  return santized
-}
-
 func (s *Service) GetValidTokenByShopID(shopID string) (string, error) {
   token, err := s.store.GetValidTokenByShopID(shopID)
   if err != nil {
@@ -120,6 +111,19 @@ func (s *Service) RetrieveProductFromRedis(keyID string, index int) (*ProductsRe
   return &response, nil
 }
 
+func (s *Service) ExpireRedisProducts(keyID string) error {
+  ctx := context.Background()
+  err := s.server.RedisClient.Do(ctx, radix.Cmd(nil, "EXPIRE", keyID))
+  if err != nil {
+    s.server.Logger.Errorw("Error in auth handler function (Redis)",
+      "error", err,
+      )
+    return err
+  }
+
+  return nil
+}
+
 func (s *Service) SaveProductToRedis(keyID string, index int, p ProductsResponseProducts) error {
   bytes, err := json.Marshal(p)
   if err != nil {
@@ -135,55 +139,34 @@ func (s *Service) SaveProductToRedis(keyID string, index int, p ProductsResponse
   return nil
 }
 
-func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, error) {
+func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, int, error) {
   token := ""
-  //token, err := s.GetValidTokenByShopID(shopID)
-  //if err != nil {
-  //  if err == pgx.ErrNoRows {
-  //    return "", ErrNoValidToken
-  //  }
-  //  return "", err
-  //}
+  token, err := s.GetValidTokenByShopID(shopID)
+  if err != nil {
+    if err == pgx.ErrNoRows {
+      return "", 0, ErrNoValidToken
+    }
+    return "", 0, err
+  }
 
   client, err := s.NewLazadaClient(token)
   if err != nil {
-    return "", err
+    return "", 0, err
   }
 
-  //response, err := client.QueryProducts(QueryProductsParams{
-  //  Limit: 50,
-  //  Offset: 0,
-  //})
-  //if err != nil {
-  //  return "", err
-  //}
-
-  //-------------------------------------
-  // for reading json file
-  // so we don't have to bother Lazada
-  //-------------------------------------
-  jsonFile, err := os.Open(".\\laxo\\lazada\\test.json")
+  response, err := client.QueryProducts(QueryProductsParams{
+    Limit: 50,
+    Offset: 0,
+  })
   if err != nil {
-    return "", err
+    return "", 0, err
   }
-
-  defer jsonFile.Close()
-
-  byteValue, err := ioutil.ReadAll(jsonFile)
-  if err != nil {
-    return "", err
-  }
-
-  var response ProductsResponse
-
-  json.Unmarshal(byteValue, &response)
-  //-------------------------------------
 
   keyID := redisKeyPrefix + shopID
 
   for i, product := range response.Data.Products {
-    if err := s.SaveProductToRedis(keyID, i, product); err != nil {
-      return "", err
+    if err = s.SaveProductToRedis(keyID, i, product); err != nil {
+      return "", 0, err
     }
   }
 
@@ -192,27 +175,27 @@ func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, error) 
     remainingProducts := (float64)(response.Data.TotalProducts - 50)
     fetchesRequired = (int)(math.Ceil(remainingProducts / 50))
   } else {
-    return keyID, nil
+    return keyID, response.Data.TotalProducts, nil
   }
 
   for i := 0; i < fetchesRequired; i++ {
-    response, err := client.QueryProducts(QueryProductsParams{
+    response, err = client.QueryProducts(QueryProductsParams{
       Limit: 50,
       Offset: 50 * i,
     })
     if err != nil {
-      return "", err
+      return "", 0, err
     }
 
     for j, product := range response.Data.Products {
       index := (i + 1) * 50 + j
       if err := s.SaveProductToRedis(keyID, index, product); err != nil {
-        return "", err
+        return "", 0, err
       }
     }
   }
 
-  return "", nil
+  return keyID, response.Data.TotalProducts, nil
 }
 
 func (s *Service) SaveOrUpdateLazadaProduct(p *ProductsResponseProducts, shopID string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, *sqlc.ProductsSkuLazada, error) {

@@ -94,7 +94,8 @@ func main() {
   lazadaService := lazada.NewService(store, logger, server, lazadaID, lazadaSecret)
 
   shopService := shop.NewService(store, logger, server)
-  rest.InitProductHandler(server, &shopService, &lazadaService, server.Router, server.Negroni)
+  rest.InitShopHandler(server, &shopService, &lazadaService, server.Router,
+                       server.Negroni, temporalClient)
 
   userService := user.NewService(store, logger, server)
   rest.InitUserHandler(server, &userService, server.Router, server.Negroni)

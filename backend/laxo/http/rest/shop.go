@@ -10,11 +10,13 @@ import (
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/shop"
+	temporal_client "laxo.vn/laxo/temporal/client"
 )
 
 type shopHandlerService struct {
-  lazada *lazada.Service
-  shop   *shop.Service
+  lazada    *lazada.Service
+  shop      *shop.Service
+  temporal  *temporal_client.Client
 }
 
 type shopHandler struct {
@@ -22,10 +24,12 @@ type shopHandler struct {
   service *shopHandlerService
 }
 
-func InitProductHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service, r *mux.Router, n *negroni.Negroni) {
+func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
+                     r *mux.Router, n *negroni.Negroni, t *temporal_client.Client) {
   s := &shopHandlerService{
     lazada: l,
     shop: shop,
+    temporal: t,
   }
 
   h := shopHandler{

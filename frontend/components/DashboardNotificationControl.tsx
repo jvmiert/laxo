@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useRef, forwardRef } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { BellIcon } from "@heroicons/react/solid";
 import { useDashboard } from "@/providers/DashboardProvider";
@@ -7,15 +7,15 @@ import NotificationEmpty from "@/components/NotificationEmpty";
 import { XIcon } from "@heroicons/react/outline";
 
 export default function DashboardNotificationControl() {
-  const { toggleNotification, dashboardState, notificationLoading } =
-    useDashboard();
+  const { dashboardState, notificationLoading } = useDashboard();
+
+  const notiRef = useRef<HTMLButtonElement>(null);
   return (
     <Popover className="relative">
       {({ open, close }) => {
-        console.log(open);
         return (
           <>
-            <Popover.Button>
+            <Popover.Button ref={notiRef}>
               <div className="relative mr-4 rounded-full bg-gray-100 p-1">
                 <BellIcon className="h-5 w-5 text-gray-900" />
                 {!notificationLoading &&

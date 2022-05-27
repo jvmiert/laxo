@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
+	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/text/message"
 	"golang.org/x/text/number"
 	"gopkg.in/guregu/null.v4"
@@ -303,6 +305,36 @@ func (s *Service) GetProductPlatformByProductID(productID string) (*sqlc.Product
 
 func (s *Service) GetProductPlatformByLazadaID(productID string) (*sqlc.ProductsPlatform, error) {
   return s.store.GetProductPlatformByLazadaID(productID)
+}
+
+func (s *Service) GetSantizedString(d string) (string) {
+  p := bluemonday.StrictPolicy()
+  santized := p.Sanitize(d)
+
+  return santized
+}
+
+func (s *Service) GetLaxoProductFromLazadaData(p *sqlc.ProductsLazada,
+  pAttribute *sqlc.ProductsAttributeLazada, pSKU *sqlc.ProductsSkuLazada) (*Product, error) {
+
+  numericPrice := pgtype.Numeric{}
+  numericPrice.Set(pSKU.Price.String)
+
+  sanitzedDescription := s.GetSantizedString(pAttribute.Description.String)
+
+  product := &Product{
+    Model: &sqlc.Product{
+      ID: "",
+      Name: pAttribute.Name,
+      Description : null.StringFrom(sanitzedDescription),
+      Msku: null.StringFrom(pSKU.SellerSku),
+      SellingPrice: numericPrice,
+      CostPrice: pgtype.Numeric{Status: pgtype.Null},
+      ShopID: p.ShopID,
+    },
+  }
+
+  return product, nil
 }
 
 func (s *Service) SaveOrUpdateProductToStore(p *Product, shopID string, lazadaID string) (*Product, error) {
