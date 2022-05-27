@@ -3,6 +3,7 @@ package proto
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 	"time"
@@ -54,6 +55,11 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
 
   if req.NotificationRedisID != "" {
     sRedisID := strings.Split(req.NotificationRedisID, "-")
+
+    if len(sRedisID) < 2 {
+      s.logger.Error("NotificationRedisID resulted in invalid split list (invalid redis ID supplied?)")
+      return errors.New("invalid Redis ID split result")
+    }
 
     time, err := strconv.ParseUint(sRedisID[0], 10, 64)
     if err != nil {

@@ -54,11 +54,47 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleOAuthRedirects)),
 	)).Methods("GET")
 
+	r.Handle("/platform-sync", n.With(
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandlePlatformSync)),
+	)).Methods("POST")
+
 	r.Handle("/platforms/lazada", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleLazadaPlatformInfo)),
 	)).Methods("GET")
 }
 
+
+func (h *shopHandler) HandlePlatformSync(w http.ResponseWriter, r *http.Request, uID string) {
+  shop, err := h.service.shop.GetActiveShopByUserID(uID)
+  if err != nil {
+    h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  b, err := shop.JSON()
+  if err != nil {
+    h.server.Logger.Errorw("shop JSON returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  _, err = h.service.temporal.StartLazadaPlatformSync(shop.Model.ID, uID)
+  if err != nil {
+    h.server.Logger.Errorw("StartLazadaPlatformSync returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+  w.Write(b)
+}
 
 func (h *shopHandler) HandleLazadaPlatformInfo(w http.ResponseWriter, r *http.Request, uID string) {
   shop, err := h.service.shop.GetActiveShopByUserID(uID)

@@ -37,11 +37,11 @@ func (c *Client) StartLazadaPlatformSync(shopID string, userID string) (string, 
 
 	we, err := c.Temporal.ExecuteWorkflow(context.Background(), workflowOptions, lazada.SyncLazadaPlatform, shopID, userID)
 	if err != nil {
-    c.logger.Error("Unable to execute workflow", "error", err)
+    c.logger.Errorw("Unable to execute workflow", "error", err)
     return "", err
 	}
 
-	c.logger.Info("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
+	c.logger.Infow("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
   return we.GetID(), nil
 }
 

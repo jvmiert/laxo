@@ -3,6 +3,7 @@ package lazada
 import (
 	"time"
 
+	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
@@ -32,9 +33,15 @@ func SyncLazadaPlatform(ctx workflow.Context, shopID, userID string) (err error)
     return err
   }
 
-	ao := workflow.ActivityOptions{
-		StartToCloseTimeout: 5 * time.Minute,
-	}
+  ao := workflow.ActivityOptions{
+    StartToCloseTimeout: 5 * time.Minute,
+    RetryPolicy: &temporal.RetryPolicy{
+      InitialInterval:    time.Minute,
+      BackoffCoefficient: 2.0,
+      MaximumInterval:    10 * time.Minute,
+      MaximumAttempts:    2,
+    },
+  }
   sessionCtx := workflow.WithActivityOptions(ctx, ao)
 
   var fetchData LazadaFetchResult

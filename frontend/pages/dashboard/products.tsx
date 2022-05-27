@@ -7,6 +7,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import { useGetLaxoProducts } from "@/hooks/swrHooks";
+import useShopApi from "@/hooks/useShopApi";
 import { generatePaginateNumbers } from "@/lib/paginate";
 import {
   ChevronRightIcon,
@@ -52,6 +53,12 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
     query: { p: queryPageNumber, l: queryLimitNumber },
   } = useRouter();
   const { products } = useGetLaxoProducts(0, 50);
+  const { doPlatformSync } = useShopApi();
+
+  const handlePlatformSync = async () => {
+    const result = await doPlatformSync();
+    console.log(result);
+  };
 
   const maxPage = 6;
 
@@ -127,7 +134,10 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
           />
         </div>
         <div>
-          <button className="inline-flex items-center rounded-md border border-indigo-500 bg-indigo-500 py-2 px-4 text-white shadow shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-indigo-200">
+          <button
+            onClick={handlePlatformSync}
+            className="inline-flex items-center rounded-md border border-indigo-500 bg-indigo-500 py-2 px-4 text-white shadow shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-indigo-200"
+          >
             <RefreshIcon className="mr-2 -ml-1 h-4 w-4" />
             {t.formatMessage({
               defaultMessage: "Sync Products",

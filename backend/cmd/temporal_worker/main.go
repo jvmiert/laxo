@@ -1,11 +1,9 @@
 package main
 
 import (
-	"context"
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/mediocregopher/radix/v4"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 	"laxo.vn/laxo/laxo"
@@ -56,19 +54,25 @@ func main() {
 
   redisURI := os.Getenv("REDIS_URL")
 
-  if redisURI == "" {
-		logger.Fatal("Redis URL not set in env")
-  }
-
-  RedisClient, err := (radix.PoolConfig{}).New(context.Background(), "tcp", redisURI)
-  if err != nil {
-		logger.Fatalw("Unable to connect to Redis",
+  if err = server.InitRedis(redisURI); err != nil {
+    logger.Errorw("Failed to init Redis",
       "error", err,
     )
+    return
+  }
+
+  dbURI := os.Getenv("POSTGRESQL_URL")
+
+  if err = server.InitDatabase(dbURI); err != nil {
+    logger.Errorw("Failed to init Database",
+      "error", err,
+      "uri", dbURI,
+    )
+    return
   }
 
   assetsBasePath := os.Getenv("ASSETS_BASE_PATH")
-  dbURI := os.Getenv("POSTGRESQL_URL")
+
   store, err := store.NewStore(dbURI, logger, assetsBasePath)
   if err != nil {
     logger.Fatalw("Failed to create new store",
@@ -89,7 +93,7 @@ func main() {
 
 	w.RegisterWorkflow(lazada.SyncLazadaPlatform)
 
-  activities := lazada.NewActivities(&RedisClient, &notificationService, &lazadaService, &shopService, &assetsService)
+  activities := lazada.NewActivities(&server.RedisClient, &notificationService, &lazadaService, &shopService, &assetsService)
 	w.RegisterActivity(activities)
 
 	err = w.Run(worker.InterruptCh())
