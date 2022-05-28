@@ -88,8 +88,8 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
   streamReaderConfig := radix.StreamReaderConfig{
     Group:     "",
     Consumer:  "",
-    Count:     -1,
     NoBlock: false,
+    Count:     -1,
   }
 
   streamConfig[channelID] = sc
@@ -119,7 +119,7 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
   }(timeoutCtx)
 
   for {
-    ctx, cancel := context.WithCancel(timeoutCtx)
+    ctx, cancel := context.WithTimeout(timeoutCtx, 30 * time.Second)
     defer cancel()
 
     _, entry, err := r.Next(ctx)

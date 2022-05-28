@@ -205,8 +205,13 @@ func main() {
     temporalClient.Close()
   }
 
-  _ = httpServer.Shutdown(shutdownCtx)
-  _ = grpcHttpServer.Shutdown(shutdownCtx)
+  if httpServer != nil {
+    _ = httpServer.Shutdown(shutdownCtx)
+  }
+
+  if grpcHttpServer != nil {
+    _ = grpcHttpServer.Shutdown(shutdownCtx)
+  }
 
   err = g.Wait()
   if err != nil && err != http.ErrServerClosed {
