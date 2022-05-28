@@ -1,6 +1,6 @@
 BEGIN;
 CREATE TABLE IF NOT EXISTS products_lazada(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   lazada_id BIGINT NOT NULL,
   lazada_primary_category BIGINT NOT NULL,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS products_lazada(
 );
 
 CREATE TABLE IF NOT EXISTS products_attribute_lazada(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   name TEXT,
   short_description TEXT,
   description TEXT,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS products_attribute_lazada(
 );
 
 CREATE TABLE IF NOT EXISTS products_sku_lazada(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   status VARCHAR(128),
   quantity INTEGER,
   seller_sku VARCHAR(200) NOT NULL,

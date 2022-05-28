@@ -5,14 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgtype"
 	"github.com/urfave/negroni"
-	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/assets"
 	"laxo.vn/laxo/laxo/lazada"
 	"laxo.vn/laxo/laxo/shop"
-	"laxo.vn/laxo/laxo/sqlc"
 )
 
 type testHandlerService struct {
@@ -45,7 +42,27 @@ func InitTestHandler(server *laxo.Server, l *lazada.Service, p *shop.Service, a 
 }
 
 func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID string) {
-  p, err := h.service.lazada.RetrieveProductFromRedis("product_lazada_test", 1)
+  //s, err := h.service.shop.GetActiveShopByUserID(uID)
+  //if err != nil {
+  //  h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+  //    "error", err,
+  //  )
+  //  http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+  //  return
+  //}
+
+  //key, total, err := h.service.lazada.FetchProductsFromLazadaToRedis(s.Model.ID)
+  //if err != nil {
+  //  h.server.Logger.Error("FetchProductsFromLazadaToRedis error", "error", err)
+  //  http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+  //  return
+  //}
+
+  //h.server.Logger.Debugw("got FetchProductsFromLazadaToRedis results",
+  //  "key", key, "total", total,
+  //)
+
+  p, err := h.service.lazada.RetrieveProductFromRedis("product_lazada_01G1FZCVYH9J47DB2HZENSBC6E", 1)
   if err != nil {
     h.server.Logger.Errorw("RetrieveProductFromRedis error",
       "error", err,
@@ -63,21 +80,13 @@ func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID str
     return
   }
 
-  numericPrice := pgtype.Numeric{}
-  numericPrice.Set(pModelSKU.Price.String)
-
-  sanitzedDescription := h.service.shop.GetSantizedString(pModelAttributes.Description.String)
-
-  product := &shop.Product{
-    Model: &sqlc.Product{
-      ID: "",
-      Name: pModelAttributes.Name,
-      Description : null.StringFrom(sanitzedDescription),
-      Msku: null.StringFrom(pModelSKU.SellerSku),
-      SellingPrice: numericPrice,
-      CostPrice: pgtype.Numeric{Status: pgtype.Null},
-      ShopID: pModel.ShopID,
-    },
+  product, err := h.service.shop.GetLaxoProductFromLazadaData(pModel, pModelAttributes, pModelSKU)
+  if err != nil {
+    h.server.Logger.Error("GetLaxoProductFromLazadaData error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
   }
 
   laxoP, err := h.service.shop.SaveOrUpdateProductToStore(product, "01G1FZCVYH9J47DB2HZENSBC6E", pModel.ID)

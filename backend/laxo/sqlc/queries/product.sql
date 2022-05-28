@@ -60,7 +60,6 @@ UPDATE products
 SET
  name = coalesce(sqlc.narg('name'), name),
  description = coalesce(sqlc.narg('description'), description),
- msku = coalesce(sqlc.narg('msku'), msku),
  selling_price = coalesce(sqlc.narg('selling_price'), selling_price),
  cost_price = coalesce(sqlc.narg('cost_price'), cost_price),
  shop_id = coalesce(sqlc.narg('shop_id'), shop_id),

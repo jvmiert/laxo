@@ -3,7 +3,7 @@ package store
 import (
 	"context"
 	"errors"
-	"strconv"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v4"
@@ -71,7 +71,7 @@ func (s *lazadaStore) GetValidTokenByShopID(shopID string) (string, error) {
     shopID,
   )
   if err != nil {
-    return "", err
+    return "", fmt.Errorf("GetValidAccessTokenByShopID: %w", err)
   }
 
   return accessToken, nil
@@ -82,8 +82,8 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductSKU(sku []lazada.ProductsResponse
     return nil, errors.New("product does not have Lazada SKU")
   }
 
-  priceString := strconv.FormatInt(sku[0].Price.Int64, 10)
-  specialPriceString := strconv.FormatInt(sku[0].SpecialPrice.Int64, 10)
+  priceString := sku[0].Price.String()
+  specialPriceString := sku[0].SpecialPrice.String()
 
   skuModel, err := s.queries.GetLazadaProductSKUByProductID(
     context.Background(),
@@ -91,7 +91,7 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductSKU(sku []lazada.ProductsResponse
   )
 
   if err != pgx.ErrNoRows && err != nil {
-    return nil, err
+    return nil, fmt.Errorf("GetLazadaProductSKUByProductID: %w", err)
   }
 
   var pSKUModel sqlc.ProductsSkuLazada
@@ -126,7 +126,7 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductSKU(sku []lazada.ProductsResponse
     )
 
     if err != nil {
-      return nil, err
+      return nil, fmt.Errorf("CreateLazadaProductSKU: %w", err)
     }
 
     return &pSKUModel, nil
@@ -162,7 +162,7 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductSKU(sku []lazada.ProductsResponse
   )
 
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("UpdateLazadaProductSKU: %w", err)
   }
 
   return &pSKUModel, nil
@@ -175,7 +175,7 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductAttribute(a *lazada.ProductsRespo
   )
 
   if err != pgx.ErrNoRows && err != nil {
-    return nil, err
+    return nil, fmt.Errorf("GetLazadaProductAttributeByProductID: %w", err)
   }
 
   var pAttributeModel sqlc.ProductsAttributeLazada
@@ -215,7 +215,7 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductAttribute(a *lazada.ProductsRespo
     )
 
     if err != nil {
-      return nil, err
+      return nil, fmt.Errorf("CreateLazadaProductAttribute: %w", err)
     }
 
     return &pAttributeModel, nil
@@ -256,7 +256,7 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductAttribute(a *lazada.ProductsRespo
   )
 
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("UpdateLazadaProductAttribute: %w", err)
   }
 
   return &pAttributeModel, nil
@@ -276,7 +276,7 @@ func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProduc
   pModel, err = s.queries.GetLazadaProductByLazadaID(context.Background(), qParam)
 
   if err != pgx.ErrNoRows && err != nil {
-    return nil, nil, nil, err
+    return nil, nil, nil, fmt.Errorf("GetLazadaProductByLazadaID: %w", err)
   }
 
   if pModel.ID == "" {
@@ -296,17 +296,17 @@ func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProduc
     )
 
     if err != nil {
-      return nil, nil, nil, err
+      return nil, nil, nil, fmt.Errorf("CreateLazadaProduct: %w", err)
     }
 
     pModelAttributes, err = s.SaveOrUpdateLazadaProductAttribute(&p.Attributes, pModel.ID)
     if err != nil {
-      return nil, nil, nil, err
+      return nil, nil, nil, fmt.Errorf("SaveOrUpdateLazadaProductAttribute: %w", err)
     }
 
     pModelSKU, err = s.SaveOrUpdateLazadaProductSKU(p.Skus, pModel.ID, shopID)
     if err != nil {
-      return nil, nil, nil, err
+      return nil, nil, nil, fmt.Errorf("SaveOrUpdateLazadaProductSKU: %w", err)
     }
 
     return &pModel, pModelAttributes, pModelSKU, nil
@@ -328,18 +328,18 @@ func (s *lazadaStore) SaveOrUpdateLazadaProduct(p *lazada.ProductsResponseProduc
   )
 
   if err != nil {
-    return nil, nil, nil, err
+    return nil, nil, nil, fmt.Errorf("UpdateLazadaProduct: %w", err)
   }
 
   pModelAttributes, err = s.SaveOrUpdateLazadaProductAttribute(&p.Attributes, pModel.ID)
   if err != nil {
-    return nil, nil, nil, err
+    return nil, nil, nil, fmt.Errorf("SaveOrUpdateLazadaProductAttribute: %w", err)
   }
 
 
   pModelSKU, err = s.SaveOrUpdateLazadaProductSKU(p.Skus, pModel.ID, shopID)
   if err != nil {
-    return nil, nil, nil, err
+    return nil, nil, nil, fmt.Errorf("SaveOrUpdateLazadaProductSKU: %w", err)
   }
 
   return &pModel, pModelAttributes, pModelSKU, nil

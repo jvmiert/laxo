@@ -354,20 +354,18 @@ UPDATE products
 SET
  name = coalesce($1, name),
  description = coalesce($2, description),
- msku = coalesce($3, msku),
- selling_price = coalesce($4, selling_price),
- cost_price = coalesce($5, cost_price),
- shop_id = coalesce($6, shop_id),
- media_id = coalesce($7, media_id),
- updated = coalesce($8, updated)
-WHERE id = $9
+ selling_price = coalesce($3, selling_price),
+ cost_price = coalesce($4, cost_price),
+ shop_id = coalesce($5, shop_id),
+ media_id = coalesce($6, media_id),
+ updated = coalesce($7, updated)
+WHERE id = $8
 RETURNING id, name, description, msku, selling_price, cost_price, shop_id, media_id, created, updated
 `
 
 type UpdateProductParams struct {
 	Name         null.String    `json:"name"`
 	Description  null.String    `json:"description"`
-	Msku         null.String    `json:"msku"`
 	SellingPrice pgtype.Numeric `json:"sellingPrice"`
 	CostPrice    pgtype.Numeric `json:"costPrice"`
 	ShopID       null.String    `json:"shopID"`
@@ -380,7 +378,6 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 	row := q.db.QueryRow(ctx, updateProduct,
 		arg.Name,
 		arg.Description,
-		arg.Msku,
 		arg.SellingPrice,
 		arg.CostPrice,
 		arg.ShopID,

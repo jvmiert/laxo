@@ -98,8 +98,8 @@ type ProductsResponseSkus struct {
   PackageWidth         null.String   `json:"package_width"`
   ColorFamily          null.String   `json:"color_family"`
   PackageHeight        null.String   `json:"package_height"`
-  SpecialPrice         null.Int      `json:"special_price"`
-  Price                null.Int      `json:"price"`
+  SpecialPrice         json.Number   `json:"special_price"`
+  Price                json.Number   `json:"price"`
   PackageLength        null.String   `json:"package_length"`
   PackageWeight        null.String   `json:"package_weight"`
   Available            null.Int      `json:"Available"`
@@ -245,7 +245,6 @@ func (lc *LazadaClient) QueryProduct(itemID null.Int, sellerSKU null.String) (*P
     lc.AddAPIParam("item_id", strconv.Itoa(int(itemID.Int64)))
   }
 
-
   if sellerSKU.Valid {
     lc.AddAPIParam("seller_sku", sellerSKU.String)
   }
@@ -279,7 +278,6 @@ func (lc *LazadaClient) QueryProduct(itemID null.Int, sellerSKU null.String) (*P
 	}
 
 	defer httpResp.Body.Close()
-
 
 	respBody, err := ioutil.ReadAll(httpResp.Body)
 
@@ -326,56 +324,61 @@ func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResp
 	apiPath := "/products/get"
 	apiServerURL := "https://api.lazada.vn/rest"
 
-
 	values.Add("sign", lc.sign(apiPath))
 	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
+
+  //lc.Logger.Debugw("Making Lazada query", "url", fullURL)
 
 	req, err = http.NewRequest("GET", fullURL, nil)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("NewRequest: %w", err)
 	}
 
 	httpResp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("http Do: %w", err)
 	}
 
 	defer httpResp.Body.Close()
 
-
 	respBody, err := ioutil.ReadAll(httpResp.Body)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ioutil ReadAll: %w", err)
 	}
 
   resp := &ProductsResponse{}
   err = json.Unmarshal(respBody, resp)
-
   if err != nil {
-    return nil, err
+    var unmarshalTypeError *json.UnmarshalTypeError
+
+    if errors.As(err, &unmarshalTypeError) {
+      return nil, fmt.Errorf("ProductsResponse Unmarshal: %w", unmarshalTypeError)
+    }
+
+    return nil, fmt.Errorf("ProductsResponse Unmarshal: %w", err)
   }
 
   resp.RawData = respBody
 
   if resp.Code != "0" {
-    return nil, ErrProductsFailed
+    return nil, fmt.Errorf("lazada API response: %w", ErrProductsFailed)
   }
 
   for i := range resp.Data.Products {
     // parse the product update/created times
     p := &resp.Data.Products[i]
     if err = p.ParseTime(); err != nil {
-      return nil, err
+      return nil, fmt.Errorf("product ParseTime: %w", err)
     }
 
     // parse sku special times
     for j := range resp.Data.Products[i].Skus {
       s := &resp.Data.Products[i].Skus[j]
       if err = s.ParseTime(); err != nil {
-        return nil, err
+        return nil, fmt.Errorf("product SKU ParseTime: %w", err)
       }
     }
   }

@@ -1,6 +1,6 @@
 BEGIN;
 CREATE TABLE IF NOT EXISTS platform_lazada(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   shop_id CHAR(26) NOT NULL,
   access_token VARCHAR(128) NOT NULL,
   country VARCHAR(8) NOT NULL,

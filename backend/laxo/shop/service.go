@@ -58,12 +58,11 @@ func (s *Service) GetActiveShopByUserID(userID string) (*Shop, error) {
   shops, err := s.store.RetrieveShopsByUserID(userID)
 
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("RetrieveShopsByUserID: %w", err)
   }
 
   if len(shops) < 1 {
-    err := ErrUserNoShops
-    return nil, err
+    return nil, ErrUserNoShops
   }
 
   return &shops[0], nil
@@ -72,7 +71,7 @@ func (s *Service) GetActiveShopByUserID(userID string) (*Shop, error) {
 func (s *Service) SaveNewShopToDB(shop *Shop, u string) error {
   _, err := s.store.SaveNewShopToStore(shop, u)
 
-  return err
+  return fmt.Errorf("SaveNewShopToStore: %w", err)
 }
 
 func (s *Service) RetrieveShopsPlatformsByUserID(userID string) ([]sqlc.GetShopsPlatformsByUserIDRow, error) {
@@ -345,14 +344,14 @@ func (s *Service) SaveOrUpdateProductToStore(p *Product, shopID string, lazadaID
 
   platform, err = s.GetProductPlatformByLazadaID(lazadaID)
   if err != pgx.ErrNoRows && err != nil {
-    return nil, err
+    return nil, fmt.Errorf("GetProductPlatformByLazadaID: %w", err)
   }
 
   // product was not yet saved
   if err == pgx.ErrNoRows {
     newModel, err = s.store.SaveNewProductToStore(p, shopID)
     if err != nil {
-      return nil, err
+      return nil, fmt.Errorf("SaveNewProductToStore: %w", err)
     }
 
     param := &sqlc.CreateProductPlatformParams{
@@ -361,7 +360,7 @@ func (s *Service) SaveOrUpdateProductToStore(p *Product, shopID string, lazadaID
     }
     platform, err = s.store.CreateProductPlatform(param)
     if err != nil {
-      return nil, err
+      return nil, fmt.Errorf("CreateProductPlatform: %w", err)
     }
 
     pReturn = &Product{
@@ -376,7 +375,7 @@ func (s *Service) SaveOrUpdateProductToStore(p *Product, shopID string, lazadaID
 
   newModel, err = s.store.UpdateProductToStore(p)
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("UpdateProductToStore: %w", err)
   }
 
   pReturn = &Product{

@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v4"
@@ -125,7 +126,6 @@ func (s *shopStore) UpdateProductToStore(p *shop.Product) (*sqlc.Product, error)
   params := sqlc.UpdateProductParams{
     Name: p.Model.Name,
     Description: p.Model.Description,
-    Msku: p.Model.Msku,
     SellingPrice: p.Model.SellingPrice,
     CostPrice: p.Model.CostPrice,
     ShopID: null.StringFrom(p.Model.ShopID),
@@ -138,7 +138,11 @@ func (s *shopStore) UpdateProductToStore(p *shop.Product) (*sqlc.Product, error)
     params,
   )
 
-  return &newModel, err
+  if err != nil {
+    return &newModel, fmt.Errorf("UpdateProduct: %w", err)
+  }
+
+  return &newModel, nil
 }
 
 func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc.Product, error) {
@@ -152,7 +156,7 @@ func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc
     )
 
     if err != pgx.ErrNoRows && err != nil {
-      return nil, err
+      return nil, fmt.Errorf("GetProductByID: %w", err)
     }
   }
 
@@ -167,7 +171,7 @@ func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc
     )
 
     if err != pgx.ErrNoRows && err != nil {
-      return nil, err
+      return nil, fmt.Errorf("GetProductByProductMSKU: %w", err)
     }
   }
 
@@ -175,7 +179,7 @@ func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc
     params := sqlc.CreateProductParams{
       Name: p.Model.Name,
       Description: p.Model.Description,
-      Msku: p.Model.Description,
+      Msku: p.Model.Msku,
       SellingPrice: p.Model.SellingPrice,
       CostPrice: p.Model.CostPrice,
       ShopID: p.Model.ShopID,
@@ -187,7 +191,7 @@ func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc
       params,
     )
     if err != nil {
-      return nil, err
+      return nil, fmt.Errorf("CreateProduct: %w", err)
     }
 
     return &pModel, nil
@@ -196,7 +200,6 @@ func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc
   params := sqlc.UpdateProductParams{
     Name: p.Model.Name,
     Description: p.Model.Description,
-    Msku: p.Model.Description,
     SellingPrice: p.Model.SellingPrice,
     CostPrice: p.Model.CostPrice,
     ShopID: null.StringFrom(p.Model.ShopID),
@@ -210,7 +213,7 @@ func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc
     params,
   )
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("UpdateProduct: %w", err)
   }
 
   return &newModel, nil

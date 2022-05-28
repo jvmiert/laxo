@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 
@@ -94,7 +95,7 @@ func (s *Service) RetrieveProductFromRedis(keyID string, index int) (*ProductsRe
   mb := radix.Maybe{Rcv: &rcv}
 
   if err := s.server.RedisClient.Do(ctx, radix.Cmd(&mb, "HGET", keyID, i)); err != nil {
-    return nil, err
+    return nil, fmt.Errorf("redis Do: %w", err)
   }
 
   if mb.Null || mb.Empty {
@@ -105,7 +106,7 @@ func (s *Service) RetrieveProductFromRedis(keyID string, index int) (*ProductsRe
 
   err := json.Unmarshal([]byte(*mb.Rcv.(*string)), &response)
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("product response unmarshal: %w", err)
   }
 
   return &response, nil
@@ -144,14 +145,14 @@ func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, int, er
   token, err := s.GetValidTokenByShopID(shopID)
   if err != nil {
     if err == pgx.ErrNoRows {
-      return "", 0, ErrNoValidToken
+      return "", 0, fmt.Errorf("GetValidTokenByShopID: %w", ErrNoValidToken)
     }
     return "", 0, err
   }
 
   client, err := s.NewLazadaClient(token)
   if err != nil {
-    return "", 0, err
+    return "", 0, fmt.Errorf("NewLazadaClient: %w", err)
   }
 
   response, err := client.QueryProducts(QueryProductsParams{
@@ -159,14 +160,14 @@ func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, int, er
     Offset: 0,
   })
   if err != nil {
-    return "", 0, err
+    return "", 0, fmt.Errorf("QueryProducts: %w", err)
   }
 
   keyID := redisKeyPrefix + shopID
 
   for i, product := range response.Data.Products {
     if err = s.SaveProductToRedis(keyID, i, product); err != nil {
-      return "", 0, err
+      return "", 0, fmt.Errorf("SaveProductToRedis: %w", err)
     }
   }
 
@@ -178,19 +179,19 @@ func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, int, er
     return keyID, response.Data.TotalProducts, nil
   }
 
-  for i := 0; i < fetchesRequired; i++ {
+  for i := 1; i <= fetchesRequired; i++ {
     response, err = client.QueryProducts(QueryProductsParams{
       Limit: 50,
       Offset: 50 * i,
     })
     if err != nil {
-      return "", 0, err
+      return "", 0, fmt.Errorf("QueryProducts: %w", err)
     }
 
     for j, product := range response.Data.Products {
-      index := (i + 1) * 50 + j
+      index := i * 50 + j
       if err := s.SaveProductToRedis(keyID, index, product); err != nil {
-        return "", 0, err
+        return "", 0, fmt.Errorf("SaveProductToRedis: %w", err)
       }
     }
   }

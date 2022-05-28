@@ -77,11 +77,24 @@ func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte,
     return errors.New("no extension found for image")
   }
 
+  fileExt := ""
+
+  for _, e := range ext {
+    if e == ".jpg" {
+      fileExt = ".jpg"
+      break
+    }
+  }
+
+  if fileExt == "" {
+    fileExt = ext[0]
+  }
+
   params := sqlc.CreateProductMediaParams{
     ProductID: productID,
     OriginalFilename: null.StringFrom(oFilename),
     MurmurHash: null.IntFrom(mID),
-    Extension: null.StringFrom(ext[0]),
+    Extension: null.StringFrom(fileExt),
   }
 
   pMModel, err := s.queries.CreateProductMedia(
@@ -92,7 +105,7 @@ func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte,
     return err
   }
 
-  filename := pMModel.ID + ext[0]
+  filename := pMModel.ID + fileExt
 
   path := s.assetsPath + string(os.PathSeparator) + productImageDir + string(os.PathSeparator) + filename
 
