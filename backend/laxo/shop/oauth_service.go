@@ -61,7 +61,7 @@ func (s *Service) GenerateRedirect(r *OAuthRedirectRequest) error {
         return errors.New("lazada client id not set")
       }
 
-      url.WriteString("https://auth.lazada.com/oauth/authorize?response_type=code&force_auth=true&redirect_uri=")
+      url.WriteString("https://auth.lazada.com/oauth/authorize?response_type=code&country=vn&force_auth=true&redirect_uri=")
       url.WriteString(s.server.Config.CallbackBasePath)
       url.WriteString("lazada&client_id=")
       url.WriteString(clientID)

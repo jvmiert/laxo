@@ -10,12 +10,7 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - Render items
   - Make a hook/component for normal pagination vs searching
   - Figure out visual look
-- Make the dashboard page
-  - Handle error messages in callback page
-  - Handle successful redirect in callback page
-- Create products dashboard page
-  - Retrieve product and their attributes
-- Write test for get shop
+  - Retrieve correct product information according to similiar services
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.
   - https://go.dev/tour/methods/15 (make sure the type casting is error checked)
