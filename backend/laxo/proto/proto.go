@@ -122,14 +122,6 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
     ctx, cancel := context.WithCancel(timeoutCtx)
     defer cancel()
 
-    select {
-      case <-timeoutCtx.Done():
-        return nil
-      case <-s.ctx.Done():
-        return nil
-      default:
-    }
-
     _, entry, err := r.Next(ctx)
     cancel()
     if err != nil {
@@ -161,6 +153,7 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
             CurrentMainStep: n.Model.CurrentMainStep.ValueOrZero(),
             MainMessage: n.Model.MainMessage.ValueOrZero(),
             SubMessage: n.Model.SubMessage.ValueOrZero(),
+            Error: n.Model.Error.ValueOrZero(),
           }
 
           if n.Model.Read.Valid {
@@ -178,6 +171,7 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
             WorkflowID: n.GroupModel.WorkflowID.ValueOrZero(),
             EntityID: n.GroupModel.EntityID,
             EntityType: n.GroupModel.EntityType,
+            PlatformName: n.GroupModel.PlatformName,
             TotalMainSteps: n.GroupModel.TotalMainSteps.ValueOrZero(),
           }
 

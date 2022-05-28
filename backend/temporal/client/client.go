@@ -9,11 +9,11 @@ import (
 )
 
 type Client struct {
-  Temporal client.Client
-  logger   laxo.Logger
+  temporal client.Client
+  logger   *laxo.Logger
 }
 
-func NewClient() (*Client, error) {
+func NewClient(l *laxo.Logger) (*Client, error) {
   tClient, err := client.NewClient(client.Options{
 		HostPort: client.DefaultHostPort,
   })
@@ -23,10 +23,15 @@ func NewClient() (*Client, error) {
   }
 
   c := &Client{
-    Temporal: tClient,
+    temporal: tClient,
+    logger: l,
   }
 
   return c, err
+}
+
+func (c *Client) Close() {
+  c.temporal.Close()
 }
 
 func (c *Client) StartLazadaPlatformSync(shopID string, userID string) (string, error) {
@@ -35,7 +40,7 @@ func (c *Client) StartLazadaPlatformSync(shopID string, userID string) (string, 
     TaskQueue: "product",
   }
 
-	we, err := c.Temporal.ExecuteWorkflow(context.Background(), workflowOptions, lazada.SyncLazadaPlatform, shopID, userID)
+	we, err := c.temporal.ExecuteWorkflow(context.Background(), workflowOptions, lazada.SyncLazadaPlatform, shopID, userID)
 	if err != nil {
     c.logger.Errorw("Unable to execute workflow", "error", err)
     return "", err

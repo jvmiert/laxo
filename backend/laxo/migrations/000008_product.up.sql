@@ -1,6 +1,6 @@
 BEGIN;
 CREATE TABLE IF NOT EXISTS products(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   name TEXT,
   description TEXT,
   msku TEXT,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS products(
 );
 
 CREATE TABLE IF NOT EXISTS products_media(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   product_id CHAR(26) NOT NULL,
   original_filename TEXT,
   extension VARCHAR(32),

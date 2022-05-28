@@ -35,6 +35,9 @@ export class Notification extends jspb.Message {
   getSubmessage(): string;
   setSubmessage(value: string): void;
 
+  getError(): boolean;
+  setError(value: boolean): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Notification.AsObject;
   static toObject(includeInstance: boolean, msg: Notification): Notification.AsObject;
@@ -56,6 +59,7 @@ export namespace Notification {
     currentsubstep: number,
     mainmessage: string,
     submessage: string,
+    error: boolean,
   }
 }
 
@@ -74,6 +78,9 @@ export class NotificationGroup extends jspb.Message {
 
   getEntitytype(): string;
   setEntitytype(value: string): void;
+
+  getPlatformname(): string;
+  setPlatformname(value: string): void;
 
   getTotalmainsteps(): number;
   setTotalmainsteps(value: number): void;
@@ -100,6 +107,7 @@ export namespace NotificationGroup {
     workflowid: string,
     entityid: string,
     entitytype: string,
+    platformname: string,
     totalmainsteps: number,
     totalsubsteps: number,
   }

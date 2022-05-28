@@ -1,6 +1,6 @@
 BEGIN;
 CREATE TABLE IF NOT EXISTS notifications_group(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   user_id CHAR(26) NOT NULL,
   workflow_id VARCHAR(64),
   entity_id CHAR(26) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS notifications_group(
   CONSTRAINT fk_user_notification_group FOREIGN KEY(user_id) REFERENCES users(id)
 );
 CREATE TABLE IF NOT EXISTS notifications(
-  id CHAR(26) DEFAULT ulid_create() NOT NULL PRIMARY KEY,
+  id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   redis_id VARCHAR(18),
   notification_group_id CHAR(26) NOT NULL,
   created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

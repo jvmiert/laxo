@@ -7,7 +7,7 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v4"
 	"github.com/mediocregopher/radix/v4"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/sqlc"

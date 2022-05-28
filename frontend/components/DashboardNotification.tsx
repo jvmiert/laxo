@@ -1,7 +1,11 @@
 import { useCallback } from "react";
 import cc from "classcat";
 import { defineMessage, useIntl, MessageDescriptor } from "react-intl";
-import { CollectionIcon, CheckIcon } from "@heroicons/react/outline";
+import {
+  CollectionIcon,
+  CheckIcon,
+  ExclamationIcon,
+} from "@heroicons/react/outline";
 import type { Notification, NotificationGroup } from "@/types/ApiResponse";
 import { formatDistance } from "date-fns";
 import { useRouter } from "next/router";
@@ -48,6 +52,22 @@ const notificationCompleteTranslate = function (
   }
 };
 
+const notificationErrorTranslate = function (key: string): MessageDescriptor {
+  switch (key) {
+    case "product_add":
+      return defineMessage({
+        description: "notification error message: product sync",
+        defaultMessage: "Could not synchronize",
+      });
+
+    default:
+      return defineMessage({
+        description: "notification error message: default",
+        defaultMessage: "Something went wrong...",
+      });
+  }
+};
+
 const notificationMainTranslate = function (key: string): MessageDescriptor {
   switch (key) {
     case "product_add":
@@ -76,7 +96,37 @@ export default function DashboardNotification({
   const t = useIntl();
   const { locale } = useRouter();
 
-  const done = notification.mainMessage == "complete";
+  const done = notification.mainMessage == "complete" || notification.error;
+
+  const getTitleMessage = () => {
+    if (notification.mainMessage == "complete") {
+      return t.formatMessage(
+        notificationCompleteTranslate(notificationGroup.entityType),
+      );
+    }
+
+    if (notification.error) {
+      return t.formatMessage(
+        notificationErrorTranslate(notificationGroup.entityType),
+      );
+    }
+
+    return t.formatMessage(
+      notificationMainTranslate(notificationGroup.entityType),
+    );
+  };
+
+  const getIcon = () => {
+    if (notification.mainMessage == "complete") {
+      return <CheckIcon className="h-4 w-4 text-indigo-500" />;
+    }
+
+    if (notification.error) {
+      return <ExclamationIcon className="h-4 w-4 text-indigo-500" />;
+    }
+
+    return <CollectionIcon className="h-4 w-4 text-indigo-500" />;
+  };
 
   const showSubCount =
     !!notification.currentSubStep && notification.currentSubStep;
@@ -109,13 +159,7 @@ export default function DashboardNotification({
   return (
     <div className="flex min-w-full flex-row rounded px-4">
       <div className="flex items-center pr-4">
-        <div className="rounded-full bg-indigo-100 p-4">
-          {done ? (
-            <CheckIcon className="h-4 w-4 text-indigo-500" />
-          ) : (
-            <CollectionIcon className="h-4 w-4 text-indigo-500" />
-          )}
-        </div>
+        <div className="rounded-full bg-indigo-100 p-4">{getIcon()}</div>
       </div>
       <div className="max-w-[400px] flex-grow space-y-2">
         <div
@@ -128,15 +172,7 @@ export default function DashboardNotification({
             transformOrigin: "top",
           }}
         >
-          <p className="text-sm font-medium">
-            {!done
-              ? t.formatMessage(
-                  notificationMainTranslate(notificationGroup.entityType),
-                )
-              : t.formatMessage(
-                  notificationCompleteTranslate(notificationGroup.entityType),
-                )}
-          </p>
+          <p className="text-sm font-medium">{getTitleMessage()}</p>
           <div
             className="absolute left-0 top-full"
             style={{

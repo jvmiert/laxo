@@ -71,7 +71,7 @@ func main() {
     return
   }
 
-  temporalClient, err := temporal_client.NewClient()
+  temporalClient, err := temporal_client.NewClient(logger)
   if err != nil {
     logger.Errorw("Failed to create Temporal client",
       "error", err,
@@ -202,7 +202,7 @@ func main() {
   defer shutdownCancel()
 
   if temporalClient != nil {
-    temporalClient.Temporal.Close()
+    temporalClient.Close()
   }
 
   _ = httpServer.Shutdown(shutdownCtx)

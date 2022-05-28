@@ -19,6 +19,7 @@ message Notification {
   optional int64  currentSubStep = 7;
   string mainMessage = 8;
   string subMessage = 9;
+  bool   error = 10;
 }
 
 message NotificationGroup {
@@ -27,8 +28,9 @@ message NotificationGroup {
   string workflowID = 3;
   string entityID = 4;
   string entityType = 5;
-  int64  totalMainSteps = 6;
-  optional int64  totalSubSteps = 7;
+  string platformName = 6;
+  int64  totalMainSteps = 7;
+  optional int64  totalSubSteps = 8;
 }
 
 message NotificationUpdateRequest {

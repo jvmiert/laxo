@@ -95,6 +95,7 @@ const onMessageFunc = (dispatch: Dispatch<DashboardAction>) => {
           : undefined,
         mainMessage: notiObject.mainmessage,
         subMessage: notiObject.submessage,
+        error: notiObject.error,
       },
       notificationGroup: {
         id: notiGroupObject.id,
@@ -102,6 +103,7 @@ const onMessageFunc = (dispatch: Dispatch<DashboardAction>) => {
         workflowID: notiGroupObject.workflowid,
         entityID: notiGroupObject.entityid,
         entityType: notiGroupObject.entitytype,
+        platformName: notiGroupObject.platformname,
         totalMainSteps: notiGroupObject.totalmainsteps,
         totalSubSteps: notificationGroup.hasTotalsubsteps()
           ? notiGroupObject.totalsubsteps

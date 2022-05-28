@@ -149,7 +149,8 @@ proto.user.Notification.toObject = function(includeInstance, msg) {
     currentmainstep: jspb.Message.getFieldWithDefault(msg, 6, 0),
     currentsubstep: jspb.Message.getFieldWithDefault(msg, 7, 0),
     mainmessage: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    submessage: jspb.Message.getFieldWithDefault(msg, 9, "")
+    submessage: jspb.Message.getFieldWithDefault(msg, 9, ""),
+    error: jspb.Message.getBooleanFieldWithDefault(msg, 10, false)
   };
 
   if (includeInstance) {
@@ -221,6 +222,10 @@ proto.user.Notification.deserializeBinaryFromReader = function(msg, reader) {
     case 9:
       var value = /** @type {string} */ (reader.readString());
       msg.setSubmessage(value);
+      break;
+    case 10:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setError(value);
       break;
     default:
       reader.skipField();
@@ -311,6 +316,13 @@ proto.user.Notification.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       9,
+      f
+    );
+  }
+  f = message.getError();
+  if (f) {
+    writer.writeBool(
+      10,
       f
     );
   }
@@ -515,6 +527,24 @@ proto.user.Notification.prototype.setSubmessage = function(value) {
 };
 
 
+/**
+ * optional bool error = 10;
+ * @return {boolean}
+ */
+proto.user.Notification.prototype.getError = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 10, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.user.Notification} returns this
+ */
+proto.user.Notification.prototype.setError = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 10, value);
+};
+
+
 
 
 
@@ -552,8 +582,9 @@ proto.user.NotificationGroup.toObject = function(includeInstance, msg) {
     workflowid: jspb.Message.getFieldWithDefault(msg, 3, ""),
     entityid: jspb.Message.getFieldWithDefault(msg, 4, ""),
     entitytype: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    totalmainsteps: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    totalsubsteps: jspb.Message.getFieldWithDefault(msg, 7, 0)
+    platformname: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    totalmainsteps: jspb.Message.getFieldWithDefault(msg, 7, 0),
+    totalsubsteps: jspb.Message.getFieldWithDefault(msg, 8, 0)
   };
 
   if (includeInstance) {
@@ -611,10 +642,14 @@ proto.user.NotificationGroup.deserializeBinaryFromReader = function(msg, reader)
       msg.setEntitytype(value);
       break;
     case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPlatformname(value);
+      break;
+    case 7:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setTotalmainsteps(value);
       break;
-    case 7:
+    case 8:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setTotalsubsteps(value);
       break;
@@ -682,17 +717,24 @@ proto.user.NotificationGroup.serializeBinaryToWriter = function(message, writer)
       f
     );
   }
-  f = message.getTotalmainsteps();
-  if (f !== 0) {
-    writer.writeInt64(
+  f = message.getPlatformname();
+  if (f.length > 0) {
+    writer.writeString(
       6,
       f
     );
   }
-  f = /** @type {number} */ (jspb.Message.getField(message, 7));
-  if (f != null) {
+  f = message.getTotalmainsteps();
+  if (f !== 0) {
     writer.writeInt64(
       7,
+      f
+    );
+  }
+  f = /** @type {number} */ (jspb.Message.getField(message, 8));
+  if (f != null) {
+    writer.writeInt64(
+      8,
       f
     );
   }
@@ -790,28 +832,28 @@ proto.user.NotificationGroup.prototype.setEntitytype = function(value) {
 
 
 /**
- * optional int64 totalMainSteps = 6;
+ * optional string platformName = 6;
+ * @return {string}
+ */
+proto.user.NotificationGroup.prototype.getPlatformname = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.user.NotificationGroup} returns this
+ */
+proto.user.NotificationGroup.prototype.setPlatformname = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional int64 totalMainSteps = 7;
  * @return {number}
  */
 proto.user.NotificationGroup.prototype.getTotalmainsteps = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.user.NotificationGroup} returns this
- */
-proto.user.NotificationGroup.prototype.setTotalmainsteps = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
-};
-
-
-/**
- * optional int64 totalSubSteps = 7;
- * @return {number}
- */
-proto.user.NotificationGroup.prototype.getTotalsubsteps = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
 };
 
@@ -820,8 +862,26 @@ proto.user.NotificationGroup.prototype.getTotalsubsteps = function() {
  * @param {number} value
  * @return {!proto.user.NotificationGroup} returns this
  */
+proto.user.NotificationGroup.prototype.setTotalmainsteps = function(value) {
+  return jspb.Message.setProto3IntField(this, 7, value);
+};
+
+
+/**
+ * optional int64 totalSubSteps = 8;
+ * @return {number}
+ */
+proto.user.NotificationGroup.prototype.getTotalsubsteps = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.user.NotificationGroup} returns this
+ */
 proto.user.NotificationGroup.prototype.setTotalsubsteps = function(value) {
-  return jspb.Message.setField(this, 7, value);
+  return jspb.Message.setField(this, 8, value);
 };
 
 
@@ -830,7 +890,7 @@ proto.user.NotificationGroup.prototype.setTotalsubsteps = function(value) {
  * @return {!proto.user.NotificationGroup} returns this
  */
 proto.user.NotificationGroup.prototype.clearTotalsubsteps = function() {
-  return jspb.Message.setField(this, 7, undefined);
+  return jspb.Message.setField(this, 8, undefined);
 };
 
 
@@ -839,7 +899,7 @@ proto.user.NotificationGroup.prototype.clearTotalsubsteps = function() {
  * @return {boolean}
  */
 proto.user.NotificationGroup.prototype.hasTotalsubsteps = function() {
-  return jspb.Message.getField(this, 7) != null;
+  return jspb.Message.getField(this, 8) != null;
 };
 
 
