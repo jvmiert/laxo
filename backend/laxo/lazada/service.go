@@ -114,7 +114,7 @@ func (s *Service) RetrieveProductFromRedis(keyID string, index int) (*ProductsRe
 
 func (s *Service) ExpireRedisProducts(keyID string) error {
   ctx := context.Background()
-  err := s.server.RedisClient.Do(ctx, radix.Cmd(nil, "EXPIRE", keyID))
+  err := s.server.RedisClient.Do(ctx, radix.Cmd(nil, "DEL", keyID))
   if err != nil {
     s.server.Logger.Errorw("Error in auth handler function (Redis)",
       "error", err,

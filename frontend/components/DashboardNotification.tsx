@@ -16,7 +16,7 @@ const notificationSubTranslate = function (key: string): MessageDescriptor {
     case "save":
       return defineMessage({
         description: "notification message: saving",
-        defaultMessage: "Saving your product",
+        defaultMessage: "Checking your products",
       });
 
     case "fetch":
