@@ -22,7 +22,8 @@ const redisKeyPrefix = "product_lazada_"
 
 type Store interface {
   SaveOrUpdateLazadaProduct(*ProductsResponseProducts, string) (*sqlc.ProductsLazada, *sqlc.ProductsAttributeLazada, *sqlc.ProductsSkuLazada, error)
-  GetValidTokenByShopID(string) (string, error)
+  GetValidAccessTokenByShopID(string) (string, error)
+  GetValidRefreshTokenByShopID(string) (string, error)
   SaveNewLazadaPlatform(string, *AuthResponse) (*sqlc.PlatformLazada, error)
   UpdateLazadaPlatform(string, *AuthResponse) error
   GetLazadaPlatformByShopID(string) (*sqlc.PlatformLazada, error)
@@ -78,10 +79,52 @@ func (s *Service) NewLazadaClient(token string) (*LazadaClient, error) {
   return client, nil
 }
 
-func (s *Service) GetValidTokenByShopID(shopID string) (string, error) {
-  token, err := s.store.GetValidTokenByShopID(shopID)
+func (s *Service) RefreshAndGetTokenByShopID(shopID string) (string, error) {
+  refreshToken, err := s.store.GetValidRefreshTokenByShopID(shopID)
+  if errors.Is(err, pgx.ErrNoRows) {
+    return "", ErrNoValidToken
+  } else if err != nil {
+    return "", fmt.Errorf("GetValidRefreshTokenByShopID: %w", err)
+  }
+
+  client, err := s.NewLazadaClient("")
   if err != nil {
-    return "", err
+    return "", fmt.Errorf("NewLazadaClient: %w", err)
+  }
+
+  resp, err := client.Refresh(refreshToken)
+  if err != nil {
+    return "", fmt.Errorf("token refresh: %w", err)
+  }
+
+  lazInfo, err := s.store.GetLazadaPlatformByShopID(
+    shopID,
+  )
+  if err != nil {
+    return "", fmt.Errorf("GetLazadaPlatformByShopID: %w", err)
+  }
+
+  err = s.store.UpdateLazadaPlatform(lazInfo.ID, resp)
+  if err != nil {
+    return "", fmt.Errorf("UpdateLazadaPlatform: %w", err)
+  }
+
+  return resp.AccessToken, nil
+}
+
+func (s *Service) GetValidTokenByShopID(shopID string) (string, error) {
+  token, err := s.store.GetValidAccessTokenByShopID(shopID)
+
+  //Check for refresh token?
+  if errors.Is(err, pgx.ErrNoRows) {
+    token, err = s.RefreshAndGetTokenByShopID(shopID)
+    if err != nil {
+      return "", fmt.Errorf("RefreshAndGetTokenByShopID: %w", err)
+    }
+    return token, nil
+
+  } else if err != nil {
+    return "", fmt.Errorf("GetValidTokenByShopID: %w", err)
   }
 
   return token, nil
@@ -115,6 +158,7 @@ func (s *Service) RetrieveProductFromRedis(keyID string, index int) (*ProductsRe
 func (s *Service) ExpireRedisProducts(keyID string) error {
   ctx := context.Background()
   err := s.server.RedisClient.Do(ctx, radix.Cmd(nil, "DEL", keyID))
+
   if err != nil {
     s.server.Logger.Errorw("Error in auth handler function (Redis)",
       "error", err,
@@ -144,10 +188,7 @@ func (s *Service) FetchProductsFromLazadaToRedis(shopID string) (string, int, er
   token := ""
   token, err := s.GetValidTokenByShopID(shopID)
   if err != nil {
-    if err == pgx.ErrNoRows {
-      return "", 0, fmt.Errorf("GetValidTokenByShopID: %w", ErrNoValidToken)
-    }
-    return "", 0, err
+    return "", 0, fmt.Errorf("GetValidTokenByShopID: %w", err)
   }
 
   client, err := s.NewLazadaClient(token)

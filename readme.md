@@ -113,6 +113,7 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 - https://www.onpoint.vn/
 - https://ginee.com/
 - https://www.octosells.com/
+- https://www.bigseller.com/en_US/index.htm
 
 # Random
 - https://github.com/charithe/durationcheck

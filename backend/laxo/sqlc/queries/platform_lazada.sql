@@ -22,3 +22,8 @@ WHERE id = $5;
 SELECT access_token FROM platform_lazada
 WHERE shop_id = $1 AND access_expires_in > NOW()
 LIMIT 1;
+
+-- name: GetValidRefreshTokenByShopID :one
+SELECT refresh_token FROM platform_lazada
+WHERE shop_id = $1 AND refresh_expires_in > NOW()
+LIMIT 1;

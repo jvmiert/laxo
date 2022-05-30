@@ -38,7 +38,6 @@ type AuthResponse struct {
 	Message            string            `json:"message"`
 	RequestID          string            `json:"request_id"`
 
-
 	AccessToken        string            `json:"access_token"`
 	Country            string            `json:"country"`
 	RefreshToken       string            `json:"refresh_token"`
@@ -415,6 +414,70 @@ func (lc *LazadaClient) sign(url string) string {
 	hash := hmac.New(sha256.New, []byte(lc.APISecret))
 	hash.Write(message.Bytes())
 	return strings.ToUpper(hex.EncodeToString(hash.Sum(nil)))
+}
+
+func (lc *LazadaClient) Refresh(refresh string) (*AuthResponse, error) {
+	var req *http.Request
+	var err error
+
+  lc.AddAPIParam("refresh_token", refresh)
+
+	// add query params
+	values := url.Values{}
+	for key, val := range lc.SysParams {
+		values.Add(key, val)
+	}
+
+  for key, val := range lc.APIParams {
+    values.Add(key, val)
+  }
+
+	apiPath := "/auth/token/refresh"
+	apiServerURL := "https://auth.lazada.com/rest"
+
+	values.Add("sign", lc.sign(apiPath))
+	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
+
+	req, err = http.NewRequest("GET", fullURL, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	httpResp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer httpResp.Body.Close()
+
+  t, err := http.ParseTime(httpResp.Header.Get("Date"))
+
+  if err != nil {
+    return nil, err
+  }
+
+	respBody, err := ioutil.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+  resp := &AuthResponse{}
+  err = json.Unmarshal(respBody, resp)
+
+  if err != nil {
+    return nil, err
+  }
+
+  if resp.Code != "0" {
+    return nil, ErrPlatformFailed
+  }
+
+  resp.DateRefreshExpired = t.Add(time.Second * time.Duration(resp.RefreshExpiresIn))
+  resp.DateAccessExpired = t.Add(time.Second * time.Duration(resp.ExpiresIn))
+
+	return resp, err
 }
 
 func (lc *LazadaClient) Auth(code string) (*AuthResponse, error) {

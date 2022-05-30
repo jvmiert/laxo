@@ -36,85 +36,29 @@ func InitTestHandler(server *laxo.Server, l *lazada.Service, p *shop.Service, a 
 		service: s,
 	}
 
-	r.Handle("/test/lazada", n.With(
-		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.TestLazada)),
+	r.Handle("/test/test", n.With(
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleTest)),
 	)).Methods("GET")
 }
 
-func (h *testHandler) TestLazada(w http.ResponseWriter, r *http.Request, uID string) {
-  //s, err := h.service.shop.GetActiveShopByUserID(uID)
-  //if err != nil {
-  //  h.server.Logger.Errorw("GetActiveShopByUserID returned error",
-  //    "error", err,
-  //  )
-  //  http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-  //  return
-  //}
-
-  //key, total, err := h.service.lazada.FetchProductsFromLazadaToRedis(s.Model.ID)
-  //if err != nil {
-  //  h.server.Logger.Error("FetchProductsFromLazadaToRedis error", "error", err)
-  //  http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-  //  return
-  //}
-
-  //h.server.Logger.Debugw("got FetchProductsFromLazadaToRedis results",
-  //  "key", key, "total", total,
-  //)
-
-  p, err := h.service.lazada.RetrieveProductFromRedis("product_lazada_01G1FZCVYH9J47DB2HZENSBC6E", 1)
+func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID string) {
+  s, err := h.service.shop.GetActiveShopByUserID(uID)
   if err != nil {
-    h.server.Logger.Errorw("RetrieveProductFromRedis error",
+    h.server.Logger.Errorw("GetActiveShopByUserID returned error",
       "error", err,
     )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
-  pModel, pModelAttributes, pModelSKU, err := h.service.lazada.SaveOrUpdateLazadaProduct(p, "01G1FZCVYH9J47DB2HZENSBC6E")
+  token, err := h.service.lazada.RefreshAndGetTokenByShopID(s.Model.ID)
   if err != nil {
-    h.server.Logger.Errorw("SaveOrUpdateLazadaProduct error",
+    h.server.Logger.Errorw("RefreshAndGetTokenByShopID returned error",
       "error", err,
     )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
-  product, err := h.service.shop.GetLaxoProductFromLazadaData(pModel, pModelAttributes, pModelSKU)
-  if err != nil {
-    h.server.Logger.Error("GetLaxoProductFromLazadaData error",
-      "error", err,
-    )
-    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    return
-  }
-
-  laxoP, err := h.service.shop.SaveOrUpdateProductToStore(product, "01G1FZCVYH9J47DB2HZENSBC6E", pModel.ID)
-  if err != nil {
-    h.server.Logger.Errorw("SaveOrUpdateProductToStore error",
-      "error", err,
-    )
-    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    return
-  }
-
-  images, err := h.service.assets.ExtractImagesListFromProductResponse(p)
-  if err != nil {
-    h.server.Logger.Errorw("ExtractImagesListFromProductResponse error",
-      "error", err,
-    )
-    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    return
-  }
-
-  err = h.service.assets.SaveProductImages(images, "01G1FZCVYH9J47DB2HZENSBC6E", laxoP.Model.ID)
-  if err != nil {
-    h.server.Logger.Errorw("SaveProductImages error",
-      "error", err,
-    )
-    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    return
-  }
-
-  fmt.Fprintf(w, "Hello, your images are: %s\n", images)
+  fmt.Fprintf(w, "Hello, refreshed your token: %s\n", token)
 }

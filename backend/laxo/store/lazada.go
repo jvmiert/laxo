@@ -65,7 +65,7 @@ func (s *lazadaStore) SaveNewLazadaPlatform(shopID string, authResp *lazada.Auth
   return &pModel, err
 }
 
-func (s *lazadaStore) GetValidTokenByShopID(shopID string) (string, error) {
+func (s *lazadaStore) GetValidAccessTokenByShopID(shopID string) (string, error) {
   accessToken, err := s.queries.GetValidAccessTokenByShopID(
     context.Background(),
     shopID,
@@ -75,6 +75,18 @@ func (s *lazadaStore) GetValidTokenByShopID(shopID string) (string, error) {
   }
 
   return accessToken, nil
+}
+
+func (s *lazadaStore) GetValidRefreshTokenByShopID(shopID string) (string, error) {
+  refreshToken, err := s.queries.GetValidRefreshTokenByShopID(
+    context.Background(),
+    shopID,
+  )
+  if err != nil {
+    return "", fmt.Errorf("GetValidRefreshTokenByShopID: %w", err)
+  }
+
+  return refreshToken, nil
 }
 
 func (s *lazadaStore) SaveOrUpdateLazadaProductSKU(sku []lazada.ProductsResponseSkus, productID, shopID string) (*sqlc.ProductsSkuLazada, error) {

@@ -4,17 +4,9 @@ import Head from "next/head";
 import DefaultLayout from "@/components/DefaultLayout";
 
 export default function TestPage() {
-  const taskExecution = () => {
+  const taskTest = () => {
     const executeTask = async () => {
-      await axios("/api/test/task");
-    };
-
-    executeTask();
-  };
-
-  const taskLazada = () => {
-    const executeTask = async () => {
-      await axios("/api/test/lazada");
+      await axios("/api/test/test");
     };
 
     executeTask();
@@ -29,17 +21,10 @@ export default function TestPage() {
       <p className="pb-5 text-lg">Testing 1, 2, 3...</p>
       <button
         type="button"
-        onClick={taskExecution}
+        onClick={taskTest}
         className="rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       >
-        Execute notification
-      </button>
-      <button
-        type="button"
-        onClick={taskLazada}
-        className="rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      >
-        Execute Lazada
+        Test
       </button>
     </>
   );
