@@ -3,7 +3,8 @@ SELECT
   c.count,
   COALESCE(p.id, ''), p.name, p.description, p.msku, p.selling_price, p.cost_price,
   COALESCE(p.shop_id, ''), p.media_id, p.created, p.updated, media_id_list,
-  COALESCE(p.lazada_id, 0), lazada_url, lazada_name
+  COALESCE(p.lazada_id, 0), lazada_url, lazada_name, lazada_platform_sku,
+  lazada_seller_sku
 FROM
 (
   SELECT COUNT(*) AS COUNT
@@ -15,7 +16,9 @@ LEFT JOIN (
     STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
-    products_attribute_lazada.name as lazada_name
+    products_attribute_lazada.name as lazada_name,
+    products_sku_lazada.sku_id as lazada_platform_sku,
+    products_sku_lazada.seller_sku as lazada_seller_sku
   FROM products
   JOIN products_media ON products_media.product_id = products.id
   JOIN products_platform ON products_platform.product_id = products.id
@@ -27,6 +30,23 @@ LEFT JOIN (
   LIMIT $2 OFFSET $3
 ) as p
 ON true;
+
+-- name: GetProductDetailsByID :one
+SELECT products.*,
+  STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+  products_lazada.lazada_id as lazada_id,
+  products_sku_lazada.url as lazada_url,
+  products_attribute_lazada.name as lazada_name,
+  products_sku_lazada.sku_id as lazada_platform_sku,
+  products_sku_lazada.seller_sku as lazada_seller_sku
+FROM products
+JOIN products_media ON products_media.product_id = products.id
+JOIN products_platform ON products_platform.product_id = products.id
+JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+WHERE products.id = $1
+GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id;
 
 -- name: CreateProduct :one
 INSERT INTO products (

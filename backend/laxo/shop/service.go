@@ -16,19 +16,22 @@ import (
 	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/lazada"
+	"laxo.vn/laxo/laxo/models"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
 var ErrUserNoShops = errors.New("user does have any shops")
 
 type Store interface {
-  SaveNewProductToStore(*Product, string) (*sqlc.Product, error)
+  SaveNewProductToStore(*models.Product, string) (*sqlc.Product, error)
   GetProductPlatformByProductID(string) (*sqlc.ProductsPlatform, error)
   GetProductPlatformByLazadaID(string) (*sqlc.ProductsPlatform, error)
   CreateProductPlatform(*sqlc.CreateProductPlatformParams) (*sqlc.ProductsPlatform, error)
-  UpdateProductToStore(*Product) (*sqlc.Product, error)
+  UpdateProductToStore(*models.Product) (*sqlc.Product, error)
   RetrieveShopsByUserID(string) ([]Shop, error)
   GetProductsByShopID(string, int32, int32) ([]sqlc.GetProductsByShopIDRow, error)
+  GetProductByID(string) (*sqlc.Product, error)
+  GetProductDetails(productID string) (*sqlc.GetProductDetailsByIDRow, error)
   RetrieveShopsPlatformsByUserID(string) ([]sqlc.GetShopsPlatformsByUserIDRow, error)
   SaveNewShopToStore(*Shop, string) (*sqlc.Shop, error)
   GetLazadaPlatformByShopID(string) (*sqlc.PlatformLazada, error)
@@ -192,7 +195,7 @@ func (s *Service) ValidateNewShop(shop *Shop, printer *message.Printer) error {
   return nil
 }
 
-func (s *Service) GetProductListJSON(pp []Product, paginate *Paginate) ([]byte, error) {
+func (s *Service) GetProductListJSON(pp []models.Product, paginate *Paginate) ([]byte, error) {
   pList := []json.RawMessage{}
 
   for _, p := range pp {
@@ -217,8 +220,53 @@ func (s *Service) GetProductListJSON(pp []Product, paginate *Paginate) ([]byte, 
   return bytes, nil
 }
 
-func (s *Service) GetProductsByUserID(userID string, offset string, limit string) ([]Product, Paginate, error) {
-  var pList []Product
+func (s *Service) GetProductByID(productID string) (*models.Product, error) {
+  pModel, err := s.store.GetProductDetails(productID)
+  if err != nil {
+    return nil, fmt.Errorf("GetProductByID: %w", err)
+  }
+
+  mediaListString := string(pModel.MediaIDList)
+  mediaList := strings.Split(mediaListString, ",")
+
+  var platformList []models.ProductPlatformInformation
+  var platformSKU string
+
+  if pModel.LazadaPlatformSku.Valid {
+    platformSKU =  strconv.FormatInt(pModel.LazadaPlatformSku.Int64, 10)
+  }
+
+  lazadaPlatform := models.ProductPlatformInformation{
+    ID: strconv.FormatInt(pModel.LazadaID, 10),
+    ProductURL: pModel.LazadaUrl,
+    Name: pModel.LazadaName,
+    PlatformName: "lazada",
+    PlatformSKU: platformSKU,
+    SellerSKU: pModel.LazadaSellerSku,
+  }
+
+  platformList = append(platformList, lazadaPlatform)
+
+  return &models.Product{
+        Model: &sqlc.Product{
+          ID: pModel.ID,
+          Name: pModel.Name,
+          Description: pModel.Description,
+          Msku: pModel.Msku,
+          SellingPrice: pModel.SellingPrice,
+          CostPrice: pModel.CostPrice,
+          ShopID: pModel.ShopID,
+          MediaID: pModel.MediaID,
+          Created: pModel.Created,
+          Updated: pModel.Updated,
+        },
+        MediaList: mediaList,
+        Platforms: platformList,
+      }, nil
+}
+
+func (s *Service) GetProductsByUserID(userID string, offset string, limit string) ([]models.Product, Paginate, error) {
+  var pList []models.Product
   var paginate Paginate
 
   shops, err := s.store.RetrieveShopsByUserID(userID)
@@ -254,6 +302,7 @@ func (s *Service) GetProductsByUserID(userID string, offset string, limit string
     total = pModelList[0].Count
   }
 
+  //@TODO: Handle other platforms
   for _, pModel := range pModelList {
     if pModel.ID == "" {
       continue
@@ -261,18 +310,25 @@ func (s *Service) GetProductsByUserID(userID string, offset string, limit string
     mediaListString := string(pModel.MediaIDList)
     mediaList := strings.Split(mediaListString, ",")
 
-    var platformList []ProductPlatformInformation
+    var platformList []models.ProductPlatformInformation
+    var platformSKU string
 
-    lazadaPlatform := ProductPlatformInformation{
+    if pModel.LazadaPlatformSku.Valid {
+      platformSKU =  strconv.FormatInt(pModel.LazadaPlatformSku.Int64, 10)
+    }
+
+    lazadaPlatform := models.ProductPlatformInformation{
       ID: strconv.FormatInt(pModel.LazadaID, 10),
       ProductURL: pModel.LazadaUrl,
       Name: pModel.LazadaName,
       PlatformName: "lazada",
+      PlatformSKU: platformSKU,
+      SellerSKU: pModel.LazadaSellerSku,
     }
 
     platformList = append(platformList, lazadaPlatform)
 
-    pList = append(pList, Product{
+    pList = append(pList, models.Product{
       Model: &sqlc.Product{
         ID: pModel.ID,
         Name: pModel.Name,
@@ -314,14 +370,14 @@ func (s *Service) GetSantizedString(d string) (string) {
 }
 
 func (s *Service) GetLaxoProductFromLazadaData(p *sqlc.ProductsLazada,
-  pAttribute *sqlc.ProductsAttributeLazada, pSKU *sqlc.ProductsSkuLazada) (*Product, error) {
+  pAttribute *sqlc.ProductsAttributeLazada, pSKU *sqlc.ProductsSkuLazada) (*models.Product, error) {
 
   numericPrice := pgtype.Numeric{}
   numericPrice.Set(pSKU.Price.String)
 
   sanitzedDescription := s.GetSantizedString(pAttribute.Description.String)
 
-  product := &Product{
+  product := &models.Product{
     Model: &sqlc.Product{
       ID: "",
       Name: pAttribute.Name,
@@ -336,9 +392,9 @@ func (s *Service) GetLaxoProductFromLazadaData(p *sqlc.ProductsLazada,
   return product, nil
 }
 
-func (s *Service) SaveOrUpdateProductToStore(p *Product, shopID string, lazadaID string) (*Product, error) {
+func (s *Service) SaveOrUpdateProductToStore(p *models.Product, shopID string, lazadaID string) (*models.Product, error) {
   var platform *sqlc.ProductsPlatform
-  var pReturn *Product
+  var pReturn *models.Product
   var newModel *sqlc.Product
   var err error
 
@@ -363,7 +419,7 @@ func (s *Service) SaveOrUpdateProductToStore(p *Product, shopID string, lazadaID
       return nil, fmt.Errorf("CreateProductPlatform: %w", err)
     }
 
-    pReturn = &Product{
+    pReturn = &models.Product{
       Model: newModel,
       PlatformModel: platform,
     }
@@ -378,7 +434,7 @@ func (s *Service) SaveOrUpdateProductToStore(p *Product, shopID string, lazadaID
     return nil, fmt.Errorf("UpdateProductToStore: %w", err)
   }
 
-  pReturn = &Product{
+  pReturn = &models.Product{
     Model: newModel,
     PlatformModel: platform,
   }

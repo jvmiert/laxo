@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -19,11 +20,20 @@ import (
 	"github.com/araddon/dateparse"
 	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo"
+	"laxo.vn/laxo/laxo/models"
 )
 
 var ErrPlatformFailed = errors.New("platform returned failed message")
 var ErrProductsFailed = errors.New("get products returned failed message")
+var ErrProductUpdateFailed = errors.New("product update returned failed")
 var ErrProductsParseFailed = errors.New("couldn't parse products")
+
+type APIResponse struct {
+  Code               string            `json:"code"`
+	Type               string            `json:"type"`
+	Message            string            `json:"message"`
+	RequestID          string            `json:"request_id"`
+}
 
 type CountryUserInfo struct {
 	Country     string `json:"country"`
@@ -52,31 +62,31 @@ type AuthResponse struct {
 }
 
 type ProductsResponseAttributes struct {
-  Name                 null.String `json:"name"`
-  ShortDescription     null.String `json:"short_description"`
-  Description          null.String `json:"description"`
-  Brand                null.String `json:"brand"`
-  Model                null.String `json:"model"`
-  HeadphoneFeatures    null.String `json:"headphone_features"`
-  Bluetooth            null.String `json:"bluetooth"`
-  WarrantyType         null.String `json:"warranty_type"`
-  Warranty             null.String `json:"warranty"`
-  Hazmat               null.String `json:"Hazmat"`
-  ExpireDate           null.String `json:"Expire_date"`
-  BrandClassification  null.String `json:"brand_classification"`
-  IngredientPreference null.String `json:"ingredient_preference"`
-  LotNumber            null.String `json:"Lot_number"`
-  UnitsHB              null.String `json:"units_hb"`
-  FmltSkinCare         null.String `json:"fmlt_skin_care"`
-  Quantitative         null.String `json:"Quantitative"`
-  SkinCareByAge        null.String `json:"skin_care_by_age"`
-  SkinBenefit          null.String `json:"skin_benefit"`
-  SkinType             null.String `json:"skin_type"`
-  UserManual           null.String `json:"User_Manual"`
-  CountryOriginHB      null.String `json:"country_origin_hb"`
-  ColorFamily          null.String `json:"color_family"`
-  FragranceFamily      null.String `json:"fragrance_family"`
-  Source               null.String `json:"source"`
+  Name                 null.String `json:"name" xml:"name"`
+  ShortDescription     null.String `json:"short_description" xml:"-"`
+  Description          null.String `json:"description" xml:"description"`
+  Brand                null.String `json:"brand" xml:"-"`
+  Model                null.String `json:"model" xml:"-"`
+  HeadphoneFeatures    null.String `json:"headphone_features" xml:"-"`
+  Bluetooth            null.String `json:"bluetooth" xml:"-"`
+  WarrantyType         null.String `json:"warranty_type" xml:"-"`
+  Warranty             null.String `json:"warranty" xml:"-"`
+  Hazmat               null.String `json:"Hazmat" xml:"-"`
+  ExpireDate           null.String `json:"Expire_date" xml:"-"`
+  BrandClassification  null.String `json:"brand_classification" xml:"-"`
+  IngredientPreference null.String `json:"ingredient_preference" xml:"-"`
+  LotNumber            null.String `json:"Lot_number" xml:"-"`
+  UnitsHB              null.String `json:"units_hb" xml:"-"`
+  FmltSkinCare         null.String `json:"fmlt_skin_care" xml:"-"`
+  Quantitative         null.String `json:"Quantitative" xml:"-"`
+  SkinCareByAge        null.String `json:"skin_care_by_age" xml:"-"`
+  SkinBenefit          null.String `json:"skin_benefit" xml:"-"`
+  SkinType             null.String `json:"skin_type" xml:"-"`
+  UserManual           null.String `json:"User_Manual" xml:"-"`
+  CountryOriginHB      null.String `json:"country_origin_hb" xml:"-"`
+  ColorFamily          null.String `json:"color_family" xml:"-"`
+  FragranceFamily      null.String `json:"fragrance_family" xml:"-"`
+  Source               null.String `json:"source" xml:"-"`
 }
 
 type ProductsResponseSuspendedSkus struct {
@@ -86,31 +96,31 @@ type ProductsResponseSuspendedSkus struct {
 }
 
 type ProductsResponseSkus struct {
-  Status               null.String   `json:"Status"`
-  Quantity             null.Int      `json:"quantity"`
-  Images               []null.String `json:"Images"`
-  MarketImages         []null.String `json:"marketImages"`
-  SellerSku            null.String   `json:"SellerSku"`
-  ShopSku              null.String   `json:"ShopSku"`
-  PackageContent       null.String   `json:"package_content"`
-  URL                  null.String   `json:"Url"`
-  PackageWidth         null.String   `json:"package_width"`
-  ColorFamily          null.String   `json:"color_family"`
-  PackageHeight        null.String   `json:"package_height"`
-  SpecialPrice         json.Number   `json:"special_price"`
-  Price                json.Number   `json:"price"`
-  PackageLength        null.String   `json:"package_length"`
-  PackageWeight        null.String   `json:"package_weight"`
-  Available            null.Int      `json:"Available"`
-  SkuID                null.Int      `json:"SkuId"`
-  SpecialToTimeRaw     null.String   `json:"special_to_time"`
-  SpecialFromTimeRaw   null.String   `json:"special_from_time"`
-  SpecialFromDateRaw   null.String   `json:"special_from_date"`
-  SpecialToDateRaw     null.String   `json:"special_to_date"`
-  SpecialToTime        time.Time
-  SpecialFromTime      time.Time
-  SpecialFromDate      time.Time
-  SpecialToDate        time.Time
+  Status               null.String   `json:"Status" xml:"-"`
+  Quantity             null.Int      `json:"quantity" xml:"-"`
+  Images               []null.String `json:"Images" xml:"-"`
+  MarketImages         []null.String `json:"marketImages" xml:"-"`
+  SellerSku            null.String   `json:"SellerSku" xml:"SellerSku"`
+  ShopSku              null.String   `json:"ShopSku" xml:"-"`
+  PackageContent       null.String   `json:"package_content" xml:"-"`
+  URL                  null.String   `json:"Url" xml:"-"`
+  PackageWidth         null.String   `json:"package_width" xml:"-"`
+  ColorFamily          null.String   `json:"color_family" xml:"-"`
+  PackageHeight        null.String   `json:"package_height" xml:"-"`
+  SpecialPrice         json.Number   `json:"special_price" xml:"-"`
+  Price                json.Number   `json:"price" xml:"-"`
+  PackageLength        null.String   `json:"package_length" xml:"-"`
+  PackageWeight        null.String   `json:"package_weight" xml:"-"`
+  Available            null.Int      `json:"Available" xml:"-"`
+  SkuID                null.Int      `json:"SkuId" xml:"SkuId"`
+  SpecialToTimeRaw     null.String   `json:"special_to_time" xml:"-"`
+  SpecialFromTimeRaw   null.String   `json:"special_from_time" xml:"-"`
+  SpecialFromDateRaw   null.String   `json:"special_from_date" xml:"-"`
+  SpecialToDateRaw     null.String   `json:"special_to_date" xml:"-"`
+  SpecialToTime        time.Time     `xml:"-"`
+  SpecialFromTime      time.Time     `xml:"-"`
+  SpecialFromDate      time.Time     `xml:"-"`
+  SpecialToDate        time.Time     `xml:"-"`
 }
 
 func (p *ProductsResponseSkus) ParseTime() error {
@@ -143,20 +153,25 @@ func (p *ProductsResponseSkus) ParseTime() error {
   return nil
 }
 
+type Request struct {
+  Product ProductsResponseProducts
+}
+
 type ProductsResponseProducts struct {
-  Skus []ProductsResponseSkus                        `json:"skus"`
-  ItemID          int64                              `json:"item_id"`
-  PrimaryCategory int64                              `json:"primary_category"`
-  Attributes      ProductsResponseAttributes         `json:"attributes"`
-  CreatedTimeRaw  null.String                        `json:"created_time"`
-  UpdatedTimeRaw  null.String                        `json:"updated_time"`
-  Images          []null.String                      `json:"images"`
-  MarketImages    []null.String                      `json:"marketImages"`
-  Status          null.String                        `json:"status"`
-  SubStatus       null.String                        `json:"subStatus"`
-  SuspendedSkus   ProductsResponseSuspendedSkus      `json:"suspendedSkus"`
-  Created         time.Time
-  Updated         time.Time
+  XMLName         xml.Name                           `json:"-" xml:"Product"`
+  Skus            []ProductsResponseSkus             `json:"skus" xml:"Skus>Sku"`
+  ItemID          int64                              `json:"item_id" xml:"ItemId"`
+  PrimaryCategory int64                              `json:"primary_category" xml:"-"`
+  Attributes      ProductsResponseAttributes         `json:"attributes" xml:"Attributes"`
+  CreatedTimeRaw  null.String                        `json:"created_time" xml:"-"`
+  UpdatedTimeRaw  null.String                        `json:"updated_time" xml:"-"`
+  Images          []null.String                      `json:"images" xml:"-"`
+  MarketImages    []null.String                      `json:"marketImages" xml:"-"`
+  Status          null.String                        `json:"status" xml:"-"`
+  SubStatus       null.String                        `json:"subStatus" xml:"-"`
+  SuspendedSkus   ProductsResponseSuspendedSkus      `json:"suspendedSkus" xml:"-"`
+  Created         time.Time                          `xml:"-"`
+  Updated         time.Time                          `xml:"-"`
 }
 
 func (p *ProductsResponseProducts) ParseTime() error {
@@ -234,6 +249,108 @@ type LazadaClient struct {
 	SysParams  map[string]string
 	APIParams  map[string]string
 	FileParams map[string][]byte
+}
+
+func (lc *LazadaClient) UpdateProduct(p *models.Product) error {
+  var lazadaPlatform models.ProductPlatformInformation
+  for _, v := range p.Platforms {
+    if v.PlatformName == "lazada" {
+      lazadaPlatform = v
+    }
+  }
+
+  if lazadaPlatform.ID == "" {
+    return errors.New("no lazada platform information supplied")
+  }
+
+  lazadaID, err := strconv.ParseInt(lazadaPlatform.ID, 10, 64)
+  if err != nil {
+    return fmt.Errorf("ParseInt: %w", err)
+  }
+
+  lazadaAttributes := ProductsResponseAttributes{
+    Name: p.Model.Name,
+    Description: p.Model.Description,
+  }
+
+  SkuID, err := strconv.ParseInt(lazadaPlatform.PlatformSKU, 10, 64)
+  if err != nil {
+    return fmt.Errorf("strconv ParseInt: %w", err)
+  }
+
+  lazadaSKU := ProductsResponseSkus{
+    SellerSku: null.StringFrom(lazadaPlatform.SellerSKU),
+    SkuID: null.IntFrom(SkuID),
+  }
+
+  lazadaProduct := ProductsResponseProducts{
+    ItemID: lazadaID,
+    Attributes: lazadaAttributes,
+    Skus: []ProductsResponseSkus{lazadaSKU,},
+  }
+  request := Request{
+    Product: lazadaProduct,
+  }
+
+  out, err := xml.MarshalIndent(request, " ", "  ")
+  if err != nil {
+    return fmt.Errorf("xml MarshalIndent: %w", err)
+  }
+  xml := xml.Header + string(out)
+
+	var req *http.Request
+
+  lc.AddAPIParam("payload", xml)
+
+	// add query params
+	values := url.Values{}
+	for key, val := range lc.SysParams {
+		values.Add(key, val)
+	}
+
+  for key, val := range lc.APIParams {
+    values.Add(key, val)
+  }
+
+	apiPath := "/product/update"
+	apiServerURL := "https://api.lazada.vn/rest"
+
+	values.Add("sign", lc.sign(apiPath))
+	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
+
+  //lc.Logger.Debugw("UpdateProduct", "fullURL", fullURL, "xml", xml)
+
+	req, err = http.NewRequest("POST", fullURL, nil)
+	if err != nil {
+    return fmt.Errorf("NewRequest: %w", err)
+	}
+
+	httpResp, err := http.DefaultClient.Do(req)
+	if err != nil {
+    return fmt.Errorf("get http DefaultClient: %w", err)
+	}
+
+	defer httpResp.Body.Close()
+
+	respBody, err := ioutil.ReadAll(httpResp.Body)
+	if err != nil {
+    return fmt.Errorf("ioutil.ReadAll: %w", err)
+	}
+
+  lc.Logger.Debugw("lazada response", "resp", string(respBody))
+
+  resp := &APIResponse{}
+  err = json.Unmarshal(respBody, resp)
+  if err != nil {
+    return fmt.Errorf("response Unmarshal: %w", err)
+  }
+
+  if resp.Code != "0" {
+    lc.Logger.Errorw("lazada returned failure", "body", respBody)
+    return ErrProductUpdateFailed
+  }
+
+  return nil
 }
 
 func (lc *LazadaClient) QueryProduct(itemID null.Int, sellerSKU null.String) (*ProductResponse, error) {

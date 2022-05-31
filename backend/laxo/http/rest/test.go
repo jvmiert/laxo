@@ -42,23 +42,23 @@ func InitTestHandler(server *laxo.Server, l *lazada.Service, p *shop.Service, a 
 }
 
 func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID string) {
-  s, err := h.service.shop.GetActiveShopByUserID(uID)
+  p, err := h.service.shop.GetProductByID("01G4CES9QT2EPWGJW17DKYXAFS")
   if err != nil {
-    h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+    h.server.Logger.Errorw("GetProductByID returned error",
       "error", err,
     )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
-  token, err := h.service.lazada.RefreshAndGetTokenByShopID(s.Model.ID)
+  err = h.service.lazada.UpdateProductToLazada(p)
   if err != nil {
-    h.server.Logger.Errorw("RefreshAndGetTokenByShopID returned error",
+    h.server.Logger.Errorw("UpdateProductToLazada returned error",
       "error", err,
     )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
   }
 
-  fmt.Fprintf(w, "Hello, refreshed your token: %s\n", token)
+  fmt.Fprintf(w, "Hello, testing 1 2 3: %s\n", p.Model.Name.String)
 }

@@ -1,4 +1,4 @@
-package shop
+package models
 
 import (
 	"encoding/json"
@@ -9,6 +9,8 @@ import (
 
 type ProductPlatformInformation struct {
   ID           string          `json:"id"`
+  SellerSKU    string          `json:"sellerSKU"`
+  PlatformSKU  string          `json:"platformSKU"`
   PlatformName string          `json:"platformName"`
   Name         null.String     `json:"name"`
   ProductURL   null.String     `json:"productURL"`

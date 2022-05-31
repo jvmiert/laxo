@@ -11,6 +11,8 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
   - Make a hook/component for normal pagination vs searching
   - Figure out visual look
   - Retrieve correct product information according to similiar services
+- Add option for inactive products
+  - Allow importing of inactive Lazada products
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.
   - https://go.dev/tour/methods/15 (make sure the type casting is error checked)

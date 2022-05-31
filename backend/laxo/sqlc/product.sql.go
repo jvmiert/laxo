@@ -170,6 +170,67 @@ func (q *Queries) GetProductByProductMSKU(ctx context.Context, arg GetProductByP
 	return i, err
 }
 
+const getProductDetailsByID = `-- name: GetProductDetailsByID :one
+SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
+  STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+  products_lazada.lazada_id as lazada_id,
+  products_sku_lazada.url as lazada_url,
+  products_attribute_lazada.name as lazada_name,
+  products_sku_lazada.sku_id as lazada_platform_sku,
+  products_sku_lazada.seller_sku as lazada_seller_sku
+FROM products
+JOIN products_media ON products_media.product_id = products.id
+JOIN products_platform ON products_platform.product_id = products.id
+JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+WHERE products.id = $1
+GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
+`
+
+type GetProductDetailsByIDRow struct {
+	ID                string         `json:"id"`
+	Name              null.String    `json:"name"`
+	Description       null.String    `json:"description"`
+	Msku              null.String    `json:"msku"`
+	SellingPrice      pgtype.Numeric `json:"sellingPrice"`
+	CostPrice         pgtype.Numeric `json:"costPrice"`
+	ShopID            string         `json:"shopID"`
+	MediaID           null.String    `json:"mediaID"`
+	Created           null.Time      `json:"created"`
+	Updated           null.Time      `json:"updated"`
+	MediaIDList       []byte         `json:"mediaIDList"`
+	LazadaID          int64          `json:"lazadaID"`
+	LazadaUrl         null.String    `json:"lazadaUrl"`
+	LazadaName        null.String    `json:"lazadaName"`
+	LazadaPlatformSku null.Int       `json:"lazadaPlatformSku"`
+	LazadaSellerSku   string         `json:"lazadaSellerSku"`
+}
+
+func (q *Queries) GetProductDetailsByID(ctx context.Context, id string) (GetProductDetailsByIDRow, error) {
+	row := q.db.QueryRow(ctx, getProductDetailsByID, id)
+	var i GetProductDetailsByIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Msku,
+		&i.SellingPrice,
+		&i.CostPrice,
+		&i.ShopID,
+		&i.MediaID,
+		&i.Created,
+		&i.Updated,
+		&i.MediaIDList,
+		&i.LazadaID,
+		&i.LazadaUrl,
+		&i.LazadaName,
+		&i.LazadaPlatformSku,
+		&i.LazadaSellerSku,
+	)
+	return i, err
+}
+
 const getProductMediaByID = `-- name: GetProductMediaByID :one
 SELECT id, product_id, original_filename, extension, murmur_hash FROM products_media
 WHERE id = $1
@@ -263,7 +324,8 @@ SELECT
   c.count,
   COALESCE(p.id, ''), p.name, p.description, p.msku, p.selling_price, p.cost_price,
   COALESCE(p.shop_id, ''), p.media_id, p.created, p.updated, media_id_list,
-  COALESCE(p.lazada_id, 0), lazada_url, lazada_name
+  COALESCE(p.lazada_id, 0), lazada_url, lazada_name, lazada_platform_sku,
+  lazada_seller_sku
 FROM
 (
   SELECT COUNT(*) AS COUNT
@@ -275,7 +337,9 @@ LEFT JOIN (
     STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
-    products_attribute_lazada.name as lazada_name
+    products_attribute_lazada.name as lazada_name,
+    products_sku_lazada.sku_id as lazada_platform_sku,
+    products_sku_lazada.seller_sku as lazada_seller_sku
   FROM products
   JOIN products_media ON products_media.product_id = products.id
   JOIN products_platform ON products_platform.product_id = products.id
@@ -296,21 +360,23 @@ type GetProductsByShopIDParams struct {
 }
 
 type GetProductsByShopIDRow struct {
-	Count        int64          `json:"count"`
-	ID           string         `json:"id"`
-	Name         null.String    `json:"name"`
-	Description  null.String    `json:"description"`
-	Msku         null.String    `json:"msku"`
-	SellingPrice pgtype.Numeric `json:"sellingPrice"`
-	CostPrice    pgtype.Numeric `json:"costPrice"`
-	ShopID       string         `json:"shopID"`
-	MediaID      null.String    `json:"mediaID"`
-	Created      null.Time      `json:"created"`
-	Updated      null.Time      `json:"updated"`
-	MediaIDList  []byte         `json:"mediaIDList"`
-	LazadaID     int64          `json:"lazadaID"`
-	LazadaUrl    null.String    `json:"lazadaUrl"`
-	LazadaName   null.String    `json:"lazadaName"`
+	Count             int64          `json:"count"`
+	ID                string         `json:"id"`
+	Name              null.String    `json:"name"`
+	Description       null.String    `json:"description"`
+	Msku              null.String    `json:"msku"`
+	SellingPrice      pgtype.Numeric `json:"sellingPrice"`
+	CostPrice         pgtype.Numeric `json:"costPrice"`
+	ShopID            string         `json:"shopID"`
+	MediaID           null.String    `json:"mediaID"`
+	Created           null.Time      `json:"created"`
+	Updated           null.Time      `json:"updated"`
+	MediaIDList       []byte         `json:"mediaIDList"`
+	LazadaID          int64          `json:"lazadaID"`
+	LazadaUrl         null.String    `json:"lazadaUrl"`
+	LazadaName        null.String    `json:"lazadaName"`
+	LazadaPlatformSku null.Int       `json:"lazadaPlatformSku"`
+	LazadaSellerSku   string         `json:"lazadaSellerSku"`
 }
 
 func (q *Queries) GetProductsByShopID(ctx context.Context, arg GetProductsByShopIDParams) ([]GetProductsByShopIDRow, error) {
@@ -338,6 +404,8 @@ func (q *Queries) GetProductsByShopID(ctx context.Context, arg GetProductsByShop
 			&i.LazadaID,
 			&i.LazadaUrl,
 			&i.LazadaName,
+			&i.LazadaPlatformSku,
+			&i.LazadaSellerSku,
 		); err != nil {
 			return nil, err
 		}

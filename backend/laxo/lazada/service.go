@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/mediocregopher/radix/v4"
 	"laxo.vn/laxo/laxo"
+	"laxo.vn/laxo/laxo/models"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
@@ -77,6 +78,25 @@ func (s *Service) NewLazadaClient(token string) (*LazadaClient, error) {
   client := NewClient(s.clientID, s.clientSecret, token, s.logger)
 
   return client, nil
+}
+
+func (s *Service) UpdateProductToLazada(p *models.Product) error {
+  token, err := s.GetValidTokenByShopID(p.Model.ShopID)
+  if err != nil {
+    return fmt.Errorf("GetValidTokenByShopID: %w", err)
+  }
+
+  client, err := s.NewLazadaClient(token)
+  if err != nil {
+    return fmt.Errorf("NewLazadaClient: %w", err)
+  }
+
+  err = client.UpdateProduct(p)
+  if err != nil {
+    return fmt.Errorf("client UpdateProduct: %w", err)
+  }
+
+  return nil
 }
 
 func (s *Service) RefreshAndGetTokenByShopID(shopID string) (string, error) {

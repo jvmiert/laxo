@@ -7,6 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"gopkg.in/guregu/null.v4"
+	"laxo.vn/laxo/laxo/models"
 	"laxo.vn/laxo/laxo/shop"
 	"laxo.vn/laxo/laxo/sqlc"
 )
@@ -122,7 +123,7 @@ func (s *shopStore) CreateProductPlatform(param *sqlc.CreateProductPlatformParam
   return &pPlatform, err
 }
 
-func (s *shopStore) UpdateProductToStore(p *shop.Product) (*sqlc.Product, error) {
+func (s *shopStore) UpdateProductToStore(p *models.Product) (*sqlc.Product, error) {
   params := sqlc.UpdateProductParams{
     Name: p.Model.Name,
     Description: p.Model.Description,
@@ -139,13 +140,35 @@ func (s *shopStore) UpdateProductToStore(p *shop.Product) (*sqlc.Product, error)
   )
 
   if err != nil {
-    return &newModel, fmt.Errorf("UpdateProduct: %w", err)
+    return nil, fmt.Errorf("UpdateProduct: %w", err)
   }
 
   return &newModel, nil
 }
 
-func (s *shopStore) SaveNewProductToStore(p *shop.Product, shopID string) (*sqlc.Product, error) {
+func (s *shopStore) GetProductDetails(productID string) (*sqlc.GetProductDetailsByIDRow, error) {
+  p, err := s.queries.GetProductDetailsByID(context.Background(), productID)
+  if err != nil {
+    return nil, fmt.Errorf("GetProductDetailsByID: %w", err)
+  }
+
+  return &p, nil
+}
+
+func (s *shopStore) GetProductByID(productID string) (*sqlc.Product, error) {
+  p, err := s.queries.GetProductByID(
+    context.Background(),
+    productID,
+  )
+
+  if err != nil {
+    return nil, fmt.Errorf("GetProductByID: %w", err)
+  }
+
+  return &p, nil
+}
+
+func (s *shopStore) SaveNewProductToStore(p *models.Product, shopID string) (*sqlc.Product, error) {
   var pModel sqlc.Product
   var err error
 
