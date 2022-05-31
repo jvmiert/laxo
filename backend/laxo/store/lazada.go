@@ -97,6 +97,11 @@ func (s *lazadaStore) SaveOrUpdateLazadaProductSKU(sku []lazada.ProductsResponse
   priceString := sku[0].Price.String()
   specialPriceString := sku[0].SpecialPrice.String()
 
+  priceFloat, err := sku[0].Price.Float64()
+  if err == nil {
+    priceString = fmt.Sprintf("%.2f", priceFloat)
+  }
+
   skuModel, err := s.queries.GetLazadaProductSKUByProductID(
     context.Background(),
     productID,
