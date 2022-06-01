@@ -319,13 +319,119 @@ func (q *Queries) GetProductPlatformByProductID(ctx context.Context, productID s
 	return i, err
 }
 
+const getProductsByNameOrSKU = `-- name: GetProductsByNameOrSKU :many
+SELECT
+  c.count,
+  COALESCE(p.id, ''), p.name, p.description, p.msku, p.selling_price, p.cost_price,
+  COALESCE(p.shop_id, ''), p.media_id, p.created, p.updated, media_id_list,
+  COALESCE(p.lazada_id, 0), lazada_url, lazada_name, lazada_platform_sku,
+  COALESCE(lazada_seller_sku, '')
+FROM
+(
+  SELECT COUNT(*) AS COUNT
+  FROM products
+  WHERE products.shop_id = $1 AND (products.name ILIKE $2 OR products.msku ILIKE $3)
+) as c
+LEFT JOIN (
+  SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
+    STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+    products_lazada.lazada_id as lazada_id,
+    products_sku_lazada.url as lazada_url,
+    products_attribute_lazada.name as lazada_name,
+    products_sku_lazada.sku_id as lazada_platform_sku,
+    products_sku_lazada.seller_sku as lazada_seller_sku
+  FROM products
+  JOIN products_media ON products_media.product_id = products.id
+  JOIN products_platform ON products_platform.product_id = products.id
+  JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+  JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+  JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+  WHERE products.shop_id = $1
+  GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
+  LIMIT $4 OFFSET $5
+) as p
+ON true
+`
+
+type GetProductsByNameOrSKUParams struct {
+	ShopID string      `json:"shopID"`
+	Name   null.String `json:"name"`
+	Msku   null.String `json:"msku"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
+
+type GetProductsByNameOrSKURow struct {
+	Count             int64          `json:"count"`
+	ID                string         `json:"id"`
+	Name              null.String    `json:"name"`
+	Description       null.String    `json:"description"`
+	Msku              null.String    `json:"msku"`
+	SellingPrice      pgtype.Numeric `json:"sellingPrice"`
+	CostPrice         pgtype.Numeric `json:"costPrice"`
+	ShopID            string         `json:"shopID"`
+	MediaID           null.String    `json:"mediaID"`
+	Created           null.Time      `json:"created"`
+	Updated           null.Time      `json:"updated"`
+	MediaIDList       []byte         `json:"mediaIDList"`
+	LazadaID          int64          `json:"lazadaID"`
+	LazadaUrl         null.String    `json:"lazadaUrl"`
+	LazadaName        null.String    `json:"lazadaName"`
+	LazadaPlatformSku null.Int       `json:"lazadaPlatformSku"`
+	LazadaSellerSku   string         `json:"lazadaSellerSku"`
+}
+
+func (q *Queries) GetProductsByNameOrSKU(ctx context.Context, arg GetProductsByNameOrSKUParams) ([]GetProductsByNameOrSKURow, error) {
+	rows, err := q.db.Query(ctx, getProductsByNameOrSKU,
+		arg.ShopID,
+		arg.Name,
+		arg.Msku,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetProductsByNameOrSKURow
+	for rows.Next() {
+		var i GetProductsByNameOrSKURow
+		if err := rows.Scan(
+			&i.Count,
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Msku,
+			&i.SellingPrice,
+			&i.CostPrice,
+			&i.ShopID,
+			&i.MediaID,
+			&i.Created,
+			&i.Updated,
+			&i.MediaIDList,
+			&i.LazadaID,
+			&i.LazadaUrl,
+			&i.LazadaName,
+			&i.LazadaPlatformSku,
+			&i.LazadaSellerSku,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProductsByShopID = `-- name: GetProductsByShopID :many
 SELECT
   c.count,
   COALESCE(p.id, ''), p.name, p.description, p.msku, p.selling_price, p.cost_price,
   COALESCE(p.shop_id, ''), p.media_id, p.created, p.updated, media_id_list,
   COALESCE(p.lazada_id, 0), lazada_url, lazada_name, lazada_platform_sku,
-  lazada_seller_sku
+  COALESCE(lazada_seller_sku, '')
 FROM
 (
   SELECT COUNT(*) AS COUNT

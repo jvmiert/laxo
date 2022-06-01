@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 import Head from "next/head";
-import Navigation from "@/components/Navigation";
+import DashboardTopNavigation from "@/components/DashboardTopNavigation";
 import DashboardNavigation from "@/components/DashboardNavigation";
-import DashboardNotificationControl from "@/components/DashboardNotificationControl";
 import { useIntl, MessageDescriptor } from "react-intl";
 
 type DefaultLayoutProps = {
@@ -22,22 +21,14 @@ export default function DashboardLayout({
         <title>{`Laxo: ${t.formatMessage(title)}`}</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Navigation />
-      <div className="container mx-auto px-4 pt-4">
+      <DashboardTopNavigation />
+      <div className="min-h-screen bg-zinc-100">
         <div className="flex w-full flex-row flex-nowrap">
-          <div className="flex min-h-[55vh] shrink-0 grow-0 basis-auto">
+          <div className="flex min-h-[55vh] shrink-0 grow-0 basis-auto bg-white">
             <DashboardNavigation />
           </div>
-          <div className="ml-6 flex grow flex-col">
-            <div className="flex">
-              <div className="flex-grow">
-                <h1 className="mb-4 text-xl font-semibold">
-                  {t.formatMessage(title)}
-                </h1>
-              </div>
-              <DashboardNotificationControl />
-            </div>
-            <div className="flex justify-between">
+          <div className="flex grow flex-col">
+            <div className="flex justify-between bg-zinc-100 p-8">
               <main className="grow">{children}</main>
             </div>
           </div>

@@ -36,7 +36,7 @@ export default function DashboardNavPlatformItem({
       <a href={href}>
         <div
           className={cc([
-            "cursor-pointer rounded border-l-2 py-2 px-3",
+            "cursor-pointer rounded-l border-l-2 py-2 px-3 ml-4",
             {
               "border-indigo-700 bg-indigo-50 text-indigo-700": active,
             },
@@ -47,7 +47,7 @@ export default function DashboardNavPlatformItem({
           ])}
         >
           <div className="flex items-center">
-            <div className="pr-3">{getIcon(platform)}</div>
+            <div className="ml-4 pr-3">{getIcon(platform)}</div>
             <div className="pl-2 font-medium capitalize">{platform}</div>
           </div>
         </div>

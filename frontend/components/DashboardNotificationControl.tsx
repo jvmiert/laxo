@@ -16,7 +16,7 @@ export default function DashboardNotificationControl() {
         return (
           <>
             <Popover.Button ref={notiRef}>
-              <div className="relative mr-4 rounded-full bg-gray-100 p-1">
+              <div className="relative mr-3 rounded-full bg-gray-100 p-1">
                 <BellIcon className="h-5 w-5 text-gray-900" />
                 {!notificationLoading &&
                   dashboardState.notifications.length > 0 && (
@@ -39,7 +39,7 @@ export default function DashboardNotificationControl() {
             >
               <Popover.Panel
                 static
-                className="absolute top-full -left-64 z-10 w-80 rounded bg-gray-50 pb-6"
+                className="absolute top-[120%] -left-64 z-10 w-80 rounded bg-gray-50 pb-6"
               >
                 <div className="absolute right-11 -z-10 h-4 w-4 origin-top-left -rotate-45 transform rounded-sm bg-gray-50" />
                 <div className="absolute right-2 top-2">

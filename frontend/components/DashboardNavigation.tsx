@@ -47,8 +47,8 @@ export default function DashboardNavigation() {
   const { shops } = useGetShop();
 
   return (
-    <div className="flex w-52 flex-col space-y-3">
-      <div className="border-b border-gray-200 px-4 pb-3">
+    <div className="flex w-52 flex-col py-4 space-y-3 border-r border-gray-200">
+      <div className="border-b border-gray-200 px-4 pb-2">
         <h1 className="mb-0 text-lg font-bold">
           <FormattedMessage
             description="Dashboard navigation title"

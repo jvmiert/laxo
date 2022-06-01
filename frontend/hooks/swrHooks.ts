@@ -107,7 +107,9 @@ export function useGetShopPlatformsRedirect(shopID: string): {
   );
 
   return {
-    platforms: data ? data.data : <GetPlatformsResponse>{},
+    platforms: data
+      ? data.data
+      : { shopID: "", platforms: [], connectedPlatforms: [] },
     error,
     loading: isValidating,
   };
@@ -182,7 +184,9 @@ export function useGetLaxoProducts(
   );
 
   return {
-    products: data ? data.data : <LaxoProductResponse>{},
+    products: data
+      ? data.data
+      : { products: [], paginate: { total: 0, pages: 0, limit: 0, offset: 0 } },
     error,
     loading: isValidating,
   };

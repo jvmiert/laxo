@@ -1,16 +1,12 @@
-# API access
-Seems that currently Lazada and Tiki easily allow individual third parties to open accounts for creating applications. However, Shopee says it will only accept applications from real businesses.
-
-# To-do
-- Need to figure out the category/attribute options for both Tiki and Lazada. See if they are compatible or how can map between them.
-
 # Tech to-do
 - Create product page
-  - Position elements of product pages properly
-  - Render items
   - Make a hook/component for normal pagination vs searching
   - Figure out visual look
   - Retrieve correct product information according to similiar services
+- For shop assets: generate a random unique string as path to keep images hidden
+- Update Dashboard main navigation
+  - Change side menu to fixed like Deliverr?
+  - Add breadcrumbs for current active page
 - Add option for inactive products
   - Allow importing of inactive Lazada products
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
@@ -44,15 +40,6 @@ Seems that currently Lazada and Tiki easily allow individual third parties to op
 # Thoughts
 It seems for SKU creation, the best approach is to create a logical data model for the service. This data model will then be the source of truth from which we create translation functions for each individual platform. The tricky thing will be that it seems Lazada has predefined SKU attributes. They do not allow arbitrary SKU creation. It seems Tiki also follows this strategy.
 
-# Secrets
-
-## Tiki
-Application ID
-5428082774690597
-
-Application Secret
-LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
-
 # Image notes
 
 ## Tiki
@@ -66,6 +53,9 @@ LROE3g1vd0yPQgcqOv6spa1z39Ep2jiS
 ## Shopee
 "Image file. Max 2.0 MB each. Image format accepted: JPG, JPEG, PNG"
 - https://open.shopee.com/documents?module=91&type=1&id=660&version=2
+
+# Facebook integration
+There is no commerce API available yet for Vietnam. However, for the business manager API, we can create product catalogues it seems.
 
 # Frame feature research
 

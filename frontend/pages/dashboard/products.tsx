@@ -1,11 +1,12 @@
 import cc from "classcat";
-import { useState, Fragment } from "react";
+import { Fragment, forwardRef, ReactNode } from "react";
 import type { ReactElement } from "react";
 import { useIntl, defineMessage } from "react-intl";
 import { useRouter } from "next/router";
 import DashboardLayout from "@/components/DashboardLayout";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import Link, { LinkProps } from "next/link";
 import { useGetLaxoProducts } from "@/hooks/swrHooks";
 import useShopApi from "@/hooks/useShopApi";
 import { generatePaginateNumbers } from "@/lib/paginate";
@@ -17,13 +18,33 @@ import {
   SearchIcon,
   RefreshIcon,
 } from "@heroicons/react/solid";
-import { Listbox, Transition } from "@headlessui/react";
+import { Menu, Transition } from "@headlessui/react";
 
 export const getServerSideProps: GetServerSideProps = withRedirectUnauth();
 
 type DashboardProductsPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >;
+
+type EnhancedLinkProps = {
+  children: ReactNode[] | ReactNode;
+  className: string;
+} & LinkProps;
+
+const LimitLink = forwardRef<HTMLAnchorElement, EnhancedLinkProps>(
+  (props, ref) => {
+    let { href, children, locale, ...rest } = props;
+    return (
+      <Link href={href} locale={locale}>
+        <a ref={ref} {...rest}>
+          {children}
+        </a>
+      </Link>
+    );
+  },
+);
+
+LimitLink.displayName = "LimitLink";
 
 const limitCount = [
   { limit: 10 },
@@ -32,96 +53,81 @@ const limitCount = [
   { limit: 100 },
 ];
 
-const generateURL = (l: number, p: number): string => {
-  const limit = l != 10 ? `l=${l}` : null;
-  const page = p > 1 ? `p=${p}` : null;
-
-  let url = "/dashboard/products";
-
-  if (limit || page) url += "?";
-  if (page) url += page;
-  if (limit && page) url += "&";
-  if (limit) url += limit;
-
-  return url;
-};
-
 function DashboardProductsPage(props: DashboardProductsPageProps) {
   const t = useIntl();
   const {
-    push,
     query: { p: queryPageNumber, l: queryLimitNumber },
   } = useRouter();
-  const { products } = useGetLaxoProducts(0, 50);
+
+  const currentPage = Number(queryPageNumber) ? Number(queryPageNumber) : 1;
+  const currentLimit = Number(queryLimitNumber) ? Number(queryLimitNumber) : 10;
+
+  const offset = (currentPage - 1) * currentLimit;
+
   const { doPlatformSync } = useShopApi();
 
+  const { products } = useGetLaxoProducts(offset, currentLimit);
+
+  const { paginate } = products;
+  const maxPage = paginate.pages;
+
   const handlePlatformSync = async () => {
+    //@TODO: - Create user feedback for sync
+    //       - Hide behind confirmation dialogue
     const result = await doPlatformSync();
-    console.log(result);
   };
 
-  const maxPage = 6;
+  const pNumbers = generatePaginateNumbers(currentPage, maxPage);
 
-  const [page, setPage] = useState<number>(
-    Number(queryPageNumber) ? Number(queryPageNumber) : 1,
-  );
+  const numberFormatter = new Intl.NumberFormat("vi-VI", {
+    style: "currency",
+    currency: "VND",
+  });
 
-  const pNumbers = generatePaginateNumbers(page, maxPage);
+  const getDecreaseParams = () => {
+    if (currentPage - 1 < 1) {
+      if (currentLimit > 10) {
+        return { l: currentLimit };
+      }
+      return {};
+    }
 
-  const startingLimit = limitCount.find(
-    (l) => l.limit == Number(queryLimitNumber),
-  );
-  const [limit, setLimit] = useState<{ limit: number }>(
-    startingLimit ? startingLimit : limitCount[0],
-  );
+    if (currentLimit > 10) {
+      return { p: currentPage - 1, l: currentLimit };
+    }
 
-  const increasePage = () => {
-    if (page + 1 > maxPage) return;
-    setPage((p) => {
-      const newP = p + 1;
-      push(
-        {
-          pathname: "/dashboard/products",
-          query: { p: newP, limit: limit.limit },
-        },
-        generateURL(limit.limit, newP),
-        { shallow: true },
-      );
-      return newP;
-    });
+    return { p: currentPage - 1 };
   };
 
-  const decreasePage = () => {
-    if (page - 1 < 1) return;
-    setPage((p) => {
-      const newP = p - 1;
-      push(
-        {
-          pathname: "/dashboard/products",
-          query: { p: newP, limit: limit.limit },
-        },
-        generateURL(limit.limit, newP),
-        { shallow: true },
-      );
-      return newP;
-    });
+  const getIncreaseParams = () => {
+    if (currentPage + 1 > maxPage) {
+      if (currentLimit > 10) {
+        return { p: currentPage, l: currentLimit };
+      }
+      return { p: currentPage };
+    }
+
+    if (currentLimit > 10) {
+      return { p: currentPage + 1, l: currentLimit };
+    }
+
+    return { p: currentPage + 1 };
   };
 
-  const handleLimit = (l: { limit: number }) => {
-    push(
-      {
-        pathname: "/dashboard/products",
-        query: { p: page, l: l.limit },
-      },
-      generateURL(l.limit, page),
-      { shallow: true },
-    );
-    setLimit(l);
+  const getLimitParams = (limit: number) => {
+    const intendedLimit = limit * currentPage;
+    const lastPage = Math.ceil(paginate.total / limit);
+    const currentPageCeiling =
+      intendedLimit > paginate.total ? lastPage : currentPage;
+    return {
+      ...(currentPageCeiling > 1 && { p: currentPageCeiling }),
+      ...(limit > 10 && { l: limit }),
+    };
   };
 
   return (
-    <>
-      <div className="mb-5 flex items-center">
+    <div className="pb-40">
+      <div className="flex items-center justify-between">
         <div className="relative rounded-md border shadow">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <span className="text-gray-500">
@@ -130,7 +136,8 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
           </div>
           <input
             type="text"
-            className="block w-full rounded-md py-2 pl-9 focus:outline-none focus:ring focus:ring-indigo-200"
+            className="block w-full rounded-md py-2 pl-9 pr-9 focus:outline-none focus:ring focus:ring-indigo-200"
+            placeholder="Search for product name or SKU"
           />
         </div>
         <div>
@@ -147,18 +154,95 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
           </button>
         </div>
       </div>
-      <div className="flex items-center">
+      <div className="my-6">
+        <div className="flex flex-col">
+          <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <div className="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Name
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        SKU
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Price
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Platforms
+                      </th>
+                      <th scope="col" className="relative px-6 py-3">
+                        <span className="sr-only">Edit</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {products.products.map((p) => (
+                      <tr key={p.product.id}>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                          {p.product.name}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                          {p.product.msku}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                          {numberFormatter.format(
+                            parseFloat(
+                              `${p.product.sellingPrice.Int}e${p.product.sellingPrice.Exp}`,
+                            ),
+                          )}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"></td>
+                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                          <a
+                            href="#"
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
+                            Edit
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
         <nav
           className="relative z-0 inline-flex -space-x-px rounded-md shadow-md"
           aria-label="Pagination"
         >
-          <a
-            onClick={decreasePage}
-            className="cursor-pointer items-center rounded-l-md border bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
+          <Link
+            shallow={true}
+            scroll={true}
+            href={{
+              pathname: "/dashboard/products",
+              query: getDecreaseParams(),
+            }}
           >
-            <span className="sr-only">Previous</span>
-            <ChevronLeftIcon className="h-5 w-5" />
-          </a>
+            <a className="cursor-pointer items-center rounded-l-md border bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span className="sr-only">Previous</span>
+              <ChevronLeftIcon className="h-5 w-5" />
+            </a>
+          </Link>
           {pNumbers.map((p, i) => {
             if (p === "...") {
               return (
@@ -171,74 +255,91 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
               );
             }
             return (
-              <a
-                key={`${p}-{p != page}`}
-                className={cc([
-                  {
-                    "box-content w-[2ch] cursor-pointer border bg-white px-4 py-2 text-center text-sm font-medium text-gray-500 hover:bg-gray-50":
-                      p != page,
+              <Link
+                key={p}
+                shallow={true}
+                scroll={true}
+                href={{
+                  pathname: "/dashboard/products",
+                  query: {
+                    ...(p > 1 && { p: p }),
+                    ...(currentLimit > 10 && { l: queryLimitNumber }),
                   },
-                  {
-                    "z-10 box-content w-[2ch] cursor-pointer border border-indigo-500 bg-indigo-50 px-4 py-2 text-center text-sm font-medium text-indigo-600":
-                      p == page,
-                  },
-                ])}
+                }}
               >
-                {p}
-              </a>
+                <a
+                  className={cc([
+                    {
+                      "box-content w-[2ch] cursor-pointer border bg-white px-4 py-2 text-center text-sm font-medium text-gray-500 hover:bg-gray-50":
+                        p != queryPageNumber,
+                    },
+                    {
+                      "z-10 box-content w-[2ch] cursor-pointer border border-indigo-500 bg-indigo-50 px-4 py-2 text-center text-sm font-medium text-indigo-600":
+                        p == queryPageNumber || (p == 1 && !queryPageNumber),
+                    },
+                  ])}
+                >
+                  {p}
+                </a>
+              </Link>
             );
           })}
-
-          <a
-            onClick={increasePage}
-            className="cursor-pointer items-center rounded-r-md border bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
+          <Link
+            shallow={true}
+            scroll={true}
+            href={{
+              pathname: "/dashboard/products",
+              query: getIncreaseParams(),
+            }}
           >
-            <span className="sr-only">Next</span>
-            <ChevronRightIcon className="h-5 w-5" />
-          </a>
+            <a className="cursor-pointer items-center rounded-r-md border bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span className="sr-only">Next</span>
+              <ChevronRightIcon className="h-5 w-5" />
+            </a>
+          </Link>
         </nav>
         <div className="flex items-center">
           <span className="pr-3">Results per page: </span>
-          <Listbox value={limit} onChange={handleLimit}>
+          <Menu>
             <div className="relative">
-              <Listbox.Button className="relative box-content w-[3ch] cursor-default rounded-md border bg-white py-2 pl-5 pr-10 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-300">
-                <span className="block truncate">{limit.limit}</span>
+              <Menu.Button className="relative box-content w-[3ch] cursor-default rounded-md border bg-white py-2 pl-5 pr-10 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-300">
+                <span className="block truncate">{currentLimit}</span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                   <SelectorIcon
                     className="h-5 w-5 text-gray-400"
                     aria-hidden="true"
                   />
                 </span>
-              </Listbox.Button>
+              </Menu.Button>
               <Transition
                 as={Fragment}
                 leave="transition ease-in duration-100"
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <Menu.Items className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   {limitCount.map((l, limitIdx) => (
-                    <Listbox.Option
-                      key={limitIdx}
-                      className={({ active }) =>
-                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                          active
-                            ? "bg-indigo-100 text-indigo-900"
-                            : "text-gray-900"
-                        }`
-                      }
-                      value={l}
-                    >
-                      {({ selected }) => (
-                        <>
-                          <span
-                            className={`block truncate text-sm ${
-                              selected ? "font-medium" : "font-normal"
-                            }`}
-                          >
-                            {l.limit}
-                          </span>
-                          {selected ? (
+                    <Menu.Item key={limitIdx}>
+                      <LimitLink
+                        href={{
+                          pathname: "/dashboard/products",
+                          query: getLimitParams(l.limit),
+                        }}
+                        className={cc([
+                          "block select-none hover:bg-indigo-100",
+                          {
+                            "font-medium text-indigo-900":
+                              l.limit == currentLimit,
+                          },
+                          {
+                            "font-normal text-gray-900":
+                              l.limit != currentLimit,
+                          },
+                        ])}
+                      >
+                        <div className="relative py-2 pl-10 pr-4">
+                          {l.limit}
+                          {l.limit == currentLimit ? (
                             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-indigo-600">
                               <CheckIcon
                                 className="h-5 w-5"
@@ -246,17 +347,17 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                               />
                             </span>
                           ) : null}
-                        </>
-                      )}
-                    </Listbox.Option>
+                        </div>
+                      </LimitLink>
+                    </Menu.Item>
                   ))}
-                </Listbox.Options>
+                </Menu.Items>
               </Transition>
             </div>
-          </Listbox>
+          </Menu>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
