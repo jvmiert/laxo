@@ -7,8 +7,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
+	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/lazada"
+	"laxo.vn/laxo/laxo/models"
 	"laxo.vn/laxo/laxo/shop"
 	temporal_client "laxo.vn/laxo/temporal/client"
 )
@@ -62,7 +64,6 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleLazadaPlatformInfo)),
 	)).Methods("GET")
 }
-
 
 func (h *shopHandler) HandlePlatformSync(w http.ResponseWriter, r *http.Request, uID string) {
   shop, err := h.service.shop.GetActiveShopByUserID(uID)
@@ -191,9 +192,31 @@ func (h *shopHandler) GetProduct(w http.ResponseWriter, r *http.Request, uID str
     limit = "50"
   }
 
-  products, paginate, err := h.service.shop.GetProductsByUserID(uID, offset, limit)
+  name := r.URL.Query().Get("name")
+  msku := r.URL.Query().Get("msku")
+
+  nameParsed := null.StringFrom(name)
+  mskuParsed := null.StringFrom(msku)
+
+  if name == "" {
+    nameParsed = null.NewString("", false)
+  }
+
+  if msku == "" {
+    mskuParsed = null.NewString("", false)
+  }
+
+  var err error
+  var products []models.Product
+  var paginate shop.Paginate
+
+  if nameParsed.Valid || mskuParsed.Valid {
+    products, paginate, err = h.service.shop.GetProductsByNameOrSKU(uID, nameParsed, mskuParsed, offset, limit)
+  } else {
+    products, paginate, err = h.service.shop.GetProductsByUserID(uID, offset, limit)
+  }
   if err != nil {
-    h.server.Logger.Errorw("GetProductsByUserID error",
+    h.server.Logger.Errorw("GetProducts error",
       "error", err,
     )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

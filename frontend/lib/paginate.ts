@@ -21,5 +21,8 @@ export function generatePaginateNumbers(
   if (includeLeftDots) filteredCenter.unshift("...");
   if (includeRightDots) filteredCenter.push("...");
 
+  if (total == 1) {
+    return [1];
+  }
   return [1, ...filteredCenter, total];
 }

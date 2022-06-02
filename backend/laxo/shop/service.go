@@ -30,6 +30,7 @@ type Store interface {
   UpdateProductToStore(*models.Product) (*sqlc.Product, error)
   RetrieveShopsByUserID(string) ([]Shop, error)
   GetProductsByShopID(string, int32, int32) ([]sqlc.GetProductsByShopIDRow, error)
+  GetProductsByNameOrSKU(string, null.String, null.String, int32, int32) ([]sqlc.GetProductsByNameOrSKURow, error)
   GetProductByID(string) (*sqlc.Product, error)
   GetProductDetails(productID string) (*sqlc.GetProductDetailsByIDRow, error)
   RetrieveShopsPlatformsByUserID(string) ([]sqlc.GetShopsPlatformsByUserIDRow, error)
@@ -265,21 +266,14 @@ func (s *Service) GetProductByID(productID string) (*models.Product, error) {
       }, nil
 }
 
-func (s *Service) GetProductsByUserID(userID string, offset string, limit string) ([]models.Product, Paginate, error) {
+func (s *Service) GetProductsByNameOrSKU(userID string, name null.String, msku null.String, offset string, limit string) ([]models.Product, Paginate, error) {
   var pList []models.Product
   var paginate Paginate
 
-  shops, err := s.store.RetrieveShopsByUserID(userID)
+  shop, err := s.GetActiveShopByUserID(userID)
   if err != nil {
-    return pList, paginate, fmt.Errorf("RetrieveShopsByUserID: %w", err)
+    return pList, paginate, fmt.Errorf("GetActiveShopByUserID: %w", err)
   }
-
-  if len(shops) == 0 {
-    return pList, paginate, errors.New("user has not setup any shops yet")
-  }
-
-  //@TODO: we don't have an active store logic yet so for now we pick the first
-  shopID := shops[0].Model.ID
 
   offsetI, err := strconv.Atoi(offset)
   if err != nil {
@@ -291,7 +285,99 @@ func (s *Service) GetProductsByUserID(userID string, offset string, limit string
     return pList, paginate, fmt.Errorf("atoi limit: %w", err)
   }
 
-  pModelList, err := s.store.GetProductsByShopID(shopID, int32(limitI), int32(offsetI))
+  nameParsed := null.NewString("", false)
+  if name.Valid {
+    nameParsed = null.StringFrom("%" + name.String + "%")
+  }
+
+  mskuParsed := null.NewString("", false)
+  if msku.Valid {
+    mskuParsed = null.StringFrom("%" + msku.String + "%")
+  }
+
+  pModelList, err := s.store.GetProductsByNameOrSKU(shop.Model.ID, nameParsed, mskuParsed, int32(limitI), int32(offsetI))
+  if err != nil {
+    return pList, paginate, fmt.Errorf("GetProductsByShopID: %w", err)
+  }
+
+  total := int64(0)
+
+  if len(pModelList) > 0 {
+    total = pModelList[0].Count
+  }
+
+  //@TODO: Handle other platforms
+  for _, pModel := range pModelList {
+    if pModel.ID == "" {
+      continue
+    }
+    mediaListString := string(pModel.MediaIDList)
+    mediaList := strings.Split(mediaListString, ",")
+
+    var platformList []models.ProductPlatformInformation
+    var platformSKU string
+
+    if pModel.LazadaPlatformSku.Valid {
+      platformSKU =  strconv.FormatInt(pModel.LazadaPlatformSku.Int64, 10)
+    }
+
+    lazadaPlatform := models.ProductPlatformInformation{
+      ID: strconv.FormatInt(pModel.LazadaID, 10),
+      ProductURL: pModel.LazadaUrl,
+      Name: pModel.LazadaName,
+      PlatformName: "lazada",
+      PlatformSKU: platformSKU,
+      SellerSKU: pModel.LazadaSellerSku,
+    }
+
+    platformList = append(platformList, lazadaPlatform)
+
+    pList = append(pList, models.Product{
+      Model: &sqlc.Product{
+        ID: pModel.ID,
+        Name: pModel.Name,
+        Description: pModel.Description,
+        Msku: pModel.Msku,
+        SellingPrice: pModel.SellingPrice,
+        CostPrice: pModel.CostPrice,
+        ShopID: pModel.ShopID,
+        MediaID: pModel.MediaID,
+        Created: pModel.Created,
+        Updated: pModel.Updated,
+      },
+      MediaList: mediaList,
+      Platforms: platformList,
+    })
+  }
+
+  paginate.Total = total
+  paginate.Pages = (total + int64(limitI) - 1) / int64(limitI)
+  paginate.Limit = int64(limitI)
+  paginate.Offset = int64(offsetI)
+
+  return pList, paginate, nil
+}
+
+func (s *Service) GetProductsByUserID(userID string, offset string, limit string) ([]models.Product, Paginate, error) {
+  var pList []models.Product
+  var paginate Paginate
+
+  shop, err := s.GetActiveShopByUserID(userID)
+  if err != nil {
+    return pList, paginate, fmt.Errorf("GetActiveShopByUserID: %w", err)
+  }
+
+  offsetI, err := strconv.Atoi(offset)
+  if err != nil {
+    return pList, paginate, fmt.Errorf("atoi offset: %w", err)
+  }
+
+  limitI, err := strconv.Atoi(limit)
+  if err != nil {
+    return pList, paginate, fmt.Errorf("atoi limit: %w", err)
+  }
+
+  pModelList, err := s.store.GetProductsByShopID(shop.Model.ID, int32(limitI), int32(offsetI))
   if err != nil {
     return pList, paginate, fmt.Errorf("GetProductsByShopID: %w", err)
   }

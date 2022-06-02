@@ -73,6 +73,24 @@ func (s *shopStore) CreateShopsPlatforms(shopID string, platformName string) (sq
   )
 }
 
+func (s *shopStore) GetProductsByNameOrSKU(shopID string, name null.String, msku null.String, limit int32, offset int32) ([]sqlc.GetProductsByNameOrSKURow, error) {
+  products, err := s.queries.GetProductsByNameOrSKU(
+    context.Background(),
+    sqlc.GetProductsByNameOrSKUParams{
+      ShopID: shopID,
+      Name: name,
+      Msku: msku,
+      Limit: limit,
+      Offset: offset,
+    },
+  )
+  if err != nil {
+    return nil, err
+  }
+
+  return products, nil
+}
+
 func (s *shopStore) GetProductsByShopID(shopID string, limit int32, offset int32) ([]sqlc.GetProductsByShopIDRow, error) {
   products, err := s.queries.GetProductsByShopID(
     context.Background(),

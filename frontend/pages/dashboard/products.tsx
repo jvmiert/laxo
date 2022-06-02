@@ -1,6 +1,6 @@
 import cc from "classcat";
 import { Fragment, forwardRef, ReactNode } from "react";
-import type { ReactElement } from "react";
+import type { ReactElement, ChangeEvent } from "react";
 import { useIntl, defineMessage } from "react-intl";
 import { useRouter } from "next/router";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -56,17 +56,25 @@ const limitCount = [
 function DashboardProductsPage(props: DashboardProductsPageProps) {
   const t = useIntl();
   const {
-    query: { p: queryPageNumber, l: queryLimitNumber },
+    push,
+    query: { p: queryPageNumber, l: queryLimitNumber, s: searchQuery },
   } = useRouter();
 
   const currentPage = Number(queryPageNumber) ? Number(queryPageNumber) : 1;
   const currentLimit = Number(queryLimitNumber) ? Number(queryLimitNumber) : 10;
 
+  const currentsearchQuery = searchQuery ? searchQuery.toString() : "";
+
   const offset = (currentPage - 1) * currentLimit;
 
   const { doPlatformSync } = useShopApi();
 
-  const { products } = useGetLaxoProducts(offset, currentLimit);
+  const { products } = useGetLaxoProducts(
+    currentsearchQuery,
+    currentsearchQuery,
+    offset,
+    currentLimit,
+  );
 
   const { paginate } = products;
   const maxPage = paginate.pages;
@@ -84,34 +92,57 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
     currency: "VND",
   });
 
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    push(
+      {
+        pathname: "/dashboard/products",
+        query: {
+          ...(currentPage > 1 && { p: currentPage }),
+          ...(currentLimit > 10 && { l: queryLimitNumber }),
+          ...(e.target.value != "" && { s: e.target.value }),
+        },
+      },
+      undefined,
+      { shallow: true, scroll: false },
+    );
+  };
+
   const getDecreaseParams = () => {
+    const searchParams = {
+      ...(currentsearchQuery != "" && { s: currentsearchQuery }),
+    };
+
     if (currentPage - 1 < 1) {
       if (currentLimit > 10) {
-        return { l: currentLimit };
+        return { l: currentLimit, ...searchParams };
       }
       return {};
     }
 
     if (currentLimit > 10) {
-      return { p: currentPage - 1, l: currentLimit };
+      return { p: currentPage - 1, l: currentLimit, ...searchParams };
     }
 
-    return { p: currentPage - 1 };
+    return { p: currentPage - 1, ...searchParams };
   };
 
   const getIncreaseParams = () => {
+    const searchParams = {
+      ...(currentsearchQuery != "" && { s: currentsearchQuery }),
+    };
+
     if (currentPage + 1 > maxPage) {
       if (currentLimit > 10) {
-        return { p: currentPage, l: currentLimit };
+        return { p: currentPage, l: currentLimit, ...searchParams };
       }
-      return { p: currentPage };
+      return { p: currentPage, ...searchParams };
     }
 
     if (currentLimit > 10) {
-      return { p: currentPage + 1, l: currentLimit };
+      return { p: currentPage + 1, l: currentLimit, ...searchParams };
     }
 
-    return { p: currentPage + 1 };
+    return { p: currentPage + 1, ...searchParams };
   };
 
   const getLimitParams = (limit: number) => {
@@ -122,6 +153,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
     return {
       ...(currentPageCeiling > 1 && { p: currentPageCeiling }),
       ...(limit > 10 && { l: limit }),
+      ...(currentsearchQuery != "" && { s: currentsearchQuery }),
     };
   };
 
@@ -135,6 +167,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
             </span>
           </div>
           <input
+            onChange={handleSearch}
             type="text"
             className="block w-full rounded-md py-2 pl-9 pr-9 focus:outline-none focus:ring focus:ring-indigo-200"
             placeholder="Search for product name or SKU"
@@ -264,6 +297,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                   query: {
                     ...(p > 1 && { p: p }),
                     ...(currentLimit > 10 && { l: queryLimitNumber }),
+                    ...(currentsearchQuery != "" && { s: currentsearchQuery }),
                   },
                 }}
               >

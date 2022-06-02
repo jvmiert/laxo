@@ -1,9 +1,8 @@
 # Tech to-do
 - Create product page
-  - Make a hook/component for normal pagination vs searching
-  - Figure out visual look
-  - Retrieve correct product information according to similiar services
+  - Add platform information
 - For shop assets: generate a random unique string as path to keep images hidden
+- Create product details page
 - Update Dashboard main navigation
   - Change side menu to fixed like Deliverr?
   - Add breadcrumbs for current active page

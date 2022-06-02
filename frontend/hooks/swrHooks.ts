@@ -160,6 +160,8 @@ function transformLaxoProducts(r: any): LaxoProductResponse {
 }
 
 export function useGetLaxoProducts(
+  name: string,
+  msku: string,
   offset: number,
   limit: number,
 ): {
@@ -172,10 +174,10 @@ export function useGetLaxoProducts(
     AxiosResponse<LaxoProductResponse>,
     AxiosError<unknown>
   >(
-    ["/product", offset, limit],
+    ["/product", name, offset, offset, limit],
     (url) =>
       axiosClient.get<LaxoProductResponse>(url, {
-        params: { offset, limit },
+        params: { name, msku, offset, limit },
         transformResponse: transformLaxoProducts,
       }),
     {
