@@ -1,7 +1,8 @@
 # Tech to-do
 - Create product page
+  - Add product images
   - Add platform information
-- For shop assets: generate a random unique string as path to keep images hidden
+  - Add product status?
 - Create product details page
 - Update Dashboard main navigation
   - Change side menu to fixed like Deliverr?

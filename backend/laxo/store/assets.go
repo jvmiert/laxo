@@ -40,9 +40,7 @@ func newAssetsStore(store *Store, assetsBasePath string) (*assetsStore, error) {
     return nil, ErrInvalidPath
   }
 
-  productPath := assetsBasePath + string(os.PathSeparator) + productImageDir
-
-  err = os.MkdirAll(productPath, 0664)
+  err = os.MkdirAll(assetsBasePath, 0664)
   if err != nil {
     return nil, err
   }
@@ -65,7 +63,7 @@ func (s *assetsStore) GetProductMediaByProductID(productID string) (*sqlc.Produc
   return &productMedia, nil
 }
 
-func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte, shopID string, productID string) error {
+func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte, shopID string, productID string, shopToken string) error {
   filetype := http.DetectContentType(b)
 
   ext, err := mime.ExtensionsByType(filetype)
@@ -107,7 +105,16 @@ func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte,
 
   filename := pMModel.ID + fileExt
 
-  path := s.assetsPath + string(os.PathSeparator) + productImageDir + string(os.PathSeparator) + filename
+  path := s.assetsPath + string(os.PathSeparator)
+  path = path + shopToken + string(os.PathSeparator)
+  path = path + productImageDir + string(os.PathSeparator)
+
+  err = os.MkdirAll(path, os.ModePerm)
+  if err != nil {
+    return err
+  }
+
+  path = path + filename
 
 	err = ioutil.WriteFile(path, b, 0644)
 	if err != nil {

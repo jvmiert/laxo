@@ -33,6 +33,7 @@ func (s *shopStore) SaveNewShopToStore(shop *shop.Shop, u string) (*sqlc.Shop, e
     sqlc.CreateShopParams{
       ShopName: shop.Model.ShopName,
       UserID: u,
+      AssetsToken: shop.Model.AssetsToken,
     },
   )
 

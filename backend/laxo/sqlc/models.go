@@ -143,11 +143,12 @@ type ProductsSkuLazada struct {
 }
 
 type Shop struct {
-	ID         string    `json:"id"`
-	UserID     string    `json:"userID"`
-	ShopName   string    `json:"shopName"`
-	Created    null.Time `json:"created"`
-	LastUpdate null.Time `json:"lastUpdate"`
+	ID          string    `json:"id"`
+	UserID      string    `json:"userID"`
+	ShopName    string    `json:"shopName"`
+	AssetsToken string    `json:"assetsToken"`
+	Created     null.Time `json:"created"`
+	LastUpdate  null.Time `json:"lastUpdate"`
 }
 
 type ShopsPlatform struct {

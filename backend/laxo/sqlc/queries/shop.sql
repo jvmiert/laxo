@@ -12,6 +12,7 @@ SELECT shops.id,
        shops.user_id,
        shops.shop_name,
        shops.created,
+       shops.assets_token,
        shops_platforms.id as platform_id,
        shops_platforms.platform_name as platform_name,
        shops_platforms.created as platform_created
@@ -21,8 +22,8 @@ WHERE user_id = $1;
 
 -- name: CreateShop :one
 INSERT INTO shops (
-  shop_name, user_id
+  shop_name, user_id, assets_token
 ) VALUES (
-  $1, $2
+  $1, $2, $3
 )
 RETURNING *;

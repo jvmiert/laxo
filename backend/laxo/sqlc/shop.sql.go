@@ -13,25 +13,27 @@ import (
 
 const createShop = `-- name: CreateShop :one
 INSERT INTO shops (
-  shop_name, user_id
+  shop_name, user_id, assets_token
 ) VALUES (
-  $1, $2
+  $1, $2, $3
 )
-RETURNING id, user_id, shop_name, created, last_update
+RETURNING id, user_id, shop_name, assets_token, created, last_update
 `
 
 type CreateShopParams struct {
-	ShopName string `json:"shopName"`
-	UserID   string `json:"userID"`
+	ShopName    string `json:"shopName"`
+	UserID      string `json:"userID"`
+	AssetsToken string `json:"assetsToken"`
 }
 
 func (q *Queries) CreateShop(ctx context.Context, arg CreateShopParams) (Shop, error) {
-	row := q.db.QueryRow(ctx, createShop, arg.ShopName, arg.UserID)
+	row := q.db.QueryRow(ctx, createShop, arg.ShopName, arg.UserID, arg.AssetsToken)
 	var i Shop
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.ShopName,
+		&i.AssetsToken,
 		&i.Created,
 		&i.LastUpdate,
 	)
@@ -39,7 +41,7 @@ func (q *Queries) CreateShop(ctx context.Context, arg CreateShopParams) (Shop, e
 }
 
 const getShopByID = `-- name: GetShopByID :one
-SELECT id, user_id, shop_name, created, last_update FROM shops
+SELECT id, user_id, shop_name, assets_token, created, last_update FROM shops
 WHERE id = $1
 LIMIT 1
 `
@@ -51,6 +53,7 @@ func (q *Queries) GetShopByID(ctx context.Context, id string) (Shop, error) {
 		&i.ID,
 		&i.UserID,
 		&i.ShopName,
+		&i.AssetsToken,
 		&i.Created,
 		&i.LastUpdate,
 	)
@@ -58,7 +61,7 @@ func (q *Queries) GetShopByID(ctx context.Context, id string) (Shop, error) {
 }
 
 const getShopsByUserID = `-- name: GetShopsByUserID :many
-SELECT id, user_id, shop_name, created, last_update FROM shops
+SELECT id, user_id, shop_name, assets_token, created, last_update FROM shops
 WHERE user_id = $1
 `
 
@@ -75,6 +78,7 @@ func (q *Queries) GetShopsByUserID(ctx context.Context, userID string) ([]Shop, 
 			&i.ID,
 			&i.UserID,
 			&i.ShopName,
+			&i.AssetsToken,
 			&i.Created,
 			&i.LastUpdate,
 		); err != nil {
@@ -93,6 +97,7 @@ SELECT shops.id,
        shops.user_id,
        shops.shop_name,
        shops.created,
+       shops.assets_token,
        shops_platforms.id as platform_id,
        shops_platforms.platform_name as platform_name,
        shops_platforms.created as platform_created
@@ -106,6 +111,7 @@ type GetShopsPlatformsByUserIDRow struct {
 	UserID          string      `json:"userID"`
 	ShopName        string      `json:"shopName"`
 	Created         null.Time   `json:"created"`
+	AssetsToken     string      `json:"assetsToken"`
 	PlatformID      null.String `json:"platformID"`
 	PlatformName    null.String `json:"platformName"`
 	PlatformCreated null.Time   `json:"platformCreated"`
@@ -125,6 +131,7 @@ func (q *Queries) GetShopsPlatformsByUserID(ctx context.Context, userID string) 
 			&i.UserID,
 			&i.ShopName,
 			&i.Created,
+			&i.AssetsToken,
 			&i.PlatformID,
 			&i.PlatformName,
 			&i.PlatformCreated,

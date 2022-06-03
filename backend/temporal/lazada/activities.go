@@ -136,6 +136,15 @@ func (a *Activities) SaveLazadaProducts(ctx context.Context, param LazadaSavePar
     return err
   }
 
+  shop, err := a.shopService.GetShopByID(param.ShopID)
+  if err != nil {
+    logger.Error("GetLaxoProductFromLazadaData error",
+      "error", err,
+    )
+    a.notificationService.ErrorNotification(notificationGroupID)
+    return err
+  }
+
   pModel, pModelAttributes, pModelSKU, err := a.lazadaService.SaveOrUpdateLazadaProduct(p, param.ShopID)
   if err != nil {
     logger.Error("SaveOrUpdateLazadaProduct error",
@@ -172,7 +181,7 @@ func (a *Activities) SaveLazadaProducts(ctx context.Context, param LazadaSavePar
     return err
   }
 
-  err = a.assetsService.SaveProductImages(images, param.ShopID, laxoP.Model.ID)
+  err = a.assetsService.SaveProductImages(images, param.ShopID, laxoP.Model.ID, shop.Model.AssetsToken)
   if err != nil {
     logger.Error("SaveProductImages error",
       "error", err,

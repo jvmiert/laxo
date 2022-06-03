@@ -1,9 +1,11 @@
 package shop
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 
@@ -58,6 +60,12 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
   }
 }
 
+func (s *Service) GetShopByID(shopID string) (*Shop, error) {
+  shop, err := s.store.GetShopByID(shopID)
+
+  return &Shop{Model: shop}, err
+}
+
 func (s *Service) GetActiveShopByUserID(userID string) (*Shop, error) {
   shops, err := s.store.RetrieveShopsByUserID(userID)
 
@@ -72,8 +80,30 @@ func (s *Service) GetActiveShopByUserID(userID string) (*Shop, error) {
   return &shops[0], nil
 }
 
+func (s *Service) GenerateShopAssetsToken() (string, error) {
+  const length = 96
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
+
+	ret := make([]byte, length)
+
+	for i := 0; i < length; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			return "", err
+		}
+		ret[i] = letters[num.Int64()]
+	}
+
+	return string(ret), nil
+}
+
 func (s *Service) SaveNewShopToDB(shop *Shop, u string) error {
-  _, err := s.store.SaveNewShopToStore(shop, u)
+  token, err := s.GenerateShopAssetsToken()
+  if err != nil {
+    return fmt.Errorf("GenerateShopAssetsToken: %w", err)
+  }
+  shop.Model.AssetsToken = token
+  _, err = s.store.SaveNewShopToStore(shop, u)
 
   return fmt.Errorf("SaveNewShopToStore: %w", err)
 }
@@ -93,6 +123,7 @@ func (s *Service) GenerateShopPlatformList(ss []sqlc.GetShopsPlatformsByUserIDRo
       sr.ID       = s.ID
       sr.UserID   = s.UserID
       sr.Name = s.ShopName
+      sr.AssetsToken = s.AssetsToken
 
       srList = append(srList, sr)
 

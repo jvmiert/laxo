@@ -47,6 +47,11 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleGetMyShops)),
 	)).Methods("GET")
 
+	r.Handle("/shop", n.With(
+		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleCreateShop)),
+	)).Methods("POST")
+
 	r.Handle("/oauth/verify", n.With(
 		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleVerifyOAuth)),

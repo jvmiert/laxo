@@ -11,6 +11,7 @@ type ShopReturn struct {
 	ID         string           `json:"id"`
   UserID     string           `json:"userID"`
 	Name       string           `json:"name"`
+  AssetsToken string           `json:"assetToken"`
   Platforms  []PlatformReturn `json:"platforms"`
 }
 
@@ -30,6 +31,7 @@ func (s *Shop) JSON() ([]byte, error) {
   sr.ID       = s.Model.ID
   sr.UserID   = s.Model.UserID
   sr.Name = s.Model.ShopName
+  sr.AssetsToken = s.Model.AssetsToken
 
   bytes, err := json.Marshal(sr)
 

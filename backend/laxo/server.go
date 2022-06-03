@@ -1,6 +1,8 @@
 package laxo
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/hcl/v2/hclsimple"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -29,7 +31,8 @@ type Server struct {
 }
 
 func NewServer(l *Logger, c *Config) (*Server, error) {
-  r := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
+  base := mux.NewRouter()
+  r := base.PathPrefix("/api").Subrouter().StrictSlash(true)
 
   // Common middlewares
   var commonMiddlewares []negroni.Handler
@@ -53,6 +56,14 @@ func NewServer(l *Logger, c *Config) (*Server, error) {
 func (s *Server) InitMiddleware() {
   m := NewMiddleware(s)
   s.Middleware = &m
+}
+
+func (s *Server) ServeStaticFiles(path string) {
+  s.Logger.Infow("Serving static files...", "path", path)
+
+  //@TODO: DISABLE DIR LISTING!
+  fileServer := http.FileServer(http.Dir(path))
+  s.Router.PathPrefix("/assets/").Handler(http.StripPrefix("/api/assets/", fileServer))
 }
 
 func InitConfig() (*Config, error) {

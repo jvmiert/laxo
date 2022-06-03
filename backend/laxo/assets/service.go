@@ -16,7 +16,7 @@ import (
 type Store interface {
   GetProductMediaByProductID(string) (*sqlc.ProductsMedia, error)
   GetProductMediaByMurmur(int64, string) (*sqlc.ProductsMedia, error)
-  SaveNewProductMedia(int64, string, []byte, string, string) error
+  SaveNewProductMedia(int64, string, []byte, string, string, string) error
 }
 
 type Service struct {
@@ -73,7 +73,7 @@ func (s *Service) ExtractImagesListFromProductResponse(p *lazada.ProductsRespons
   return imageList, nil
 }
 
-func (s *Service) SaveProductImages(i []string, shopID string, productID string) error {
+func (s *Service) SaveProductImages(i []string, shopID string, productID string, shopToken string) error {
   for _, v := range i {
     resp, err := http.Get(v)
     if err != nil {
@@ -102,7 +102,7 @@ func (s *Service) SaveProductImages(i []string, shopID string, productID string)
 
     if err == pgx.ErrNoRows {
       filename := path.Base(v)
-      err = s.store.SaveNewProductMedia(mID, filename, b, shopID, productID)
+      err = s.store.SaveNewProductMedia(mID, filename, b, shopID, productID, shopToken)
       if err != nil {
         return err
       }

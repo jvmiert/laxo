@@ -86,6 +86,8 @@ func main() {
     return
   }
 
+  server.ServeStaticFiles(assetsBasePath)
+
   notificationService := notification.NewService(store, logger, server)
   rest.InitNotificationHandler(server, &notificationService, server.Router, server.Negroni)
 

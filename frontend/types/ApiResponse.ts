@@ -18,6 +18,7 @@ export type GetShopResponseShops = {
   id: string;
   userID: string;
   name: string;
+  assetsToken: string;
   platforms: Array<GetShopResponsePlatforms>;
 };
 
