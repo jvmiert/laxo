@@ -11,9 +11,12 @@ import { Draft } from "immer";
 import { useImmerReducer } from "use-immer";
 import { grpc } from "@improbable-eng/grpc-web";
 import createSafeContext from "@/lib/useSafeContext";
-import { useGetNotifications } from "@/hooks/swrHooks";
+import { useGetNotifications, useGetShop } from "@/hooks/swrHooks";
 import useNotificationApi from "@/hooks/useNotificationApi";
-import type { NotificationResponseObject } from "@/types/ApiResponse";
+import type {
+  NotificationResponseObject,
+  GetShopResponseShops,
+} from "@/types/ApiResponse";
 import { NotificationUpdateReply } from "@/proto/user_pb";
 import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/router";
@@ -26,6 +29,7 @@ export interface DashboardConsumerProps {
   dashboardState: DashboardState;
   dashboardDispatch: Dispatch<DashboardAction>;
   notificationLoading: boolean;
+  activeShop: GetShopResponseShops | null;
 }
 
 interface DashboardState {
@@ -138,8 +142,11 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
 
   const { getNotificationUpdate } = useNotificationApi();
 
+  const { shops } = useGetShop();
   const { auth } = useAuth();
   const { route } = useRouter();
+
+  const activeShop = shops.total > 0 ? shops.shops[0] : null;
 
   const {
     notifications,
@@ -207,6 +214,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       dashboardState: state,
       dashboardDispatch: dispatch,
       notificationLoading,
+      activeShop: activeShop,
     }),
     [
       notificationOpen,
@@ -216,6 +224,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       state,
       dispatch,
       notificationLoading,
+      activeShop,
     ],
   );
 

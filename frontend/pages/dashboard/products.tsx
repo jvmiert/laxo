@@ -4,10 +4,12 @@ import type { ReactElement, ChangeEvent } from "react";
 import { useIntl, defineMessage } from "react-intl";
 import { useRouter } from "next/router";
 import DashboardLayout from "@/components/DashboardLayout";
+import OverviewTableRow from "@/components/dashboard/product/OverviewTableRow";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import Link, { LinkProps } from "next/link";
 import { useGetLaxoProducts } from "@/hooks/swrHooks";
+import { useDashboard } from "@/providers/DashboardProvider";
 import useShopApi from "@/hooks/useShopApi";
 import { generatePaginateNumbers } from "@/lib/paginate";
 import {
@@ -68,6 +70,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
   const offset = (currentPage - 1) * currentLimit;
 
   const { doPlatformSync } = useShopApi();
+  const { activeShop } = useDashboard();
 
   const { products } = useGetLaxoProducts(
     currentsearchQuery,
@@ -75,6 +78,8 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
     offset,
     currentLimit,
   );
+
+  if (!activeShop) return <></>;
 
   const { paginate } = products;
   const maxPage = paginate.pages;
@@ -226,30 +231,16 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {products.products.map((p) => (
-                      <tr key={p.product.id}>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                          {p.product.name}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {p.product.msku}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {numberFormatter.format(
-                            parseFloat(
-                              `${p.product.sellingPrice.Int}e${p.product.sellingPrice.Exp}`,
-                            ),
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"></td>
-                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                          <a
-                            href="#"
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Edit
-                          </a>
-                        </td>
-                      </tr>
+                      <OverviewTableRow
+                        key={p.product.id}
+                        imgURL={p.mediaList}
+                        shopToken={activeShop.assetsToken}
+                        name={p.product.name}
+                        msku={p.product.msku}
+                        sellingPriceInt={p.product.sellingPrice.Int}
+                        sellingPriceExp={p.product.sellingPrice.Exp}
+                        numberFormat={numberFormatter}
+                      />
                     ))}
                   </tbody>
                 </table>

@@ -11,7 +11,7 @@ type ShopReturn struct {
 	ID         string           `json:"id"`
   UserID     string           `json:"userID"`
 	Name       string           `json:"name"`
-  AssetsToken string           `json:"assetToken"`
+  AssetsToken string           `json:"assetsToken"`
   Platforms  []PlatformReturn `json:"platforms"`
 }
 

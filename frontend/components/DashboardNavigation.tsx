@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { useGetShop } from "@/hooks/swrHooks";
+import { useDashboard } from "@/providers/DashboardProvider";
 import DashboardNavItem from "@/components/DashboardNavItem";
 import DashboardNavPlatformItem from "@/components/DashboardNavPlatformItem";
 import { FormattedMessage } from "react-intl";
@@ -44,10 +44,10 @@ const navigationData: Array<navObject> = [
 ];
 
 export default function DashboardNavigation() {
-  const { shops } = useGetShop();
+  const { activeShop } = useDashboard();
 
   return (
-    <div className="flex w-52 flex-col py-4 space-y-3 border-r border-gray-200">
+    <div className="flex w-52 flex-col space-y-3 border-r border-gray-200 py-4">
       <div className="border-b border-gray-200 px-4 pb-2">
         <h1 className="mb-0 text-lg font-bold">
           <FormattedMessage
@@ -55,9 +55,9 @@ export default function DashboardNavigation() {
             defaultMessage="Dashboard"
           />
         </h1>
-        {shops.total > 0 && (
+        {activeShop && (
           <span className="text-xs font-semibold text-gray-500">
-            {shops.shops[0].name}
+            {activeShop.name}
           </span>
         )}
       </div>
@@ -96,8 +96,8 @@ export default function DashboardNavigation() {
               defaultMessage="Platforms"
             />
           </div>
-          {shops.total > 0 &&
-            shops.shops[0].platforms.map((platform) => (
+          {activeShop &&
+            activeShop.platforms.map((platform) => (
               <DashboardNavPlatformItem
                 key={platform.name}
                 platform={platform.name}
