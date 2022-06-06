@@ -125,6 +125,9 @@ func (s *ProtoServer) GetNotificationUpdate(req *gen.NotificationUpdateRequest, 
     _, entry, err := r.Next(ctx)
     cancel()
     if err != nil {
+      if errors.Is(err, context.Canceled) {
+        return err
+      }
       if err != radix.ErrNoStreamEntries {
         s.logger.Errorw("Redis stream Next() returned error",
           "error", err,

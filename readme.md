@@ -1,11 +1,11 @@
 # Tech to-do
 - Create product page
-  - Add product images
   - Add platform information
   - Add product status?
 - Create product details page
 - Update Dashboard main navigation
   - Change side menu to fixed like Deliverr?
+    - Adjust overflow (scrollbar) behavior to allow scrolling inside the side menu and main content div
   - Add breadcrumbs for current active page
 - Add option for inactive products
   - Allow importing of inactive Lazada products
