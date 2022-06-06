@@ -118,7 +118,9 @@ func main() {
 
   var httpServer *http.Server
 
-  logger.Info("Serving http...", "port", config.Port)
+  logger.Infow("Serving http...",
+    "port", config.Port,
+  )
 
   g.Go(func() error {
     httpServer = &http.Server{
@@ -137,7 +139,9 @@ func main() {
 
   var grpcHttpServer *http.Server
 
-  logger.Info("Serving GRPC...", "port", "8081")
+  logger.Infow("Serving GRPC...",
+    "port", config.GRPCPort,
+  )
 
   g.Go(func() error {
     protoServer, errGRPC := laxo_proto.NewServer(
@@ -178,7 +182,7 @@ func main() {
     }
 
     grpcHttpServer = &http.Server{
-      Addr:    "127.0.0.1:8081",
+      Addr:    "127.0.0.1:" + config.GRPCPort,
       Handler: http.HandlerFunc(handler),
     }
 

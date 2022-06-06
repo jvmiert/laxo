@@ -13,6 +13,7 @@ import (
 
 type Config struct {
   Port             string `hcl:"port"`
+  GRPCPort         string `hcl:"grpc_port"`
   LogLevel         string `hcl:"log_level"`
   AuthCookieName   string `hcl:"auth_cookie_name"`
   AuthCookieExpire int    `hcl:"auth_cookie_days_expire"`

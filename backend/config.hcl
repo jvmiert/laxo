@@ -1,4 +1,5 @@
 port = "8080"
+grpc_port = "8081"
 log_level = "DEBUG"
 auth_cookie_name = "laxo_auth"
 auth_cookie_days_expire = 14
