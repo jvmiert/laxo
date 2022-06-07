@@ -51,17 +51,19 @@ export default function OverviewTableRow({
         <Link href={`/dashboard/products/${id}`}>
           <a>
             <div className="relative flex items-center px-6 py-4">
-              <div className="relative h-8 w-8">
-                <Image
-                  className="rounded"
-                  alt={"Product preview"}
-                  src={`/api/assets/${shopToken}/products/${shownURL}`}
-                  layout="fill"
-                  placeholder="blur"
-                  blurDataURL={`data:image/svg+xml;base64,${shimmerBase64()}`}
-                  objectFit="contain"
-                  objectPosition="center"
-                />
+              <div className="w-8">
+                <div className="relative h-8 w-8">
+                  <Image
+                    className="rounded"
+                    alt={"Product preview"}
+                    src={`/api/assets/${shopToken}/products/${shownURL}`}
+                    layout="fill"
+                    placeholder="blur"
+                    blurDataURL={`data:image/svg+xml;base64,${shimmerBase64()}`}
+                    objectFit="contain"
+                    objectPosition="center"
+                  />
+                </div>
               </div>
               <span className="ml-4 truncate">{name}</span>
             </div>

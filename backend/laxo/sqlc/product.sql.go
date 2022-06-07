@@ -348,6 +348,7 @@ LEFT JOIN (
   JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
   WHERE products.shop_id = $1 AND (products.name ILIKE $2 OR products.msku ILIKE $3)
   GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
+  ORDER BY UPPER(products.name) COLLATE "vi-VN-x-icu"
   LIMIT $4 OFFSET $5
 ) as p
 ON true
@@ -454,6 +455,7 @@ LEFT JOIN (
   JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
   WHERE products.shop_id = $1
   GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
+  ORDER BY UPPER(products.name) COLLATE "vi-VN-x-icu"
   LIMIT $2 OFFSET $3
 ) as p
 ON true
