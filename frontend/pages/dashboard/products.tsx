@@ -230,16 +230,24 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {products.products.map((p) => (
+                    {products.products.map((p, i) => (
                       <OverviewTableRow
                         key={p.product.id}
                         imgURL={p.mediaList}
                         shopToken={activeShop.assetsToken}
+                        id={p.product.id}
                         name={p.product.name}
                         msku={p.product.msku}
                         sellingPriceInt={p.product.sellingPrice.Int}
                         sellingPriceExp={p.product.sellingPrice.Exp}
                         numberFormat={numberFormatter}
+                        style={
+                          i + 1 != products.products.length
+                            ? {
+                                boxShadow: "inset 0 -1px rgb(244, 244, 244)",
+                              }
+                            : {}
+                        }
                       />
                     ))}
                   </tbody>
