@@ -73,6 +73,9 @@ There is no commerce API available yet for Vietnam. However, for the business ma
   - https://github.com/temporalio/samples-go
 - https://github.com/hibiken/asynq
 
+# Integrations
+- https://developers.tiktok-shops.com/
+
 # Oso - authorization
 - https://news.ycombinator.com/item?id=30878926
 - https://docs.osohq.com/go/getting-started/quickstart.html
@@ -106,11 +109,25 @@ There is no commerce API available yet for Vietnam. However, for the business ma
 - https://ginee.com/
 - https://www.octosells.com/
 - https://www.bigseller.com/en_US/index.htm
+- https://www.linnworks.com/
+- https://pipe17.com/
+- https://www.bigcommerce.com/essentials/
 
 # Random
 - https://github.com/charithe/durationcheck
 - https://heroicons.com/?
 - https://github.com/mitranim/gow
+- https://github.com/airbnb/lottie-web/tree/master/build/player
+
+# Chatting integration / customer support
+- https://github.com/chatwoot/chatwoot
+- https://github.com/chaskiq/chaskiq
+- https://github.com/getfider/fider#fider
+- https://github.com/papercups-io/papercups
+- https://github.com/mattermost/mattermost-server
+
+# i18n service
+- https://github.com/WeblateOrg/weblate
 
 # Third party project links
 - https://docs.google.com/spreadsheets/d/1CU_IFc_jVjZ7PLc6UEWmPNszufvYhhrVAGpJUemNU40/edit#gid=0
