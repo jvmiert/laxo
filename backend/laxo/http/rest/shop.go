@@ -39,6 +39,10 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 		service: s,
 	}
 
+  r.Handle("/product/{productID:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}}", n.With(
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleProductDetails)),
+	)).Methods("GET")
+
 	r.Handle("/product", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.GetProduct)),
 	)).Methods("GET")
@@ -68,6 +72,46 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 	r.Handle("/platforms/lazada", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleLazadaPlatformInfo)),
 	)).Methods("GET")
+}
+
+func (h *shopHandler) HandleProductDetails(w http.ResponseWriter, r *http.Request, uID string) {
+  s, err := h.service.shop.GetActiveShopByUserID(uID)
+  if err != nil {
+    h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  vars := mux.Vars(r)
+  productID := vars["productID"]
+
+  product, err := h.service.shop.GetProductDetailsByID(productID, s.Model.ID)
+  if errors.Is(err, shop.ErrProductNotFound) {
+    http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+    return
+  }
+
+  if err != nil {
+    h.server.Logger.Errorw("GetProductDetailsByID error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  b, err := product.JSON()
+  if err != nil {
+    h.server.Logger.Errorw("product JSON marshall error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+  w.Write(b)
 }
 
 func (h *shopHandler) HandlePlatformSync(w http.ResponseWriter, r *http.Request, uID string) {

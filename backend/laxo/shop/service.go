@@ -23,6 +23,7 @@ import (
 )
 
 var ErrUserNoShops = errors.New("user does have any shops")
+var ErrProductNotFound = errors.New("no product found")
 
 type Store interface {
   SaveNewProductToStore(*models.Product, string) (*sqlc.Product, error)
@@ -34,7 +35,7 @@ type Store interface {
   GetProductsByShopID(string, int32, int32) ([]sqlc.GetProductsByShopIDRow, error)
   GetProductsByNameOrSKU(string, null.String, null.String, int32, int32) ([]sqlc.GetProductsByNameOrSKURow, error)
   GetProductByID(string) (*sqlc.Product, error)
-  GetProductDetails(productID string) (*sqlc.GetProductDetailsByIDRow, error)
+  GetProductDetails(productID string, shopID string) (*sqlc.GetProductDetailsByIDRow, error)
   RetrieveShopsPlatformsByUserID(string) ([]sqlc.GetShopsPlatformsByUserIDRow, error)
   SaveNewShopToStore(*Shop, string) (*sqlc.Shop, error)
   GetLazadaPlatformByShopID(string) (*sqlc.PlatformLazada, error)
@@ -252,8 +253,13 @@ func (s *Service) GetProductListJSON(pp []models.Product, paginate *Paginate) ([
   return bytes, nil
 }
 
-func (s *Service) GetProductByID(productID string) (*models.Product, error) {
-  pModel, err := s.store.GetProductDetails(productID)
+func (s *Service) GetProductDetailsByID(productID string, shopID string) (*models.Product, error) {
+  pModel, err := s.store.GetProductDetails(productID, shopID)
+
+  if errors.Is(err, pgx.ErrNoRows) {
+    return nil, ErrProductNotFound
+  }
+
   if err != nil {
     return nil, fmt.Errorf("GetProductByID: %w", err)
   }

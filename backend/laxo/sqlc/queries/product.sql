@@ -80,7 +80,7 @@ JOIN products_platform ON products_platform.product_id = products.id
 JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
 JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
 JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
-WHERE products.id = $1
+WHERE products.id = $1 AND products.shop_id = $2
 GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id;
 
 -- name: CreateProduct :one

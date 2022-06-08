@@ -165,8 +165,8 @@ func (s *shopStore) UpdateProductToStore(p *models.Product) (*sqlc.Product, erro
   return &newModel, nil
 }
 
-func (s *shopStore) GetProductDetails(productID string) (*sqlc.GetProductDetailsByIDRow, error) {
-  p, err := s.queries.GetProductDetailsByID(context.Background(), productID)
+func (s *shopStore) GetProductDetails(productID string, shopID string) (*sqlc.GetProductDetailsByIDRow, error) {
+  p, err := s.queries.GetProductDetailsByID(context.Background(), sqlc.GetProductDetailsByIDParams{ID: productID, ShopID: shopID})
   if err != nil {
     return nil, fmt.Errorf("GetProductDetailsByID: %w", err)
   }
