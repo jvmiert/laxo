@@ -129,3 +129,5 @@ export type LaxoProductResponse = {
   products: Array<LaxoProduct>;
   paginate: PaginateObject;
 };
+
+export interface LaxoProductDetailsResponse extends LaxoProduct {}

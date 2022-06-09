@@ -17,14 +17,21 @@ export default function DashboardNavItem({
 }: DashboardNavItemProps) {
   const { pathname } = useRouter();
 
-  const active = pathname === href;
+  const splitPath = pathname.split("/");
+
+  const trimmedPath =
+    splitPath.length > 3
+      ? splitPath.slice(0, 3).join("/")
+      : splitPath.join("/");
+
+  const active = trimmedPath === href;
 
   return (
     <Link href={href}>
       <a href={href}>
         <div
           className={cc([
-            "cursor-pointer rounded-l border-l-2 py-2 px-3 ml-4",
+            "ml-4 cursor-pointer rounded-l border-l-2 py-2 px-3",
             {
               "border-indigo-700 bg-indigo-50 text-indigo-700": active,
             },

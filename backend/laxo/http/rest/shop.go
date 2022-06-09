@@ -89,7 +89,7 @@ func (h *shopHandler) HandleProductDetails(w http.ResponseWriter, r *http.Reques
 
   product, err := h.service.shop.GetProductDetailsByID(productID, s.Model.ID)
   if errors.Is(err, shop.ErrProductNotFound) {
-    http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+    laxo.ErrorJSONEncode(w, err, http.StatusNotFound)
     return
   }
 

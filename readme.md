@@ -1,8 +1,8 @@
 # Tech to-do
 - Create product page
   - Add platform information
-  - Add product status?
 - Create product details page
+  - Do we always show a form a la Shopify? Or do we go the Deliverr route and edit fields after displaying them
 - Update Dashboard main navigation
   - Change side menu to fixed like Deliverr?
     - Adjust overflow (scrollbar) behavior to allow scrolling inside the side menu and main content div

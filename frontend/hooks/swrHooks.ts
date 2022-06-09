@@ -11,6 +11,7 @@ import type {
   GetLazadaPlatformResponse,
   LaxoProductResponse,
   LaxoProduct,
+  LaxoProductDetailsResponse,
 } from "@/types/ApiResponse";
 
 export function useGetAuth() {
@@ -189,6 +190,48 @@ export function useGetLaxoProducts(
     products: data
       ? data.data
       : { products: [], paginate: { total: 0, pages: 0, limit: 0, offset: 0 } },
+    error,
+    loading: isValidating,
+  };
+}
+
+function transformLaxoProductDetails(
+  r: any,
+): LaxoProductDetailsResponse | undefined {
+  const resp = JSON.parse(r);
+
+  if (resp?.product) {
+    resp.product.created = new Date(resp.product.created);
+    resp.product.updated = new Date(resp.product.updated);
+  }
+
+  return resp;
+}
+
+export function useGetLaxoProductDetails(
+  productID: string | string[] | undefined,
+): {
+  product: LaxoProduct | undefined;
+  error: AxiosError | undefined;
+  loading: boolean;
+} {
+  const { axiosClient } = useAxios();
+  const { data, error, isValidating } = useSWR<
+    AxiosResponse<LaxoProductDetailsResponse>,
+    AxiosError<unknown>
+  >(
+    productID ? `/product/${productID}` : null,
+    (url) =>
+      axiosClient.get<LaxoProductDetailsResponse>(url, {
+        transformResponse: transformLaxoProductDetails,
+      }),
+    {
+      shouldRetryOnError: true,
+    },
+  );
+
+  return {
+    product: data?.data,
     error,
     loading: isValidating,
   };
