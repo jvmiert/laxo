@@ -12,6 +12,7 @@ type ProductPlatformInformation struct {
   SellerSKU    string          `json:"sellerSKU"`
   PlatformSKU  string          `json:"platformSKU"`
   PlatformName string          `json:"platformName"`
+  Status       string          `json:"status"`
   Name         null.String     `json:"name"`
   ProductURL   null.String     `json:"productURL"`
 }

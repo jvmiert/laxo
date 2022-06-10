@@ -281,6 +281,7 @@ func (s *Service) GetProductDetailsByID(productID string, shopID string) (*model
     PlatformName: "lazada",
     PlatformSKU: platformSKU,
     SellerSKU: pModel.LazadaSellerSku,
+    Status: pModel.LazadaStatus.String,
   }
 
   platformList = append(platformList, lazadaPlatform)
@@ -365,6 +366,7 @@ func (s *Service) GetProductsByNameOrSKU(userID string, name null.String, msku n
       PlatformName: "lazada",
       PlatformSKU: platformSKU,
       SellerSKU: pModel.LazadaSellerSku,
+      Status: pModel.LazadaStatus.String,
     }
 
     platformList = append(platformList, lazadaPlatform)
@@ -447,6 +449,7 @@ func (s *Service) GetProductsByUserID(userID string, offset string, limit string
       PlatformName: "lazada",
       PlatformSKU: platformSKU,
       SellerSKU: pModel.LazadaSellerSku,
+      Status: pModel.LazadaStatus.String,
     }
 
     platformList = append(platformList, lazadaPlatform)

@@ -89,7 +89,9 @@ export type GetLazadaPlatformResponse = {
 export type LaxoProductPlatforms = {
   id: string;
   platformName: string;
+  platformSKU: string;
   name: string;
+  status: string;
   productURL: string;
 };
 

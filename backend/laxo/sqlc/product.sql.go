@@ -177,7 +177,8 @@ SELECT products.id, products.name, products.description, products.msku, products
   products_sku_lazada.url as lazada_url,
   products_attribute_lazada.name as lazada_name,
   products_sku_lazada.sku_id as lazada_platform_sku,
-  products_sku_lazada.seller_sku as lazada_seller_sku
+  products_sku_lazada.seller_sku as lazada_seller_sku,
+  products_lazada.status as lazada_status
 FROM products
 JOIN products_media ON products_media.product_id = products.id
 JOIN products_platform ON products_platform.product_id = products.id
@@ -210,6 +211,7 @@ type GetProductDetailsByIDRow struct {
 	LazadaName        null.String    `json:"lazadaName"`
 	LazadaPlatformSku null.Int       `json:"lazadaPlatformSku"`
 	LazadaSellerSku   string         `json:"lazadaSellerSku"`
+	LazadaStatus      null.String    `json:"lazadaStatus"`
 }
 
 func (q *Queries) GetProductDetailsByID(ctx context.Context, arg GetProductDetailsByIDParams) (GetProductDetailsByIDRow, error) {
@@ -232,6 +234,7 @@ func (q *Queries) GetProductDetailsByID(ctx context.Context, arg GetProductDetai
 		&i.LazadaName,
 		&i.LazadaPlatformSku,
 		&i.LazadaSellerSku,
+		&i.LazadaStatus,
 	)
 	return i, err
 }
@@ -330,7 +333,7 @@ SELECT
   COALESCE(p.id, ''), p.name, p.description, p.msku, p.selling_price, p.cost_price,
   COALESCE(p.shop_id, ''), p.media_id, p.created, p.updated, media_id_list,
   COALESCE(p.lazada_id, 0), lazada_url, lazada_name, lazada_platform_sku,
-  COALESCE(lazada_seller_sku, '')
+  COALESCE(lazada_seller_sku, ''), p.lazada_status
 FROM
 (
   SELECT COUNT(*) AS COUNT
@@ -344,7 +347,8 @@ LEFT JOIN (
     products_sku_lazada.url as lazada_url,
     products_attribute_lazada.name as lazada_name,
     products_sku_lazada.sku_id as lazada_platform_sku,
-    products_sku_lazada.seller_sku as lazada_seller_sku
+    products_sku_lazada.seller_sku as lazada_seller_sku,
+    products_lazada.status as lazada_status
   FROM products
   JOIN products_media ON products_media.product_id = products.id
   JOIN products_platform ON products_platform.product_id = products.id
@@ -385,6 +389,7 @@ type GetProductsByNameOrSKURow struct {
 	LazadaName        null.String    `json:"lazadaName"`
 	LazadaPlatformSku null.Int       `json:"lazadaPlatformSku"`
 	LazadaSellerSku   string         `json:"lazadaSellerSku"`
+	LazadaStatus      null.String    `json:"lazadaStatus"`
 }
 
 func (q *Queries) GetProductsByNameOrSKU(ctx context.Context, arg GetProductsByNameOrSKUParams) ([]GetProductsByNameOrSKURow, error) {
@@ -420,6 +425,7 @@ func (q *Queries) GetProductsByNameOrSKU(ctx context.Context, arg GetProductsByN
 			&i.LazadaName,
 			&i.LazadaPlatformSku,
 			&i.LazadaSellerSku,
+			&i.LazadaStatus,
 		); err != nil {
 			return nil, err
 		}
@@ -437,7 +443,7 @@ SELECT
   COALESCE(p.id, ''), p.name, p.description, p.msku, p.selling_price, p.cost_price,
   COALESCE(p.shop_id, ''), p.media_id, p.created, p.updated, media_id_list,
   COALESCE(p.lazada_id, 0), lazada_url, lazada_name, lazada_platform_sku,
-  COALESCE(lazada_seller_sku, '')
+  COALESCE(lazada_seller_sku, ''), p.lazada_status
 FROM
 (
   SELECT COUNT(*) AS COUNT
@@ -451,7 +457,8 @@ LEFT JOIN (
     products_sku_lazada.url as lazada_url,
     products_attribute_lazada.name as lazada_name,
     products_sku_lazada.sku_id as lazada_platform_sku,
-    products_sku_lazada.seller_sku as lazada_seller_sku
+    products_sku_lazada.seller_sku as lazada_seller_sku,
+    products_lazada.status as lazada_status
   FROM products
   JOIN products_media ON products_media.product_id = products.id
   JOIN products_platform ON products_platform.product_id = products.id
@@ -490,6 +497,7 @@ type GetProductsByShopIDRow struct {
 	LazadaName        null.String    `json:"lazadaName"`
 	LazadaPlatformSku null.Int       `json:"lazadaPlatformSku"`
 	LazadaSellerSku   string         `json:"lazadaSellerSku"`
+	LazadaStatus      null.String    `json:"lazadaStatus"`
 }
 
 func (q *Queries) GetProductsByShopID(ctx context.Context, arg GetProductsByShopIDParams) ([]GetProductsByShopIDRow, error) {
@@ -519,6 +527,7 @@ func (q *Queries) GetProductsByShopID(ctx context.Context, arg GetProductsByShop
 			&i.LazadaName,
 			&i.LazadaPlatformSku,
 			&i.LazadaSellerSku,
+			&i.LazadaStatus,
 		); err != nil {
 			return nil, err
 		}
