@@ -4,6 +4,7 @@ import { defineMessage } from "react-intl";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import DashboardLayout from "@/components/DashboardLayout";
+import AssetManagement from "@/components/dashboard/product/AssetManagement";
 import { useRouter } from "next/router";
 import { useGetLaxoProductDetails } from "@/hooks/swrHooks";
 import ErrorPage from "next/error";
@@ -220,7 +221,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
                   leaveTo="opacity-0 translate-y-0"
                 >
                   <Disclosure.Panel static className="p-4">
-                    <div>{JSON.stringify(product.mediaList)}</div>
+                    <AssetManagement mediaList={product.mediaList} />
                   </Disclosure.Panel>
                 </Transition>
               </>
@@ -283,8 +284,8 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
                         <Tab.Panels className="py-4">
                           {product.platforms.map((p) => (
                             <Tab.Panel key={p.platformName}>
-                              <dl className="grid grid-cols-3 gap-x-4 gap-y-8">
-                                <div className="col-span-1">
+                              <dl className="grid grid-cols-6 gap-x-4 gap-y-8">
+                                <div className="col-span-3">
                                   <dt className="text-sm font-medium text-gray-500">
                                     Name
                                   </dt>
@@ -292,7 +293,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
                                     {p.name}
                                   </dd>
                                 </div>
-                                <div className="col-span-1">
+                                <div className="col-span-2">
                                   <dt className="text-sm font-medium text-gray-500">
                                     Platform SKU
                                   </dt>
@@ -322,7 +323,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
                                     </span>
                                   </dd>
                                 </div>
-                                <div className="col-span-3">
+                                <div className="col-span-6">
                                   <dt className="text-sm font-medium text-gray-500">
                                     Product Link
                                   </dt>

@@ -1,8 +1,17 @@
 # Tech to-do
+- The way we store media assets now is silly. We are double saving so many images
+  - Create a media/assets collection per store in the database and write API endpoints to manipulate it
+  - Then allow above assets to be assigned to products and rich descriptions of products
+  - Update Lazada assets saving mechanism
+    - Download image
+    - Check if it exists in the store's assets collection
+    - Save and add entry to the product / description
+  - We can de-dupe images per shop
 - Create product page
   - Add platform information
 - Create product details page
-  - Do we always show a form a la Shopify? Or do we go the Deliverr route and edit fields after displaying them
+  - Create media/assets management component
+  - Create save changes mechanism a la Shopify
 - Update Dashboard main navigation
   - Change side menu to fixed like Deliverr?
     - Adjust overflow (scrollbar) behavior to allow scrolling inside the side menu and main content div

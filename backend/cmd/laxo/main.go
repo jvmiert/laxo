@@ -105,6 +105,7 @@ func main() {
   assetsService := assets.NewService(store, logger, server)
 
   rest.InitTestHandler(server, &lazadaService, &shopService, &assetsService, server.Router, server.Negroni)
+  rest.InitAssetsHandler(server, &shopService, &assetsService, server.Router, server.Negroni)
 
   ctx := context.Background()
   ctx, cancel := context.WithCancel(ctx)
