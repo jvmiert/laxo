@@ -11,6 +11,17 @@ import (
 	null "gopkg.in/guregu/null.v4"
 )
 
+type Asset struct {
+	ID               string      `json:"id"`
+	ShopID           string      `json:"shopID"`
+	MurmurHash       string      `json:"murmurHash"`
+	OriginalFilename null.String `json:"originalFilename"`
+	Extension        null.String `json:"extension"`
+	FileSize         null.Int    `json:"fileSize"`
+	Width            null.Int    `json:"width"`
+	Height           null.Int    `json:"height"`
+}
+
 type Notification struct {
 	ID                  string      `json:"id"`
 	RedisID             null.String `json:"redisID"`
@@ -106,11 +117,10 @@ type ProductsLazada struct {
 }
 
 type ProductsMedia struct {
-	ID               string      `json:"id"`
-	ProductID        string      `json:"productID"`
-	OriginalFilename null.String `json:"originalFilename"`
-	Extension        null.String `json:"extension"`
-	MurmurHash       null.Int    `json:"murmurHash"`
+	ProductID  string   `json:"productID"`
+	AssetID    string   `json:"assetID"`
+	ImageOrder null.Int `json:"imageOrder"`
+	Status     string   `json:"status"`
 }
 
 type ProductsPlatform struct {

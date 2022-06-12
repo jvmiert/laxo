@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, ChangeEvent } from "react";
 import { useDashboard } from "@/providers/DashboardProvider";
 import Image from "next/image";
 import { CloudUploadIcon } from "@heroicons/react/outline";
-import { useAxios } from "@/providers/AxiosProvider";
+import useProductApi from "@/hooks/useProductApi";
+import MurmurHash3 from "murmurhash3js-revisited";
 
 const shimmer = `
 <svg width="48px" height="48px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -35,7 +36,7 @@ export default function AssetManagement({ mediaList }: AssetManagementProps) {
   const dropRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { axiosClient } = useAxios();
+  const { doCreateAsset, doUploadAsset } = useProductApi();
 
   const preventDefaultFunc = (e: DragEvent) => {
     e.preventDefault();
@@ -54,12 +55,34 @@ export default function AssetManagement({ mediaList }: AssetManagementProps) {
     if (!e.target?.files) return;
 
     Array.from(e.target.files).forEach(async (f) => {
-      console.log(f);
-      axiosClient.post("/manage-assets", f, {
-        headers: {
-          "Content-Type": f.type,
-        },
-      });
+      const url = URL.createObjectURL(f);
+      const img = document.createElement("img");
+
+      const arrayBuffer = await f.arrayBuffer();
+      const byteArray = new Uint8Array(arrayBuffer);
+
+      const murmur = MurmurHash3.x64.hash128(byteArray);
+
+      img.onload = async (ev: Event) => {
+        const target = ev.target as HTMLImageElement;
+        const result = await doCreateAsset({
+          original_name: f.name,
+          size: f.size,
+          width: target.width,
+          height: target.height,
+          hash: murmur,
+        });
+
+        console.log(result);
+
+        if(result.upload && result?.asset?.id) {
+          const uploadResult = await doUploadAsset(result.asset.id, f)
+          console.log(uploadResult)
+        }
+
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
     });
   };
 

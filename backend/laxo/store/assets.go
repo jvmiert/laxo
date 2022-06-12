@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"mime"
 	"net/http"
@@ -51,16 +52,104 @@ func newAssetsStore(store *Store, assetsBasePath string) (*assetsStore, error) {
   }, nil
 }
 
-func (s *assetsStore) GetProductMediaByProductID(productID string) (*sqlc.ProductsMedia, error) {
-  productMedia, err := s.queries.GetProductMediaByProductID(
+func (s *assetsStore) CreateNewAsset(ShopID, MurmurHash, OriginalFilename string, FileSize, Width, Height int64) (*sqlc.Asset, error) {
+  param := sqlc.CreateAssetParams{
+    ShopID: ShopID,
+    MurmurHash: MurmurHash,
+    OriginalFilename: null.StringFrom(OriginalFilename),
+    Extension: null.NewString("", false),
+    FileSize: null.IntFrom(FileSize),
+    Width: null.IntFrom(Width),
+    Height: null.IntFrom(Height),
+  }
+
+  asset, err := s.queries.CreateAsset(
     context.Background(),
-    productID,
+    param,
+  )
+
+  return &asset, err
+}
+
+func (s *assetsStore) GetAssetByID(assetID string) (*sqlc.Asset, error) {
+  asset, err := s.queries.GetAssetByID(
+    context.Background(),
+    assetID,
   )
   if err != nil {
     return nil, err
   }
 
-  return &productMedia, nil
+  return &asset, nil
+}
+
+func (s *assetsStore) SaveAssetToDisk(b []byte, assetID string, shopToken string) (*sqlc.Asset, error) {
+  asset, err := s.GetAssetByID(assetID)
+  if err != nil {
+    return nil, fmt.Errorf("GetAssetByID: %w", err)
+  }
+
+  filetype := http.DetectContentType(b)
+
+  ext, err := mime.ExtensionsByType(filetype)
+  if err != nil {
+    return nil, err
+  }
+
+  if len(ext) == 0 {
+    return nil, errors.New("no extension found for image")
+  }
+
+  fileExt := ""
+
+  for _, e := range ext {
+    if e == ".jpg" {
+      fileExt = ".jpg"
+      break
+    }
+  }
+
+  if fileExt == "" {
+    fileExt = ext[0]
+  }
+
+  filename := asset.ID + fileExt
+
+  path := s.assetsPath + string(os.PathSeparator)
+  path = path + shopToken + string(os.PathSeparator)
+
+  err = os.MkdirAll(path, os.ModePerm)
+  if err != nil {
+    return nil, err
+  }
+
+  path = path + filename
+
+	err = ioutil.WriteFile(path, b, 0644)
+	if err != nil {
+    return nil, fmt.Errorf("ioutil.WriteFile: %w", err)
+	}
+
+  param := sqlc.UpdateAssetParams{
+    ShopID: null.NewString("", false),
+    MurmurHash: null.NewString("", false),
+    OriginalFilename: null.NewString("", false),
+    Extension: null.StringFrom(fileExt),
+    FileSize: null.NewInt(0, false),
+    Width: null.NewInt(0, false),
+    Height: null.NewInt(0, false),
+    ID: asset.ID,
+  }
+
+  updatedAsset, err := s.queries.UpdateAsset(
+    context.Background(),
+    param,
+  )
+  if err != nil {
+    return nil, fmt.Errorf("UpdateAsset: %w", err)
+  }
+
+  return &updatedAsset, nil
 }
 
 func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte, shopID string, productID string, shopToken string) error {
@@ -90,12 +179,13 @@ func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte,
 
   params := sqlc.CreateProductMediaParams{
     ProductID: productID,
-    OriginalFilename: null.StringFrom(oFilename),
-    MurmurHash: null.IntFrom(mID),
-    Extension: null.StringFrom(fileExt),
+    //OriginalFilename: null.StringFrom(oFilename),
+    //MurmurHash: null.IntFrom(mID),
+    //Extension: null.StringFrom(fileExt),
   }
 
-  pMModel, err := s.queries.CreateProductMedia(
+  //pMModel, err := s.queries.CreateProductMedia(
+  _, err = s.queries.CreateProductMedia(
     context.Background(),
     params,
   )
@@ -103,7 +193,7 @@ func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte,
     return err
   }
 
-  filename := pMModel.ID + fileExt
+  //filename := pMModel.ID + fileExt
 
   path := s.assetsPath + string(os.PathSeparator)
   path = path + shopToken + string(os.PathSeparator)
@@ -114,7 +204,7 @@ func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte,
     return err
   }
 
-  path = path + filename
+  path = path //+ filename
 
 	err = ioutil.WriteFile(path, b, 0644)
 	if err != nil {
@@ -123,13 +213,13 @@ func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte,
   return nil
 }
 
-func (s *assetsStore) GetProductMediaByMurmur(murmurHash int64, productID string) (*sqlc.ProductsMedia, error) {
-  params := sqlc.GetProductMediaByMurmurParams{
-    MurmurHash: null.IntFrom(murmurHash),
-    ProductID: productID,
+func (s *assetsStore) GetAssetByMurmur(murmurHash string, shopID string) (*sqlc.Asset, error) {
+  params := sqlc.GetAssetByMurmurParams{
+    MurmurHash: murmurHash,
+    ShopID: shopID,
   }
 
-  productMedia, err := s.queries.GetProductMediaByMurmur(
+  asset, err := s.queries.GetAssetByMurmur(
     context.Background(),
     params,
   )
@@ -137,5 +227,5 @@ func (s *assetsStore) GetProductMediaByMurmur(murmurHash int64, productID string
     return nil, err
   }
 
-  return &productMedia, nil
+  return &asset, nil
 }

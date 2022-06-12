@@ -48,6 +48,38 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server, clientID,
   }
 }
 
+func (s *Service) ExtractImagesListFromProductResponse(p *ProductsResponseProducts) ([]string, error) {
+  var imageList []string
+
+  for _, v := range p.Images {
+    if v.Valid {
+      imageList = append(imageList, v.String)
+    }
+  }
+
+  for _, v := range p.MarketImages {
+    if v.Valid {
+      imageList = append(imageList, v.String)
+    }
+  }
+
+  if len(p.Skus) > 0 {
+    for _, v := range p.Skus[0].Images {
+      if v.Valid {
+        imageList = append(imageList, v.String)
+      }
+    }
+
+    for _, v := range p.Skus[0].MarketImages {
+      if v.Valid {
+        imageList = append(imageList, v.String)
+      }
+    }
+  }
+
+  return imageList, nil
+}
+
 func (s *Service) GetLazadaPlatformJSON(p *sqlc.PlatformLazada) ([]byte, error) {
   pReturn := PlatformLazadaReturn{
     ID: p.ID,

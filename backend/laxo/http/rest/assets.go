@@ -1,8 +1,7 @@
 package rest
 
 import (
-	"fmt"
-	"io/ioutil"
+	"errors"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -25,27 +24,113 @@ func InitAssetsHandler(server *laxo.Server, shop *shop.Service, assets *assets.S
 		assets: assets,
 	}
 
-	r.Handle("/manage-assets", n.With(
+  r.Handle("/asset/{assetID:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}}", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandlePutAsset)),
+	)).Methods("PUT")
+
+	r.Handle("/asset/create", n.With(
+		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleCreateAsset)),
 	)).Methods("POST")
 }
 
-
-func (h *assetsHandler) HandlePutAsset(w http.ResponseWriter, r *http.Request, uID string) {
-  contentType := r.Header.Get("Content-type")
-
-  // @TODO: use -> http.MaxBytesReader(w, r.Body, MaxSize)
-   b, err := ioutil.ReadAll(r.Body)
-   if err != nil {
-    h.server.Logger.Errorw("ioutil.ReadAll returned error",
+func (h *assetsHandler) HandleCreateAsset(w http.ResponseWriter, r *http.Request, uID string) {
+  shop, err := h.shop.GetActiveShopByUserID(uID)
+  if err != nil {
+    h.server.Logger.Errorw("GetActiveShopByUserID returned error",
       "error", err,
     )
     http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     return
-   }
+  }
 
-  h.server.Logger.Debugw("HandlePutAsset", "contentType", contentType, "length", len(b))
+  var a assets.AssetRequest
+
+  if err = laxo.DecodeJSONBody(h.server.Logger, w, r, &a); err != nil {
+    var mr *laxo.MalformedRequest
+    if errors.As(err, &mr) {
+      http.Error(w, mr.Msg, mr.Status)
+    } else {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    }
+    return
+  }
+
+  //@TODO: validate extension with: https://pkg.go.dev/path/filepath#Ext
+
+  reply, err := h.assets.GetOrCreateAsset(a, shop.Model.ID)
+  if err != nil {
+    h.server.Logger.Errorw("GetOrCreateAsset returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  b, err := reply.JSON()
+  if err != nil {
+    h.server.Logger.Errorw("AssetReply marshal error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
 
   w.Header().Set("Content-Type", "application/json; charset=utf-8")
-  fmt.Fprintf(w, "Hello, testing: %s\n", "1, 2, 3")
+  w.Write(b)
+}
+
+func (h *assetsHandler) HandlePutAsset(w http.ResponseWriter, r *http.Request, uID string) {
+  shop, err := h.shop.GetActiveShopByUserID(uID)
+  if err != nil {
+    h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  vars := mux.Vars(r)
+  assetID := vars["assetID"]
+
+  b, err := h.assets.ExtractImageFromRequest(w, r.Body)
+  if err != nil {
+    h.server.Logger.Errorw("ExtractImageFromRequest returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  hex := h.assets.GetMurmurFromBytes(b)
+
+  h.assets.ValidateAssetHash(hex, assetID)
+  if err != nil {
+    h.server.Logger.Errorw("ValidateAssetHash returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  asset, err := h.assets.SaveAssetToDisk(b, assetID, shop.Model.AssetsToken)
+  if err != nil {
+    h.server.Logger.Errorw("SaveAssetToDisk returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  js, err := h.assets.AssetJSON(asset)
+  if err != nil {
+    h.server.Logger.Errorw("asset marshal returned error",
+      "error", err,
+    )
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  w.Header().Set("Content-Type", "application/json; charset=utf-8")
+  w.Write(js)
 }

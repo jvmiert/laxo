@@ -61,41 +61,6 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 	return i, err
 }
 
-const createProductMedia = `-- name: CreateProductMedia :one
-INSERT INTO products_media (
-  product_id, original_filename,
-  murmur_hash, extension
-) VALUES (
-  $1, $2, $3, $4
-)
-RETURNING id, product_id, original_filename, extension, murmur_hash
-`
-
-type CreateProductMediaParams struct {
-	ProductID        string      `json:"productID"`
-	OriginalFilename null.String `json:"originalFilename"`
-	MurmurHash       null.Int    `json:"murmurHash"`
-	Extension        null.String `json:"extension"`
-}
-
-func (q *Queries) CreateProductMedia(ctx context.Context, arg CreateProductMediaParams) (ProductsMedia, error) {
-	row := q.db.QueryRow(ctx, createProductMedia,
-		arg.ProductID,
-		arg.OriginalFilename,
-		arg.MurmurHash,
-		arg.Extension,
-	)
-	var i ProductsMedia
-	err := row.Scan(
-		&i.ID,
-		&i.ProductID,
-		&i.OriginalFilename,
-		&i.Extension,
-		&i.MurmurHash,
-	)
-	return i, err
-}
-
 const createProductPlatform = `-- name: CreateProductPlatform :one
 INSERT INTO products_platform (
   product_id, products_lazada_id
@@ -172,7 +137,7 @@ func (q *Queries) GetProductByProductMSKU(ctx context.Context, arg GetProductByP
 
 const getProductDetailsByID = `-- name: GetProductDetailsByID :one
 SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
-  STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
   products_lazada.lazada_id as lazada_id,
   products_sku_lazada.url as lazada_url,
   products_attribute_lazada.name as lazada_name,
@@ -180,7 +145,8 @@ SELECT products.id, products.name, products.description, products.msku, products
   products_sku_lazada.seller_sku as lazada_seller_sku,
   products_lazada.status as lazada_status
 FROM products
-JOIN products_media ON products_media.product_id = products.id
+LEFT JOIN products_media ON products_media.product_id = products.id
+LEFT JOIN assets ON assets.id = products_media.asset_id
 JOIN products_platform ON products_platform.product_id = products.id
 JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
 JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
@@ -239,68 +205,6 @@ func (q *Queries) GetProductDetailsByID(ctx context.Context, arg GetProductDetai
 	return i, err
 }
 
-const getProductMediaByID = `-- name: GetProductMediaByID :one
-SELECT id, product_id, original_filename, extension, murmur_hash FROM products_media
-WHERE id = $1
-LIMIT 1
-`
-
-func (q *Queries) GetProductMediaByID(ctx context.Context, id string) (ProductsMedia, error) {
-	row := q.db.QueryRow(ctx, getProductMediaByID, id)
-	var i ProductsMedia
-	err := row.Scan(
-		&i.ID,
-		&i.ProductID,
-		&i.OriginalFilename,
-		&i.Extension,
-		&i.MurmurHash,
-	)
-	return i, err
-}
-
-const getProductMediaByMurmur = `-- name: GetProductMediaByMurmur :one
-SELECT id, product_id, original_filename, extension, murmur_hash FROM products_media
-WHERE murmur_hash = $1 AND product_id = $2
-LIMIT 1
-`
-
-type GetProductMediaByMurmurParams struct {
-	MurmurHash null.Int `json:"murmurHash"`
-	ProductID  string   `json:"productID"`
-}
-
-func (q *Queries) GetProductMediaByMurmur(ctx context.Context, arg GetProductMediaByMurmurParams) (ProductsMedia, error) {
-	row := q.db.QueryRow(ctx, getProductMediaByMurmur, arg.MurmurHash, arg.ProductID)
-	var i ProductsMedia
-	err := row.Scan(
-		&i.ID,
-		&i.ProductID,
-		&i.OriginalFilename,
-		&i.Extension,
-		&i.MurmurHash,
-	)
-	return i, err
-}
-
-const getProductMediaByProductID = `-- name: GetProductMediaByProductID :one
-SELECT id, product_id, original_filename, extension, murmur_hash FROM products_media
-WHERE product_id = $1
-LIMIT 1
-`
-
-func (q *Queries) GetProductMediaByProductID(ctx context.Context, productID string) (ProductsMedia, error) {
-	row := q.db.QueryRow(ctx, getProductMediaByProductID, productID)
-	var i ProductsMedia
-	err := row.Scan(
-		&i.ID,
-		&i.ProductID,
-		&i.OriginalFilename,
-		&i.Extension,
-		&i.MurmurHash,
-	)
-	return i, err
-}
-
 const getProductPlatformByLazadaID = `-- name: GetProductPlatformByLazadaID :one
 SELECT product_id, products_lazada_id FROM products_platform
 WHERE products_lazada_id = $1
@@ -342,7 +246,7 @@ FROM
 ) as c
 LEFT JOIN (
   SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
-    STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
     products_attribute_lazada.name as lazada_name,
@@ -350,7 +254,8 @@ LEFT JOIN (
     products_sku_lazada.seller_sku as lazada_seller_sku,
     products_lazada.status as lazada_status
   FROM products
-  JOIN products_media ON products_media.product_id = products.id
+  LEFT JOIN products_media ON products_media.product_id = products.id
+  LEFT JOIN assets ON assets.id = products_media.asset_id
   JOIN products_platform ON products_platform.product_id = products.id
   JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
   JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
@@ -452,7 +357,7 @@ FROM
 ) as c
 LEFT JOIN (
   SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
-    STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
     products_attribute_lazada.name as lazada_name,
@@ -460,7 +365,8 @@ LEFT JOIN (
     products_sku_lazada.seller_sku as lazada_seller_sku,
     products_lazada.status as lazada_status
   FROM products
-  JOIN products_media ON products_media.product_id = products.id
+  LEFT JOIN products_media ON products_media.product_id = products.id
+  LEFT JOIN assets ON assets.id = products_media.asset_id
   JOIN products_platform ON products_platform.product_id = products.id
   JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
   JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
@@ -587,41 +493,6 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.MediaID,
 		&i.Created,
 		&i.Updated,
-	)
-	return i, err
-}
-
-const updateProductMedia = `-- name: UpdateProductMedia :one
-UPDATE products_media
-SET
- product_id = coalesce($1, product_id),
- original_filename = coalesce($2, original_filename),
- murmur_hash = coalesce($3, murmur_hash)
-WHERE id = $4
-RETURNING id, product_id, original_filename, extension, murmur_hash
-`
-
-type UpdateProductMediaParams struct {
-	ProductID        null.String `json:"productID"`
-	OriginalFilename null.String `json:"originalFilename"`
-	MurmurHash       null.Int    `json:"murmurHash"`
-	ID               string      `json:"id"`
-}
-
-func (q *Queries) UpdateProductMedia(ctx context.Context, arg UpdateProductMediaParams) (ProductsMedia, error) {
-	row := q.db.QueryRow(ctx, updateProductMedia,
-		arg.ProductID,
-		arg.OriginalFilename,
-		arg.MurmurHash,
-		arg.ID,
-	)
-	var i ProductsMedia
-	err := row.Scan(
-		&i.ID,
-		&i.ProductID,
-		&i.OriginalFilename,
-		&i.Extension,
-		&i.MurmurHash,
 	)
 	return i, err
 }

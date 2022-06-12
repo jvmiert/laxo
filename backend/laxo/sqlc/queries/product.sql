@@ -13,7 +13,7 @@ FROM
 ) as c
 LEFT JOIN (
   SELECT products.*,
-    STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
     products_attribute_lazada.name as lazada_name,
@@ -21,7 +21,8 @@ LEFT JOIN (
     products_sku_lazada.seller_sku as lazada_seller_sku,
     products_lazada.status as lazada_status
   FROM products
-  JOIN products_media ON products_media.product_id = products.id
+  LEFT JOIN products_media ON products_media.product_id = products.id
+  LEFT JOIN assets ON assets.id = products_media.asset_id
   JOIN products_platform ON products_platform.product_id = products.id
   JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
   JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
@@ -48,7 +49,7 @@ FROM
 ) as c
 LEFT JOIN (
   SELECT products.*,
-    STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
     products_attribute_lazada.name as lazada_name,
@@ -56,7 +57,8 @@ LEFT JOIN (
     products_sku_lazada.seller_sku as lazada_seller_sku,
     products_lazada.status as lazada_status
   FROM products
-  JOIN products_media ON products_media.product_id = products.id
+  LEFT JOIN products_media ON products_media.product_id = products.id
+  LEFT JOIN assets ON assets.id = products_media.asset_id
   JOIN products_platform ON products_platform.product_id = products.id
   JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
   JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
@@ -70,7 +72,7 @@ ON true;
 
 -- name: GetProductDetailsByID :one
 SELECT products.*,
-  STRING_AGG(CONCAT(products_media.id, products_media.extension), ',') as media_id_list,
+    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
   products_lazada.lazada_id as lazada_id,
   products_sku_lazada.url as lazada_url,
   products_attribute_lazada.name as lazada_name,
@@ -78,7 +80,8 @@ SELECT products.*,
   products_sku_lazada.seller_sku as lazada_seller_sku,
   products_lazada.status as lazada_status
 FROM products
-JOIN products_media ON products_media.product_id = products.id
+LEFT JOIN products_media ON products_media.product_id = products.id
+LEFT JOIN assets ON assets.id = products_media.asset_id
 JOIN products_platform ON products_platform.product_id = products.id
 JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
 JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
@@ -93,15 +96,6 @@ INSERT INTO products (
 ) VALUES (
   $1, $2, $3, $4, $5, $6, $7,
   $8
-)
-RETURNING *;
-
--- name: CreateProductMedia :one
-INSERT INTO products_media (
-  product_id, original_filename,
-  murmur_hash, extension
-) VALUES (
-  $1, $2, $3, $4
 )
 RETURNING *;
 
@@ -126,14 +120,6 @@ SET
 WHERE id = sqlc.arg('id')
 RETURNING *;
 
--- name: UpdateProductMedia :one
-UPDATE products_media
-SET
- product_id = coalesce(sqlc.narg('product_id'), product_id),
- original_filename = coalesce(sqlc.narg('original_filename'), original_filename),
- murmur_hash = coalesce(sqlc.narg('murmur_hash'), murmur_hash)
-WHERE id = sqlc.arg('id')
-RETURNING *;
 
 -- name: GetProductPlatformByProductID :one
 SELECT * FROM products_platform
@@ -143,21 +129,6 @@ LIMIT 1;
 -- name: GetProductPlatformByLazadaID :one
 SELECT * FROM products_platform
 WHERE products_lazada_id = $1
-LIMIT 1;
-
--- name: GetProductMediaByID :one
-SELECT * FROM products_media
-WHERE id = $1
-LIMIT 1;
-
--- name: GetProductMediaByProductID :one
-SELECT * FROM products_media
-WHERE product_id = $1
-LIMIT 1;
-
--- name: GetProductMediaByMurmur :one
-SELECT * FROM products_media
-WHERE murmur_hash = $1 AND product_id = $2
 LIMIT 1;
 
 -- name: GetProductByID :one

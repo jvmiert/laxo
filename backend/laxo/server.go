@@ -18,6 +18,7 @@ type Config struct {
   AuthCookieName   string `hcl:"auth_cookie_name"`
   AuthCookieExpire int    `hcl:"auth_cookie_days_expire"`
   CallbackBasePath string `hcl:"callback_base_path"`
+  MaxAssetSize     int    `hcl:"max_asset_size"`
 }
 
 type Server struct {

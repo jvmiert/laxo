@@ -172,7 +172,7 @@ func (a *Activities) SaveLazadaProducts(ctx context.Context, param LazadaSavePar
     return err
   }
 
-  images, err := a.assetsService.ExtractImagesListFromProductResponse(p)
+  images, err := a.lazadaService.ExtractImagesListFromProductResponse(p)
   if err != nil {
     logger.Error("ExtractImagesListFromProductResponse error",
       "error", err,

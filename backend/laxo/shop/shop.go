@@ -21,7 +21,6 @@ type PlatformReturn struct {
   Created    int64    `json:"created"`
 }
 
-
 type Shop struct {
   Model  *sqlc.Shop
 }
