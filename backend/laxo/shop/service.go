@@ -264,8 +264,11 @@ func (s *Service) GetProductDetailsByID(productID string, shopID string) (*model
     return nil, fmt.Errorf("GetProductByID: %w", err)
   }
 
+  mediaList := []string{}
   mediaListString := string(pModel.MediaIDList)
-  mediaList := strings.Split(mediaListString, ",")
+  if mediaListString != "" {
+    mediaList = strings.Split(mediaListString, ",")
+  }
 
   var platformList []models.ProductPlatformInformation
   var platformSKU string
@@ -349,8 +352,12 @@ func (s *Service) GetProductsByNameOrSKU(userID string, name null.String, msku n
     if pModel.ID == "" {
       continue
     }
+
+    mediaList := []string{}
     mediaListString := string(pModel.MediaIDList)
-    mediaList := strings.Split(mediaListString, ",")
+    if mediaListString != "" {
+      mediaList = strings.Split(mediaListString, ",")
+    }
 
     var platformList []models.ProductPlatformInformation
     var platformSKU string
@@ -432,8 +439,12 @@ func (s *Service) GetProductsByUserID(userID string, offset string, limit string
     if pModel.ID == "" {
       continue
     }
+
+    mediaList := []string{}
     mediaListString := string(pModel.MediaIDList)
-    mediaList := strings.Split(mediaListString, ",")
+    if mediaListString != "" {
+      mediaList = strings.Split(mediaListString, ",")
+    }
 
     var platformList []models.ProductPlatformInformation
     var platformSKU string

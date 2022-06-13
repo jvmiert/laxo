@@ -44,6 +44,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
   const notFound = error?.response?.status === 404;
 
   if (notFound) return <ErrorPage statusCode={404} />;
+  if (!productID) return <></>;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -221,7 +222,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
                   leaveTo="opacity-0 translate-y-0"
                 >
                   <Disclosure.Panel static className="p-4">
-                    <AssetManagement mediaList={product.mediaList} />
+                    <AssetManagement productID={productID.toString()} mediaList={product.mediaList} />
                   </Disclosure.Panel>
                 </Transition>
               </>

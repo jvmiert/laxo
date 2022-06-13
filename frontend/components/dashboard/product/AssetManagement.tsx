@@ -1,10 +1,11 @@
 import cc from "classcat";
-import { useEffect, useRef, useState, ChangeEvent } from "react";
+import { useEffect, useRef, useState, ChangeEvent, useCallback } from "react";
 import { useDashboard } from "@/providers/DashboardProvider";
 import Image from "next/image";
 import { CloudUploadIcon } from "@heroicons/react/outline";
 import useProductApi from "@/hooks/useProductApi";
 import MurmurHash3 from "murmurhash3js-revisited";
+import { useIntl } from "react-intl";
 
 const shimmer = `
 <svg width="48px" height="48px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -26,17 +27,19 @@ const shimmerBase64 = () =>
     : window.btoa(shimmer);
 
 type AssetManagementProps = {
+  productID: string;
   mediaList: string[];
 };
 
-export default function AssetManagement({ mediaList }: AssetManagementProps) {
+export default function AssetManagement({ productID, mediaList }: AssetManagementProps) {
+  const t = useIntl();
   const [dragActive, setDragActive] = useState(false);
-  const { activeShop } = useDashboard();
+  const { activeShop, dashboardDispatch } = useDashboard();
 
   const dropRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { doCreateAsset, doUploadAsset } = useProductApi();
+  const { doCreateAsset, doUploadAsset, doAssignAsset } = useProductApi();
 
   const preventDefaultFunc = (e: DragEvent) => {
     e.preventDefault();
@@ -48,6 +51,96 @@ export default function AssetManagement({ mediaList }: AssetManagementProps) {
     }
   };
 
+  const uploadFile = useCallback(async (f: File) => {
+    const split = f.type.split("/");
+
+    const error = split.length >= 2 ? split[0] != "image" : true;
+    if (error) {
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "error",
+          message: t.formatMessage({
+            description: "Asset management error upload",
+            defaultMessage: "Please only add images",
+          }),
+        },
+      });
+    }
+
+    const url = URL.createObjectURL(f);
+    const img = document.createElement("img");
+
+    const arrayBuffer = await f.arrayBuffer();
+    const byteArray = new Uint8Array(arrayBuffer);
+
+    const murmur = MurmurHash3.x64.hash128(byteArray);
+
+    const serverError = () => {
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "error",
+          message: t.formatMessage({
+            description: "Asset management server error upload",
+            defaultMessage:
+              "Something went wrong, please make sure you're upload a valid image and try again",
+          }),
+        },
+      });
+    };
+
+    img.onload = async (ev: Event) => {
+      const target = ev.target as HTMLImageElement;
+      const result = await doCreateAsset({
+        originalName: f.name,
+        size: f.size,
+        width: target.width,
+        height: target.height,
+        hash: murmur,
+      });
+
+      if (result.error || !result?.asset) {
+        serverError();
+        return;
+      }
+
+      if (result.upload && result?.asset?.id) {
+        const uploadResult = await doUploadAsset(result.asset.id, f);
+        if (uploadResult.error) {
+          serverError();
+          return;
+        }
+      }
+
+      const assignResult = await doAssignAsset({
+        action: "active",
+        productID: productID,
+        assetID: result.asset.id,
+        order: 0,
+      })
+
+      if(assignResult.error) {
+        serverError();
+        return;
+      }
+
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "success",
+          message: t.formatMessage({
+            description: "Asset management successful upload",
+            defaultMessage: "Successfully added your new image",
+          }),
+        },
+      });
+
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }, [dashboardDispatch, doCreateAsset, doUploadAsset, doAssignAsset, t, productID]);
+
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     e.persist();
@@ -55,34 +148,7 @@ export default function AssetManagement({ mediaList }: AssetManagementProps) {
     if (!e.target?.files) return;
 
     Array.from(e.target.files).forEach(async (f) => {
-      const url = URL.createObjectURL(f);
-      const img = document.createElement("img");
-
-      const arrayBuffer = await f.arrayBuffer();
-      const byteArray = new Uint8Array(arrayBuffer);
-
-      const murmur = MurmurHash3.x64.hash128(byteArray);
-
-      img.onload = async (ev: Event) => {
-        const target = ev.target as HTMLImageElement;
-        const result = await doCreateAsset({
-          original_name: f.name,
-          size: f.size,
-          width: target.width,
-          height: target.height,
-          hash: murmur,
-        });
-
-        console.log(result);
-
-        if(result.upload && result?.asset?.id) {
-          const uploadResult = await doUploadAsset(result.asset.id, f)
-          console.log(uploadResult)
-        }
-
-        URL.revokeObjectURL(url);
-      };
-      img.src = url;
+      uploadFile(f);
     });
   };
 
@@ -102,25 +168,23 @@ export default function AssetManagement({ mediaList }: AssetManagementProps) {
     }
   };
 
-  const dropFunc = (e: DragEvent) => {
+  const dropFunc = useCallback((e: DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer?.items) {
       for (let i = 0; i < e.dataTransfer.items.length; i++) {
         if (e.dataTransfer.items[i].kind === "file") {
-          const type = e.dataTransfer.items[i].type;
           const file = e.dataTransfer.items[i].getAsFile();
-          console.log(file, type);
+          if (file) uploadFile(file);
         }
       }
     } else if (e.dataTransfer?.files) {
       for (let i = 0; i < e.dataTransfer.files.length; i++) {
-        const type = e.dataTransfer.types[i];
         const file = e.dataTransfer.files[i];
-        console.log(file, type);
+        uploadFile(file);
       }
     }
     setDragActive(false);
-  };
+  }, [uploadFile]);
 
   useEffect(() => {
     window.addEventListener("dragover", preventDefaultFunc, false);
@@ -151,7 +215,7 @@ export default function AssetManagement({ mediaList }: AssetManagementProps) {
         dropRefStored.removeEventListener("drop", dropFunc);
       }
     };
-  }, [dropRef]);
+  }, [dropRef, dropFunc]);
 
   if (!activeShop) return <></>;
 
@@ -189,7 +253,7 @@ export default function AssetManagement({ mediaList }: AssetManagementProps) {
             <Image
               className="rounded"
               alt={"Product preview"}
-              src={`/api/assets/${activeShop.assetsToken}/products/${m}`}
+              src={`/api/assets/${activeShop.assetsToken}/${m}`}
               layout="fill"
               placeholder="blur"
               blurDataURL={`data:image/svg+xml;base64,${shimmerBase64()}`}

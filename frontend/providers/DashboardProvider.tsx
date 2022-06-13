@@ -7,6 +7,7 @@ import {
   useCallback,
   useMemo,
 } from "react";
+import { nanoid } from "nanoid";
 import { Draft } from "immer";
 import { useImmerReducer } from "use-immer";
 import { grpc } from "@improbable-eng/grpc-web";
@@ -32,22 +33,41 @@ export interface DashboardConsumerProps {
   activeShop: GetShopResponseShops | null;
 }
 
+export type Alert = {
+  id: string;
+  type: "success" | "warning" | "error";
+  message: string;
+};
+
+type AlertAction = Omit<Alert, "id">;
+
 interface DashboardState {
   notifications: Array<NotificationResponseObject>;
+  alerts: Array<Alert>;
 }
 
 export const InitialDashboardState: DashboardState = {
   notifications: [],
+  alerts: [],
 };
 
 export type DashboardAction =
   | { type: "reset"; state: DashboardState }
-  | { type: "add"; notification: NotificationResponseObject };
+  | { type: "add"; notification: NotificationResponseObject }
+  | { type: "remove_alert"; id: string }
+  | { type: "alert"; alert: AlertAction };
 
 function reducer(draft: Draft<DashboardState>, action: DashboardAction) {
   switch (action.type) {
     case "reset":
       return action.state;
+    case "alert":
+      draft.alerts.push({ ...action.alert, id: nanoid() });
+      break;
+    case "remove_alert":
+      const alertIndex = draft.alerts.findIndex((a) => a.id === action.id);
+      if (alertIndex !== -1) draft.alerts.splice(alertIndex, 1);
+      break;
     case "add":
       const index = draft.notifications.findIndex(
         (n) =>
@@ -158,7 +178,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     if (notifications.notifications.length > 0) {
       dispatch({
         type: "reset",
-        state: { notifications: notifications.notifications },
+        state: { notifications: notifications.notifications, alerts: [] },
       });
     }
   }, [notifications, dispatch]);

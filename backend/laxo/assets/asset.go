@@ -7,11 +7,18 @@ import (
 )
 
 type AssetRequest struct {
-	OriginalName string `json:"original_name"`
+	OriginalName string `json:"originalName"`
 	Size         int64  `json:"size"`
 	WidthPixels  int64  `json:"width"`
 	HeightPixels int64  `json:"height"`
 	Hash         string `json:"hash"`
+}
+
+type AssignRequest struct {
+  Action    string `json:"action"`
+  ProductID string `json:"productID"`
+  AssetID   string `json:"assetID"`
+  Order     int64  `json:"order"`
 }
 
 type AssetReply struct {

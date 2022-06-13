@@ -153,6 +153,28 @@ func (q *Queries) GetAssetByMurmur(ctx context.Context, arg GetAssetByMurmurPara
 	return i, err
 }
 
+const getProductMedia = `-- name: GetProductMedia :one
+SELECT product_id, asset_id, image_order, status FROM products_media
+WHERE product_id = $1 AND asset_id = $2
+`
+
+type GetProductMediaParams struct {
+	ProductID string `json:"productID"`
+	AssetID   string `json:"assetID"`
+}
+
+func (q *Queries) GetProductMedia(ctx context.Context, arg GetProductMediaParams) (ProductsMedia, error) {
+	row := q.db.QueryRow(ctx, getProductMedia, arg.ProductID, arg.AssetID)
+	var i ProductsMedia
+	err := row.Scan(
+		&i.ProductID,
+		&i.AssetID,
+		&i.ImageOrder,
+		&i.Status,
+	)
+	return i, err
+}
+
 const updateAsset = `-- name: UpdateAsset :one
 UPDATE assets
 SET
@@ -203,46 +225,29 @@ func (q *Queries) UpdateAsset(ctx context.Context, arg UpdateAssetParams) (Asset
 	return i, err
 }
 
-const updateProductMediaOrder = `-- name: UpdateProductMediaOrder :one
+const updateProductMedia = `-- name: UpdateProductMedia :one
 UPDATE products_media
-  SET image_order = $1
-WHERE product_id = $2 AND asset_id = $3
+SET
+ image_order = coalesce($1, image_order),
+ status = coalesce($2, status)
+WHERE product_id = $3 AND asset_id = $4
 RETURNING product_id, asset_id, image_order, status
 `
 
-type UpdateProductMediaOrderParams struct {
-	ImageOrder null.Int `json:"imageOrder"`
-	ProductID  string   `json:"productID"`
-	AssetID    string   `json:"assetID"`
+type UpdateProductMediaParams struct {
+	ImageOrder null.Int    `json:"imageOrder"`
+	Status     null.String `json:"status"`
+	ProductID  string      `json:"productID"`
+	AssetID    string      `json:"assetID"`
 }
 
-func (q *Queries) UpdateProductMediaOrder(ctx context.Context, arg UpdateProductMediaOrderParams) (ProductsMedia, error) {
-	row := q.db.QueryRow(ctx, updateProductMediaOrder, arg.ImageOrder, arg.ProductID, arg.AssetID)
-	var i ProductsMedia
-	err := row.Scan(
-		&i.ProductID,
-		&i.AssetID,
-		&i.ImageOrder,
-		&i.Status,
+func (q *Queries) UpdateProductMedia(ctx context.Context, arg UpdateProductMediaParams) (ProductsMedia, error) {
+	row := q.db.QueryRow(ctx, updateProductMedia,
+		arg.ImageOrder,
+		arg.Status,
+		arg.ProductID,
+		arg.AssetID,
 	)
-	return i, err
-}
-
-const updateProductMediaStatus = `-- name: UpdateProductMediaStatus :one
-UPDATE products_media
-  SET status = $1
-WHERE product_id = $2 AND asset_id = $3
-RETURNING product_id, asset_id, image_order, status
-`
-
-type UpdateProductMediaStatusParams struct {
-	Status    string `json:"status"`
-	ProductID string `json:"productID"`
-	AssetID   string `json:"assetID"`
-}
-
-func (q *Queries) UpdateProductMediaStatus(ctx context.Context, arg UpdateProductMediaStatusParams) (ProductsMedia, error) {
-	row := q.db.QueryRow(ctx, updateProductMediaStatus, arg.Status, arg.ProductID, arg.AssetID)
 	var i ProductsMedia
 	err := row.Scan(
 		&i.ProductID,

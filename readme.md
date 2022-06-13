@@ -1,21 +1,19 @@
 # Tech to-do
 - The way we store media assets now is silly. We are double saving so many images
-  - Validate extension of assets in asset creation
-  - Create a service function to assign assets to products
   - Update Lazada assets saving mechanism
     - Get product images and product description images
     - Download image
     - Check if it exists in the store's assets collection
     - Save and add entry to the product / description
-  - Currently the product listing and product details image list returns an empty string if there's no images -> fix this
 - Create product page
   - Add platform information
 - Create product details page
   - Create media/assets management component
-    - Make the dropzone functional
-    - Do we need notifications for uploaded images or errors (invalid size or invalid extension)?
     - Create the current image list
-    - Think about image order...
+      - Get asset information (width, height, size, status) from DB
+      - Enable deactivate/activate functionality
+      - Enable deleting assets from products
+      - Think about image order...
   - Create rich text component
   - Create save changes mechanism a la Shopify
 - Update Dashboard main navigation

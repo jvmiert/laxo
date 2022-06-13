@@ -71,6 +71,55 @@ func (s *assetsStore) CreateNewAsset(ShopID, MurmurHash, OriginalFilename string
   return &asset, err
 }
 
+func (s *assetsStore) UpdateProductMedia(assetID string, productID string, status null.String, order null.Int) (*sqlc.ProductsMedia, error) {
+  media, err := s.queries.UpdateProductMedia(
+    context.Background(),
+    sqlc.UpdateProductMediaParams{
+      ProductID: productID,
+      AssetID: assetID,
+      Status: status,
+      ImageOrder: order,
+    },
+  )
+  if err != nil {
+    return nil, err
+  }
+
+  return &media, nil
+}
+
+func (s *assetsStore) CreateProductMedia(assetID string, productID string, status string, order int64) (*sqlc.ProductsMedia, error) {
+  media, err := s.queries.CreateProductMedia(
+    context.Background(),
+    sqlc.CreateProductMediaParams{
+      ProductID: productID,
+      AssetID: assetID,
+      Status: status,
+      ImageOrder: null.IntFrom(order),
+    },
+  )
+  if err != nil {
+    return nil, err
+  }
+
+  return &media, nil
+}
+
+func (s *assetsStore) GetProductMedia(assetID string, productID string) (*sqlc.ProductsMedia, error) {
+  media, err := s.queries.GetProductMedia(
+    context.Background(),
+    sqlc.GetProductMediaParams{
+      ProductID: productID,
+      AssetID: assetID,
+    },
+  )
+  if err != nil {
+    return nil, err
+  }
+
+  return &media, nil
+}
+
 func (s *assetsStore) GetAssetByID(assetID string) (*sqlc.Asset, error) {
   asset, err := s.queries.GetAssetByID(
     context.Background(),
@@ -83,34 +132,10 @@ func (s *assetsStore) GetAssetByID(assetID string) (*sqlc.Asset, error) {
   return &asset, nil
 }
 
-func (s *assetsStore) SaveAssetToDisk(b []byte, assetID string, shopToken string) (*sqlc.Asset, error) {
+func (s *assetsStore) SaveAssetToDisk(b []byte, assetID string, shopToken string, fileExt string) (*sqlc.Asset, error) {
   asset, err := s.GetAssetByID(assetID)
   if err != nil {
     return nil, fmt.Errorf("GetAssetByID: %w", err)
-  }
-
-  filetype := http.DetectContentType(b)
-
-  ext, err := mime.ExtensionsByType(filetype)
-  if err != nil {
-    return nil, err
-  }
-
-  if len(ext) == 0 {
-    return nil, errors.New("no extension found for image")
-  }
-
-  fileExt := ""
-
-  for _, e := range ext {
-    if e == ".jpg" {
-      fileExt = ".jpg"
-      break
-    }
-  }
-
-  if fileExt == "" {
-    fileExt = ext[0]
   }
 
   filename := asset.ID + fileExt

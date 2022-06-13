@@ -7,16 +7,16 @@ INSERT INTO products_media (
 )
 RETURNING *;
 
--- name: UpdateProductMediaOrder :one
-UPDATE products_media
-  SET image_order = $1
-WHERE product_id = $2 AND asset_id = $3
-RETURNING *;
+-- name: GetProductMedia :one
+SELECT * FROM products_media
+WHERE product_id = $1 AND asset_id = $2;
 
--- name: UpdateProductMediaStatus :one
+-- name: UpdateProductMedia :one
 UPDATE products_media
-  SET status = $1
-WHERE product_id = $2 AND asset_id = $3
+SET
+ image_order = coalesce(sqlc.narg('image_order'), image_order),
+ status = coalesce(sqlc.narg('status'), status)
+WHERE product_id = sqlc.arg('product_id') AND asset_id = sqlc.arg('asset_id')
 RETURNING *;
 
 -- name: DeleteProductMedia :exec
