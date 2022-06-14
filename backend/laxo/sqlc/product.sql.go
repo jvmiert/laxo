@@ -82,6 +82,62 @@ func (q *Queries) CreateProductPlatform(ctx context.Context, arg CreateProductPl
 	return i, err
 }
 
+const getProductAssetsByProductID = `-- name: GetProductAssetsByProductID :many
+SELECT assets.id, assets.shop_id, assets.murmur_hash, assets.original_filename, assets.extension, assets.file_size, assets.width, assets.height, products_media.image_order, products_media.status FROM products
+LEFT JOIN products_media ON products_media.product_id = products.id
+LEFT JOIN assets ON assets.id = products_media.asset_id
+WHERE products.id = $1 AND products.shop_id = $2
+`
+
+type GetProductAssetsByProductIDParams struct {
+	ID     string `json:"id"`
+	ShopID string `json:"shopID"`
+}
+
+type GetProductAssetsByProductIDRow struct {
+	ID               null.String `json:"id"`
+	ShopID           null.String `json:"shopID"`
+	MurmurHash       null.String `json:"murmurHash"`
+	OriginalFilename null.String `json:"originalFilename"`
+	Extension        null.String `json:"extension"`
+	FileSize         null.Int    `json:"fileSize"`
+	Width            null.Int    `json:"width"`
+	Height           null.Int    `json:"height"`
+	ImageOrder       null.Int    `json:"imageOrder"`
+	Status           null.String `json:"status"`
+}
+
+func (q *Queries) GetProductAssetsByProductID(ctx context.Context, arg GetProductAssetsByProductIDParams) ([]GetProductAssetsByProductIDRow, error) {
+	rows, err := q.db.Query(ctx, getProductAssetsByProductID, arg.ID, arg.ShopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetProductAssetsByProductIDRow
+	for rows.Next() {
+		var i GetProductAssetsByProductIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ShopID,
+			&i.MurmurHash,
+			&i.OriginalFilename,
+			&i.Extension,
+			&i.FileSize,
+			&i.Width,
+			&i.Height,
+			&i.ImageOrder,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProductByID = `-- name: GetProductByID :one
 SELECT id, name, description, msku, selling_price, cost_price, shop_id, media_id, created, updated FROM products
 WHERE id = $1
@@ -137,7 +193,6 @@ func (q *Queries) GetProductByProductMSKU(ctx context.Context, arg GetProductByP
 
 const getProductDetailsByID = `-- name: GetProductDetailsByID :one
 SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
-    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
   products_lazada.lazada_id as lazada_id,
   products_sku_lazada.url as lazada_url,
   products_attribute_lazada.name as lazada_name,
@@ -171,7 +226,6 @@ type GetProductDetailsByIDRow struct {
 	MediaID           null.String    `json:"mediaID"`
 	Created           null.Time      `json:"created"`
 	Updated           null.Time      `json:"updated"`
-	MediaIDList       []byte         `json:"mediaIDList"`
 	LazadaID          int64          `json:"lazadaID"`
 	LazadaUrl         null.String    `json:"lazadaUrl"`
 	LazadaName        null.String    `json:"lazadaName"`
@@ -194,7 +248,6 @@ func (q *Queries) GetProductDetailsByID(ctx context.Context, arg GetProductDetai
 		&i.MediaID,
 		&i.Created,
 		&i.Updated,
-		&i.MediaIDList,
 		&i.LazadaID,
 		&i.LazadaUrl,
 		&i.LazadaName,

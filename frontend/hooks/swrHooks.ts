@@ -11,6 +11,7 @@ import type {
   GetLazadaPlatformResponse,
   LaxoProductResponse,
   LaxoProduct,
+  LaxoProductDetails,
   LaxoProductDetailsResponse,
 } from "@/types/ApiResponse";
 
@@ -211,7 +212,7 @@ function transformLaxoProductDetails(
 export function useGetLaxoProductDetails(
   productID: string | string[] | undefined,
 ): {
-  product: LaxoProduct | undefined;
+  product: LaxoProductDetails | undefined;
   error: AxiosError | undefined;
   loading: boolean;
 } {

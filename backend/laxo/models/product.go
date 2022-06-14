@@ -34,3 +34,32 @@ func (p *Product) JSON() ([]byte, error) {
 
   return bytes, nil
 }
+
+type ProductAssets struct {
+	ID               string      `json:"id"`
+	OriginalFilename null.String `json:"originalFilename"`
+	Extension        null.String `json:"extension"`
+	Status           null.String `json:"status"`
+	FileSize         null.Int    `json:"fileSize"`
+	Order            null.Int    `json:"order"`
+	Width            null.Int    `json:"width"`
+	Height           null.Int    `json:"height"`
+}
+
+type ProductDetails struct {
+  Model           *sqlc.Product                   `json:"product"`
+  MediaModels     []sqlc.ProductsMedia            `json:"-"`
+  PlatformModel   *sqlc.ProductsPlatform          `json:"-"`
+  MediaList       []ProductAssets                 `json:"mediaList"`
+  Platforms       []ProductPlatformInformation    `json:"platforms"`
+}
+
+func (p *ProductDetails) JSON() ([]byte, error) {
+  bytes, err := json.Marshal(p)
+
+  if err != nil {
+    return bytes, err
+  }
+
+  return bytes, nil
+}

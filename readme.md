@@ -1,4 +1,10 @@
 # Tech to-do
+- For updating products to platforms, on the initial and manual sync, don't
+  automatically override previous state. Only override product state after prompting
+  the user for confirmation during a product edit. Best way to do this in the SaveOrUpdateProductToStore
+  function, have a parameter that sets to override previous state or keep it intact. It would also
+  be good to introduce a manual force "update" or "sync" button to synchorize product information
+  to all platforms (which is where we can prompt the user to override state)
 - The way we store media assets now is silly. We are double saving so many images
   - Update Lazada assets saving mechanism
     - Get product images and product description images
@@ -8,12 +14,6 @@
 - Create product page
   - Add platform information
 - Create product details page
-  - Create media/assets management component
-    - Create the current image list
-      - Get asset information (width, height, size, status) from DB
-      - Enable deactivate/activate functionality
-      - Enable deleting assets from products
-      - Think about image order...
   - Create rich text component
   - Create save changes mechanism a la Shopify
 - Update Dashboard main navigation

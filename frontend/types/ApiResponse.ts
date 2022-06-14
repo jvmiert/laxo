@@ -95,6 +95,17 @@ export type LaxoProductPlatforms = {
   productURL: string;
 };
 
+export type LaxoProductAsset = {
+  id: string;
+  originalFilename: string;
+  extension: string;
+  status: string;
+  fileSize: number;
+  order: number;
+  width: number;
+  height: number;
+};
+
 export type LaxoProduct = {
   product: {
     id: string;
@@ -120,6 +131,10 @@ export type LaxoProduct = {
   platforms: Array<LaxoProductPlatforms>;
 };
 
+export type LaxoProductDetails = Omit<LaxoProduct, "mediaList"> & {
+  mediaList: Array<LaxoProductAsset>;
+};
+
 export type PaginateObject = {
   total: number;
   pages: number;
@@ -132,4 +147,4 @@ export type LaxoProductResponse = {
   paginate: PaginateObject;
 };
 
-export interface LaxoProductDetailsResponse extends LaxoProduct {}
+export type LaxoProductDetailsResponse = LaxoProductDetails;

@@ -30,6 +30,7 @@ type Store interface {
   GetProductMedia(assetID string, productID string) (*sqlc.ProductsMedia, error)
   CreateProductMedia(assetID string, productID string, status string, order int64) (*sqlc.ProductsMedia, error)
   UpdateProductMedia(assetID string, productID string, status null.String, order null.Int) (*sqlc.ProductsMedia, error)
+  UnlinkProductMedia(productID string, assetID string) error
 }
 
 var ValidExtenions = map[string]struct{}{
@@ -83,6 +84,15 @@ func (s *Service) ActivateAssetAssignment(r *AssignRequest) error {
   return nil
 }
 
+
+func (s *Service) UnlinkProductMedia(r *AssignRequest) error {
+  err := s.store.UnlinkProductMedia(r.ProductID, r.AssetID)
+  if err != nil {
+    return fmt.Errorf("UnlinkProductMedia: %w", err)
+  }
+  return nil
+}
+
 func (s *Service) ModifyAssetAssignment(r *AssignRequest) error {
   if r.Action == "active" {
     err := s.ActivateAssetAssignment(r)
@@ -97,7 +107,11 @@ func (s *Service) ModifyAssetAssignment(r *AssignRequest) error {
   }
 
   if r.Action == "delete" {
-    //@TODO: implement
+    err := s.UnlinkProductMedia(r)
+    if err != nil {
+      return fmt.Errorf("UnLinkImageAsset: %w", err)
+    }
+    return nil
   }
 
   return nil

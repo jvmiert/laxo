@@ -71,6 +71,18 @@ func (s *assetsStore) CreateNewAsset(ShopID, MurmurHash, OriginalFilename string
   return &asset, err
 }
 
+func (s *assetsStore) UnlinkProductMedia(productID string, assetID string) error {
+  param := sqlc.DeleteProductMediaParams{
+    ProductID: productID,
+    AssetID: assetID,
+  }
+
+  return s.queries.DeleteProductMedia(
+    context.Background(),
+    param,
+  )
+}
+
 func (s *assetsStore) UpdateProductMedia(assetID string, productID string, status null.String, order null.Int) (*sqlc.ProductsMedia, error) {
   media, err := s.queries.UpdateProductMedia(
     context.Background(),

@@ -72,7 +72,6 @@ ON true;
 
 -- name: GetProductDetailsByID :one
 SELECT products.*,
-    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
   products_lazada.lazada_id as lazada_id,
   products_sku_lazada.url as lazada_url,
   products_attribute_lazada.name as lazada_name,
@@ -88,6 +87,12 @@ JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
 JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
 WHERE products.id = $1 AND products.shop_id = $2
 GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id;
+
+-- name: GetProductAssetsByProductID :many
+SELECT assets.*, products_media.image_order, products_media.status FROM products
+LEFT JOIN products_media ON products_media.product_id = products.id
+LEFT JOIN assets ON assets.id = products_media.asset_id
+WHERE products.id = $1 AND products.shop_id = $2;
 
 -- name: CreateProduct :one
 INSERT INTO products (

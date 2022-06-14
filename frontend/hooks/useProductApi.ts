@@ -23,7 +23,7 @@ export type CreateAssetReply = {
   error: boolean;
 };
 
-export type AssignAssetReply = {
+export type AssetRequestReply = {
   error: boolean;
 };
 
@@ -45,7 +45,7 @@ export type AssignAssetRequest = {
 export default function useProductApi(): {
   doCreateAsset: (request: CreateAssetRequest) => Promise<CreateAssetReply>;
   doUploadAsset: (assetID: string, file: File) => Promise<UploadAssetReply>;
-  doAssignAsset: (request: AssignAssetRequest) => Promise<AssignAssetReply>;
+  doAssetRequest: (request: AssignAssetRequest) => Promise<AssetRequestReply>;
 } {
   const { axiosClient } = useAxios();
   const { mutate } = useSWRConfig();
@@ -59,10 +59,12 @@ export default function useProductApi(): {
     }
   };
 
-  const doAssignAsset = async (request: AssignAssetRequest) => {
+  const doAssetRequest = async (request: AssignAssetRequest) => {
     try {
-      const res = await axiosClient.post("/asset/assign-product", { ...request });
-      mutate(`/product/${request.productID}`)
+      const res = await axiosClient.post("/asset/manage-product", {
+        ...request,
+      });
+      mutate(`/product/${request.productID}`);
       return { error: false };
     } catch (error) {
       return { error: true };
@@ -76,7 +78,7 @@ export default function useProductApi(): {
     } catch (error) {
       return { asset: undefined, error: true };
     }
-  }
+  };
 
-  return { doCreateAsset, doUploadAsset, doAssignAsset };
+  return { doCreateAsset, doUploadAsset, doAssetRequest };
 }

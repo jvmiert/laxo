@@ -34,7 +34,7 @@ func InitAssetsHandler(server *laxo.Server, shop *shop.Service, assets *assets.S
 	)).Methods("POST")
 
 
-	r.Handle("/asset/assign-product", n.With(
+	r.Handle("/asset/manage-product", n.With(
 		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleAssignProduct)),
 	)).Methods("POST")

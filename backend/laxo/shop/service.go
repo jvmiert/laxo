@@ -36,6 +36,7 @@ type Store interface {
   GetProductsByNameOrSKU(string, null.String, null.String, int32, int32) ([]sqlc.GetProductsByNameOrSKURow, error)
   GetProductByID(string) (*sqlc.Product, error)
   GetProductDetails(productID string, shopID string) (*sqlc.GetProductDetailsByIDRow, error)
+  GetProductAssetsByProductID(productID string, shopID string) ([]sqlc.GetProductAssetsByProductIDRow, error)
   RetrieveShopsPlatformsByUserID(string) ([]sqlc.GetShopsPlatformsByUserIDRow, error)
   SaveNewShopToStore(*Shop, string) (*sqlc.Shop, error)
   GetLazadaPlatformByShopID(string) (*sqlc.PlatformLazada, error)
@@ -253,9 +254,8 @@ func (s *Service) GetProductListJSON(pp []models.Product, paginate *Paginate) ([
   return bytes, nil
 }
 
-func (s *Service) GetProductDetailsByID(productID string, shopID string) (*models.Product, error) {
+func (s *Service) GetProductDetailsByID(productID string, shopID string) (*models.ProductDetails, error) {
   pModel, err := s.store.GetProductDetails(productID, shopID)
-
   if errors.Is(err, pgx.ErrNoRows) {
     return nil, ErrProductNotFound
   }
@@ -264,10 +264,24 @@ func (s *Service) GetProductDetailsByID(productID string, shopID string) (*model
     return nil, fmt.Errorf("GetProductByID: %w", err)
   }
 
-  mediaList := []string{}
-  mediaListString := string(pModel.MediaIDList)
-  if mediaListString != "" {
-    mediaList = strings.Split(mediaListString, ",")
+  assets, err := s.store.GetProductAssetsByProductID(productID, shopID)
+  if err != pgx.ErrNoRows && err != nil {
+    return nil, fmt.Errorf("GetProductByID: %w", err)
+  }
+
+  mediaList := []models.ProductAssets{}
+
+  for _, a := range assets {
+    mediaList = append(mediaList, models.ProductAssets{
+      ID: a.ID.String,
+      OriginalFilename: a.OriginalFilename,
+      Extension: a.Extension,
+      Status: a.Status,
+      FileSize: a.FileSize,
+      Width: a.Width,
+      Height: a.Height,
+      Order: a.ImageOrder,
+    })
   }
 
   var platformList []models.ProductPlatformInformation
@@ -289,7 +303,7 @@ func (s *Service) GetProductDetailsByID(productID string, shopID string) (*model
 
   platformList = append(platformList, lazadaPlatform)
 
-  return &models.Product{
+  return &models.ProductDetails{
         Model: &sqlc.Product{
           ID: pModel.ID,
           Name: pModel.Name,
