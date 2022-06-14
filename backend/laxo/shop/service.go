@@ -272,16 +272,18 @@ func (s *Service) GetProductDetailsByID(productID string, shopID string) (*model
   mediaList := []models.ProductAssets{}
 
   for _, a := range assets {
-    mediaList = append(mediaList, models.ProductAssets{
-      ID: a.ID.String,
-      OriginalFilename: a.OriginalFilename,
-      Extension: a.Extension,
-      Status: a.Status,
-      FileSize: a.FileSize,
-      Width: a.Width,
-      Height: a.Height,
-      Order: a.ImageOrder,
-    })
+    if a.ID.Valid {
+      mediaList = append(mediaList, models.ProductAssets{
+        ID: a.ID.String,
+        OriginalFilename: a.OriginalFilename,
+        Extension: a.Extension,
+        Status: a.Status,
+        FileSize: a.FileSize,
+        Width: a.Width,
+        Height: a.Height,
+        Order: a.ImageOrder,
+      })
+    }
   }
 
   var platformList []models.ProductPlatformInformation
