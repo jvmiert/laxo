@@ -11,8 +11,6 @@
     - Download image
     - Check if it exists in the store's assets collection
     - Save and add entry to the product / description
-- Create product page
-  - Add platform information
 - Create product details page
   - Create rich text component
   - Create save changes mechanism a la Shopify

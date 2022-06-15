@@ -1,6 +1,9 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import LazadaIcon from "@/components/icons/LazadaIcon";
+import ShopeeIcon from "@/components/icons/ShopeeIcon";
+import { LaxoProductPlatforms } from "@/types/ApiResponse";
 
 const shimmer = `
 <svg width="48px" height="48px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -21,6 +24,17 @@ const shimmerBase64 = () =>
     ? Buffer.from(shimmer).toString("base64")
     : window.btoa(shimmer);
 
+const getPlatformIcon = (platform: string): JSX.Element => {
+  switch (platform.toLowerCase()) {
+    case "lazada":
+      return <LazadaIcon key={platform} className="h-4 w-4" />;
+    case "shopee":
+      return <ShopeeIcon key={platform} className="h-4 w-4 fill-[#ff5422]" />;
+    default:
+      return <></>;
+  }
+};
+
 type OverviewTableRowProps = {
   imgURL: Array<string>;
   shopToken: string;
@@ -31,6 +45,7 @@ type OverviewTableRowProps = {
   sellingPriceExp: number;
   numberFormat: Intl.NumberFormat;
   style: CSSProperties;
+  platforms: Array<LaxoProductPlatforms>;
 };
 
 export default function OverviewTableRow({
@@ -43,6 +58,7 @@ export default function OverviewTableRow({
   sellingPriceInt,
   sellingPriceExp,
   numberFormat,
+  platforms,
 }: OverviewTableRowProps) {
   const shownURL = imgURL.length > 0 ? imgURL[0] : null;
   return (
@@ -93,7 +109,9 @@ export default function OverviewTableRow({
       <td className="whitespace-nowrap p-0 text-sm text-gray-500">
         <Link href={`/dashboard/products/${id}`}>
           <a>
-            <div className="px-6 py-4" />
+            <div className="px-6 py-4">
+              {platforms.map((p) => getPlatformIcon(p.platformName))}
+            </div>
           </a>
         </Link>
       </td>

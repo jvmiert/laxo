@@ -240,6 +240,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                         msku={p.product.msku}
                         sellingPriceInt={p.product.sellingPrice.Int}
                         sellingPriceExp={p.product.sellingPrice.Exp}
+                        platforms={p.platforms}
                         numberFormat={numberFormatter}
                         style={
                           i + 1 != products.products.length
