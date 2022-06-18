@@ -1,11 +1,15 @@
 package assets
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"io/ioutil"
 	"mime"
@@ -22,136 +26,136 @@ import (
 )
 
 type Store interface {
-  GetAssetByMurmur(murmurHash string, shopID string) (*sqlc.Asset, error)
-  SaveNewProductMedia(int64, string, []byte, string, string, string) error
-  CreateNewAsset(ShopID, MurmurHash, OriginalFilename string, FileSize, Width, Height int64) (*sqlc.Asset, error)
-  GetAssetByID(assetID string) (*sqlc.Asset, error)
-  SaveAssetToDisk(b []byte, assetID string, shopToken string, fileExt string) (*sqlc.Asset, error)
-  GetProductMedia(assetID string, productID string) (*sqlc.ProductsMedia, error)
-  CreateProductMedia(assetID string, productID string, status string, order int64) (*sqlc.ProductsMedia, error)
-  UpdateProductMedia(assetID string, productID string, status null.String, order null.Int) (*sqlc.ProductsMedia, error)
-  UnlinkProductMedia(productID string, assetID string) error
+	GetAssetByMurmur(murmurHash string, shopID string) (*sqlc.Asset, error)
+	CreateNewAsset(ShopID, MurmurHash, OriginalFilename string, FileSize, Width, Height int64) (*sqlc.Asset, error)
+	GetAssetByID(assetID string) (*sqlc.Asset, error)
+	SaveAssetToDisk(b []byte, assetID string, shopToken string, fileExt string) (*sqlc.Asset, error)
+	GetProductMedia(assetID string, productID string) (*sqlc.ProductsMedia, error)
+	CreateProductMedia(assetID string, productID string, status string, order int64) (*sqlc.ProductsMedia, error)
+	UpdateProductMedia(assetID string, productID string, status null.String, order null.Int) (*sqlc.ProductsMedia, error)
+	UnlinkProductMedia(productID string, assetID string) error
 }
 
+var ErrImageURLForbidden = errors.New("image url returned forbidden")
+
 var ValidExtenions = map[string]struct{}{
-  ".png": {},
-  ".jpg": {},
-  ".jpeg": {},
-  ".jpe": {},
-  ".jif": {},
-  ".jfif": {},
+	".png":  {},
+	".jpg":  {},
+	".jpeg": {},
+	".jpe":  {},
+	".jif":  {},
+	".jfif": {},
 }
 
 func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
-  return Service {
-    store: store,
-    logger: logger,
-    server: server,
-  }
+	return Service{
+		store:  store,
+		logger: logger,
+		server: server,
+	}
 }
 
 type Service struct {
-  store       Store
-  logger      *laxo.Logger
-  server      *laxo.Server
+	store  Store
+	logger *laxo.Logger
+	server *laxo.Server
 }
 
 func (s *Service) ValidAssignReply() ([]byte, error) {
-  reply := make(map[string]bool)
-  reply["error"] = false
+	reply := make(map[string]bool)
+	reply["error"] = false
 
 	return json.Marshal(reply)
 }
 
 func (s *Service) ActivateAssetAssignment(r *AssignRequest) error {
-  _, err := s.store.GetProductMedia(r.AssetID, r.ProductID)
-  if err != pgx.ErrNoRows && err != nil {
-    return fmt.Errorf("GetProductMedia: %w", err)
-  }
+	_, err := s.store.GetProductMedia(r.AssetID, r.ProductID)
+	if err != pgx.ErrNoRows && err != nil {
+		return fmt.Errorf("GetProductMedia: %w", err)
+	}
 
-  if err == pgx.ErrNoRows {
-    _, err := s.store.CreateProductMedia(r.AssetID, r.ProductID, "active", r.Order)
-    if err != nil {
-      return fmt.Errorf("CreateProductMedia: %w", err)
-    }
-  } else {
-    _, err := s.store.UpdateProductMedia(r.AssetID, r.ProductID, null.StringFrom("active"), null.IntFrom(r.Order))
-    if err != nil {
-      return fmt.Errorf("UpdateProductMedia: %w", err)
-    }
-  }
+	if err == pgx.ErrNoRows {
+		_, err := s.store.CreateProductMedia(r.AssetID, r.ProductID, "active", r.Order)
+		if err != nil {
+			return fmt.Errorf("CreateProductMedia: %w", err)
+		}
+	} else {
+		_, err := s.store.UpdateProductMedia(r.AssetID, r.ProductID, null.StringFrom("active"), null.IntFrom(r.Order))
+		if err != nil {
+			return fmt.Errorf("UpdateProductMedia: %w", err)
+		}
+	}
 
-  return nil
+	return nil
 }
 
-
 func (s *Service) UnlinkProductMedia(r *AssignRequest) error {
-  err := s.store.UnlinkProductMedia(r.ProductID, r.AssetID)
-  if err != nil {
-    return fmt.Errorf("UnlinkProductMedia: %w", err)
-  }
-  return nil
+	err := s.store.UnlinkProductMedia(r.ProductID, r.AssetID)
+	if err != nil {
+		return fmt.Errorf("UnlinkProductMedia: %w", err)
+	}
+	return nil
 }
 
 func (s *Service) ModifyAssetAssignment(r *AssignRequest) error {
-  if r.Action == "active" {
-    err := s.ActivateAssetAssignment(r)
-    if err != nil {
-      return fmt.Errorf("ActivateAssetAssignment: %w", err)
-    }
-    return nil
-  }
+	if r.Action == "active" {
+		err := s.ActivateAssetAssignment(r)
+		if err != nil {
+			return fmt.Errorf("ActivateAssetAssignment: %w", err)
+		}
+		return nil
+	}
 
-  if r.Action == "inactive" {
-    //@TODO: implement
-  }
+	if r.Action == "inactive" {
+		//@TODO: implement
+	}
 
-  if r.Action == "delete" {
-    err := s.UnlinkProductMedia(r)
-    if err != nil {
-      return fmt.Errorf("UnLinkImageAsset: %w", err)
-    }
-    return nil
-  }
+	if r.Action == "delete" {
+		err := s.UnlinkProductMedia(r)
+		if err != nil {
+			return fmt.Errorf("UnLinkImageAsset: %w", err)
+		}
+		return nil
+	}
 
-  return nil
+	return nil
 }
 
 func (s *Service) ValidateAssetExtension(fileName string) error {
-  extension := strings.ToLower(filepath.Ext(fileName))
+	extension := strings.ToLower(filepath.Ext(fileName))
 
-  if _, ok := ValidExtenions[extension]; !ok {
-    return errors.New("invalid extension")
-  }
-  return nil
+	if _, ok := ValidExtenions[extension]; !ok {
+		return errors.New("invalid extension")
+	}
+	return nil
 }
 
 func (s *Service) SaveAssetToDisk(b []byte, assetID string, shopToken string) (*sqlc.Asset, error) {
-  filetype := http.DetectContentType(b)
+	filetype := http.DetectContentType(b)
 
-  ext, err := mime.ExtensionsByType(filetype)
-  if err != nil {
-    return nil, err
-  }
+	ext, err := mime.ExtensionsByType(filetype)
+	if err != nil {
+		return nil, err
+	}
 
-  if len(ext) == 0 {
-    return nil, errors.New("no extension found for image")
-  }
+	if len(ext) == 0 {
+		return nil, errors.New("no extension found for image")
+	}
 
-  fileExt := ""
+	fileExt := ""
 
-  for _, e := range ext {
-    if e == ".jpg" {
-      fileExt = ".jpg"
-      break
-    }
-  }
+	for _, e := range ext {
+		if e == ".jpg" {
+			fileExt = ".jpg"
+			break
+		}
+	}
 
-  if fileExt == "" {
-    fileExt = ext[0]
-  }
+	if fileExt == "" {
+		fileExt = ext[0]
+	}
 
-  return s.store.SaveAssetToDisk(b, assetID, shopToken, fileExt)
+	return s.store.SaveAssetToDisk(b, assetID, shopToken, fileExt)
 }
 
 func (s *Service) AssetJSON(a *sqlc.Asset) ([]byte, error) {
@@ -164,98 +168,153 @@ func (s *Service) AssetJSON(a *sqlc.Asset) ([]byte, error) {
 }
 
 func (s *Service) ValidateAssetHash(hex string, assetID string) error {
-  a, err := s.store.GetAssetByID(assetID)
-  if err != nil {
-    return fmt.Errorf("GetAssetByID: %w", err)
-  }
+	a, err := s.store.GetAssetByID(assetID)
+	if err != nil {
+		return fmt.Errorf("GetAssetByID: %w", err)
+	}
 
-  if a.MurmurHash != hex {
-    return errors.New("asset hash does not match")
-  }
+	if a.MurmurHash != hex {
+		return errors.New("asset hash does not match")
+	}
 
-  return nil
+	return nil
 }
 
 func (s *Service) GetMurmurFromBytes(b []byte) string {
-  h64 := murmur3.New128()
-  h64.Write(b)
+	h64 := murmur3.New128()
+	h64.Write(b)
 
-  mID1, mID2 := h64.Sum128()
+	mID1, mID2 := h64.Sum128()
 
-  buf := make([]byte, 16)
-  binary.BigEndian.PutUint64(buf[:8], mID1)
-  binary.BigEndian.PutUint64(buf[8:], mID2)
-  hex := hex.EncodeToString(buf)
+	buf := make([]byte, 16)
+	binary.BigEndian.PutUint64(buf[:8], mID1)
+	binary.BigEndian.PutUint64(buf[8:], mID2)
+	hex := hex.EncodeToString(buf)
 
-  return hex
+	return hex
 }
 
 func (s *Service) ExtractImageFromRequest(w http.ResponseWriter, b io.ReadCloser) ([]byte, error) {
-  newB := http.MaxBytesReader(w, b, int64(s.server.Config.MaxAssetSize))
-  return ioutil.ReadAll(newB)
+	newB := http.MaxBytesReader(w, b, int64(s.server.Config.MaxAssetSize))
+	return ioutil.ReadAll(newB)
+}
+
+func (s *Service) ExtractImageFromURL(u string) ([]byte, error) {
+	resp, err := http.Get(u)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		if resp.StatusCode == 403 {
+			return nil, ErrImageURLForbidden
+		}
+		s.server.Logger.Errorw("get response code != 200", "status", resp.Status, "url", u)
+		return nil, errors.New("get response code is not 200")
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }
 
 func (s *Service) GetOrCreateAsset(request AssetRequest, shopID string) (*AssetReply, error) {
-  var a AssetReply
+	var a AssetReply
 
-  asset, err := s.store.GetAssetByMurmur(request.Hash, shopID)
-  if err != pgx.ErrNoRows && err != nil {
-    return nil, fmt.Errorf("GetAssetByMurmur: %w", err)
-  }
+	asset, err := s.store.GetAssetByMurmur(request.Hash, shopID)
+	if err != pgx.ErrNoRows && err != nil {
+		return nil, fmt.Errorf("GetAssetByMurmur: %w", err)
+	}
 
-  if err == pgx.ErrNoRows {
-    assetModel, err := s.store.CreateNewAsset(
-      shopID, request.Hash, request.OriginalName,
-      request.Size, request.WidthPixels, request.HeightPixels,
-    )
-    if err != nil {
-      return nil, fmt.Errorf("CreateNewAsset: %w", err)
-    }
+	if err == pgx.ErrNoRows {
+		assetModel, err := s.store.CreateNewAsset(
+			shopID, request.Hash, request.OriginalName,
+			request.Size, request.WidthPixels, request.HeightPixels,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("CreateNewAsset: %w", err)
+		}
 
-    a.Asset = assetModel
-    a.Upload = true
-    return &a, nil
-  }
+		a.Asset = assetModel
+		a.Upload = true
+		return &a, nil
+	}
 
-  a.Asset = asset
-  a.Upload = false
-  return &a, nil
+	a.Asset = asset
+	a.Upload = false
+	return &a, nil
 }
 
-func (s *Service) SaveProductImages(i []string, shopID string, productID string, shopToken string) error {
-  for _, v := range i {
-    resp, err := http.Get(v)
-    if err != nil {
-      return err
-    }
-    defer resp.Body.Close()
+func (s *Service) DecodeImage(b []byte) (*image.Config, error) {
+	r := bytes.NewReader(b)
 
-    if resp.StatusCode != 200 {
-      return errors.New("lazada response code is not 200")
-    }
+	img, _, err := image.DecodeConfig(r)
+	if err != nil {
+		return nil, err
+	}
 
-    b, err := io.ReadAll(resp.Body)
-    if err != nil {
-      return err
-    }
+	return &img, nil
+}
 
-    h64 := murmur3.New64()
-    h64.Write(b)
+func (s *Service) GetImageWidthHeight(b []byte) (width int, height int, err error) {
+	imgConfig, err := s.DecodeImage(b)
+	if err != nil {
+		return 0, 0, fmt.Errorf("DecodeImage: %w", err)
+	}
 
-    mID := int64(h64.Sum64())
+	return imgConfig.Width, imgConfig.Height, nil
+}
 
-    //_, err = s.GetProductMediaByMurmur(mID, productID)
-    //if err != pgx.ErrNoRows && err != nil {
-    //  return err
-    //}
+func (s *Service) SaveAndAssignImagesFromURL(i []string, shopID string, productID string, assetsToken string) error {
+	for _, v := range i {
+		b, err := s.ExtractImageFromURL(v)
+		if err != nil {
+			if errors.Is(err, ErrImageURLForbidden) {
+				s.server.Logger.Errorw("skipping image due to forbidden return", "url", v)
+				continue
+			}
+			return fmt.Errorf("ExtractImageFromURL: %w", err)
+		}
 
-    if err == pgx.ErrNoRows {
-      filename := path.Base(v)
-      err = s.store.SaveNewProductMedia(mID, filename, b, shopID, productID, shopToken)
-      if err != nil {
-        return err
-      }
-    }
-  }
-  return nil
+		w, h, err := s.GetImageWidthHeight(b)
+		if err != nil {
+			return fmt.Errorf("GetImageWidthHeight: %w", err)
+		}
+
+		mID := s.GetMurmurFromBytes(b)
+
+		r, err := s.GetOrCreateAsset(AssetRequest{
+			OriginalName: path.Base(v),
+			Size:         int64(len(b)),
+			WidthPixels:  int64(w),
+			HeightPixels: int64(h),
+			Hash:         mID,
+		}, shopID)
+		if err != nil {
+			return fmt.Errorf("GetOrCreateAsset: %w", err)
+		}
+
+		if r.Upload {
+			_, err = s.SaveAssetToDisk(b, r.Asset.ID, assetsToken)
+			if err != nil {
+				return fmt.Errorf("SaveAssetToDisk: %w", err)
+			}
+		}
+
+		err = s.ActivateAssetAssignment(&AssignRequest{
+			Action:    "active",
+			ProductID: productID,
+			AssetID:   r.Asset.ID,
+			Order:     0,
+		})
+		if err != nil {
+			return fmt.Errorf("ActivateAssetAssignment: %w", err)
+		}
+	}
+
+	return nil
 }

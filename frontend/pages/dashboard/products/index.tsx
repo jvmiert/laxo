@@ -176,6 +176,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
             type="text"
             className="block w-full rounded-md py-2 pl-9 pr-9 focus:outline-none focus:ring focus:ring-indigo-200"
             placeholder="Search for product name or SKU"
+            defaultValue={currentsearchQuery}
           />
         </div>
         <div>

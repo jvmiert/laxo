@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS products(
   id CHAR(26) DEFAULT ulid_to_string(ulid_generate()) NOT NULL PRIMARY KEY,
   name TEXT,
   description TEXT,
+  description_slate TEXT,
   msku TEXT,
   selling_price NUMERIC(21,2),
   cost_price NUMERIC(21,2),

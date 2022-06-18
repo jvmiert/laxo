@@ -1,3 +1,4 @@
+import cc from "classcat";
 import React, { useCallback, useMemo, useState } from "react";
 import {
   Editable,
@@ -56,10 +57,16 @@ const toggleMark = (editor: SlateEditor, format: FormatParameter) => {
   }
 };
 
-const MarkButton = ({ format }: { format: FormatParameter }) => {
+const MarkButton = ({
+  format,
+  className,
+  text,
+}: {
+  format: FormatParameter;
+  className?: string;
+  text: string;
+}) => {
   const editor = useSlate();
-
-  // @TODO: use this variable to define that the button's style is active on the selected text
   const active = isMarkActive(editor, format);
 
   return (
@@ -68,8 +75,13 @@ const MarkButton = ({ format }: { format: FormatParameter }) => {
         event.preventDefault();
         toggleMark(editor, format);
       }}
+      className={cc([
+        className,
+        { "bg-white text-gray-700 hover:bg-gray-50": !active },
+        { "bg-indigo-50 text-indigo-500": active },
+      ])}
     >
-      {format}
+      {text}
     </button>
   );
 };
@@ -114,19 +126,15 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
 const initialValue: Descendant[] = [
   {
     type: "paragraph",
-    children: [
-      { text: "This is editable " },
-      { text: "rich", bold: true },
-      { text: " text, " },
-      { text: "much", italic: true },
-      { text: " better than a " },
-      { text: "<textarea>", code: true },
-      { text: "!", bold: true },
-    ],
+    children: [{ text: "" }],
   },
 ];
 
-export default function Editor() {
+export type EditorProps = {
+  initialSchema: string;
+};
+
+export default function Editor({ initialSchema }: EditorProps) {
   const renderElement = useCallback(
     (props: RenderElementProps) => <Element {...props} />,
     [],
@@ -135,21 +143,40 @@ export default function Editor() {
     (props: RenderLeafProps) => <Leaf {...props} />,
     [],
   );
+
+  //@TODO: We might have to move state up because of our Disclosure usage
   const [editor] = useState(() => withHistory(withReact(createEditor())));
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(initialSchema ? JSON.parse(initialSchema) : initialValue);
 
   return (
     <Slate editor={editor} value={value}>
-      <div>
-        <MarkButton format="bold" />
-        <MarkButton format="italic" />
-        <MarkButton format="underline" />
-        <MarkButton format="code" />
+      <div className="relative z-0 inline-flex rounded-md shadow-sm">
+        <MarkButton
+          text="B"
+          format="bold"
+          className="relative inline-flex items-center rounded-tl-md border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-bold focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <MarkButton
+          text="I"
+          format="italic"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 font-serif text-sm font-bold italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <MarkButton
+          text="U"
+          format="underline"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium underline focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <MarkButton
+          text="<>"
+          format="code"
+          className="relative -ml-px inline-flex items-center rounded-tr-md border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
       </div>
       <Editable
         renderElement={renderElement}
         renderLeaf={renderLeaf}
         spellCheck
+        className="focus:shadow-outline block min-h-[200px] w-full appearance-none rounded-b-md rounded-tr-md border border-gray-300 py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
       />
     </Slate>
   );

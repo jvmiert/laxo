@@ -124,7 +124,9 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
                         />
                       </div>
                       <div className="col-span-8">
-                        <Editor />
+                        <Editor
+                          initialSchema={product.product.descriptionSlate}
+                        />
                       </div>
                     </div>
                   </Disclosure.Panel>
@@ -321,7 +323,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
                                   <dd className="mt-1 text-sm text-gray-900">
                                     <span
                                       className={cc([
-                                        "rounded-md py-1 px-2",
+                                        "rounded-md py-1 px-2 capitalize",
                                         {
                                           "bg-green-100":
                                             p.status.toLowerCase() == "active",
@@ -332,7 +334,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
                                         },
                                       ])}
                                     >
-                                      {p.status}
+                                      {p.status.toLowerCase()}
                                     </span>
                                   </dd>
                                 </div>

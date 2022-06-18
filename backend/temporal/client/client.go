@@ -34,13 +34,13 @@ func (c *Client) Close() {
   c.temporal.Close()
 }
 
-func (c *Client) StartLazadaPlatformSync(shopID string, userID string) (string, error) {
+func (c *Client) StartLazadaPlatformSync(shopID string, userID string, overwrite bool) (string, error) {
   workflowOptions := client.StartWorkflowOptions{
     ID:        "product_" + laxo.GetUILD(),
     TaskQueue: "product",
   }
 
-	we, err := c.temporal.ExecuteWorkflow(context.Background(), workflowOptions, lazada.SyncLazadaPlatform, shopID, userID)
+	we, err := c.temporal.ExecuteWorkflow(context.Background(), workflowOptions, lazada.SyncLazadaPlatform, shopID, userID, overwrite)
 	if err != nil {
     c.logger.Errorw("Unable to execute workflow", "error", err)
     return "", err

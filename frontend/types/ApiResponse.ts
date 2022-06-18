@@ -111,6 +111,7 @@ export type LaxoProduct = {
     id: string;
     name: string;
     description: string;
+    descriptionSlate: string;
     msku: string;
     shopID: string;
     mediaID?: string;

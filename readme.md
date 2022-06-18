@@ -1,19 +1,18 @@
 # Tech to-do
-- For updating products to platforms, on the initial and manual sync, don't
-  automatically override previous state. Only override product state after prompting
-  the user for confirmation during a product edit. Best way to do this in the SaveOrUpdateProductToStore
-  function, have a parameter that sets to override previous state or keep it intact. It would also
-  be good to introduce a manual force "update" or "sync" button to synchorize product information
-  to all platforms (which is where we can prompt the user to override state)
 - The way we store media assets now is silly. We are double saving so many images
   - Update Lazada assets saving mechanism
-    - Get product images and product description images
-    - Download image
-    - Check if it exists in the store's assets collection
-    - Save and add entry to the product / description
+    - Extract relevant src URLs from description images
+       - I think we can ignore srcset?
+    - Add the image to the asset store
+    - Create the rich text Slate schema
+      - Replace Lazada's images with Laxo stored asset image name
 - Create product details page
   - Create rich text component
+    - Load rich text from DB
+    - Create the block buttons
+    - Create image adding functionality
   - Create save changes mechanism a la Shopify
+- Change notification from Popover to Menu? (it's closing now when we don't want it to close)
 - Update Dashboard main navigation
   - Change side menu to fixed like Deliverr?
     - Adjust overflow (scrollbar) behavior to allow scrolling inside the side menu and main content div
@@ -31,6 +30,9 @@
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
 
 # Long-term to-do
+- Tweak dashboard loading/error states
+  - Add a loading state to the table of the product overview so it doesn't jump around during loads
+  - Make a state where there is no results/products
 - Make product dashboard page
 - Make order dashboard page
 - Make stock dashboard page

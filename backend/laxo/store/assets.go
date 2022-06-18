@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"mime"
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -187,67 +185,6 @@ func (s *assetsStore) SaveAssetToDisk(b []byte, assetID string, shopToken string
   }
 
   return &updatedAsset, nil
-}
-
-func (s *assetsStore) SaveNewProductMedia(mID int64, oFilename string, b []byte, shopID string, productID string, shopToken string) error {
-  filetype := http.DetectContentType(b)
-
-  ext, err := mime.ExtensionsByType(filetype)
-  if err != nil {
-    return err
-  }
-
-  if len(ext) == 0 {
-    return errors.New("no extension found for image")
-  }
-
-  fileExt := ""
-
-  for _, e := range ext {
-    if e == ".jpg" {
-      fileExt = ".jpg"
-      break
-    }
-  }
-
-  if fileExt == "" {
-    fileExt = ext[0]
-  }
-
-  params := sqlc.CreateProductMediaParams{
-    ProductID: productID,
-    //OriginalFilename: null.StringFrom(oFilename),
-    //MurmurHash: null.IntFrom(mID),
-    //Extension: null.StringFrom(fileExt),
-  }
-
-  //pMModel, err := s.queries.CreateProductMedia(
-  _, err = s.queries.CreateProductMedia(
-    context.Background(),
-    params,
-  )
-  if err != nil {
-    return err
-  }
-
-  //filename := pMModel.ID + fileExt
-
-  path := s.assetsPath + string(os.PathSeparator)
-  path = path + shopToken + string(os.PathSeparator)
-  path = path + productImageDir + string(os.PathSeparator)
-
-  err = os.MkdirAll(path, os.ModePerm)
-  if err != nil {
-    return err
-  }
-
-  path = path //+ filename
-
-	err = ioutil.WriteFile(path, b, 0644)
-	if err != nil {
-		return nil
-	}
-  return nil
 }
 
 func (s *assetsStore) GetAssetByMurmur(murmurHash string, shopID string) (*sqlc.Asset, error) {

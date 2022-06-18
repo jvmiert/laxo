@@ -63,16 +63,17 @@ type PlatformLazada struct {
 }
 
 type Product struct {
-	ID           string         `json:"id"`
-	Name         null.String    `json:"name"`
-	Description  null.String    `json:"description"`
-	Msku         null.String    `json:"msku"`
-	SellingPrice pgtype.Numeric `json:"sellingPrice"`
-	CostPrice    pgtype.Numeric `json:"costPrice"`
-	ShopID       string         `json:"shopID"`
-	MediaID      null.String    `json:"mediaID"`
-	Created      null.Time      `json:"created"`
-	Updated      null.Time      `json:"updated"`
+	ID               string         `json:"id"`
+	Name             null.String    `json:"name"`
+	Description      null.String    `json:"description"`
+	DescriptionSlate null.String    `json:"descriptionSlate"`
+	Msku             null.String    `json:"msku"`
+	SellingPrice     pgtype.Numeric `json:"sellingPrice"`
+	CostPrice        pgtype.Numeric `json:"costPrice"`
+	ShopID           string         `json:"shopID"`
+	MediaID          null.String    `json:"mediaID"`
+	Created          null.Time      `json:"created"`
+	Updated          null.Time      `json:"updated"`
 }
 
 type ProductsAttributeLazada struct {

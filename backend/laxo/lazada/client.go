@@ -169,7 +169,7 @@ type ProductsResponseProducts struct {
   MarketImages    []null.String                      `json:"marketImages" xml:"-"`
   Status          null.String                        `json:"status" xml:"-"`
   SubStatus       null.String                        `json:"subStatus" xml:"-"`
-  SuspendedSkus   ProductsResponseSuspendedSkus      `json:"suspendedSkus" xml:"-"`
+  SuspendedSkus   []ProductsResponseSuspendedSkus    `json:"suspendedSkus" xml:"-"`
   Created         time.Time                          `xml:"-"`
   Updated         time.Time                          `xml:"-"`
 }
@@ -423,7 +423,7 @@ func (lc *LazadaClient) QueryProducts(params QueryProductsParams) (*ProductsResp
 	var req *http.Request
 	var err error
 
-  lc.AddAPIParam("filter", "live")
+  lc.AddAPIParam("filter", "all")
   lc.AddAPIParam("limit", strconv.Itoa(params.Limit))
   lc.AddAPIParam("offset", strconv.Itoa(params.Offset))
 

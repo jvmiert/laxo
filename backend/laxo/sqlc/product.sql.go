@@ -20,7 +20,7 @@ INSERT INTO products (
   $1, $2, $3, $4, $5, $6, $7,
   $8
 )
-RETURNING id, name, description, msku, selling_price, cost_price, shop_id, media_id, created, updated
+RETURNING id, name, description, description_slate, msku, selling_price, cost_price, shop_id, media_id, created, updated
 `
 
 type CreateProductParams struct {
@@ -50,6 +50,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.ID,
 		&i.Name,
 		&i.Description,
+		&i.DescriptionSlate,
 		&i.Msku,
 		&i.SellingPrice,
 		&i.CostPrice,
@@ -139,7 +140,7 @@ func (q *Queries) GetProductAssetsByProductID(ctx context.Context, arg GetProduc
 }
 
 const getProductByID = `-- name: GetProductByID :one
-SELECT id, name, description, msku, selling_price, cost_price, shop_id, media_id, created, updated FROM products
+SELECT id, name, description, description_slate, msku, selling_price, cost_price, shop_id, media_id, created, updated FROM products
 WHERE id = $1
 LIMIT 1
 `
@@ -151,6 +152,7 @@ func (q *Queries) GetProductByID(ctx context.Context, id string) (Product, error
 		&i.ID,
 		&i.Name,
 		&i.Description,
+		&i.DescriptionSlate,
 		&i.Msku,
 		&i.SellingPrice,
 		&i.CostPrice,
@@ -163,7 +165,7 @@ func (q *Queries) GetProductByID(ctx context.Context, id string) (Product, error
 }
 
 const getProductByProductMSKU = `-- name: GetProductByProductMSKU :one
-SELECT id, name, description, msku, selling_price, cost_price, shop_id, media_id, created, updated FROM products
+SELECT id, name, description, description_slate, msku, selling_price, cost_price, shop_id, media_id, created, updated FROM products
 WHERE msku = $1 AND shop_id = $2
 LIMIT 1
 `
@@ -180,6 +182,7 @@ func (q *Queries) GetProductByProductMSKU(ctx context.Context, arg GetProductByP
 		&i.ID,
 		&i.Name,
 		&i.Description,
+		&i.DescriptionSlate,
 		&i.Msku,
 		&i.SellingPrice,
 		&i.CostPrice,
@@ -192,7 +195,7 @@ func (q *Queries) GetProductByProductMSKU(ctx context.Context, arg GetProductByP
 }
 
 const getProductDetailsByID = `-- name: GetProductDetailsByID :one
-SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
+SELECT products.id, products.name, products.description, products.description_slate, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
   products_lazada.lazada_id as lazada_id,
   products_sku_lazada.url as lazada_url,
   products_attribute_lazada.name as lazada_name,
@@ -219,6 +222,7 @@ type GetProductDetailsByIDRow struct {
 	ID                string         `json:"id"`
 	Name              null.String    `json:"name"`
 	Description       null.String    `json:"description"`
+	DescriptionSlate  null.String    `json:"descriptionSlate"`
 	Msku              null.String    `json:"msku"`
 	SellingPrice      pgtype.Numeric `json:"sellingPrice"`
 	CostPrice         pgtype.Numeric `json:"costPrice"`
@@ -241,6 +245,7 @@ func (q *Queries) GetProductDetailsByID(ctx context.Context, arg GetProductDetai
 		&i.ID,
 		&i.Name,
 		&i.Description,
+		&i.DescriptionSlate,
 		&i.Msku,
 		&i.SellingPrice,
 		&i.CostPrice,
@@ -298,7 +303,7 @@ FROM
   WHERE products.shop_id = $1 AND (products.name ILIKE $2 OR products.msku ILIKE $3)
 ) as c
 LEFT JOIN (
-  SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
+  SELECT products.id, products.name, products.description, products.description_slate, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
     STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
@@ -409,7 +414,7 @@ FROM
   WHERE products.shop_id = $1
 ) as c
 LEFT JOIN (
-  SELECT products.id, products.name, products.description, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
+  SELECT products.id, products.name, products.description, products.description_slate, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
     STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
@@ -509,7 +514,7 @@ SET
  media_id = coalesce($6, media_id),
  updated = coalesce($7, updated)
 WHERE id = $8
-RETURNING id, name, description, msku, selling_price, cost_price, shop_id, media_id, created, updated
+RETURNING id, name, description, description_slate, msku, selling_price, cost_price, shop_id, media_id, created, updated
 `
 
 type UpdateProductParams struct {
@@ -539,6 +544,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.ID,
 		&i.Name,
 		&i.Description,
+		&i.DescriptionSlate,
 		&i.Msku,
 		&i.SellingPrice,
 		&i.CostPrice,

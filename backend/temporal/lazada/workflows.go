@@ -15,7 +15,7 @@ type QueryStateResult struct {
 
 }
 
-func SyncLazadaPlatform(ctx workflow.Context, shopID, userID string) (err error) {
+func SyncLazadaPlatform(ctx workflow.Context, shopID string, userID string, overwrite bool) (err error) {
   processState := QueryStateResult{
     State: "fetch",
     Total: -1,
@@ -68,6 +68,7 @@ func SyncLazadaPlatform(ctx workflow.Context, shopID, userID string) (err error)
         DataKey: fetchData.DataKey,
         ProductIndex: i,
         ProductTotal: fetchData.TotalProducts,
+        Overwrite: overwrite,
       },
     ).Get(sessionCtx, nil)
 
