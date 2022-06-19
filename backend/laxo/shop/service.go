@@ -47,6 +47,7 @@ type Store interface {
 	RetrieveShopsPlatformsByShopID(string) ([]sqlc.ShopsPlatform, error)
 	CreateShopsPlatforms(string, string) (sqlc.ShopsPlatform, error)
 	RetrieveSpecificPlatformByShopID(string, string) (sqlc.ShopsPlatform, error)
+	GetAssetByOriginalName(originalName string, shopID string) (*sqlc.Asset, error)
 }
 
 type Service struct {
@@ -520,28 +521,39 @@ func (s *Service) GetProductPlatformByLazadaID(productID string) (*sqlc.Products
 func (s *Service) GetSantizedString(d string) string {
 	p := bluemonday.StrictPolicy()
 	santized := p.Sanitize(d)
+	santized = html.UnescapeString(santized)
 
 	return santized
 }
 
 func (s *Service) GetLaxoProductFromLazadaData(p *sqlc.ProductsLazada,
-	pAttribute *sqlc.ProductsAttributeLazada, pSKU *sqlc.ProductsSkuLazada) (*models.Product, error) {
+	pAttribute *sqlc.ProductsAttributeLazada, pSKU *sqlc.ProductsSkuLazada, shopID string) (*models.Product, error) {
 
 	numericPrice := pgtype.Numeric{}
 	numericPrice.Set(pSKU.Price.String)
 
 	sanitzedDescription := s.GetSantizedString(pAttribute.Description.String)
-	sanitzedDescription = html.UnescapeString(sanitzedDescription)
+
+	var slateDescription string
+	var err error
+
+	if pAttribute.Description.Valid {
+		slateDescription, err = s.HTMLToSlate(pAttribute.Description.String, shopID)
+		if err != nil {
+			return nil, fmt.Errorf("HTMLToSlate: %w", err)
+		}
+	}
 
 	product := &models.Product{
 		Model: &sqlc.Product{
-			ID:           "",
-			Name:         pAttribute.Name,
-			Description:  null.StringFrom(sanitzedDescription),
-			Msku:         null.StringFrom(pSKU.SellerSku),
-			SellingPrice: numericPrice,
-			CostPrice:    pgtype.Numeric{Status: pgtype.Null},
-			ShopID:       p.ShopID,
+			ID:               "",
+			Name:             pAttribute.Name,
+			Description:      null.StringFrom(sanitzedDescription),
+			DescriptionSlate: null.StringFrom(slateDescription),
+			Msku:             null.StringFrom(pSKU.SellerSku),
+			SellingPrice:     numericPrice,
+			CostPrice:        pgtype.Numeric{Status: pgtype.Null},
+			ShopID:           p.ShopID,
 		},
 	}
 

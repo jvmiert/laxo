@@ -22,17 +22,15 @@ export default function DashboardLayout({
         <title>{`Laxo: ${t.formatMessage(title)}`}</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <DashboardTopNavigation />
-      <AlertContainer />
-      <div className="min-h-screen bg-zinc-100">
-        <div className="flex w-full flex-row flex-nowrap">
-          <div className="flex min-h-[55vh] shrink-0 grow-0 basis-auto bg-white">
-            <DashboardNavigation />
+      <div>
+        <AlertContainer />
+        <DashboardNavigation />
+        <div className="flex h-screen flex-col overflow-y-hidden bg-gray-100">
+          <div className="ml-52 bg-zinc-100">
+            <DashboardTopNavigation />
           </div>
-          <div className="flex grow flex-col">
-            <div className="flex justify-between bg-zinc-100 p-8">
-              <main className="grow">{children}</main>
-            </div>
+          <div className="ml-52 grow overflow-x-auto overflow-y-scroll">
+            <main className="my-8 mx-6">{children}</main>
           </div>
         </div>
       </div>

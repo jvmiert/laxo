@@ -92,7 +92,8 @@ GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attri
 SELECT assets.*, products_media.image_order, products_media.status FROM products
 LEFT JOIN products_media ON products_media.product_id = products.id
 LEFT JOIN assets ON assets.id = products_media.asset_id
-WHERE products.id = $1 AND products.shop_id = $2;
+WHERE products.id = $1 AND products.shop_id = $2
+ORDER BY products_media.product_id, assets.id;
 
 -- name: CreateProduct :one
 INSERT INTO products (

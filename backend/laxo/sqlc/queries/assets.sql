@@ -50,6 +50,11 @@ SELECT * FROM assets
 WHERE murmur_hash = $1 AND shop_id = $2
 LIMIT 1;
 
+-- name: GetAssetByOriginalName :one
+SELECT * FROM assets
+WHERE original_filename = $1 AND shop_id = $2
+LIMIT 1;
+
 -- name: GetAssetByID :one
 SELECT * FROM assets
 WHERE id = $1

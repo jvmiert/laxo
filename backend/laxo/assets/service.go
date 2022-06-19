@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/jackc/pgx/v4"
@@ -59,6 +60,55 @@ type Service struct {
 	store  Store
 	logger *laxo.Logger
 	server *laxo.Server
+}
+
+func (s *Service) ExtractImagesFromDescription(d string, shopID string, assetsToken string) error {
+	findImages := regexp.MustCompile(`src=["'](.*?)["']`)
+
+	matches := findImages.FindAllStringSubmatch(d, -1)
+
+	for _, element := range matches {
+		if len(element) == 0 {
+			continue
+		}
+
+		url := element[1]
+		b, err := s.ExtractImageFromURL(url)
+		if err != nil {
+			if errors.Is(err, ErrImageURLForbidden) {
+				s.server.Logger.Errorw("skipping image due to forbidden return", "url", url)
+				continue
+			}
+			return fmt.Errorf("ExtractImageFromURL: %w", err)
+		}
+
+		w, h, err := s.GetImageWidthHeight(b)
+		if err != nil {
+			return fmt.Errorf("GetImageWidthHeight: %w", err)
+		}
+
+		mID := s.GetMurmurFromBytes(b)
+
+		r, err := s.GetOrCreateAsset(AssetRequest{
+			OriginalName: path.Base(url),
+			Size:         int64(len(b)),
+			WidthPixels:  int64(w),
+			HeightPixels: int64(h),
+			Hash:         mID,
+		}, shopID)
+		if err != nil {
+			return fmt.Errorf("GetOrCreateAsset: %w", err)
+		}
+
+		if r.Upload {
+			_, err = s.SaveAssetToDisk(b, r.Asset.ID, assetsToken)
+			if err != nil {
+				return fmt.Errorf("SaveAssetToDisk: %w", err)
+			}
+		}
+	}
+
+	return nil
 }
 
 func (s *Service) ValidAssignReply() ([]byte, error) {

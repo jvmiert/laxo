@@ -48,10 +48,10 @@ export default function Navigation() {
     <div className="flex h-16 w-full justify-center border-b border-gray-200">
       <header className="m-auto flex w-4/5 max-w-5xl flex-row items-center justify-between px-6">
         <div className="flex items-center justify-center">
-          <Link href="/" passHref>
-            <span className="cursor-pointer">
+          <Link href="/">
+            <a>
               <NavLogo />
-            </span>
+            </a>
           </Link>
         </div>
         <div className="flex items-center justify-center">

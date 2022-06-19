@@ -1,8 +1,14 @@
 package shop
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"path"
+	"regexp"
 	"strings"
 
+	"github.com/jackc/pgx/v4"
 	"golang.org/x/net/html"
 )
 
@@ -10,7 +16,7 @@ func addNode(schema []Element, nodeType string, index int) ([]Element, int) {
 	add := false
 
 	if len(schema) > 0 {
-		if len(schema[len(schema)-1].Children) > 0 {
+		if len(schema[len(schema)-1].Children) > 0 || schema[len(schema)-1].Type == "image" {
 			add = true
 		} else {
 			schema[len(schema)-1].Type = nodeType
@@ -27,7 +33,7 @@ func addNode(schema []Element, nodeType string, index int) ([]Element, int) {
 	return schema, index
 }
 
-func (s *Service) HTMLToSlate(h string) ([]Element, error) {
+func (s *Service) HTMLToSlate(h string, shopID string) (string, error) {
 	tkn := html.NewTokenizer(strings.NewReader(h))
 
 	schema := []Element{}
@@ -45,13 +51,16 @@ out:
 		token := tkn.Token()
 		switch tt {
 		case html.ErrorToken:
-			if len(schema[len(schema)-1].Children) == 0 {
+			if index == -1 {
+				break out
+			}
+			if len(schema[len(schema)-1].Children) == 0 && schema[len(schema)-1].Type != "image" {
 				schema = schema[:len(schema)-1]
 			}
-			s.server.Logger.Debug("ErrorToken")
+			//s.server.Logger.Debug("ErrorToken")
 			break out
 		case html.StartTagToken:
-			s.server.Logger.Debugw("StartTagToken", "token", token, "type", token.Data)
+			s.server.Logger.Debugw("StartTagToken", "token", token, "type", token.Data, "depth", depth, "index", index)
 			switch token.Data {
 			case "div":
 				prevNode = "div"
@@ -86,6 +95,65 @@ out:
 					prevNode = "h3"
 				}
 				depth++
+			case "img":
+				if depth == 0 {
+					findImages := regexp.MustCompile(`src=["'](.*?)["']`)
+					matches := findImages.FindStringSubmatch(token.String())
+
+					if len(matches) > 1 {
+						s.server.Logger.Debugw("ADDING an image", "data", token, "src", matches[1])
+
+						originalName := path.Base(matches[1])
+
+						asset, err := s.store.GetAssetByOriginalName(originalName, shopID)
+						if err != pgx.ErrNoRows && err != nil {
+							return "", fmt.Errorf("GetAssetByOriginalName: %w", err)
+						}
+
+						if errors.Is(err, pgx.ErrNoRows) {
+							continue
+						}
+
+						el := Element{
+							Type:     "image",
+							Src:      asset.ID + asset.Extension.String,
+							Children: []Text{},
+							Width:    asset.Width.Int64,
+							Height:   asset.Height.Int64,
+						}
+
+						schema = append(schema, el)
+						index++
+					}
+				}
+
+				if prevNode == "p" {
+					if len(schema[index].Children) == 0 {
+						findImages := regexp.MustCompile(`src=["'](.*?)["']`)
+						matches := findImages.FindStringSubmatch(token.String())
+
+						if len(matches) > 1 {
+							//s.server.Logger.Debugw("ADDING an image", "data", token, "src", matches[1])
+
+							originalName := path.Base(matches[1])
+
+							asset, err := s.store.GetAssetByOriginalName(originalName, shopID)
+							if err != pgx.ErrNoRows && err != nil {
+								return "", fmt.Errorf("GetAssetByOriginalName: %w", err)
+							}
+
+							if errors.Is(err, pgx.ErrNoRows) {
+								continue
+							}
+
+							schema[index].Type = "image"
+							schema[index].Src = asset.ID + asset.Extension.String
+							schema[index].Children = []Text{}
+							schema[index].Width = asset.Width.Int64
+							schema[index].Height = asset.Height.Int64
+						}
+					}
+				}
 			case "strong":
 				bold = true
 			case "em":
@@ -94,7 +162,7 @@ out:
 				underline = true
 			}
 		case html.EndTagToken:
-			s.server.Logger.Debugw("EndTagToken", "token", token, "type", token.Data)
+			//s.server.Logger.Debugw("EndTagToken", "token", token, "type", token.Data)
 			switch token.Data {
 			case "span":
 				depth--
@@ -114,17 +182,57 @@ out:
 				underline = false
 			}
 		case html.SelfClosingTagToken:
-			s.server.Logger.Debugw("SelfClosingTagToken", "token", token)
+			s.server.Logger.Debugw("SelfClosingTagToken", "token", token, "type", token.Data, "depth", depth, "index", index)
+			switch token.Data {
+			case "img":
+				if depth == 0 {
+					findImages := regexp.MustCompile(`src=["'](.*?)["']`)
+					matches := findImages.FindStringSubmatch(token.String())
+
+					if len(matches) > 1 {
+						s.server.Logger.Debugw("ADDING an image", "data", token, "src", matches[1])
+
+						originalName := path.Base(matches[1])
+
+						asset, err := s.store.GetAssetByOriginalName(originalName, shopID)
+						if err != pgx.ErrNoRows && err != nil {
+							return "", fmt.Errorf("GetAssetByOriginalName: %w", err)
+						}
+
+						if errors.Is(err, pgx.ErrNoRows) {
+							continue
+						}
+
+						el := Element{
+							Type:     "image",
+							Src:      asset.ID + asset.Extension.String,
+							Children: []Text{},
+							Width:    asset.Width.Int64,
+							Height:   asset.Height.Int64,
+						}
+
+						schema = append(schema, el)
+						index++
+					}
+				}
+			}
 		case html.TextToken:
 			trimmed := strings.TrimSpace(token.String())
 			if trimmed != "" {
-				s.server.Logger.Debugw("TextToken", "token", token, "trimmed", trimmed, "depth", depth, "index", index)
-				if depth > 0 {
+				//s.server.Logger.Debugw("TextToken", "token", token, "trimmed", trimmed, "depth", depth, "index", index)
+				if depth > 0 && index != -1 {
 					schema[index].Children = append(schema[index].Children, Text{Text: trimmed, Bold: bold, Underline: underline, Italic: italic})
 				}
 			}
 		}
 	}
 
-	return schema, nil
+	if len(schema) == 0 {
+		text := s.GetSantizedString(h)
+		schema = append(schema, Element{Type: "paragraph", Children: []Text{{Text: text}}})
+	}
+
+	b, _ := json.Marshal(schema)
+
+	return string(b), nil
 }

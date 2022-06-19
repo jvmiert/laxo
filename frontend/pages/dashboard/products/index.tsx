@@ -163,7 +163,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
   };
 
   return (
-    <div className="pb-40">
+    <>
       <div className="flex items-center justify-between">
         <div className="relative rounded-md border shadow">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -195,8 +195,8 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
       </div>
       <div className="my-6">
         <div className="flex flex-col">
-          <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <div className="-my-2 overflow-x-auto sm:-mx-6">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6">
               <div className="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -392,7 +392,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
           </Menu>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

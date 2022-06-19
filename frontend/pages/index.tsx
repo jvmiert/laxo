@@ -5,6 +5,8 @@ import DefaultLayout from "@/components/DefaultLayout";
 import { useAuth } from "@/providers/AuthProvider";
 import { AnnotationIcon } from "@heroicons/react/outline";
 
+import Everywhere from "@/components/landingpage/Everywhere";
+
 export default function HomePage() {
   const t = useIntl();
   const { auth } = useAuth();
@@ -128,27 +130,7 @@ export default function HomePage() {
           </div>
 
           <div className="relative -mx-4 mt-10 lg:mt-0" aria-hidden="true">
-            <svg
-              className="relative mx-auto"
-              xmlns="http://www.w3.org/2000/svg"
-              width="490"
-              height="570"
-              viewBox="0 0 490 570"
-            >
-              <rect fill="#ddd" width="490" height="570" />
-              <text
-                fill="rgba(0,0,0,0.5)"
-                fontFamily="sans-serif"
-                fontSize="30"
-                dy="10.5"
-                fontWeight="bold"
-                x="50%"
-                y="50%"
-                textAnchor="middle"
-              >
-                ...
-              </text>
-            </svg>
+            <Everywhere />
           </div>
         </div>
       </section>

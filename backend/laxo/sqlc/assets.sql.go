@@ -153,6 +153,33 @@ func (q *Queries) GetAssetByMurmur(ctx context.Context, arg GetAssetByMurmurPara
 	return i, err
 }
 
+const getAssetByOriginalName = `-- name: GetAssetByOriginalName :one
+SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height FROM assets
+WHERE original_filename = $1 AND shop_id = $2
+LIMIT 1
+`
+
+type GetAssetByOriginalNameParams struct {
+	OriginalFilename null.String `json:"originalFilename"`
+	ShopID           string      `json:"shopID"`
+}
+
+func (q *Queries) GetAssetByOriginalName(ctx context.Context, arg GetAssetByOriginalNameParams) (Asset, error) {
+	row := q.db.QueryRow(ctx, getAssetByOriginalName, arg.OriginalFilename, arg.ShopID)
+	var i Asset
+	err := row.Scan(
+		&i.ID,
+		&i.ShopID,
+		&i.MurmurHash,
+		&i.OriginalFilename,
+		&i.Extension,
+		&i.FileSize,
+		&i.Width,
+		&i.Height,
+	)
+	return i, err
+}
+
 const getProductMedia = `-- name: GetProductMedia :one
 SELECT product_id, asset_id, image_order, status FROM products_media
 WHERE product_id = $1 AND asset_id = $2

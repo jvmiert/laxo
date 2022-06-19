@@ -1,24 +1,13 @@
 # Tech to-do
-- The way we store media assets now is silly. We are double saving so many images
-  - Update Lazada assets saving mechanism
-    - Extract relevant src URLs from description images
-       - I think we can ignore srcset?
-    - Add the image to the asset store
-    - Create the rich text Slate schema
-      - Replace Lazada's images with Laxo stored asset image name
 - Create product details page
   - Create rich text component
-    - Load rich text from DB
     - Create the block buttons
-    - Create image adding functionality
   - Create save changes mechanism a la Shopify
+- Create asset management section
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)
-- Update Dashboard main navigation
-  - Change side menu to fixed like Deliverr?
-    - Adjust overflow (scrollbar) behavior to allow scrolling inside the side menu and main content div
-  - Add breadcrumbs for current active page
 - Add option for inactive products
   - Allow importing of inactive Lazada products
+- Add rich text hotkeys: https://github.com/ianstormtaylor/is-hotkey
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.
   - https://go.dev/tour/methods/15 (make sure the type casting is error checked)

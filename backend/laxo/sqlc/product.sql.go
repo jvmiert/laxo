@@ -88,6 +88,7 @@ SELECT assets.id, assets.shop_id, assets.murmur_hash, assets.original_filename, 
 LEFT JOIN products_media ON products_media.product_id = products.id
 LEFT JOIN assets ON assets.id = products_media.asset_id
 WHERE products.id = $1 AND products.shop_id = $2
+ORDER BY products_media.product_id, assets.id
 `
 
 type GetProductAssetsByProductIDParams struct {

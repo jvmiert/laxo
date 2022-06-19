@@ -1,7 +1,5 @@
+import Link from "next/link";
 import { Fragment } from "react";
-import { useDashboard } from "@/providers/DashboardProvider";
-import DashboardNavItem from "@/components/DashboardNavItem";
-import DashboardNavPlatformItem from "@/components/DashboardNavPlatformItem";
 import { FormattedMessage } from "react-intl";
 import {
   PlusIcon,
@@ -9,6 +7,11 @@ import {
   CollectionIcon,
   CogIcon,
 } from "@heroicons/react/solid";
+
+import NavLogo from "@/components/NavLogo";
+import { useDashboard } from "@/providers/DashboardProvider";
+import DashboardNavItem from "@/components/DashboardNavItem";
+import DashboardNavPlatformItem from "@/components/DashboardNavPlatformItem";
 
 interface navData {
   name: JSX.Element;
@@ -47,8 +50,15 @@ export default function DashboardNavigation() {
   const { activeShop } = useDashboard();
 
   return (
-    <div className="flex w-52 flex-col space-y-3 border-r border-gray-200 py-4">
-      <div className="border-b border-gray-200 px-4 pb-2">
+    <div className="fixed left-0 top-0 z-[4] flex h-full w-52 flex-col space-y-3 overflow-y-auto border-r border-gray-200 bg-white py-4">
+      <div className="flex items-center px-4 pb-4">
+        <Link href="/" passHref>
+          <a>
+            <NavLogo />
+          </a>
+        </Link>
+      </div>
+      <div className="px-4 pb-2">
         <h1 className="mb-0 text-lg font-bold">
           <FormattedMessage
             description="Dashboard navigation title"
@@ -61,7 +71,8 @@ export default function DashboardNavigation() {
           </span>
         )}
       </div>
-      <div className="flex w-full items-stretch border-b border-gray-200">
+      <hr className="mx-4 border-gray-200" />
+      <div className="flex w-full items-stretch">
         <div className="flex w-full flex-col space-y-1 pb-3">
           {navigationData.map((item) =>
             item.children ? (
@@ -88,7 +99,8 @@ export default function DashboardNavigation() {
           )}
         </div>
       </div>
-      <div className="flex w-full items-stretch border-b border-gray-200">
+      <hr className="mx-4 border-gray-200" />
+      <div className="flex w-full items-stretch">
         <div className="flex w-full flex-col space-y-1 pb-3">
           <div className="ml-9 py-2 px-3">
             <FormattedMessage
@@ -115,6 +127,7 @@ export default function DashboardNavigation() {
           />
         </div>
       </div>
+      <hr className="mx-4 border-gray-200" />
       <div className="grow" />
       <div className="flex w-full items-stretch">
         <div className="flex w-full flex-col space-y-1">

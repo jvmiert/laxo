@@ -1,46 +1,29 @@
 import cc from "classcat";
 import React, { useCallback, useMemo, useState } from "react";
+import Image from "next/image";
 import {
   Editable,
   withReact,
   useSlate,
   Slate,
-  ReactEditor,
   RenderElementProps,
   RenderLeafProps,
+  useSlateStatic,
+  useSelected,
+  useFocused,
+  ReactEditor,
 } from "slate-react";
 import {
-  BaseEditor,
   Editor as SlateEditor,
-  Transforms,
   createEditor,
   Descendant,
-  Element as SlateElement,
+  Transforms,
 } from "slate";
-import { withHistory, HistoryEditor } from "slate-history";
+import { withHistory } from "slate-history";
+import { TrashIcon } from "@heroicons/react/solid";
 
-type LaxoElement = {
-  type: string;
-  children: LaxoText[];
-};
-
-type FormatParameter = "bold" | "italic" | "code" | "underline";
-
-type LaxoText = {
-  text: string;
-  bold?: boolean;
-  italic?: boolean;
-  code?: boolean;
-  underline?: boolean;
-};
-
-declare module "slate" {
-  interface CustomTypes {
-    Editor: BaseEditor & ReactEditor & HistoryEditor;
-    Element: LaxoElement;
-    Text: LaxoText;
-  }
-}
+import { FormatParameter, withImages } from "@/lib/laxoSlate";
+import { useDashboard } from "@/providers/DashboardProvider";
 
 const isMarkActive = (editor: SlateEditor, format: FormatParameter) => {
   const marks = SlateEditor.marks(editor);
@@ -86,7 +69,62 @@ const MarkButton = ({
   );
 };
 
+const ImageElement = ({
+  attributes,
+  children,
+  element,
+  token,
+}: RenderElementProps & { token: string }) => {
+  const editor = useSlateStatic();
+  const path = ReactEditor.findPath(editor, element);
+
+  const selected = useSelected();
+  const focused = useFocused();
+
+  return (
+    <div {...attributes}>
+      {children}
+      <div
+        draggable
+        contentEditable={false}
+        className="relative cursor-pointer"
+      >
+        <div
+          className={cc([
+            "absolute inset-0 z-10 opacity-40",
+            { "bg-black": selected },
+            { "bg-transparent": !selected },
+          ])}
+        />
+        <div
+          className={cc([
+            "absolute inset-0 z-20 flex justify-center",
+            { invisible: !selected },
+          ])}
+        >
+          <button
+            onClick={() => Transforms.removeNodes(editor, { at: path })}
+            className=""
+          >
+            <TrashIcon className="z-20 h-8 w-8 fill-white" />
+          </button>
+        </div>
+        <Image
+          alt={"Product description!"}
+          src={`/api/assets/${token}/${element.src}`}
+          width={element.width}
+          height={element.height}
+          layout="responsive"
+        />
+      </div>
+    </div>
+  );
+};
+
 const Element = ({ attributes, children, element }: RenderElementProps) => {
+  const { activeShop } = useDashboard();
+  const token = activeShop ? activeShop.assetsToken : "";
+
   switch (element.type) {
     case "bulleted-list":
       return <ul {...attributes}>{children}</ul>;
@@ -98,6 +136,12 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
       return <li {...attributes}>{children}</li>;
     case "numbered-list":
       return <ol {...attributes}>{children}</ol>;
+    case "image":
+      return (
+        <ImageElement token={token} attributes={attributes} element={element}>
+          {children}
+        </ImageElement>
+      );
     default:
       return <p {...attributes}>{children}</p>;
   }
@@ -144,12 +188,35 @@ export default function Editor({ initialSchema }: EditorProps) {
     [],
   );
 
-  //@TODO: We might have to move state up because of our Disclosure usage
-  const [editor] = useState(() => withHistory(withReact(createEditor())));
-  const [value, setValue] = useState(initialSchema ? JSON.parse(initialSchema) : initialValue);
+  const [editor] = useState(() =>
+    withImages(withHistory(withReact(createEditor()))),
+  );
+  //https://github.com/ianstormtaylor/slate/issues/3477
+  //@TODO: figure out if we need above
+  //const editor = useMemo(
+  //  () => withImages(withHistory(withReact(createEditor()))),
+  //  [],
+  //);
+
+  const slateValue = useMemo(() => {
+    const parsedSchema = JSON.parse(initialSchema);
+    // Slate throws an error if the value on the initial render is invalid
+    // so we directly set the value on the editor in order
+    // to be able to trigger normalization on the initial value before rendering
+    editor.children = parsedSchema;
+    try {
+      SlateEditor.normalize(editor, { force: true });
+    } catch {
+      editor.children = initialValue;
+      SlateEditor.normalize(editor, { force: true });
+    }
+    Transforms.deselect(editor);
+    // We return the normalized internal value so that the rendering can take over from here
+    return editor.children;
+  }, [editor, initialSchema]);
 
   return (
-    <Slate editor={editor} value={value}>
+    <Slate editor={editor} value={slateValue}>
       <div className="relative z-0 inline-flex rounded-md shadow-sm">
         <MarkButton
           text="B"
@@ -165,11 +232,6 @@ export default function Editor({ initialSchema }: EditorProps) {
           text="U"
           format="underline"
           className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium underline focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
-        <MarkButton
-          text="<>"
-          format="code"
-          className="relative -ml-px inline-flex items-center rounded-tr-md border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
       </div>
       <Editable

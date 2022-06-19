@@ -203,3 +203,20 @@ func (s *assetsStore) GetAssetByMurmur(murmurHash string, shopID string) (*sqlc.
 
   return &asset, nil
 }
+
+func (s *assetsStore) GetAssetByOriginalName(originalName string, shopID string) (*sqlc.Asset, error) {
+  params := sqlc.GetAssetByOriginalNameParams{
+    OriginalFilename: null.StringFrom(originalName),
+    ShopID: shopID,
+  }
+
+  asset, err := s.queries.GetAssetByOriginalName(
+    context.Background(),
+    params,
+  )
+  if err != nil {
+    return nil, err
+  }
+
+  return &asset, nil
+}
