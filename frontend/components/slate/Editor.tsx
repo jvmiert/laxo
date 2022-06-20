@@ -18,11 +18,16 @@ import {
   createEditor,
   Descendant,
   Transforms,
+  Element as SlateElement,
 } from "slate";
 import { withHistory } from "slate-history";
 import { TrashIcon } from "@heroicons/react/solid";
 
-import { FormatParameter, withImages } from "@/lib/laxoSlate";
+import {
+  FormatParameter,
+  BlockFormatParameter,
+  withImages,
+} from "@/lib/laxoSlate";
 import { useDashboard } from "@/providers/DashboardProvider";
 
 const isMarkActive = (editor: SlateEditor, format: FormatParameter) => {
@@ -38,6 +43,59 @@ const toggleMark = (editor: SlateEditor, format: FormatParameter) => {
   } else {
     SlateEditor.addMark(editor, format, true);
   }
+};
+
+const isBlockActive = (
+  editor: SlateEditor,
+  format: BlockFormatParameter,
+  blockType: "type" | "align" = "type",
+) => {
+  const { selection } = editor;
+  if (!selection) return false;
+
+  const [match] = Array.from(
+    SlateEditor.nodes(editor, {
+      at: SlateEditor.unhangRange(editor, selection),
+      match: (n) =>
+        !SlateEditor.isEditor(n) &&
+        SlateElement.isElement(n) &&
+        n[blockType] === format,
+    }),
+  );
+
+  return !!match;
+};
+
+const BlockButton = ({
+  format,
+  className,
+  text,
+}: {
+  format: any;
+  className?: string;
+  text: string;
+}) => {
+  const editor = useSlate();
+  const active = isBlockActive(
+    editor,
+    format,
+    TEXT_ALIGN_TYPES.includes(format) ? "align" : "type",
+  );
+  return (
+    <button
+      className={cc([
+        className,
+        { "bg-white text-gray-700 hover:bg-gray-50": !active },
+        { "bg-indigo-50 text-indigo-500": active },
+      ])}
+      onMouseDown={(event) => {
+        event.preventDefault();
+        toggleBlock(editor, format);
+      }}
+    >
+      {text}
+    </button>
+  );
 };
 
 const MarkButton = ({
@@ -67,6 +125,56 @@ const MarkButton = ({
       {text}
     </button>
   );
+};
+
+const LIST_TYPES = ["numbered-list", "bulleted-list"];
+const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
+
+const toggleBlock = (editor: SlateEditor, format: BlockFormatParameter) => {
+  const isActive = isBlockActive(
+    editor,
+    format,
+    TEXT_ALIGN_TYPES.includes(format) ? "align" : "type",
+  );
+  const isList = LIST_TYPES.includes(format);
+
+  Transforms.unwrapNodes(editor, {
+    match: (n) =>
+      !SlateEditor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      LIST_TYPES.includes(n.type) &&
+      !TEXT_ALIGN_TYPES.includes(format),
+    split: true,
+  });
+  let newProperties: Partial<SlateElement>;
+  if (TEXT_ALIGN_TYPES.includes(format)) {
+    newProperties = {
+      align: isActive
+        ? undefined
+        : (format as "left" | "center" | "right" | "justify"),
+    };
+  } else {
+    newProperties = {
+      type: isActive
+        ? "paragraph"
+        : isList
+        ? "list-item"
+        : (format as Exclude<
+            BlockFormatParameter,
+            "left" | "center" | "right" | "justify"
+          >),
+    };
+  }
+
+  Transforms.setNodes<SlateElement>(editor, newProperties);
+
+  if (!isActive && isList) {
+    const block = {
+      type: format as "numbered-list" | "bulleted-list",
+      children: [],
+    };
+    Transforms.wrapNodes(editor, block);
+  }
 };
 
 const ImageElement = ({
@@ -127,15 +235,67 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
 
   switch (element.type) {
     case "bulleted-list":
-      return <ul {...attributes}>{children}</ul>;
+      return (
+        <ul
+          className={cc([
+            "list-inside list-disc",
+            { "text-left": element.align === "left" },
+            { "text-right": element.align === "right" },
+            { "text-center": element.align === "center" },
+            { "whitespace-pre-line text-justify": element.align === "justify" },
+          ])}
+          {...attributes}
+        >
+          {children}
+        </ul>
+      );
     case "heading-one":
-      return <h1 {...attributes}>{children}</h1>;
+      return (
+        <h1
+          className={cc([
+            "text-xl font-semibold",
+            { "text-left": element.align === "left" },
+            { "text-right": element.align === "right" },
+            { "text-center": element.align === "center" },
+            { "whitespace-pre-line text-justify": element.align === "justify" },
+          ])}
+          {...attributes}
+        >
+          {children}
+        </h1>
+      );
     case "heading-two":
-      return <h2 {...attributes}>{children}</h2>;
+      return (
+        <h2
+          className={cc([
+            "text-lg font-medium",
+            { "text-left": element.align === "left" },
+            { "text-right": element.align === "right" },
+            { "text-center": element.align === "center" },
+            { "whitespace-pre-line text-justify": element.align === "justify" },
+          ])}
+          {...attributes}
+        >
+          {children}
+        </h2>
+      );
     case "list-item":
       return <li {...attributes}>{children}</li>;
     case "numbered-list":
-      return <ol {...attributes}>{children}</ol>;
+      return (
+        <ol
+          className={cc([
+            "list-inside list-decimal",
+            { "text-left": element.align === "left" },
+            { "text-right": element.align === "right" },
+            { "text-center": element.align === "center" },
+            { "whitespace-pre-line text-justify": element.align === "justify" },
+          ])}
+          {...attributes}
+        >
+          {children}
+        </ol>
+      );
     case "image":
       return (
         <ImageElement token={token} attributes={attributes} element={element}>
@@ -143,7 +303,19 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
         </ImageElement>
       );
     default:
-      return <p {...attributes}>{children}</p>;
+      return (
+        <p
+          className={cc([
+            { "text-left": element.align === "left" },
+            { "text-right": element.align === "right" },
+            { "text-center": element.align === "center" },
+            { "whitespace-pre-line text-justify": element.align === "justify" },
+          ])}
+          {...attributes}
+        >
+          {children}
+        </p>
+      );
   }
 };
 
@@ -231,7 +403,47 @@ export default function Editor({ initialSchema }: EditorProps) {
         <MarkButton
           text="U"
           format="underline"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium underline focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 font-serif text-sm font-bold italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <BlockButton
+          text="one"
+          format="heading-one"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <BlockButton
+          text="two"
+          format="heading-two"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <BlockButton
+          text="# list"
+          format="numbered-list"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <BlockButton
+          text="* list"
+          format="bulleted-list"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <BlockButton
+          text="left"
+          format="left"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <BlockButton
+          text="center"
+          format="center"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <BlockButton
+          text="right"
+          format="right"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+        <BlockButton
+          text="justify"
+          format="justify"
+          className="relative -ml-px inline-flex items-center rounded-tr-md border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
       </div>
       <Editable

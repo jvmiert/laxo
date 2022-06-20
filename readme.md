@@ -1,7 +1,6 @@
 # Tech to-do
 - Create product details page
-  - Create rich text component
-    - Create the block buttons
+  - Run lazada fetch again and remove old description component
   - Create save changes mechanism a la Shopify
 - Create asset management section
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)

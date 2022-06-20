@@ -16,9 +16,20 @@ type LaxoElement = {
   src?: string;
   width?: number;
   height?: number;
+  align?: "left" | "center" | "right" | "justify";
 };
 
 export type FormatParameter = "bold" | "italic" | "code" | "underline";
+export type BlockFormatParameter =
+  | "left"
+  | "center"
+  | "right"
+  | "justify"
+  | "heading-one"
+  | "heading-two"
+  | "heading-three"
+  | "bulleted-list"
+  | "numbered-list";
 
 type LaxoText = {
   text: string;
