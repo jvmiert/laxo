@@ -2,6 +2,11 @@
 - Create product details page
   - Run lazada fetch again and remove old description component
   - Create save changes mechanism a la Shopify
+    - Create submit hook (like login and register) for submitting product detail changes
+    - Create form validation hook for product name, product SKU, product price
+    - Create errors display for form validation errors
+    - Figure out how to get editor value during submit
+    - Create loading state for submitting in ChangeNotification
 - Create asset management section
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)
 - Add option for inactive products

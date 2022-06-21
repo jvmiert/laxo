@@ -58,7 +58,7 @@ export default function DashboardNavigation() {
           </a>
         </Link>
       </div>
-      <div className="px-4 pb-2">
+      <div className="px-4 py-2">
         <h1 className="mb-0 text-lg font-bold">
           <FormattedMessage
             description="Dashboard navigation title"

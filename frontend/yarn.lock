@@ -2835,6 +2835,11 @@ merge2@^1.3.0, merge2@^1.4.1:
   resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.4.1.tgz#4368892f885e907455a6fd7dc55c0c9d404990ae"
   integrity sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==
 
+microdiff@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/microdiff/-/microdiff-1.3.0.tgz#33985889544a95813f1ad204ca97bd26c104caac"
+  integrity sha512-inB7Krtw90hnpijkMWaQMzdpsYnDCnpholaVwqPebs1m3pkk9U/qRfbKcB2UpbPFnt0WX/GHj33wD7TtdlgYZQ==
+
 micromatch@^4.0.4:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-4.0.5.tgz#bc8999a7cbbf77cdc89f132f6e467051b49090c6"

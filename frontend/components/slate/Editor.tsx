@@ -1,3 +1,4 @@
+import diff from "microdiff";
 import cc from "classcat";
 import React, { useCallback, useMemo, useState } from "react";
 import Image from "next/image";
@@ -360,6 +361,8 @@ export default function Editor({ initialSchema }: EditorProps) {
     [],
   );
 
+  const { slateResetRef, toggleSlateDirtyState, slateIsDirty } = useDashboard();
+
   const [editor] = useState(() =>
     withImages(withHistory(withReact(createEditor()))),
   );
@@ -387,8 +390,21 @@ export default function Editor({ initialSchema }: EditorProps) {
     return editor.children;
   }, [editor, initialSchema]);
 
+  const resetEditor = () => {
+    editor.children = slateValue;
+    Transforms.deselect(editor);
+  };
+
+  slateResetRef.current = resetEditor;
+
+  const onEditorChange = (d: Descendant[]) => {
+    if (!slateIsDirty && diff(slateValue, d).length > 0) {
+      toggleSlateDirtyState();
+    }
+  };
+
   return (
-    <Slate editor={editor} value={slateValue}>
+    <Slate editor={editor} value={slateValue} onChange={onEditorChange}>
       <div className="relative z-0 inline-flex rounded-md shadow-sm">
         <MarkButton
           text="B"

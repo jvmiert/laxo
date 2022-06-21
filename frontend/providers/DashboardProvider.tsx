@@ -6,6 +6,7 @@ import {
   useRef,
   useCallback,
   useMemo,
+  MutableRefObject,
 } from "react";
 import { nanoid } from "nanoid";
 import { Draft } from "immer";
@@ -31,6 +32,9 @@ export interface DashboardConsumerProps {
   dashboardDispatch: Dispatch<DashboardAction>;
   notificationLoading: boolean;
   activeShop: GetShopResponseShops | null;
+  slateResetRef: MutableRefObject<() => void>;
+  toggleSlateDirtyState: () => void;
+  slateIsDirty: boolean;
 }
 
 export type Alert = {
@@ -158,6 +162,12 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const notificationListenRef = useRef(false);
   const notificationCleanupRef = useRef<grpc.Request | undefined>(undefined);
 
+  const slateResetRef = useRef<() => void>(() => {});
+  const [slateIsDirty, setSlateIsDirty] = useState(false);
+  const toggleSlateDirtyState = useCallback(() => {
+    setSlateIsDirty((prevState) => !prevState);
+  }, []);
+
   const [state, dispatch] = useImmerReducer(reducer, InitialDashboardState);
 
   const { getNotificationUpdate } = useNotificationApi();
@@ -235,6 +245,9 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       dashboardDispatch: dispatch,
       notificationLoading,
       activeShop: activeShop,
+      slateResetRef: slateResetRef,
+      toggleSlateDirtyState: toggleSlateDirtyState,
+      slateIsDirty: slateIsDirty,
     }),
     [
       notificationOpen,
@@ -245,6 +258,8 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       dispatch,
       notificationLoading,
       activeShop,
+      toggleSlateDirtyState,
+      slateIsDirty,
     ],
   );
 

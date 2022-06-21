@@ -8,31 +8,31 @@ import (
 )
 
 type ProductPlatformInformation struct {
-  ID           string          `json:"id"`
-  SellerSKU    string          `json:"sellerSKU"`
-  PlatformSKU  string          `json:"platformSKU"`
-  PlatformName string          `json:"platformName"`
-  Status       string          `json:"status"`
-  Name         null.String     `json:"name"`
-  ProductURL   null.String     `json:"productURL"`
+	ID           string      `json:"id"`
+	SellerSKU    string      `json:"sellerSKU"`
+	PlatformSKU  string      `json:"platformSKU"`
+	PlatformName string      `json:"platformName"`
+	Status       string      `json:"status"`
+	Name         null.String `json:"name"`
+	ProductURL   null.String `json:"productURL"`
 }
 
 type Product struct {
-  Model           *sqlc.Product                   `json:"product"`
-  MediaModels     []sqlc.ProductsMedia            `json:"-"`
-  PlatformModel   *sqlc.ProductsPlatform          `json:"-"`
-  MediaList       []string                        `json:"mediaList"`
-  Platforms       []ProductPlatformInformation    `json:"platforms"`
+	Model         *sqlc.Product                `json:"product"`
+	MediaModels   []sqlc.ProductsMedia         `json:"-"`
+	PlatformModel *sqlc.ProductsPlatform       `json:"-"`
+	MediaList     []string                     `json:"mediaList"`
+	Platforms     []ProductPlatformInformation `json:"platforms"`
 }
 
 func (p *Product) JSON() ([]byte, error) {
-  bytes, err := json.Marshal(p)
+	bytes, err := json.Marshal(p)
 
-  if err != nil {
-    return bytes, err
-  }
+	if err != nil {
+		return bytes, err
+	}
 
-  return bytes, nil
+	return bytes, nil
 }
 
 type ProductAssets struct {
@@ -47,19 +47,19 @@ type ProductAssets struct {
 }
 
 type ProductDetails struct {
-  Model           *sqlc.Product                   `json:"product"`
-  MediaModels     []sqlc.ProductsMedia            `json:"-"`
-  PlatformModel   *sqlc.ProductsPlatform          `json:"-"`
-  MediaList       []ProductAssets                 `json:"mediaList"`
-  Platforms       []ProductPlatformInformation    `json:"platforms"`
+	Model         *sqlc.Product                `json:"product"`
+	MediaModels   []sqlc.ProductsMedia         `json:"-"`
+	PlatformModel *sqlc.ProductsPlatform       `json:"-"`
+	MediaList     []ProductAssets              `json:"mediaList"`
+	Platforms     []ProductPlatformInformation `json:"platforms"`
 }
 
 func (p *ProductDetails) JSON() ([]byte, error) {
-  bytes, err := json.Marshal(p)
+	bytes, err := json.Marshal(p)
 
-  if err != nil {
-    return bytes, err
-  }
+	if err != nil {
+		return bytes, err
+	}
 
-  return bytes, nil
+	return bytes, nil
 }
