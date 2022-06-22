@@ -1,6 +1,6 @@
 import diff from "microdiff";
 import cc from "classcat";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   Editable,
@@ -390,12 +390,14 @@ export default function Editor({ initialSchema }: EditorProps) {
     return editor.children;
   }, [editor, initialSchema]);
 
-  const resetEditor = () => {
+  const resetEditor = useCallback(() => {
     editor.children = slateValue;
     Transforms.deselect(editor);
-  };
+  }, [editor, slateValue]);
 
-  slateResetRef.current = resetEditor;
+  useEffect(() => {
+    slateResetRef.current = resetEditor;
+  }, [resetEditor, slateResetRef]);
 
   const onEditorChange = (d: Descendant[]) => {
     if (!slateIsDirty && diff(slateValue, d).length > 0) {

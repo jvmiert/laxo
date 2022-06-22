@@ -74,11 +74,13 @@ function RegisterPage(props: RegisterPageProps) {
                     autoFocus
                     name="fullname"
                     render={({ input, meta }) => {
+                      const attemped = !meta.pristine || meta.submitFailed;
+                      const unchangedAfterSubmit =
+                        meta.submitError && !meta.dirtySinceLastSubmit;
                       const showError =
-                        (!meta.pristine || meta.submitFailed) &&
+                        attemped &&
                         meta.touched &&
-                        (meta.error ||
-                          (meta.submitError && !meta.dirtySinceLastSubmit)) &&
+                        (meta.error || unchangedAfterSubmit) &&
                         !meta.submitting;
 
                       return (

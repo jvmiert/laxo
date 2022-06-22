@@ -1,8 +1,10 @@
+import cc from "classcat";
 import { Form, Field } from "react-final-form";
 
 import Editor from "@/components/slate/Editor";
-import DetailsChangedNotification from "@/components/dashboard/product/DetailsChangedNotification";
+import FormToDashboardProvider from "@/components/dashboard/product/FormToDashboardProvider";
 import { LaxoProduct } from "@/types/ApiResponse";
+import useProductDetailsApi from "@/hooks/useProductDetailsApi";
 
 const formatPrice = (value: number, name: string): string => {
   return value.toLocaleString("vi-VN");
@@ -32,33 +34,54 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
     console.log(values);
   };
 
+  const [validate] = useProductDetailsApi();
+
   return (
     <Form
       onSubmit={submitFunc}
+      validate={validate}
       initialValues={initialValues}
-      render={({ handleSubmit, submitting, submitError }) => (
+      render={({ handleSubmit, submitError }) => (
         <form
           onSubmit={handleSubmit}
           id="generalEditForm"
           className="grid grid-cols-8 gap-4"
         >
-          <DetailsChangedNotification
-            initialValues={initialValues}
-            submitting={submitting}
-          />
+          <FormToDashboardProvider initialValues={initialValues} />
           <div className="col-span-5">
             <label className="mb-1 block text-sm text-gray-700" htmlFor="name">
               Name
             </label>
             <Field<string>
               name="name"
-              render={({ input, meta }) => (
-                <input
-                  {...input}
-                  className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none focus:ring focus:ring-indigo-200"
-                  type="text"
-                />
-              )}
+              render={({ input, meta }) => {
+                const attemped = !meta.pristine || meta.submitFailed;
+                const unchangedAfterSubmit =
+                  meta.submitError && !meta.dirtySinceLastSubmit;
+                const showError =
+                  attemped &&
+                  meta.touched &&
+                  (meta.error || unchangedAfterSubmit) &&
+                  !meta.submitting;
+
+                return (
+                  <>
+                    <input
+                      {...input}
+                      className={cc([
+                        "focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none focus:ring focus:ring-indigo-200",
+                        { "border-red-500": showError },
+                      ])}
+                      type="text"
+                    />
+                    {showError && (
+                      <span className="text-xs italic text-red-500">
+                        {meta.error || meta.submitError}
+                      </span>
+                    )}
+                  </>
+                );
+              }}
             />
           </div>
           <div className="col-span-3">

@@ -35,6 +35,11 @@ export interface DashboardConsumerProps {
   slateResetRef: MutableRefObject<() => void>;
   toggleSlateDirtyState: () => void;
   slateIsDirty: boolean;
+  productDetailFormResetRef: MutableRefObject<() => void>;
+  toggleProductDetailFormDirtyState: () => void;
+  productDetailFormIsDirty: boolean;
+  productDetailSubmitIsDisabled: boolean;
+  toggleProductDetailSubmitIsDisabled: () => void;
 }
 
 export type Alert = {
@@ -162,6 +167,19 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const notificationListenRef = useRef(false);
   const notificationCleanupRef = useRef<grpc.Request | undefined>(undefined);
 
+  const productDetailFormResetRef = useRef<() => void>(() => {});
+  const [productDetailFormIsDirty, setProductDetailFormIsDirty] =
+    useState(false);
+  const toggleProductDetailFormDirtyState = useCallback(() => {
+    setProductDetailFormIsDirty((prevState) => !prevState);
+  }, []);
+
+  const [productDetailSubmitIsDisabled, setProductDetailSubmitIsDisabled] =
+    useState(false);
+  const toggleProductDetailSubmitIsDisabled = useCallback(() => {
+    setProductDetailSubmitIsDisabled((prevState) => !prevState);
+  }, []);
+
   const slateResetRef = useRef<() => void>(() => {});
   const [slateIsDirty, setSlateIsDirty] = useState(false);
   const toggleSlateDirtyState = useCallback(() => {
@@ -248,6 +266,11 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       slateResetRef: slateResetRef,
       toggleSlateDirtyState: toggleSlateDirtyState,
       slateIsDirty: slateIsDirty,
+      productDetailFormResetRef: productDetailFormResetRef,
+      toggleProductDetailFormDirtyState: toggleProductDetailFormDirtyState,
+      productDetailFormIsDirty: productDetailFormIsDirty,
+      productDetailSubmitIsDisabled: productDetailSubmitIsDisabled,
+      toggleProductDetailSubmitIsDisabled: toggleProductDetailSubmitIsDisabled,
     }),
     [
       notificationOpen,
@@ -260,6 +283,10 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       activeShop,
       toggleSlateDirtyState,
       slateIsDirty,
+      productDetailFormIsDirty,
+      toggleProductDetailFormDirtyState,
+      productDetailSubmitIsDisabled,
+      toggleProductDetailSubmitIsDisabled,
     ],
   );
 

@@ -15,6 +15,7 @@ import { CubeIcon } from "@heroicons/react/solid";
 import LazadaIcon from "@/components/icons/LazadaIcon";
 import ShopeeIcon from "@/components/icons/ShopeeIcon";
 import DetailsGeneralEdit from "@/components/dashboard/product/DetailsGeneralEdit";
+import DetailsChangedNotification from "@/components/dashboard/product/DetailsChangedNotification";
 
 function getPlatformIcon(platform: string): JSX.Element {
   switch (platform.toLowerCase()) {
@@ -49,6 +50,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
 
   return (
     <div className="mx-auto max-w-5xl">
+      <DetailsChangedNotification />
       <div className="space-y-3">
         <div className="rounded-md bg-white py-4 px-3 shadow-sm">
           <Disclosure defaultOpen>

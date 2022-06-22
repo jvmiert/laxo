@@ -1,42 +1,44 @@
-import { useMemo, Fragment } from "react";
-import diff from "microdiff";
-import { useFormState, useForm } from "react-final-form";
+import { Fragment } from "react";
 import { Transition } from "@headlessui/react";
 import { SaveIcon, TrashIcon } from "@heroicons/react/outline";
 
 import { useDashboard } from "@/providers/DashboardProvider";
 
-export type ChangedNotificationProps = {
-  initialValues: object;
-  submitting: boolean;
-};
+export type DetailsChangedNotificationProps = {};
 
-export default function DetailsChangedNotification({
-  initialValues,
-}: ChangedNotificationProps) {
-  const { values } = useFormState();
-  const { reset } = useForm();
+//@TODO: 1. Create to reset button function
+//       2. Create the show functionality
 
-  const { slateResetRef, slateIsDirty, toggleSlateDirtyState } = useDashboard();
-
-  const changed = useMemo(
-    () => diff(values, initialValues, { cyclesFix: false }),
-    [initialValues, values],
-  );
+export default function DetailsChangedNotification({}: DetailsChangedNotificationProps) {
+  const {
+    slateResetRef,
+    slateIsDirty,
+    toggleSlateDirtyState,
+    productDetailFormResetRef,
+    productDetailFormIsDirty,
+    toggleProductDetailFormDirtyState,
+    productDetailSubmitIsDisabled,
+  } = useDashboard();
 
   const resetFunc = () => {
-    reset();
+    productDetailFormResetRef.current();
+    if (productDetailFormIsDirty) {
+      toggleProductDetailFormDirtyState();
+    }
+
     slateResetRef.current();
     if (slateIsDirty) {
       toggleSlateDirtyState();
     }
   };
 
+  const show = slateIsDirty || productDetailFormIsDirty;
+
   return (
     <Transition
       appear={true}
       as={Fragment}
-      show={changed.length > 0 || slateIsDirty}
+      show={show}
       enter="transition ease-out duration-150"
       enterFrom="opacity-0 -translate-y-full"
       enterTo="opacity-100 translate-y-0"
@@ -50,8 +52,10 @@ export default function DetailsChangedNotification({
             You have unsaved changes
           </div>
           <button
+            form="generalEditForm"
             type="submit"
-            className="ml-3 inline-flex shrink grow basis-0 items-center justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
+            disabled={productDetailSubmitIsDisabled}
+            className="ml-3 inline-flex shrink grow basis-0 items-center justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-75"
           >
             <SaveIcon className="-ml-0.5 mr-2 h-4 w-4" aria-hidden="true" />
             Save
