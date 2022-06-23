@@ -64,6 +64,21 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
 	}
 }
 
+func (s *Service) ValidateProductDetails(p *models.ProductDetailPostRequest, printer *message.Printer) error {
+	err := validation.ValidateStruct(p,
+		validation.Field(&p.Name, validation.Required),
+		validation.Field(&p.Msku, validation.Required, validation.Length(4, 1024)),
+		validation.Field(&p.SellingPrice, validation.Required, validation.Min(1)),
+		validation.Field(&p.CostPrice, validation.Min(1)),
+	)
+
+	if err != nil {
+		return GetProductDetailFailure(err, printer)
+	}
+
+	return nil
+}
+
 func (s *Service) GetShopByID(shopID string) (*Shop, error) {
 	shop, err := s.store.GetShopByID(shopID)
 

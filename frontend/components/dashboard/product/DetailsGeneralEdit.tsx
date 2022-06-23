@@ -4,7 +4,11 @@ import { Form, Field } from "react-final-form";
 import Editor from "@/components/slate/Editor";
 import FormToDashboardProvider from "@/components/dashboard/product/FormToDashboardProvider";
 import { LaxoProduct } from "@/types/ApiResponse";
-import useProductDetailsApi from "@/hooks/useProductDetailsApi";
+import useProductDetailsApi, {
+  ProductDetailsSchemaValues,
+} from "@/hooks/useProductDetailsApi";
+import { useGetLaxoProductDetails } from "@/hooks/swrHooks";
+import { useDashboard } from "@/providers/DashboardProvider";
 
 const formatPrice = (value: number, name: string): string => {
   return value.toLocaleString("vi-VN");
@@ -26,15 +30,25 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
     ),
     costPrice:
       parseFloat(`${product.costPrice.Int}e${product.costPrice.Exp}`) || 0,
-    sku: product.msku,
+    msku: product.msku,
   };
 
-  //@TODO: type this with Zod
-  const submitFunc = (values: object) => {
-    console.log(values);
+  const { mutate } = useGetLaxoProductDetails(product.id);
+  const { slateEditorRef } = useDashboard();
+  //@TODO: - use mutate({ ...newData }) to optimistically update new product details
+  //       - mutate the product overview list as well?
+
+  const submitFunc = async (values: ProductDetailsSchemaValues) => {
+    //@TODO: create loading state
+
+    //@TODO: use editor values in submit
+    console.log(slateEditorRef.current);
+    const errors = await submit(values);
+    console.log(errors);
+    //@TODO: create success/error alert?
   };
 
-  const [validate] = useProductDetailsApi();
+  const [validate, submit] = useProductDetailsApi(product.id);
 
   return (
     <Form
@@ -89,14 +103,32 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
               SKU
             </label>
             <Field<string>
-              name="sku"
-              render={({ input, meta }) => (
-                <input
-                  {...input}
-                  className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none focus:ring focus:ring-indigo-200"
-                  type="text"
-                />
-              )}
+              name="msku"
+              render={({ input, meta }) => {
+                const attemped = !meta.pristine || meta.submitFailed;
+                const unchangedAfterSubmit =
+                  meta.submitError && !meta.dirtySinceLastSubmit;
+                const showError =
+                  attemped &&
+                  meta.touched &&
+                  (meta.error || unchangedAfterSubmit) &&
+                  !meta.submitting;
+
+                return (
+                  <>
+                    <input
+                      {...input}
+                      className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none focus:ring focus:ring-indigo-200"
+                      type="text"
+                    />
+                    {showError && (
+                      <span className="text-xs italic text-red-500">
+                        {meta.error || meta.submitError}
+                      </span>
+                    )}
+                  </>
+                );
+              }}
             />
           </div>
           <div className="col-start-1 col-end-4">
@@ -108,13 +140,31 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
                 name="sellingPrice"
                 format={formatPrice}
                 parse={parsePrice}
-                render={({ input, meta }) => (
-                  <input
-                    {...input}
-                    className="focus:shadow-outline z-10 block w-full w-full flex-1 appearance-none rounded-none rounded-l border py-2 px-3 leading-tight text-gray-700 focus:outline-none focus:ring focus:ring-indigo-200"
-                    type="text"
-                  />
-                )}
+                render={({ input, meta }) => {
+                  const attemped = !meta.pristine || meta.submitFailed;
+                  const unchangedAfterSubmit =
+                    meta.submitError && !meta.dirtySinceLastSubmit;
+                  const showError =
+                    attemped &&
+                    meta.touched &&
+                    (meta.error || unchangedAfterSubmit) &&
+                    !meta.submitting;
+
+                  return (
+                    <>
+                      <input
+                        {...input}
+                        className="focus:shadow-outline z-10 block w-full w-full flex-1 appearance-none rounded-none rounded-l border py-2 px-3 leading-tight text-gray-700 focus:outline-none focus:ring focus:ring-indigo-200"
+                        type="text"
+                      />
+                      {showError && (
+                        <span className="text-xs italic text-red-500">
+                          {meta.error || meta.submitError}
+                        </span>
+                      )}
+                    </>
+                  );
+                }}
               />
               <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
                 ₫
@@ -130,13 +180,31 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
                 name="costPrice"
                 format={formatPrice}
                 parse={parsePrice}
-                render={({ input, meta }) => (
-                  <input
-                    {...input}
-                    className="focus:shadow-outline z-10 block w-full w-full flex-1 appearance-none rounded-none rounded-l border py-2 px-3 leading-tight text-gray-700 focus:outline-none focus:ring focus:ring-indigo-200"
-                    type="text"
-                  />
-                )}
+                render={({ input, meta }) => {
+                  const attemped = !meta.pristine || meta.submitFailed;
+                  const unchangedAfterSubmit =
+                    meta.submitError && !meta.dirtySinceLastSubmit;
+                  const showError =
+                    attemped &&
+                    meta.touched &&
+                    (meta.error || unchangedAfterSubmit) &&
+                    !meta.submitting;
+
+                  return (
+                    <>
+                      <input
+                        {...input}
+                        className="focus:shadow-outline z-10 block w-full w-full flex-1 appearance-none rounded-none rounded-l border py-2 px-3 leading-tight text-gray-700 focus:outline-none focus:ring focus:ring-indigo-200"
+                        type="text"
+                      />
+                      {showError && (
+                        <span className="text-xs italic text-red-500">
+                          {meta.error || meta.submitError}
+                        </span>
+                      )}
+                    </>
+                  );
+                }}
               />
               <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
                 ₫
@@ -156,6 +224,9 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
               defaultValue={product.description}
               className="focus:shadow-outline block w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none focus:ring focus:ring-indigo-200"
             />
+            {submitError && (
+              <p className="mb-2 text-xs italic text-red-500">{submitError}</p>
+            )}
           </div>
           <div className="col-span-8">
             <Editor initialSchema={product.descriptionSlate} />

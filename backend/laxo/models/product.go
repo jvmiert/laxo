@@ -17,6 +17,14 @@ type ProductPlatformInformation struct {
 	ProductURL   null.String `json:"productURL"`
 }
 
+type ProductDetailPostRequest struct {
+	SellingPrice int         `json:"sellingPrice"`
+	CostPrice    int         `json:"costPrice"`
+	Name         null.String `json:"name"`
+	Description  null.String `json:"description"`
+	Msku         string      `json:"msku"`
+}
+
 type Product struct {
 	Model         *sqlc.Product                `json:"product"`
 	MediaModels   []sqlc.ProductsMedia         `json:"-"`

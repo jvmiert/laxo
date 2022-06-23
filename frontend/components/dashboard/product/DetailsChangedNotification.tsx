@@ -3,11 +3,9 @@ import { Transition } from "@headlessui/react";
 import { SaveIcon, TrashIcon } from "@heroicons/react/outline";
 
 import { useDashboard } from "@/providers/DashboardProvider";
+import LoadSpinner from "@/components/LoadSpinner";
 
 export type DetailsChangedNotificationProps = {};
-
-//@TODO: 1. Create to reset button function
-//       2. Create the show functionality
 
 export default function DetailsChangedNotification({}: DetailsChangedNotificationProps) {
   const {
@@ -34,6 +32,9 @@ export default function DetailsChangedNotification({}: DetailsChangedNotificatio
 
   const show = slateIsDirty || productDetailFormIsDirty;
 
+  //@TODO: get the loading state from useDashboard and use it for the button below
+  const loading = false;
+
   return (
     <Transition
       appear={true}
@@ -55,15 +56,21 @@ export default function DetailsChangedNotification({}: DetailsChangedNotificatio
             form="generalEditForm"
             type="submit"
             disabled={productDetailSubmitIsDisabled}
-            className="ml-3 inline-flex shrink grow basis-0 items-center justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-75"
+            className="ml-3 inline-flex w-28 shrink items-center justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-75"
           >
-            <SaveIcon className="-ml-0.5 mr-2 h-4 w-4" aria-hidden="true" />
-            Save
+            {!loading ? (
+              <>
+                <SaveIcon className="-ml-0.5 mr-2 h-4 w-4" aria-hidden="true" />
+                Save
+              </>
+            ) : (
+              <LoadSpinner className="h-4 w-4 animate-spin fill-indigo-600 text-gray-200" />
+            )}
           </button>
           <button
             onClick={resetFunc}
             type="reset"
-            className="ml-3 inline-flex shrink grow basis-0 items-center justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
+            className="ml-3 inline-flex shrink items-center justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
           >
             <TrashIcon className="-ml-0.5 mr-2 h-4 w-4" aria-hidden="true" />
             Reset

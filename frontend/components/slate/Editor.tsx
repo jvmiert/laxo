@@ -361,7 +361,8 @@ export default function Editor({ initialSchema }: EditorProps) {
     [],
   );
 
-  const { slateResetRef, toggleSlateDirtyState, slateIsDirty } = useDashboard();
+  const { slateResetRef, toggleSlateDirtyState, slateIsDirty, slateEditorRef } =
+    useDashboard();
 
   const [editor] = useState(() =>
     withImages(withHistory(withReact(createEditor()))),
@@ -398,6 +399,10 @@ export default function Editor({ initialSchema }: EditorProps) {
   useEffect(() => {
     slateResetRef.current = resetEditor;
   }, [resetEditor, slateResetRef]);
+
+  useEffect(() => {
+    slateEditorRef.current = editor;
+  }, [editor, slateEditorRef]);
 
   const onEditorChange = (d: Descendant[]) => {
     if (!slateIsDirty && diff(slateValue, d).length > 0) {

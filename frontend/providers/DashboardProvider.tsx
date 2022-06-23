@@ -22,6 +22,7 @@ import type {
 import { NotificationUpdateReply } from "@/proto/user_pb";
 import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/router";
+import { Editor } from "slate";
 
 export interface DashboardConsumerProps {
   notificationOpen: boolean;
@@ -35,6 +36,7 @@ export interface DashboardConsumerProps {
   slateResetRef: MutableRefObject<() => void>;
   toggleSlateDirtyState: () => void;
   slateIsDirty: boolean;
+  slateEditorRef: MutableRefObject<Editor | undefined>;
   productDetailFormResetRef: MutableRefObject<() => void>;
   toggleProductDetailFormDirtyState: () => void;
   productDetailFormIsDirty: boolean;
@@ -180,6 +182,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     setProductDetailSubmitIsDisabled((prevState) => !prevState);
   }, []);
 
+  const slateEditorRef = useRef<Editor>();
   const slateResetRef = useRef<() => void>(() => {});
   const [slateIsDirty, setSlateIsDirty] = useState(false);
   const toggleSlateDirtyState = useCallback(() => {
@@ -271,6 +274,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       productDetailFormIsDirty: productDetailFormIsDirty,
       productDetailSubmitIsDisabled: productDetailSubmitIsDisabled,
       toggleProductDetailSubmitIsDisabled: toggleProductDetailSubmitIsDisabled,
+      slateEditorRef: slateEditorRef,
     }),
     [
       notificationOpen,

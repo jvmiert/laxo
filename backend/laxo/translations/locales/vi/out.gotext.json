@@ -42,7 +42,7 @@
         {
             "id": "must be a valid email address",
             "message": "must be a valid email address",
-            "translation": "Phải la một địa chỉ email hợp lệ"
+            "translation": ""
         },
         {
             "id": "must contain a digit",

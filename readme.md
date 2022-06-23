@@ -2,11 +2,9 @@
 - Create product details page
   - Run lazada fetch again and remove old description component
   - Create save changes mechanism a la Shopify
-    - Create submit hook (like login and register) for submitting product detail changes
-    - Create form validation hook for product name, product SKU, product price
-    - Create errors display for form validation errors
-    - Figure out how to get editor value during submit
     - Create loading state for submitting in ChangeNotification
+    - Add sync toggle in product detail platform section to enable/disable sync
+      - Then parse these settings to decide what to sync or not
 - Create asset management section
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)
 - Add option for inactive products
@@ -15,6 +13,8 @@
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.
   - https://go.dev/tour/methods/15 (make sure the type casting is error checked)
+- Use valid status in Axios to stop throwing certain validation errors that return != 200 http status code
+  - https://axios-http.com/docs/handling_errors
 - Use css variables for setting primary/secondary colors
   - https://tailwindcss.com/docs/customizing-colors#naming-your-colors
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware

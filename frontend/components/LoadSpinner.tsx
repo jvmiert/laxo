@@ -1,8 +1,11 @@
-export default function LoadSpinner() {
+export default function LoadSpinner({ className }: { className?: string }) {
+  const clsName = className
+    ? className
+    : "mr-2 inline h-8 w-8 animate-spin fill-indigo-600 text-gray-200 dark:text-gray-600";
   return (
     <svg
       role="status"
-      className="mr-2 inline h-8 w-8 animate-spin fill-indigo-600 text-gray-200 dark:text-gray-600"
+      className={clsName}
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

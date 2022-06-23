@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from "axios";
 import { useMemo } from "react";
-import useSWR from "swr";
+import useSWR, { KeyedMutator } from "swr";
 import useSWRImmutable from "swr/immutable";
 import { useAxios } from "@/providers/AxiosProvider";
 import type {
@@ -215,9 +215,10 @@ export function useGetLaxoProductDetails(
   product: LaxoProductDetails | undefined;
   error: AxiosError | undefined;
   loading: boolean;
+  mutate: KeyedMutator<AxiosResponse<LaxoProductDetailsResponse>>;
 } {
   const { axiosClient } = useAxios();
-  const { data, error, isValidating } = useSWR<
+  const { data, error, isValidating, mutate } = useSWR<
     AxiosResponse<LaxoProductDetailsResponse>,
     AxiosError<unknown>
   >(
@@ -235,5 +236,6 @@ export function useGetLaxoProductDetails(
     product: data?.data,
     error,
     loading: isValidating,
+    mutate: mutate,
   };
 }
