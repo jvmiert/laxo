@@ -42,6 +42,8 @@ export interface DashboardConsumerProps {
   productDetailFormIsDirty: boolean;
   productDetailSubmitIsDisabled: boolean;
   toggleProductDetailSubmitIsDisabled: () => void;
+  productDetailFormIsSubmitting: boolean;
+  toggleProductDetailFormIsSubmitting: () => void;
 }
 
 export type Alert = {
@@ -176,6 +178,12 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     setProductDetailFormIsDirty((prevState) => !prevState);
   }, []);
 
+  const [productDetailFormIsSubmitting, setProductDetailFormIsSubmitting] =
+    useState(false);
+  const toggleProductDetailFormIsSubmitting = useCallback(() => {
+    setProductDetailFormIsSubmitting((prevState) => !prevState);
+  }, []);
+
   const [productDetailSubmitIsDisabled, setProductDetailSubmitIsDisabled] =
     useState(false);
   const toggleProductDetailSubmitIsDisabled = useCallback(() => {
@@ -275,6 +283,8 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       productDetailSubmitIsDisabled: productDetailSubmitIsDisabled,
       toggleProductDetailSubmitIsDisabled: toggleProductDetailSubmitIsDisabled,
       slateEditorRef: slateEditorRef,
+      productDetailFormIsSubmitting: productDetailFormIsSubmitting,
+      toggleProductDetailFormIsSubmitting: toggleProductDetailFormIsSubmitting,
     }),
     [
       notificationOpen,
@@ -291,6 +301,8 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       toggleProductDetailFormDirtyState,
       productDetailSubmitIsDisabled,
       toggleProductDetailSubmitIsDisabled,
+      productDetailFormIsSubmitting,
+      toggleProductDetailFormIsSubmitting,
     ],
   );
 

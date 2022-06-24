@@ -16,6 +16,7 @@ export default function DetailsChangedNotification({}: DetailsChangedNotificatio
     productDetailFormIsDirty,
     toggleProductDetailFormDirtyState,
     productDetailSubmitIsDisabled,
+    productDetailFormIsSubmitting,
   } = useDashboard();
 
   const resetFunc = () => {
@@ -31,9 +32,6 @@ export default function DetailsChangedNotification({}: DetailsChangedNotificatio
   };
 
   const show = slateIsDirty || productDetailFormIsDirty;
-
-  //@TODO: get the loading state from useDashboard and use it for the button below
-  const loading = false;
 
   return (
     <Transition
@@ -58,7 +56,7 @@ export default function DetailsChangedNotification({}: DetailsChangedNotificatio
             disabled={productDetailSubmitIsDisabled}
             className="ml-3 inline-flex w-28 shrink items-center justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-75"
           >
-            {!loading ? (
+            {!productDetailFormIsSubmitting ? (
               <>
                 <SaveIcon className="-ml-0.5 mr-2 h-4 w-4" aria-hidden="true" />
                 Save

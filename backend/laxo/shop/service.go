@@ -64,6 +64,56 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
 	}
 }
 
+func (s *Service) UpdateProductFromRequest(r *models.ProductDetailPostRequest, printer *message.Printer, shopID string, productID string) error {
+	sellingNumeric := pgtype.Numeric{}
+	sellingNumeric.Set(r.SellingPrice)
+
+	costNumeric := pgtype.Numeric{}
+	costNumeric.Set(r.CostPrice)
+
+	bytes, err := json.Marshal(r.Description)
+	if err != nil {
+		err = validation.Errors{
+			"description": validation.NewError(
+				"invalid_description",
+				printer.Sprintf("description is not valid")),
+		}
+		return err
+	}
+
+	m := &models.Product{
+		Model: &sqlc.Product{
+			Name:             r.Name,
+			DescriptionSlate: null.StringFrom(string(bytes)),
+			SellingPrice:     sellingNumeric,
+			CostPrice:        costNumeric,
+			ShopID:           shopID,
+			ID:               productID,
+		},
+	}
+
+	_, err = s.store.UpdateProductToStore(m)
+	if errors.Is(err, pgx.ErrNoRows) {
+		errReturn := validation.Errors{
+			"generalError": validation.NewError(
+				"product_not_found",
+				printer.Sprintf("could not find your product")),
+		}
+
+		return errReturn
+	}
+	if err != nil {
+		s.server.Logger.Errorw("UpdateProductFromRequest", "error", err)
+		return validation.Errors{
+			"generalError": validation.NewError(
+				"general_error",
+				printer.Sprintf("something went wrong, please try again later")),
+		}
+	}
+
+	return err
+}
+
 func (s *Service) ValidateProductDetails(p *models.ProductDetailPostRequest, printer *message.Printer) error {
 	err := validation.ValidateStruct(p,
 		validation.Field(&p.Name, validation.Required),
@@ -575,6 +625,7 @@ func (s *Service) GetLaxoProductFromLazadaData(p *sqlc.ProductsLazada,
 	return product, nil
 }
 
+// This should be used when importing products (syncing) from Lazada
 func (s *Service) SaveOrUpdateProductToStore(p *models.Product, shopID string, lazadaID string, overwrite bool) (*models.Product, error) {
 	var platform *sqlc.ProductsPlatform
 	var pReturn *models.Product

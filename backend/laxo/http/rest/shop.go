@@ -100,8 +100,51 @@ func (h *shopHandler) HandlePostProductDetails(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	s, err := h.service.shop.GetActiveShopByUserID(uID)
+	if err != nil {
+		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	vars := mux.Vars(r)
+	productID := vars["productID"]
+
+	err = h.service.shop.UpdateProductFromRequest(&p, printer, s.Model.ID, productID)
+	if err != nil {
+		laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+		return
+	}
+
+	//@TODO: handle product sync
+
+	product, err := h.service.shop.GetProductDetailsByID(productID, s.Model.ID)
+	if errors.Is(err, shop.ErrProductNotFound) {
+		laxo.ErrorJSONEncode(w, err, http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		h.server.Logger.Errorw("GetProductDetailsByID error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	b, err := product.JSON()
+	if err != nil {
+		h.server.Logger.Errorw("product JSON marshall error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write([]byte("LOL"))
+	w.Write(b)
 }
 
 func (h *shopHandler) HandleProductDetails(w http.ResponseWriter, r *http.Request, uID string) {

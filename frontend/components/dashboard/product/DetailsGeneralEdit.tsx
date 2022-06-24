@@ -1,5 +1,7 @@
 import cc from "classcat";
 import { Form, Field } from "react-final-form";
+import { SubmissionErrors } from "final-form";
+import createDecorator from "final-form-focus";
 
 import Editor from "@/components/slate/Editor";
 import FormToDashboardProvider from "@/components/dashboard/product/FormToDashboardProvider";
@@ -9,6 +11,8 @@ import useProductDetailsApi, {
 } from "@/hooks/useProductDetailsApi";
 import { useGetLaxoProductDetails } from "@/hooks/swrHooks";
 import { useDashboard } from "@/providers/DashboardProvider";
+
+const focusOnError = createDecorator<ProductDetailsSchemaValues>();
 
 const formatPrice = (value: number, name: string): string => {
   return value.toLocaleString("vi-VN");
@@ -35,25 +39,40 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
 
   const { mutate } = useGetLaxoProductDetails(product.id);
   const { slateEditorRef } = useDashboard();
-  //@TODO: - use mutate({ ...newData }) to optimistically update new product details
-  //       - mutate the product overview list as well?
-
-  const submitFunc = async (values: ProductDetailsSchemaValues) => {
-    //@TODO: create loading state
-
-    //@TODO: use editor values in submit
-    console.log(slateEditorRef.current);
-    const errors = await submit(values);
-    console.log(errors);
-    //@TODO: create success/error alert?
-  };
-
   const [validate, submit] = useProductDetailsApi(product.id);
+
+  const submitFunc = async (
+    values: ProductDetailsSchemaValues,
+  ): Promise<SubmissionErrors> => {
+    // The slate editor is not managed by final-form so we add the values now
+    if (slateEditorRef.current) {
+      values["description"] = slateEditorRef.current.children;
+    }
+    const result = await submit(values);
+
+    //@TODO: Handle this
+    if (!result) return {};
+
+    const [errors, newProduct] = result;
+    console.log("submit return", errors, newProduct);
+    // Leaving the description value in here causes the final form inital values
+    // to always be different due to not managing description with final form
+    delete values["description"];
+
+    if (!errors) {
+      //@TODO: create success alert
+      //@TODO: - use mutate({ ...newData }) to optimistically update new product details
+      //       - mutate the product overview list as well?
+    }
+
+    return errors;
+  };
 
   return (
     <Form
       onSubmit={submitFunc}
       validate={validate}
+      decorators={[focusOnError]}
       initialValues={initialValues}
       render={({ handleSubmit, submitError }) => (
         <form
@@ -231,7 +250,6 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
           <div className="col-span-8">
             <Editor initialSchema={product.descriptionSlate} />
           </div>
-          <button className="invisible" type="submit" />
         </form>
       )}
     />

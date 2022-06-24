@@ -6,6 +6,8 @@ import { SubmissionErrors, ValidationErrors, FORM_ERROR } from "final-form";
 import { useAxios } from "@/providers/AxiosProvider";
 import { ResponseError, LaxoProductDetailsResponse } from "@/types/ApiResponse";
 
+type SubmitSuccessReturn = LaxoProductDetailsResponse | {};
+
 const ProductDetailsSchema = z.object({
   name: z.string({ required_error: "name_required" }),
   msku: z
@@ -18,6 +20,7 @@ const ProductDetailsSchema = z.object({
   costPrice: z.optional(
     z.number({ invalid_type_error: "costPrice_should_number" }),
   ),
+  description: z.optional(z.array(z.any())),
 });
 
 export type ProductDetailsSchemaValues = z.infer<typeof ProductDetailsSchema>;
@@ -27,6 +30,7 @@ type ProductDetailsSubmissionErrors = {
   msku?: string;
   sellingPrice?: string;
   costPrice?: string;
+  description?: string;
   [FORM_ERROR]?: string;
 };
 
@@ -34,7 +38,9 @@ export default function useProductDetailsApi(
   productID: string,
 ): [
   validate: (values: ProductDetailsSchemaValues) => ValidationErrors,
-  submit: (values: ProductDetailsSchemaValues) => Promise<SubmissionErrors>,
+  submit: (
+    values: ProductDetailsSchemaValues,
+  ) => Promise<[SubmissionErrors, SubmitSuccessReturn] | undefined>,
 ] {
   const t = useIntl();
   const { axiosClient } = useAxios();
@@ -49,34 +55,47 @@ export default function useProductDetailsApi(
 
   const submitForm = async (
     values: ProductDetailsSchemaValues,
-  ): Promise<SubmissionErrors> => {
+  ): Promise<[SubmissionErrors, SubmitSuccessReturn] | undefined> => {
     try {
-      await axiosClient.post<LaxoProductDetailsResponse>(
+      const result = await axiosClient.post<LaxoProductDetailsResponse>(
         `/product/${productID}`,
         { ...values },
       );
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.code && error.response) {
-        if (parseInt(error.code) >= 500) {
-          return generalError;
-        }
 
-        const errorObject = error.toJSON() as ResponseError;
+      const returnObject = result.data;
+      return [{}, returnObject];
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        const errorObject = error.response.data as ResponseError;
         if (Object.keys(errorObject.errorDetails).length == 0) {
-          return generalError;
+          return [generalError, {}];
         }
 
         const errors: ProductDetailsSubmissionErrors = {};
+        //@HACK: There should be a better way to check the key
+        // values with TS. Probably convert the keys into enums...
         Object.keys(errorObject.errorDetails).forEach((key) => {
-          if (["name", "msku", "sellingPrice", "costPrice"].includes(key)) {
+          if (
+            [
+              "name",
+              "msku",
+              "sellingPrice",
+              "costPrice",
+              "description",
+              "generalError",
+            ].includes(key)
+          ) {
             errors[key as keyof ProductDetailsSubmissionErrors] =
               errorObject.errorDetails[key];
           }
+          if (key === "generalError") {
+            errors[FORM_ERROR] = errorObject.errorDetails[key];
+          }
         });
-        return errors;
+        return [errors, {}];
       }
 
-      return generalError;
+      return [generalError, {}];
     }
   };
 

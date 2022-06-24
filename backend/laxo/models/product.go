@@ -7,6 +7,22 @@ import (
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
+type Text struct {
+	Text      string `json:"text"`
+	Bold      bool   `json:"bold,omitempty"`
+	Underline bool   `json:"underline,omitempty"`
+	Italic    bool   `json:"italic,omitempty"`
+}
+
+type Element struct {
+	Type     string `json:"type,omitempty"`
+	Src      string `json:"src,omitempty"`
+	Width    int64  `json:"width,omitempty"`
+	Height   int64  `json:"height,omitempty"`
+	Align    string `json:"align,omitempty"`
+	Children []Text `json:"children"`
+}
+
 type ProductPlatformInformation struct {
 	ID           string      `json:"id"`
 	SellerSKU    string      `json:"sellerSKU"`
@@ -21,7 +37,7 @@ type ProductDetailPostRequest struct {
 	SellingPrice int         `json:"sellingPrice"`
 	CostPrice    int         `json:"costPrice"`
 	Name         null.String `json:"name"`
-	Description  null.String `json:"description"`
+	Description  []Element   `json:"description"`
 	Msku         string      `json:"msku"`
 }
 

@@ -509,36 +509,38 @@ UPDATE products
 SET
  name = coalesce($1, name),
  description = coalesce($2, description),
- selling_price = coalesce($3, selling_price),
- cost_price = coalesce($4, cost_price),
- shop_id = coalesce($5, shop_id),
+ description_slate = coalesce($3, description),
+ selling_price = coalesce($4, selling_price),
+ cost_price = coalesce($5, cost_price),
  media_id = coalesce($6, media_id),
  updated = coalesce($7, updated)
-WHERE id = $8
+WHERE id = $8 AND shop_id = $9
 RETURNING id, name, description, description_slate, msku, selling_price, cost_price, shop_id, media_id, created, updated
 `
 
 type UpdateProductParams struct {
-	Name         null.String    `json:"name"`
-	Description  null.String    `json:"description"`
-	SellingPrice pgtype.Numeric `json:"sellingPrice"`
-	CostPrice    pgtype.Numeric `json:"costPrice"`
-	ShopID       null.String    `json:"shopID"`
-	MediaID      null.String    `json:"mediaID"`
-	Updated      null.Time      `json:"updated"`
-	ID           string         `json:"id"`
+	Name             null.String    `json:"name"`
+	Description      null.String    `json:"description"`
+	DescriptionSlate null.String    `json:"descriptionSlate"`
+	SellingPrice     pgtype.Numeric `json:"sellingPrice"`
+	CostPrice        pgtype.Numeric `json:"costPrice"`
+	MediaID          null.String    `json:"mediaID"`
+	Updated          null.Time      `json:"updated"`
+	ID               string         `json:"id"`
+	ShopID           string         `json:"shopID"`
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
 	row := q.db.QueryRow(ctx, updateProduct,
 		arg.Name,
 		arg.Description,
+		arg.DescriptionSlate,
 		arg.SellingPrice,
 		arg.CostPrice,
-		arg.ShopID,
 		arg.MediaID,
 		arg.Updated,
 		arg.ID,
+		arg.ShopID,
 	)
 	var i Product
 	err := row.Scan(

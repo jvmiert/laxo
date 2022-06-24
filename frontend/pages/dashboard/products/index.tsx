@@ -181,6 +181,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
         </div>
         <div>
           <button
+            type="button"
             onClick={handlePlatformSync}
             className="inline-flex items-center rounded-md border border-indigo-500 bg-indigo-500 py-2 px-4 text-white shadow shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-indigo-200"
           >

@@ -25,18 +25,23 @@ export default function Everywhere() {
     <div className="relative z-20">
       <div className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
         <button
+          type="button"
           onClick={() => setTab(1)}
           className="w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
         >
           Test 1
         </button>
         <button
+          type="button"
           onClick={() => setTab(2)}
           className="w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
         >
           Test 2
         </button>
-        <button className="w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
+        <button
+          type="button"
+          className="w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+        >
           Test 3
         </button>
       </div>

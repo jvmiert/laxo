@@ -10,9 +10,10 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"golang.org/x/net/html"
+	"laxo.vn/laxo/laxo/models"
 )
 
-func addNode(schema []Element, nodeType string, index int) ([]Element, int) {
+func addNode(schema []models.Element, nodeType string, index int) ([]models.Element, int) {
 	add := false
 
 	if len(schema) > 0 {
@@ -26,7 +27,7 @@ func addNode(schema []Element, nodeType string, index int) ([]Element, int) {
 	}
 
 	if add {
-		schema = append(schema, Element{Type: nodeType, Children: []Text{}})
+		schema = append(schema, models.Element{Type: nodeType, Children: []models.Text{}})
 		index++
 	}
 
@@ -36,7 +37,7 @@ func addNode(schema []Element, nodeType string, index int) ([]Element, int) {
 func (s *Service) HTMLToSlate(h string, shopID string) (string, error) {
 	tkn := html.NewTokenizer(strings.NewReader(h))
 
-	schema := []Element{}
+	schema := []models.Element{}
 	index := -1
 	depth := 0
 	prevNode := ""
@@ -114,10 +115,10 @@ out:
 							continue
 						}
 
-						el := Element{
+						el := models.Element{
 							Type:     "image",
 							Src:      asset.ID + asset.Extension.String,
-							Children: []Text{},
+							Children: []models.Text{},
 							Width:    asset.Width.Int64,
 							Height:   asset.Height.Int64,
 						}
@@ -148,7 +149,7 @@ out:
 
 							schema[index].Type = "image"
 							schema[index].Src = asset.ID + asset.Extension.String
-							schema[index].Children = []Text{}
+							schema[index].Children = []models.Text{}
 							schema[index].Width = asset.Width.Int64
 							schema[index].Height = asset.Height.Int64
 						}
@@ -203,10 +204,10 @@ out:
 							continue
 						}
 
-						el := Element{
+						el := models.Element{
 							Type:     "image",
 							Src:      asset.ID + asset.Extension.String,
-							Children: []Text{},
+							Children: []models.Text{},
 							Width:    asset.Width.Int64,
 							Height:   asset.Height.Int64,
 						}
@@ -221,7 +222,7 @@ out:
 			if trimmed != "" {
 				//s.server.Logger.Debugw("TextToken", "token", token, "trimmed", trimmed, "depth", depth, "index", index)
 				if depth > 0 && index != -1 {
-					schema[index].Children = append(schema[index].Children, Text{Text: trimmed, Bold: bold, Underline: underline, Italic: italic})
+					schema[index].Children = append(schema[index].Children, models.Text{Text: trimmed, Bold: bold, Underline: underline, Italic: italic})
 				}
 			}
 		}
@@ -229,7 +230,7 @@ out:
 
 	if len(schema) == 0 {
 		text := s.GetSantizedString(h)
-		schema = append(schema, Element{Type: "paragraph", Children: []Text{{Text: text}}})
+		schema = append(schema, models.Element{Type: "paragraph", Children: []models.Text{{Text: text}}})
 	}
 
 	b, _ := json.Marshal(schema)

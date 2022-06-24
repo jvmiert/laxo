@@ -84,6 +84,7 @@ const BlockButton = ({
   );
   return (
     <button
+      type="button"
       className={cc([
         className,
         { "bg-white text-gray-700 hover:bg-gray-50": !active },
@@ -113,6 +114,7 @@ const MarkButton = ({
 
   return (
     <button
+      type="button"
       onMouseDown={(event) => {
         event.preventDefault();
         toggleMark(editor, format);

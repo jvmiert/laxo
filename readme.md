@@ -2,7 +2,6 @@
 - Create product details page
   - Run lazada fetch again and remove old description component
   - Create save changes mechanism a la Shopify
-    - Create loading state for submitting in ChangeNotification
     - Add sync toggle in product detail platform section to enable/disable sync
       - Then parse these settings to decide what to sync or not
 - Create asset management section
@@ -21,6 +20,9 @@
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
 - Debounce validation to prevent stutter?
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
+- Implement CSRF protection: https://github.com/gorilla/csrf
+  - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#double-submit-cookie
+  - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 
 # Long-term to-do
 - Tweak dashboard loading/error states
@@ -36,8 +38,6 @@
 - Properly type the axios posts/errors/returns in my post hooks (e.g. the useOAuthApi)
 - Interesting layout example for nextjs:
   - https://github.com/vercel/next.js/issues/8193#issuecomment-873281365
-- Implement: https://github.com/gorilla/csrf
-  - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 - Optimize yup schema validation for react final form?
   - https://gist.github.com/nfantone/9ab600760db8774ab4873cb1a3a22f26
 - Setup correct meta tags / html header handeling (next/head)

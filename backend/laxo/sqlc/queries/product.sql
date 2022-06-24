@@ -118,12 +118,12 @@ UPDATE products
 SET
  name = coalesce(sqlc.narg('name'), name),
  description = coalesce(sqlc.narg('description'), description),
+ description_slate = coalesce(sqlc.narg('description_slate'), description),
  selling_price = coalesce(sqlc.narg('selling_price'), selling_price),
  cost_price = coalesce(sqlc.narg('cost_price'), cost_price),
- shop_id = coalesce(sqlc.narg('shop_id'), shop_id),
  media_id = coalesce(sqlc.narg('media_id'), media_id),
  updated = coalesce(sqlc.narg('updated'), updated)
-WHERE id = sqlc.arg('id')
+WHERE id = sqlc.arg('id') AND shop_id = sqlc.arg('shop_id')
 RETURNING *;
 
 

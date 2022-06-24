@@ -11,7 +11,7 @@ export type FormToDashboardProviderProps = {
 export default function FormToDashboardProvider({
   initialValues,
 }: FormToDashboardProviderProps) {
-  const { values, valid, submitting } = useFormState();
+  const { values, valid, submitting, submitFailed } = useFormState();
   const { reset } = useForm();
 
   const {
@@ -20,6 +20,8 @@ export default function FormToDashboardProvider({
     toggleProductDetailFormDirtyState,
     productDetailSubmitIsDisabled,
     toggleProductDetailSubmitIsDisabled,
+    productDetailFormIsSubmitting,
+    toggleProductDetailFormIsSubmitting,
   } = useDashboard();
 
   const changed = useMemo(
@@ -28,7 +30,21 @@ export default function FormToDashboardProvider({
   );
 
   useEffect(() => {
-    const disabled = !valid || submitting;
+    if (submitting && !productDetailFormIsSubmitting) {
+      toggleProductDetailFormIsSubmitting();
+    }
+
+    if (!submitting && productDetailFormIsSubmitting) {
+      toggleProductDetailFormIsSubmitting();
+    }
+  }, [
+    submitting,
+    productDetailFormIsSubmitting,
+    toggleProductDetailFormIsSubmitting,
+  ]);
+
+  useEffect(() => {
+    const disabled = (!valid || submitting) && !submitFailed;
 
     if (disabled && !productDetailSubmitIsDisabled) {
       toggleProductDetailSubmitIsDisabled();
@@ -42,6 +58,7 @@ export default function FormToDashboardProvider({
     submitting,
     productDetailSubmitIsDisabled,
     toggleProductDetailSubmitIsDisabled,
+    submitFailed,
   ]);
 
   useEffect(() => {
