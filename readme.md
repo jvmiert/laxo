@@ -2,6 +2,7 @@
 - Create product details page
   - Run lazada fetch again and remove old description component
   - Create save changes mechanism a la Shopify
+    - Create general error that is properly in vision for users? Inside the save container maybe?
     - Add sync toggle in product detail platform section to enable/disable sync
       - Then parse these settings to decide what to sync or not
 - Create asset management section

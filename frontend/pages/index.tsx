@@ -56,11 +56,11 @@ export default function HomePage() {
                 </form>
                 <div className="sm:flex sm:max-w-lg">
                   <p className="mt-3 text-xs text-gray-500">
-                    By subscribing, you agree with our
+                    By subscribing, you agree with our{" "}
                     <a target="_blank" rel="noreferrer" href="/terms">
                       Terms of Service
-                    </a>
-                    and
+                    </a>{" "}
+                    and{" "}
                     <a target="_blank" rel="noreferrer" href="/privacy">
                       Privacy Policy
                     </a>

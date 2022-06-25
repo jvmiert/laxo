@@ -22,7 +22,8 @@
       "@/providers/*": ["providers/*"],
       "@/types/*": ["types/*"],
       "@/proto/*": ["proto/*"],
-      "@/pages/*": ["pages/*"]
+      "@/pages/*": ["pages/*"],
+      "@/assets/*": ["assets/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
