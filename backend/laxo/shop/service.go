@@ -599,13 +599,20 @@ func (s *Service) GetLaxoProductFromLazadaData(p *sqlc.ProductsLazada,
 
 	sanitzedDescription := s.GetSantizedString(pAttribute.Description.String)
 
-	var slateDescription string
+	var slateDescription null.String
+	var slateDescriptionString string
 	var err error
 
 	if pAttribute.Description.Valid {
-		slateDescription, err = s.HTMLToSlate(pAttribute.Description.String, shopID)
-		if err != nil {
+		slateDescriptionString, err = s.HTMLToSlate(pAttribute.Description.String, shopID)
+		if err != nil && err != ErrEmptyText {
 			return nil, fmt.Errorf("HTMLToSlate: %w", err)
+		}
+
+		if err == ErrEmptyText {
+			slateDescription = null.NewString("", false)
+		} else {
+			slateDescription = null.StringFrom(slateDescriptionString)
 		}
 	}
 
@@ -614,7 +621,7 @@ func (s *Service) GetLaxoProductFromLazadaData(p *sqlc.ProductsLazada,
 			ID:               "",
 			Name:             pAttribute.Name,
 			Description:      null.StringFrom(sanitzedDescription),
-			DescriptionSlate: null.StringFrom(slateDescription),
+			DescriptionSlate: slateDescription,
 			Msku:             null.StringFrom(pSKU.SellerSku),
 			SellingPrice:     numericPrice,
 			CostPrice:        pgtype.Numeric{Status: pgtype.Null},

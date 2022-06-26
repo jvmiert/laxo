@@ -1,6 +1,5 @@
 # Tech to-do
 - Create product details page
-  - Run lazada fetch again and remove old description component
   - Create save changes mechanism a la Shopify
     - Create general error that is properly in vision for users? Inside the save container maybe?
     - Add sync toggle in product detail platform section to enable/disable sync
@@ -9,6 +8,8 @@
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)
 - Add option for inactive products
   - Allow importing of inactive Lazada products
+- Rich text editor
+  - Parse ul ol li items from html
 - Add rich text hotkeys: https://github.com/ianstormtaylor/is-hotkey
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
   also return a human readable message in the requested locale.

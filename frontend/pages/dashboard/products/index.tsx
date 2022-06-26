@@ -65,7 +65,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
   const currentPage = Number(queryPageNumber) ? Number(queryPageNumber) : 1;
   const currentLimit = Number(queryLimitNumber) ? Number(queryLimitNumber) : 10;
 
-  const currentsearchQuery = searchQuery ? searchQuery.toString() : "";
+  const currentSearchQuery = searchQuery ? searchQuery.toString() : "";
 
   const offset = (currentPage - 1) * currentLimit;
 
@@ -73,8 +73,8 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
   const { activeShop } = useDashboard();
 
   const { products } = useGetLaxoProducts(
-    currentsearchQuery,
-    currentsearchQuery,
+    currentSearchQuery,
+    currentSearchQuery,
     offset,
     currentLimit,
   );
@@ -98,11 +98,12 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
   });
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    const fixedPage = currentSearchQuery == "" ? 0 : currentPage;
     push(
       {
         pathname: "/dashboard/products",
         query: {
-          ...(currentPage > 1 && { p: currentPage }),
+          ...(fixedPage > 1 && { p: fixedPage }),
           ...(currentLimit > 10 && { l: queryLimitNumber }),
           ...(e.target.value != "" && { s: e.target.value }),
         },
@@ -114,7 +115,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
 
   const getDecreaseParams = () => {
     const searchParams = {
-      ...(currentsearchQuery != "" && { s: currentsearchQuery }),
+      ...(currentSearchQuery != "" && { s: currentSearchQuery }),
     };
 
     if (currentPage - 1 < 1) {
@@ -133,7 +134,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
 
   const getIncreaseParams = () => {
     const searchParams = {
-      ...(currentsearchQuery != "" && { s: currentsearchQuery }),
+      ...(currentSearchQuery != "" && { s: currentSearchQuery }),
     };
 
     if (currentPage + 1 > maxPage) {
@@ -158,7 +159,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
     return {
       ...(currentPageCeiling > 1 && { p: currentPageCeiling }),
       ...(limit > 10 && { l: limit }),
-      ...(currentsearchQuery != "" && { s: currentsearchQuery }),
+      ...(currentSearchQuery != "" && { s: currentSearchQuery }),
     };
   };
 
@@ -176,7 +177,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
             type="text"
             className="block w-full rounded-md py-2 pl-9 pr-9 focus:outline-none focus:ring focus:ring-indigo-200"
             placeholder="Search for product name or SKU"
-            defaultValue={currentsearchQuery}
+            defaultValue={currentSearchQuery}
           />
         </div>
         <div>
@@ -299,7 +300,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                   query: {
                     ...(p > 1 && { p: p }),
                     ...(currentLimit > 10 && { l: queryLimitNumber }),
-                    ...(currentsearchQuery != "" && { s: currentsearchQuery }),
+                    ...(currentSearchQuery != "" && { s: currentSearchQuery }),
                   },
                 }}
               >

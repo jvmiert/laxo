@@ -206,7 +206,7 @@ func (h *shopHandler) HandlePlatformSync(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	_, err = h.service.temporal.StartLazadaPlatformSync(shop.Model.ID, uID, false)
+	_, err = h.service.temporal.StartLazadaPlatformSync(shop.Model.ID, uID, true)
 	if err != nil {
 		h.server.Logger.Errorw("StartLazadaPlatformSync returned error",
 			"error", err,

@@ -41,7 +41,7 @@ func InitTestHandler(server *laxo.Server, l *lazada.Service, p *shop.Service, a 
 }
 
 func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID string) {
-	s, err := h.service.shop.GetActiveShopByUserID(uID)
+	_, err := h.service.shop.GetActiveShopByUserID(uID)
 	if err != nil {
 		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
 			"error", err,
@@ -50,9 +50,7 @@ func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID str
 		return
 	}
 
-	test := `<p style="margin: 0;padding: 8.0px 0;white-space: pre-wrap;"></p><div style="width: 100.0%;"><img src="https://vn-live-02.slatic.net/p/436f973ccf5d8ab22b6e0638ba4c16c2.png" style="width: 100.0%;display: block;"/></div><div style="width: 100.0%;"><img src="https://vn-live-02.slatic.net/p/5a878340f3d6fcbd2286aba8ce992d37.png" style="width: 100.0%;display: block;"/></div><div style="width: 100.0%;"><img src="https://vn-live-02.slatic.net/p/3430c6bf503cecd6874d03783441800e.jpg" style="width: 100.0%;display: block;"/></div><div style="width: 100.0%;margin: 0;padding: 8.0px 0;white-space: pre-wrap;"><div style="width: 100.0%;margin: 0;padding: 8.0px 0;white-space: pre-wrap;"><i></i></div></div>`
-
-	h.service.assets.ExtractImagesFromDescription(test, s.Model.ID, s.Model.AssetsToken)
+	test := `<div style="margin:0"><span style="font-family:none"><strong style="font-weight:bold;font-family:none">Test</strong></span></div><div style="margin:0"><span style="font-family:none"></span></div><div style="margin:0"><span style="font-family:none"><em>Test</em></span></div><div style="margin:0"><span style="font-family:none"></span></div><div style="margin:0;text-align:right;display:inline-block;width:100%"><u>Test</u></div><i><div style="margin:0;text-align:right;display:inline-block;width:100%">Test</div></i><div style="margin:0;text-align:right;display:inline-block;width:100%"> test</div><div style="margin:0"><span></span></div><div style="margin:0"><span></span></div><span><div style="margin:0;text-align:center;display:inline-block;width:100%">This is bold</div></span><div style="margin:0"><span></span></div><div style="margin:0"><span><u>This is underlined</u></span></div><div style="margin:0"><span></span></div><div style="margin:0"><span><em>This is italic</em></span></div><div style="margin:0"><span></span></div><div style="margin:0"><span></span></div><div style="margin:0"><h1><span>Heading1</span></h1></div><div style="margin:0"><h2><span>Heading2</span></h2></div><div style="margin:0"><h3><span>Heading3</span></h3></div><div style="margin:0"><span></span></div>`
 
 	schema, _ := h.service.shop.HTMLToSlate(test, "01G1FZCVYH9J47DB2HZENSBC6E")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

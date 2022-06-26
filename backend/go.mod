@@ -64,6 +64,7 @@ require (
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/stretchr/objx v0.3.0 // indirect
+	github.com/tdewolff/parse v2.3.4+incompatible // indirect
 	github.com/tilinna/clock v1.0.2 // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
 	go.temporal.io/api v1.7.1-0.20220223032354-6e6fe738916a // indirect

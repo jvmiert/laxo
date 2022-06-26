@@ -237,19 +237,13 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
             >
               Description
             </label>
-            <textarea
-              name="description"
-              rows={8}
-              defaultValue={product.description}
-              className="focus:shadow-outline block w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none focus:ring focus:ring-indigo-200"
-            />
-            {submitError && (
-              <p className="mb-2 text-xs italic text-red-500">{submitError}</p>
-            )}
           </div>
           <div className="col-span-8">
             <Editor initialSchema={product.descriptionSlate} />
           </div>
+          {submitError && (
+            <p className="mb-2 text-xs italic text-red-500">{submitError}</p>
+          )}
         </form>
       )}
     />

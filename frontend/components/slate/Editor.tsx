@@ -377,7 +377,12 @@ export default function Editor({ initialSchema }: EditorProps) {
   //);
 
   const slateValue = useMemo(() => {
-    const parsedSchema = JSON.parse(initialSchema);
+    let parsedSchema;
+    try {
+      parsedSchema = JSON.parse(initialSchema);
+    } catch {
+      parsedSchema = initialValue;
+    }
     // Slate throws an error if the value on the initial render is invalid
     // so we directly set the value on the editor in order
     // to be able to trigger normalization on the initial value before rendering
@@ -418,64 +423,64 @@ export default function Editor({ initialSchema }: EditorProps) {
         <MarkButton
           text="B"
           format="bold"
-          className="relative inline-flex items-center rounded-tl-md border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-bold focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative inline-flex items-center rounded-tl-md border-t border-l border-r px-4 py-2 text-sm font-bold focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <MarkButton
           text="I"
           format="italic"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 font-serif text-sm font-bold italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 font-serif text-sm font-bold italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <MarkButton
           text="U"
           format="underline"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 font-serif text-sm font-bold italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 font-serif text-sm font-bold italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
           text="one"
           format="heading-one"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
           text="two"
           format="heading-two"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
           text="# list"
           format="numbered-list"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
           text="* list"
           format="bulleted-list"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
           text="left"
           format="left"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
           text="center"
           format="center"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
           text="right"
           format="right"
-          className="relative -ml-px inline-flex items-center border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
           text="justify"
           format="justify"
-          className="relative -ml-px inline-flex items-center rounded-tr-md border-t border-l border-r border-gray-300 px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center rounded-tr-md border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
       </div>
       <Editable
         renderElement={renderElement}
         renderLeaf={renderLeaf}
         spellCheck
-        className="focus:shadow-outline block min-h-[200px] w-full appearance-none rounded-b-md rounded-tr-md border border-gray-300 py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+        className="focus:shadow-outline block min-h-[200px] w-full appearance-none rounded-b-md rounded-tr-md border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
       />
     </Slate>
   );

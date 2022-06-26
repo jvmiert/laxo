@@ -1,6 +1,7 @@
 package shop
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,11 +10,56 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v4"
+	"github.com/tdewolff/parse/css"
 	"golang.org/x/net/html"
 	"laxo.vn/laxo/laxo/models"
 )
 
-func addNode(schema []models.Element, nodeType string, index int) ([]models.Element, int) {
+var ErrEmptyText = errors.New("html parse resulted in empty text")
+
+// We're just hacking it up right now to do a half acceptable job in parsing
+// Lazada's garbage.
+func parseCSS(token *html.Token) (alignValue string, isInlineBlock bool) {
+	var style string
+
+	for _, a := range token.Attr {
+		if a.Key == "style" {
+			style = a.Val
+		}
+	}
+
+	if style != "" {
+    p := css.NewParser(bytes.NewBufferString(style), true)
+    out:
+    for {
+      gt, _, data := p.Next()
+      switch gt {
+      case css.DeclarationGrammar:
+        values := p.Values()
+        declarationValue := string(data)
+        if declarationValue == "text-align" {
+          if len(values) == 1 {
+            alignValue = string(values[0].Data)
+          }
+        }
+        if declarationValue == "display" {
+          if len(values) == 1 {
+            displayValue := string(values[0].Data)
+
+            if displayValue == "inline-block" {
+              isInlineBlock = true
+            }
+          }
+        }
+      case css.ErrorGrammar:
+        break out
+      }
+    }
+  }
+  return alignValue, isInlineBlock
+}
+
+func addNode(schema []models.Element, nodeType string, index int, align string) ([]models.Element, int) {
 	add := false
 
 	if len(schema) > 0 {
@@ -21,13 +67,22 @@ func addNode(schema []models.Element, nodeType string, index int) ([]models.Elem
 			add = true
 		} else {
 			schema[len(schema)-1].Type = nodeType
+      if align != "" {
+        schema[len(schema)-1].Align = align
+      }
 		}
 	} else {
 		add = true
 	}
 
 	if add {
-		schema = append(schema, models.Element{Type: nodeType, Children: []models.Text{}})
+    el := models.Element{Type: nodeType, Children: []models.Text{}}
+
+    if align != "" {
+      el.Align = align
+    }
+
+		schema = append(schema, el)
 		index++
 	}
 
@@ -61,38 +116,45 @@ out:
 			//s.server.Logger.Debug("ErrorToken")
 			break out
 		case html.StartTagToken:
-			s.server.Logger.Debugw("StartTagToken", "token", token, "type", token.Data, "depth", depth, "index", index)
+			//s.server.Logger.Debugw("StartTagToken", "token", token, "type", token.Data, "depth", depth, "index", index)
 			switch token.Data {
 			case "div":
+        align, isInlineBlock := parseCSS(&token)
+        //@HACK: Lazada does dumb shit (just wrapping text with a div instead of adding a span like they normally do) with text aligning
+        if isInlineBlock {
+					schema, index = addNode(schema, "paragraph", index, align)
+          depth++
+        }
 				prevNode = "div"
 			case "span":
 				//@HACK: Because Lazada is retarded.
 				if prevNode == "div" {
-					schema, index = addNode(schema, "paragraph", index)
+					schema, index = addNode(schema, "paragraph", index, "")
 					prevNode = "span"
 				}
 				depth++
 			case "p":
 				if depth == 0 {
-					schema, index = addNode(schema, "paragraph", index)
+          align, _ := parseCSS(&token)
+					schema, index = addNode(schema, "paragraph", index, align)
 					prevNode = "p"
 				}
 				depth++
 			case "h1":
 				if depth == 0 {
-					schema, index = addNode(schema, "heading-one", index)
+					schema, index = addNode(schema, "heading-one", index, "")
 					prevNode = "h1"
 				}
 				depth++
 			case "h2":
 				if depth == 0 {
-					schema, index = addNode(schema, "heading-two", index)
+					schema, index = addNode(schema, "heading-two", index, "")
 					prevNode = "h2"
 				}
 				depth++
 			case "h3":
 				if depth == 0 {
-					schema, index = addNode(schema, "heading-three", index)
+					schema, index = addNode(schema, "heading-three", index, "")
 					prevNode = "h3"
 				}
 				depth++
@@ -102,7 +164,7 @@ out:
 					matches := findImages.FindStringSubmatch(token.String())
 
 					if len(matches) > 1 {
-						s.server.Logger.Debugw("ADDING an image", "data", token, "src", matches[1])
+						//s.server.Logger.Debugw("ADDING an image", "data", token, "src", matches[1])
 
 						originalName := path.Base(matches[1])
 
@@ -183,7 +245,7 @@ out:
 				underline = false
 			}
 		case html.SelfClosingTagToken:
-			s.server.Logger.Debugw("SelfClosingTagToken", "token", token, "type", token.Data, "depth", depth, "index", index)
+			//s.server.Logger.Debugw("SelfClosingTagToken", "token", token, "type", token.Data, "depth", depth, "index", index)
 			switch token.Data {
 			case "img":
 				if depth == 0 {
@@ -191,7 +253,7 @@ out:
 					matches := findImages.FindStringSubmatch(token.String())
 
 					if len(matches) > 1 {
-						s.server.Logger.Debugw("ADDING an image", "data", token, "src", matches[1])
+						//s.server.Logger.Debugw("ADDING an image", "data", token, "src", matches[1])
 
 						originalName := path.Base(matches[1])
 
@@ -230,6 +292,9 @@ out:
 
 	if len(schema) == 0 {
 		text := s.GetSantizedString(h)
+		if text == "" {
+			return "", ErrEmptyText
+		}
 		schema = append(schema, models.Element{Type: "paragraph", Children: []models.Text{{Text: text}}})
 	}
 
