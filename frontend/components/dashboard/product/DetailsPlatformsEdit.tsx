@@ -2,11 +2,13 @@ import cc from "classcat";
 import { Disclosure, Transition, Tab, Switch } from "@headlessui/react";
 import { ChevronUpIcon, CubeIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
+import { useIntl } from "react-intl";
 
 import LazadaIcon from "@/components/icons/LazadaIcon";
 import ShopeeIcon from "@/components/icons/ShopeeIcon";
 import { LaxoProductDetails } from "@/types/ApiResponse";
 import { LaxoProductPlatforms } from "@/types/ApiResponse";
+import { useDashboard } from "@/providers/DashboardProvider";
 import useProductApi from "@/hooks/useProductApi";
 
 function getPlatformIcon(platform: string): JSX.Element {
@@ -42,6 +44,8 @@ export type PlatformsEditProps = {
 
 export default function DetailsPlatformsEdit({ product }: PlatformsEditProps) {
   const { doChangePlatformSync } = useProductApi();
+  const { dashboardDispatch } = useDashboard();
+  const t = useIntl();
 
   const [syncState, setSyncState] = useState<PlatformSyncState>(
     getInitialSyncStatus(product.platforms),
@@ -52,11 +56,37 @@ export default function DetailsPlatformsEdit({ product }: PlatformsEditProps) {
       ...prevState,
       ...{ [platformName]: checked },
     }));
-    doChangePlatformSync({
+    const success = doChangePlatformSync({
       productID: product.product.id,
       platform: platformName,
       state: checked,
     });
+
+    if (!!success) {
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "success",
+          message: t.formatMessage({
+            description: "Platform management successful changed sync",
+            defaultMessage:
+              "Successfully changed your platform synchronization",
+          }),
+        },
+      });
+    } else {
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "error",
+          message: t.formatMessage({
+            description: "Platform management changed sync error",
+            defaultMessage:
+              "Could not changed your synchronization status, please try again later",
+          }),
+        },
+      });
+    }
   };
   return (
     <Disclosure defaultOpen>

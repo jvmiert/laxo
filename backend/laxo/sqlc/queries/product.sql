@@ -105,6 +105,10 @@ INSERT INTO products (
 )
 RETURNING *;
 
+-- name: CheckProductOwner :one
+SELECT products.id FROM products
+WHERE products.id = $1 AND products.shop_id = $2;
+
 -- name: CreateProductPlatform :one
 INSERT INTO products_platform (
   product_id, products_lazada_id

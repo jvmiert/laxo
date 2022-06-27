@@ -22,6 +22,24 @@ func newShopStore(store *Store) shopStore {
 	}
 }
 
+func (s *shopStore) UpdateLazadaProductPlatformSync(productID string, state bool) error {
+	_, err := s.queries.UpdateProductsPlatformSync(context.Background(), sqlc.UpdateProductsPlatformSyncParams{
+		ProductID:  productID,
+		SyncLazada: null.BoolFrom(state),
+	})
+
+	return err
+}
+
+func (s *shopStore) CheckProductOwner(productID string, shopID string) (string, error) {
+	productID, err := s.queries.CheckProductOwner(context.Background(), sqlc.CheckProductOwnerParams{
+		ID:     productID,
+		ShopID: shopID,
+	})
+
+	return productID, err
+}
+
 func (s *shopStore) GetShopByID(shopID string) (*sqlc.Shop, error) {
 	sModel, err := s.queries.GetShopByID(context.Background(), shopID)
 	return &sModel, err

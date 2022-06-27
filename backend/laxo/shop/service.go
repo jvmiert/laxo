@@ -24,6 +24,7 @@ import (
 )
 
 var ErrUserNoShops = errors.New("user does have any shops")
+var ErrProductNotOwned = errors.New("shop does not own this product")
 var ErrProductNotFound = errors.New("no product found")
 
 type Store interface {
@@ -48,6 +49,8 @@ type Store interface {
 	CreateShopsPlatforms(string, string) (sqlc.ShopsPlatform, error)
 	RetrieveSpecificPlatformByShopID(string, string) (sqlc.ShopsPlatform, error)
 	GetAssetByOriginalName(originalName string, shopID string) (*sqlc.Asset, error)
+	CheckProductOwner(productID string, shopID string) (string, error)
+	UpdateLazadaProductPlatformSync(productID string, state bool) error
 }
 
 type Service struct {
@@ -62,6 +65,30 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
 		logger: logger,
 		server: server,
 	}
+}
+
+// Allows the user to change whether the product's data is synced back to the platform
+func (s *Service) ChangedProductPlatformSync(request *models.ProductChangedSyncRequest, productID string) error {
+	if request.Platform == "lazada" {
+		return s.store.UpdateLazadaProductPlatformSync(productID, request.State)
+	}
+
+	return errors.New("unknown platform")
+}
+
+// This function will check whether the store owns this product. Used before making changes to a product
+// Returns an error if not owned, nil when owned.
+func (s *Service) ProductIsOwnedByStore(productID string, shopID string) error {
+	_, err := s.store.CheckProductOwner(productID, shopID)
+	if err != pgx.ErrNoRows && err != nil {
+		return fmt.Errorf("CheckProductOwner: %w", err)
+	}
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrProductNotOwned
+	}
+
+	return nil
 }
 
 func (s *Service) UpdateProductFromRequest(r *models.ProductDetailPostRequest, printer *message.Printer, shopID string, productID string) error {

@@ -85,9 +85,35 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 }
 
 func (h *shopHandler) HandleChangePlatformSync(w http.ResponseWriter, r *http.Request, uID string) {
+	vars := mux.Vars(r)
+	productID := vars["productID"]
+
+	s, err := h.service.shop.GetActiveShopByUserID(uID)
+	if err != nil {
+		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = h.service.shop.ProductIsOwnedByStore(productID, s.Model.ID)
+	if err != nil && err != shop.ErrProductNotOwned {
+		h.server.Logger.Errorw("ProductIsOwnedByStore returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if err == shop.ErrProductNotOwned {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
 	var p models.ProductChangedSyncRequest
 
-	if err := laxo.DecodeJSONBody(h.server.Logger, w, r, &p); err != nil {
+	if err = laxo.DecodeJSONBody(h.server.Logger, w, r, &p); err != nil {
 		var mr *laxo.MalformedRequest
 		if errors.As(err, &mr) {
 			http.Error(w, mr.Msg, mr.Status)
@@ -97,12 +123,17 @@ func (h *shopHandler) HandleChangePlatformSync(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	h.server.Logger.Debugw("ProductChangedSyncRequest",
-		"r", p,
-	)
+	err = h.service.shop.ChangedProductPlatformSync(&p, productID)
+	if err != nil {
+		h.server.Logger.Errorw("ChangedProductPlatformSync returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write([]byte("LOL"))
+	w.Write([]byte("{\"success\":true}"))
 }
 
 func (h *shopHandler) HandlePostProductDetails(w http.ResponseWriter, r *http.Request, uID string) {

@@ -57,11 +57,15 @@ export default function useProductApi(): {
   const { axiosClient } = useAxios();
   const { mutate } = useSWRConfig();
 
-  const doChangePlatformSync = async (r: ChangeSyncRequest): Promise<boolean> => {
+  const doChangePlatformSync = async (
+    r: ChangeSyncRequest,
+  ): Promise<boolean> => {
     try {
-      const res = await axiosClient.post(`/change-platform-sync/${r.productID}`, { platform: r.platform, state: r.state });
-      console.log(res)
-      return true
+      await axiosClient.post(`/change-platform-sync/${r.productID}`, {
+        platform: r.platform,
+        state: r.state,
+      });
+      return true;
     } catch (error) {
       return false;
     }

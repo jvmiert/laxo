@@ -1,5 +1,4 @@
 # Tech to-do
-- Figure out the gopls formatting situation.........
 - Create product details page
   - Create save changes mechanism a la Shopify
     - Create general error that is properly in vision for users? Inside the save container maybe?
@@ -7,10 +6,7 @@
         - Create success/error notification
         - Use mutate to optimistically update the details state
         - Handle errors
-    - Add sync toggle in product detail platform section to enable/disable sync
-      - Process sync change request on the backend
-      - Provide success/failure feedback on the frontend
-      - Then parse these settings to decide what to sync or not
+- Handle product sync after saving product
 - Create asset management section
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)
 - Add option for inactive products

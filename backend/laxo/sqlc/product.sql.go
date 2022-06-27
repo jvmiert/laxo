@@ -12,6 +12,23 @@ import (
 	null "gopkg.in/guregu/null.v4"
 )
 
+const checkProductOwner = `-- name: CheckProductOwner :one
+SELECT products.id FROM products
+WHERE products.id = $1 AND products.shop_id = $2
+`
+
+type CheckProductOwnerParams struct {
+	ID     string `json:"id"`
+	ShopID string `json:"shopID"`
+}
+
+func (q *Queries) CheckProductOwner(ctx context.Context, arg CheckProductOwnerParams) (string, error) {
+	row := q.db.QueryRow(ctx, checkProductOwner, arg.ID, arg.ShopID)
+	var id string
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
   name, description, msku, selling_price, cost_price, shop_id,
