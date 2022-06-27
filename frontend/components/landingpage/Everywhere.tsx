@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import {
   ChevronLeftIcon,
   DotsHorizontalIcon,
@@ -12,8 +13,9 @@ import lazCart from "@/assets/lazCart.png";
 import lazShop from "@/assets/lazShop.svg";
 import lazLike from "@/assets/lazLike.png";
 import lazStar from "@/assets/lazStar.png";
+import gradientArrow from "@/assets/gradientArrow.svg";
 
-function Lazada() {
+function Lazada({ name }) {
   return (
     <>
       <div className="flex items-center justify-between px-3 py-2">
@@ -47,9 +49,7 @@ function Lazada() {
           </div>
         </div>
       </div>
-      <div className="px-3 py-2 font-semibold">
-        This is a very cool product name
-      </div>
+      <div className="px-3 py-2 font-semibold">{name}</div>
       <div className="flex items-center px-3 py-2">
         <div className="mr-5 flex items-baseline text-xs">
           <span>5</span>
@@ -100,20 +100,25 @@ function Lazada() {
 }
 
 export default function Everywhere() {
+  const [name, setName] = useState("Cool name");
+
   return (
-    <div className="relative z-20">
+    <div className="relative flex space-x-8">
+      <style>{`
+        @keyframes connectFlowDiagramArrowsLinear{
+          to{
+              -webkit-mask-position:11px 0;
+              mask-position:11px 0
+          }
+      `}</style>
       <div
         style={{
-          boxShadow:
-            "0 50px 100px -20px rgba(50,50,93,.25),0 30px 60px -30px rgba(0,0,0,.3),inset 0 -2px 6px 0 rgba(10,37,64,.35)",
+          maskImage: `url(${gradientArrow.src})`,
+          animation: "connectFlowDiagramArrowsLinear 500ms linear infinite",
         }}
-        className="absolute z-30 flex h-[480px] w-[250px] translate-y-1/2 -translate-x-8 cursor-default select-none overflow-hidden rounded-3xl bg-[#f6f9fc] p-2 shadow-xl"
-      >
-        <div className="h-full w-full overflow-hidden rounded-3xl bg-white py-3">
-          <Lazada />
-        </div>
-      </div>
-      <div className="absolute flex h-[512px] w-[712px] -translate-y-1/2 flex-col overflow-hidden rounded-md bg-white shadow-xl">
+        className="absolute top-1/2 left-0 right-10 block h-2 bg-gradient-to-r from-violet-500 to-fuchsia-500"
+      />
+      <div className="z-20 flex h-[480px] w-[712px] flex-col overflow-hidden rounded-md bg-white shadow-xl">
         <div className="flex py-1">
           <div className="flex items-center space-x-1.5 px-4">
             <div className="h-3 w-3 rounded-full bg-slate-100" />
@@ -128,7 +133,79 @@ export default function Everywhere() {
             </div>
           </div>
         </div>
-        <div className="grow bg-slate-100"></div>
+        <div className="grow bg-slate-100">
+          <div className="mx-auto mt-8 w-8/12 rounded-md bg-white py-4 px-3 shadow-sm">
+            <div className="flex w-full justify-between rounded-xl bg-gray-50 px-2 py-1.5">
+              <h3 className="text-sm font-medium leading-6 text-gray-900">
+                General
+              </h3>
+            </div>
+            <div className="grid grid-cols-8 gap-4 p-2 text-[12px]">
+              <div className="col-span-5">
+                <label className="mb-1 block text-gray-700">Name</label>
+
+                <input
+                  type="text"
+                  className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none focus:ring focus:ring-indigo-200"
+                  onChange={(e) => setName(e.target.value)}
+                  value={name}
+                />
+              </div>
+
+              <div className="col-span-3">
+                <label className="mb-1 block text-gray-700">SKU</label>
+
+                <input
+                  type="text"
+                  className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none focus:ring focus:ring-indigo-200"
+                  defaultValue="Submit"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="z-20 flex h-[480px] w-[250px] cursor-default select-none overflow-hidden rounded-3xl bg-[#f6f9fc] shadow-xl">
+        <div
+          style={{
+            boxShadow:
+              "rgba(0, 0, 0, 0.1) 0px 8px 10px -6px, inset 0 -2px 6px 0 rgba(10,37,64,.35)",
+          }}
+          className="overflow-hidden rounded-3xl bg-[#f6f9fc] p-2"
+        >
+          <div className="h-full w-full overflow-hidden rounded-3xl bg-white py-3">
+            <Lazada name={name} />
+          </div>
+        </div>
+      </div>
+
+      <div className="z-20 flex h-[480px] w-[250px] cursor-default select-none overflow-hidden rounded-3xl bg-[#f6f9fc] shadow-xl">
+        <div
+          style={{
+            boxShadow:
+              "rgba(0, 0, 0, 0.1) 0px 8px 10px -6px, inset 0 -2px 6px 0 rgba(10,37,64,.35)",
+          }}
+          className="overflow-hidden rounded-3xl bg-[#f6f9fc] p-2"
+        >
+          <div className="h-full w-full overflow-hidden rounded-3xl bg-white py-3">
+            <Lazada name={name} />
+          </div>
+        </div>
+      </div>
+
+      <div className="z-20 flex h-[480px] w-[250px] cursor-default select-none overflow-hidden rounded-3xl bg-[#f6f9fc] shadow-xl">
+        <div
+          style={{
+            boxShadow:
+              "rgba(0, 0, 0, 0.1) 0px 8px 10px -6px, inset 0 -2px 6px 0 rgba(10,37,64,.35)",
+          }}
+          className="overflow-hidden rounded-3xl bg-[#f6f9fc] p-2"
+        >
+          <div className="h-full w-full overflow-hidden rounded-3xl bg-white py-3">
+            <Lazada name={name} />
+          </div>
+        </div>
       </div>
     </div>
   );

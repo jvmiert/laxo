@@ -18,20 +18,22 @@ export default function HomePage() {
       </Head>
 
       <section>
-        <div className="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:pb-6 sm:pt-3 md:px-12 lg:px-24">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center">
-            <div className="mt-12 mb-16 flex flex-col items-start text-left md:mb-0 lg:w-1/2 lg:flex-grow lg:pl-6 xl:mt-0 xl:pl-24">
+        <div className="md:pb-30 lg:pt-30 pt-16 pb-20 md:pt-20 lg:pb-40">
+          <div className="flex flex-wrap items-center justify-between">
+            <div className="mt-12 mb-16 flex max-w-2xl flex-col items-start text-left lg:w-1/2 lg:flex-grow">
               <span className="mb-8 text-xs font-bold uppercase tracking-widest text-indigo-600">
                 Sell better, sell more.
               </span>
-              <h1 className="mb-8 text-4xl font-bold leading-none tracking-tighter md:text-7xl lg:text-5xl">
-                A tool to make your selling experience easier
+              <h1 className="mb-8 text-4xl font-bold text-zinc-900 tracking-tighter md:text-7xl lg:text-6xl lg:leading-snug">
+                Making Your Selling Experience Easier
               </h1>
-              <p className="mb-8 text-left text-base leading-relaxed text-gray-500">
-                Laxo helps you with managing your sales channels, your orders,
-                and your marketing activities
-              </p>
-              <div className="mt-0 max-w-7xl flex-col sm:flex lg:mt-6">
+              <div className="max-w-md">
+                <p className="mb-8 text-left text-base leading-relaxed text-gray-500">
+                  Laxo helps you with managing your sales channels, your orders,
+                  and your marketing activities
+                </p>
+              </div>
+              <div className="mt-0 flex-col sm:flex lg:mt-6">
                 <form className="border2 mt-8 transform rounded-xl bg-gray-50 p-2 transition duration-500 ease-in-out sm:flex sm:max-w-lg">
                   <div className="revue-form-group min-w-0 flex-1">
                     <label htmlFor="email" className="sr-only">
@@ -84,54 +86,71 @@ export default function HomePage() {
       </section>
 
       <section>
-        <div className="relative mt-12 lg:mt-24 lg:grid lg:grid-cols-2 lg:items-center lg:gap-8">
-          <div className="relative">
-            <h3 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-              Sell more by selling everywhere
-            </h3>
-            <p className="mt-3 text-lg text-gray-500">
-              Stop selecting your sales channels based on your available
-              resources. Manage your products on Laxo and let us take care of
-              the rest.
-            </p>
+        <div className="bg-white py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="lg:text-center">
+              <p className="mt-2 text-3xl font-extrabold leading-8 tracking-tight text-gray-900 sm:text-4xl">
+                Sell more by selling everywhere
+              </p>
+              <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                Stop selecting your sales channels based on your available
+                resources. Manage your products on Laxo and let us take care of
+                the rest.
+              </p>
+            </div>
 
-            <ul className="mt-10 space-y-10">
-              <li>
-                <div className="flex items-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white">
-                    <AnnotationIcon className="h-6 w-6" aria-hidden="true" />
-                  </div>
-                  <p className="ml-8 text-lg font-medium text-gray-900">
-                    Update your product photos
-                  </p>
+            <div className="mt-10">
+              <dl className="space-y-10 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10 md:space-y-0">
+                <div className="relative">
+                  <dt>
+                    <div className="absolute flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white">
+                      <AnnotationIcon className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                    <p className="ml-16 text-lg font-medium leading-6 text-gray-900">
+                      Update your product photos
+                    </p>
+                  </dt>
+                  <dd className="mt-2 ml-16 text-base text-gray-500">
+                    dolor sit amet consect adipisicing elit.
+                  </dd>
                 </div>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white">
-                    <AnnotationIcon className="h-6 w-6" aria-hidden="true" />
-                  </div>
-                  <p className="ml-8 text-lg font-medium text-gray-900">
-                    Change your product descriptions
-                  </p>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white">
-                    <AnnotationIcon className="h-6 w-6" aria-hidden="true" />
-                  </div>
-                  <p className="ml-8 text-lg font-medium text-gray-900">
-                    Adjust your product prices
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </div>
 
-          <div className="relative -mx-4 mt-10 lg:mt-0" aria-hidden="true">
-            <Everywhere />
+                <div className="relative">
+                  <dt>
+                    <div className="absolute flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white">
+                      <AnnotationIcon className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                    <p className="ml-16 text-lg font-medium leading-6 text-gray-900">
+                      Change your product descriptions
+                    </p>
+                  </dt>
+                  <dd className="mt-2 ml-16 text-base text-gray-500">
+                    dolor sit amet consect adipisicing elit.
+                  </dd>
+                </div>
+
+                <div className="relative">
+                  <dt>
+                    <div className="absolute flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white">
+                      <AnnotationIcon className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                    <p className="ml-16 text-lg font-medium leading-6 text-gray-900">
+                      Adjust your product prices
+                    </p>
+                  </dt>
+                  <dd className="mt-2 ml-16 text-base text-gray-500">
+                    dolor sit amet consect adipisicing elit.
+                  </dd>
+                </div>
+              </dl>
+            </div>
           </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="md:py-30 lg:py-40">
+          <Everywhere />
         </div>
       </section>
 
