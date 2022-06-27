@@ -1,12 +1,5 @@
 # Tech to-do
-- Create product details page
-  - Create save changes mechanism a la Shopify
-    - Create general error that is properly in vision for users? Inside the save container maybe?
-      - Finish the DetailsGeneralEdit component
-        - Create success/error notification
-        - Use mutate to optimistically update the details state
-        - Handle errors
-- Handle product sync after saving product
+- Handle product sync to Lazada after saving product
 - Create asset management section
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)
 - Add option for inactive products

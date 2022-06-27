@@ -2,6 +2,7 @@ import cc from "classcat";
 import { Form, Field } from "react-final-form";
 import { SubmissionErrors } from "final-form";
 import createDecorator from "final-form-focus";
+import { useIntl } from "react-intl";
 
 import Editor from "@/components/slate/Editor";
 import FormToDashboardProvider from "@/components/dashboard/product/FormToDashboardProvider";
@@ -38,7 +39,13 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
   };
 
   const { mutate } = useGetLaxoProductDetails(product.id);
-  const { slateEditorRef } = useDashboard();
+  const {
+    slateEditorRef,
+    dashboardDispatch,
+    slateIsDirty,
+    toggleSlateDirtyState,
+  } = useDashboard();
+  const t = useIntl();
   const [validate, submit] = useProductDetailsApi(product.id);
 
   const submitFunc = async (
@@ -54,15 +61,31 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
     if (!result) return {};
 
     const [errors, newProduct] = result;
-    console.log("submit return", errors, newProduct);
     // Leaving the description value in here causes the final form inital values
     // to always be different due to not managing description with final form
     delete values["description"];
 
-    if (!errors) {
-      //@TODO: create success alert
-      //@TODO: - use mutate({ ...newData }) to optimistically update new product details
-      //       - mutate the product overview list as well?
+    if (!errors) return {};
+
+    if (Object.keys(errors).length == 0) {
+      //@TODO: Figure out how to use the newly returned product to
+      //       optimistically update with mutate.
+      mutate();
+
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "success",
+          message: t.formatMessage({
+            description: "General product management successful save",
+            defaultMessage: "Successfully updated your product",
+          }),
+        },
+      });
+
+      if (slateIsDirty) {
+        toggleSlateDirtyState();
+      }
     }
 
     return errors;
