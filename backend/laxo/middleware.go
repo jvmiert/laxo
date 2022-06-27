@@ -85,6 +85,7 @@ func (m *Middleware) AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
 				HttpOnly: true,
 				Secure:   true,
 				Expires:  time.Unix(0, 0),
+				SameSite: http.SameSiteStrictMode,
 			}
 
 			http.SetCookie(w, authCookie)
@@ -132,6 +133,7 @@ func (m *Middleware) AssureAuth(handler AuthHandlerFunc) http.HandlerFunc {
 				HttpOnly: true,
 				Secure:   true,
 				Expires:  newExpireTime,
+				SameSite: http.SameSiteStrictMode,
 			}
 
 			http.SetCookie(w, authCookie)

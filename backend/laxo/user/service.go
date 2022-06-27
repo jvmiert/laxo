@@ -233,6 +233,7 @@ func (s *Service) SetUserCookie(sessionToken string, w http.ResponseWriter, t ti
 		HttpOnly: true,
 		Secure:   true,
 		Expires:  t,
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	http.SetCookie(w, authCookie)
@@ -245,6 +246,7 @@ func (s *Service) RemoveUserCookie(w http.ResponseWriter) {
 		HttpOnly: true,
 		Secure:   true,
 		Expires:  time.Unix(0, 0),
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	http.SetCookie(w, authCookie)
