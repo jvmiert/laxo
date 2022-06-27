@@ -8,37 +8,34 @@ import (
 )
 
 type UserReturn struct {
-	ID         string       `json:"id"`
-	Email      string       `json:"email"`
-	Created    null.Time    `json:"created"`
-	Fullname   string       `json:"fullname"`
+	ID       string    `json:"id"`
+	Email    string    `json:"email"`
+	Created  null.Time `json:"created"`
+	Fullname string    `json:"fullname"`
 }
 
-
 type LoginRequest struct {
-  Email    string `json:"email"`
-  Password string `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type User struct {
-  Model       *sqlc.User
-  SessionKey  string
+	Model      *sqlc.User
+	SessionKey string
 }
-
 
 func (u *User) JSON() ([]byte, error) {
-  var ur UserReturn
-  ur.ID         = u.Model.ID
-  ur.Email      = u.Model.Email
-  ur.Created    = u.Model.Created
-  ur.Fullname   = u.Model.Fullname
+	var ur UserReturn
+	ur.ID = u.Model.ID
+	ur.Email = u.Model.Email
+	ur.Created = u.Model.Created
+	ur.Fullname = u.Model.Fullname
 
-  bytes, err := json.Marshal(ur)
+	bytes, err := json.Marshal(ur)
 
-  if err != nil {
-    return bytes, err
-  }
+	if err != nil {
+		return bytes, err
+	}
 
-  return bytes, nil
+	return bytes, nil
 }
-

@@ -93,6 +93,7 @@ export type LaxoProductPlatforms = {
   name: string;
   status: string;
   productURL: string;
+  syncStatus: boolean;
 };
 
 export type LaxoProductAsset = {

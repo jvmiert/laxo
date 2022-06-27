@@ -42,13 +42,30 @@ export type AssignAssetRequest = {
   order: Number;
 };
 
+export type ChangeSyncRequest = {
+  productID: string;
+  platform: string;
+  state: boolean;
+};
+
 export default function useProductApi(): {
   doCreateAsset: (request: CreateAssetRequest) => Promise<CreateAssetReply>;
   doUploadAsset: (assetID: string, file: File) => Promise<UploadAssetReply>;
   doAssetRequest: (request: AssignAssetRequest) => Promise<AssetRequestReply>;
+  doChangePlatformSync: (request: ChangeSyncRequest) => Promise<boolean>;
 } {
   const { axiosClient } = useAxios();
   const { mutate } = useSWRConfig();
+
+  const doChangePlatformSync = async (r: ChangeSyncRequest): Promise<boolean> => {
+    try {
+      const res = await axiosClient.post(`/change-platform-sync/${r.productID}`, { platform: r.platform, state: r.state });
+      console.log(res)
+      return true
+    } catch (error) {
+      return false;
+    }
+  };
 
   const doCreateAsset = async (request: CreateAssetRequest) => {
     try {
@@ -80,5 +97,5 @@ export default function useProductApi(): {
     }
   };
 
-  return { doCreateAsset, doUploadAsset, doAssetRequest };
+  return { doCreateAsset, doUploadAsset, doAssetRequest, doChangePlatformSync };
 }

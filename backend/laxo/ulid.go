@@ -33,4 +33,3 @@ func GetUILD() string {
 	p.Put(g)
 	return id
 }
-

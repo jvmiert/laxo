@@ -68,7 +68,7 @@ INSERT INTO products_platform (
 ) VALUES (
   $1, $2
 )
-RETURNING product_id, products_lazada_id
+RETURNING product_id, products_lazada_id, sync_lazada
 `
 
 type CreateProductPlatformParams struct {
@@ -79,7 +79,7 @@ type CreateProductPlatformParams struct {
 func (q *Queries) CreateProductPlatform(ctx context.Context, arg CreateProductPlatformParams) (ProductsPlatform, error) {
 	row := q.db.QueryRow(ctx, createProductPlatform, arg.ProductID, arg.ProductsLazadaID)
 	var i ProductsPlatform
-	err := row.Scan(&i.ProductID, &i.ProductsLazadaID)
+	err := row.Scan(&i.ProductID, &i.ProductsLazadaID, &i.SyncLazada)
 	return i, err
 }
 
@@ -202,16 +202,16 @@ SELECT products.id, products.name, products.description, products.description_sl
   products_attribute_lazada.name as lazada_name,
   products_sku_lazada.sku_id as lazada_platform_sku,
   products_sku_lazada.seller_sku as lazada_seller_sku,
-  products_lazada.status as lazada_status
+  products_lazada.status as lazada_status,
+  products_platform.sync_lazada as lazada_sync_status
 FROM products
 LEFT JOIN products_media ON products_media.product_id = products.id
 LEFT JOIN assets ON assets.id = products_media.asset_id
-JOIN products_platform ON products_platform.product_id = products.id
-JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
-JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
-JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+LEFT JOIN products_platform ON products_platform.product_id = products.id
+LEFT JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+LEFT JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+LEFT JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
 WHERE products.id = $1 AND products.shop_id = $2
-GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
 `
 
 type GetProductDetailsByIDParams struct {
@@ -231,12 +231,13 @@ type GetProductDetailsByIDRow struct {
 	MediaID           null.String    `json:"mediaID"`
 	Created           null.Time      `json:"created"`
 	Updated           null.Time      `json:"updated"`
-	LazadaID          int64          `json:"lazadaID"`
+	LazadaID          null.Int       `json:"lazadaID"`
 	LazadaUrl         null.String    `json:"lazadaUrl"`
 	LazadaName        null.String    `json:"lazadaName"`
 	LazadaPlatformSku null.Int       `json:"lazadaPlatformSku"`
-	LazadaSellerSku   string         `json:"lazadaSellerSku"`
+	LazadaSellerSku   null.String    `json:"lazadaSellerSku"`
 	LazadaStatus      null.String    `json:"lazadaStatus"`
+	LazadaSyncStatus  null.Bool      `json:"lazadaSyncStatus"`
 }
 
 func (q *Queries) GetProductDetailsByID(ctx context.Context, arg GetProductDetailsByIDParams) (GetProductDetailsByIDRow, error) {
@@ -260,12 +261,13 @@ func (q *Queries) GetProductDetailsByID(ctx context.Context, arg GetProductDetai
 		&i.LazadaPlatformSku,
 		&i.LazadaSellerSku,
 		&i.LazadaStatus,
+		&i.LazadaSyncStatus,
 	)
 	return i, err
 }
 
 const getProductPlatformByLazadaID = `-- name: GetProductPlatformByLazadaID :one
-SELECT product_id, products_lazada_id FROM products_platform
+SELECT product_id, products_lazada_id, sync_lazada FROM products_platform
 WHERE products_lazada_id = $1
 LIMIT 1
 `
@@ -273,12 +275,12 @@ LIMIT 1
 func (q *Queries) GetProductPlatformByLazadaID(ctx context.Context, productsLazadaID null.String) (ProductsPlatform, error) {
 	row := q.db.QueryRow(ctx, getProductPlatformByLazadaID, productsLazadaID)
 	var i ProductsPlatform
-	err := row.Scan(&i.ProductID, &i.ProductsLazadaID)
+	err := row.Scan(&i.ProductID, &i.ProductsLazadaID, &i.SyncLazada)
 	return i, err
 }
 
 const getProductPlatformByProductID = `-- name: GetProductPlatformByProductID :one
-SELECT product_id, products_lazada_id FROM products_platform
+SELECT product_id, products_lazada_id, sync_lazada FROM products_platform
 WHERE product_id = $1
 LIMIT 1
 `
@@ -286,7 +288,7 @@ LIMIT 1
 func (q *Queries) GetProductPlatformByProductID(ctx context.Context, productID string) (ProductsPlatform, error) {
 	row := q.db.QueryRow(ctx, getProductPlatformByProductID, productID)
 	var i ProductsPlatform
-	err := row.Scan(&i.ProductID, &i.ProductsLazadaID)
+	err := row.Scan(&i.ProductID, &i.ProductsLazadaID, &i.SyncLazada)
 	return i, err
 }
 
@@ -315,10 +317,10 @@ LEFT JOIN (
   FROM products
   LEFT JOIN products_media ON products_media.product_id = products.id
   LEFT JOIN assets ON assets.id = products_media.asset_id
-  JOIN products_platform ON products_platform.product_id = products.id
-  JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
-  JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
-  JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+  LEFT JOIN products_platform ON products_platform.product_id = products.id
+  LEFT JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+  LEFT JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+  LEFT JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
   WHERE products.shop_id = $1 AND (products.name ILIKE $2 OR products.msku ILIKE $3)
   GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
   ORDER BY UPPER(products.name) COLLATE "vi-VN-x-icu"
@@ -426,10 +428,10 @@ LEFT JOIN (
   FROM products
   LEFT JOIN products_media ON products_media.product_id = products.id
   LEFT JOIN assets ON assets.id = products_media.asset_id
-  JOIN products_platform ON products_platform.product_id = products.id
-  JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
-  JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
-  JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+  LEFT JOIN products_platform ON products_platform.product_id = products.id
+  LEFT JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+  LEFT JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+  LEFT JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
   WHERE products.shop_id = $1
   GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
   ORDER BY UPPER(products.name) COLLATE "vi-VN-x-icu"
@@ -556,5 +558,25 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.Created,
 		&i.Updated,
 	)
+	return i, err
+}
+
+const updateProductsPlatformSync = `-- name: UpdateProductsPlatformSync :one
+UPDATE products_platform
+SET
+ sync_lazada = coalesce($1, sync_lazada)
+WHERE product_id = $2
+RETURNING product_id, products_lazada_id, sync_lazada
+`
+
+type UpdateProductsPlatformSyncParams struct {
+	SyncLazada null.Bool `json:"syncLazada"`
+	ProductID  string    `json:"productID"`
+}
+
+func (q *Queries) UpdateProductsPlatformSync(ctx context.Context, arg UpdateProductsPlatformSyncParams) (ProductsPlatform, error) {
+	row := q.db.QueryRow(ctx, updateProductsPlatformSync, arg.SyncLazada, arg.ProductID)
+	var i ProductsPlatform
+	err := row.Scan(&i.ProductID, &i.ProductsLazadaID, &i.SyncLazada)
 	return i, err
 }

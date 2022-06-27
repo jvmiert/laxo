@@ -29,8 +29,14 @@ type ProductPlatformInformation struct {
 	PlatformSKU  string      `json:"platformSKU"`
 	PlatformName string      `json:"platformName"`
 	Status       string      `json:"status"`
+	SyncStatus   bool        `json:"syncStatus"`
 	Name         null.String `json:"name"`
 	ProductURL   null.String `json:"productURL"`
+}
+
+type ProductChangedSyncRequest struct {
+	Platform string `json:"platform"`
+	State    bool   `json:"state"`
 }
 
 type ProductDetailPostRequest struct {

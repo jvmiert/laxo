@@ -10,13 +10,13 @@ import (
 )
 
 type notificationHandler struct {
-  server *laxo.Server
-  service *notification.Service
+	server  *laxo.Server
+	service *notification.Service
 }
 
 func InitNotificationHandler(server *laxo.Server, s *notification.Service, r *mux.Router, n *negroni.Negroni) {
-  h := notificationHandler{
-    server: server,
+	h := notificationHandler{
+		server:  server,
 		service: s,
 	}
 
@@ -26,16 +26,15 @@ func InitNotificationHandler(server *laxo.Server, s *notification.Service, r *mu
 }
 
 func (h *notificationHandler) GetNotifications(w http.ResponseWriter, r *http.Request, uID string) {
-  js, err := h.service.GetNotificationsJSON(uID, 0, 50)
-  if err != nil {
-    h.server.Logger.Errorw("GetNotifications handler error",
-      "error", err,
-    )
-    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    return
-  }
+	js, err := h.service.GetNotificationsJSON(uID, 0, 50)
+	if err != nil {
+		h.server.Logger.Errorw("GetNotifications handler error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-  w.Header().Set("Content-Type", "application/json; charset=utf-8")
-  w.Write(js)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(js)
 }
-

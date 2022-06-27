@@ -23,10 +23,10 @@ LEFT JOIN (
   FROM products
   LEFT JOIN products_media ON products_media.product_id = products.id
   LEFT JOIN assets ON assets.id = products_media.asset_id
-  JOIN products_platform ON products_platform.product_id = products.id
-  JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
-  JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
-  JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+  LEFT JOIN products_platform ON products_platform.product_id = products.id
+  LEFT JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+  LEFT JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+  LEFT JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
   WHERE products.shop_id = $1 AND (products.name ILIKE $2 OR products.msku ILIKE $3)
   GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
   ORDER BY UPPER(products.name) COLLATE "vi-VN-x-icu"
@@ -59,10 +59,10 @@ LEFT JOIN (
   FROM products
   LEFT JOIN products_media ON products_media.product_id = products.id
   LEFT JOIN assets ON assets.id = products_media.asset_id
-  JOIN products_platform ON products_platform.product_id = products.id
-  JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
-  JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
-  JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+  LEFT JOIN products_platform ON products_platform.product_id = products.id
+  LEFT JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+  LEFT JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+  LEFT JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
   WHERE products.shop_id = $1
   GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id
   ORDER BY UPPER(products.name) COLLATE "vi-VN-x-icu"
@@ -77,16 +77,16 @@ SELECT products.*,
   products_attribute_lazada.name as lazada_name,
   products_sku_lazada.sku_id as lazada_platform_sku,
   products_sku_lazada.seller_sku as lazada_seller_sku,
-  products_lazada.status as lazada_status
+  products_lazada.status as lazada_status,
+  products_platform.sync_lazada as lazada_sync_status
 FROM products
 LEFT JOIN products_media ON products_media.product_id = products.id
 LEFT JOIN assets ON assets.id = products_media.asset_id
-JOIN products_platform ON products_platform.product_id = products.id
-JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
-JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
-JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
-WHERE products.id = $1 AND products.shop_id = $2
-GROUP BY products.id, products_lazada.id, products_sku_lazada.id, products_attribute_lazada.id;
+LEFT JOIN products_platform ON products_platform.product_id = products.id
+LEFT JOIN products_lazada ON products_platform.products_lazada_id = products_lazada.id
+LEFT JOIN products_sku_lazada ON products_sku_lazada.product_id = products_lazada.id
+LEFT JOIN products_attribute_lazada ON products_attribute_lazada.product_id = products_lazada.id
+WHERE products.id = $1 AND products.shop_id = $2;
 
 -- name: GetProductAssetsByProductID :many
 SELECT assets.*, products_media.image_order, products_media.status FROM products
@@ -146,3 +146,10 @@ LIMIT 1;
 SELECT * FROM products
 WHERE msku = $1 AND shop_id = $2
 LIMIT 1;
+
+-- name: UpdateProductsPlatformSync :one
+UPDATE products_platform
+SET
+ sync_lazada = coalesce(sqlc.narg('sync_lazada'), sync_lazada)
+WHERE product_id = sqlc.arg('product_id')
+RETURNING *;

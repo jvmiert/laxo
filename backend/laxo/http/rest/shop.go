@@ -52,6 +52,11 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.GetProduct)),
 	)).Methods("GET")
 
+	r.Handle("/change-platform-sync/{productID:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}}", n.With(
+		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleChangePlatformSync)),
+	)).Methods("POST")
+
 	r.Handle("/shop", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleGetMyShops)),
 	)).Methods("GET")
@@ -77,6 +82,27 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 	r.Handle("/platforms/lazada", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleLazadaPlatformInfo)),
 	)).Methods("GET")
+}
+
+func (h *shopHandler) HandleChangePlatformSync(w http.ResponseWriter, r *http.Request, uID string) {
+	var p models.ProductChangedSyncRequest
+
+	if err := laxo.DecodeJSONBody(h.server.Logger, w, r, &p); err != nil {
+		var mr *laxo.MalformedRequest
+		if errors.As(err, &mr) {
+			http.Error(w, mr.Msg, mr.Status)
+		} else {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	h.server.Logger.Debugw("ProductChangedSyncRequest",
+		"r", p,
+	)
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write([]byte("LOL"))
 }
 
 func (h *shopHandler) HandlePostProductDetails(w http.ResponseWriter, r *http.Request, uID string) {

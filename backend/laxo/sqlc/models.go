@@ -127,6 +127,7 @@ type ProductsMedia struct {
 type ProductsPlatform struct {
 	ProductID        string      `json:"productID"`
 	ProductsLazadaID null.String `json:"productsLazadaID"`
+	SyncLazada       null.Bool   `json:"syncLazada"`
 }
 
 type ProductsSkuLazada struct {

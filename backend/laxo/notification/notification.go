@@ -7,16 +7,16 @@ import (
 )
 
 type Notification struct {
-  Model       *sqlc.Notification       `json:"notification"`
-  GroupModel  *sqlc.NotificationsGroup `json:"notificationGroup"`
+	Model      *sqlc.Notification       `json:"notification"`
+	GroupModel *sqlc.NotificationsGroup `json:"notificationGroup"`
 }
 
 func (n *Notification) JSON() ([]byte, error) {
-  bytes, err := json.Marshal(n)
+	bytes, err := json.Marshal(n)
 
-  if err != nil {
-    return bytes, err
-  }
+	if err != nil {
+		return bytes, err
+	}
 
-  return bytes, nil
+	return bytes, nil
 }

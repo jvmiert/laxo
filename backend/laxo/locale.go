@@ -10,17 +10,16 @@ import (
 )
 
 var serverLangs = []language.Tag{
-    language.English,
-    language.Vietnamese,
+	language.English,
+	language.Vietnamese,
 }
 
 var matcher = language.NewMatcher(serverLangs)
 
 func GetLocalePrinter(r *http.Request) *message.Printer {
-  localeHeader := r.Header.Get("locale")
+	localeHeader := r.Header.Get("locale")
 
-  localeTag, _, _ := matcher.Match(language.Make(localeHeader))
+	localeTag, _, _ := matcher.Match(language.Make(localeHeader))
 
-  return message.NewPrinter(localeTag)
+	return message.NewPrinter(localeTag)
 }
-

@@ -17,206 +17,206 @@ var ErrInvalidPath = errors.New("set a valid assets base path")
 const productImageDir = "products"
 
 type assetsStore struct {
-  assetsPath string
-  *Store
+	assetsPath string
+	*Store
 }
 
 func newAssetsStore(store *Store, assetsBasePath string) (*assetsStore, error) {
-  if assetsBasePath == "" {
-    return nil, ErrInvalidPath
-  }
+	if assetsBasePath == "" {
+		return nil, ErrInvalidPath
+	}
 
-  dir := filepath.Dir(assetsBasePath)
+	dir := filepath.Dir(assetsBasePath)
 
-  fi, err := os.Stat(dir)
-  if os.IsNotExist(err) {
-    return nil, ErrInvalidPath
-  } else if err != nil {
-    return nil, err
-  }
+	fi, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		return nil, ErrInvalidPath
+	} else if err != nil {
+		return nil, err
+	}
 
-  if !fi.IsDir() {
-    return nil, ErrInvalidPath
-  }
+	if !fi.IsDir() {
+		return nil, ErrInvalidPath
+	}
 
-  err = os.MkdirAll(assetsBasePath, 0664)
-  if err != nil {
-    return nil, err
-  }
+	err = os.MkdirAll(assetsBasePath, 0664)
+	if err != nil {
+		return nil, err
+	}
 
-  return &assetsStore{
-    dir,
-    store,
-  }, nil
+	return &assetsStore{
+		dir,
+		store,
+	}, nil
 }
 
 func (s *assetsStore) CreateNewAsset(ShopID, MurmurHash, OriginalFilename string, FileSize, Width, Height int64) (*sqlc.Asset, error) {
-  param := sqlc.CreateAssetParams{
-    ShopID: ShopID,
-    MurmurHash: MurmurHash,
-    OriginalFilename: null.StringFrom(OriginalFilename),
-    Extension: null.NewString("", false),
-    FileSize: null.IntFrom(FileSize),
-    Width: null.IntFrom(Width),
-    Height: null.IntFrom(Height),
-  }
+	param := sqlc.CreateAssetParams{
+		ShopID:           ShopID,
+		MurmurHash:       MurmurHash,
+		OriginalFilename: null.StringFrom(OriginalFilename),
+		Extension:        null.NewString("", false),
+		FileSize:         null.IntFrom(FileSize),
+		Width:            null.IntFrom(Width),
+		Height:           null.IntFrom(Height),
+	}
 
-  asset, err := s.queries.CreateAsset(
-    context.Background(),
-    param,
-  )
+	asset, err := s.queries.CreateAsset(
+		context.Background(),
+		param,
+	)
 
-  return &asset, err
+	return &asset, err
 }
 
 func (s *assetsStore) UnlinkProductMedia(productID string, assetID string) error {
-  param := sqlc.DeleteProductMediaParams{
-    ProductID: productID,
-    AssetID: assetID,
-  }
+	param := sqlc.DeleteProductMediaParams{
+		ProductID: productID,
+		AssetID:   assetID,
+	}
 
-  return s.queries.DeleteProductMedia(
-    context.Background(),
-    param,
-  )
+	return s.queries.DeleteProductMedia(
+		context.Background(),
+		param,
+	)
 }
 
 func (s *assetsStore) UpdateProductMedia(assetID string, productID string, status null.String, order null.Int) (*sqlc.ProductsMedia, error) {
-  media, err := s.queries.UpdateProductMedia(
-    context.Background(),
-    sqlc.UpdateProductMediaParams{
-      ProductID: productID,
-      AssetID: assetID,
-      Status: status,
-      ImageOrder: order,
-    },
-  )
-  if err != nil {
-    return nil, err
-  }
+	media, err := s.queries.UpdateProductMedia(
+		context.Background(),
+		sqlc.UpdateProductMediaParams{
+			ProductID:  productID,
+			AssetID:    assetID,
+			Status:     status,
+			ImageOrder: order,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
 
-  return &media, nil
+	return &media, nil
 }
 
 func (s *assetsStore) CreateProductMedia(assetID string, productID string, status string, order int64) (*sqlc.ProductsMedia, error) {
-  media, err := s.queries.CreateProductMedia(
-    context.Background(),
-    sqlc.CreateProductMediaParams{
-      ProductID: productID,
-      AssetID: assetID,
-      Status: status,
-      ImageOrder: null.IntFrom(order),
-    },
-  )
-  if err != nil {
-    return nil, err
-  }
+	media, err := s.queries.CreateProductMedia(
+		context.Background(),
+		sqlc.CreateProductMediaParams{
+			ProductID:  productID,
+			AssetID:    assetID,
+			Status:     status,
+			ImageOrder: null.IntFrom(order),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
 
-  return &media, nil
+	return &media, nil
 }
 
 func (s *assetsStore) GetProductMedia(assetID string, productID string) (*sqlc.ProductsMedia, error) {
-  media, err := s.queries.GetProductMedia(
-    context.Background(),
-    sqlc.GetProductMediaParams{
-      ProductID: productID,
-      AssetID: assetID,
-    },
-  )
-  if err != nil {
-    return nil, err
-  }
+	media, err := s.queries.GetProductMedia(
+		context.Background(),
+		sqlc.GetProductMediaParams{
+			ProductID: productID,
+			AssetID:   assetID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
 
-  return &media, nil
+	return &media, nil
 }
 
 func (s *assetsStore) GetAssetByID(assetID string) (*sqlc.Asset, error) {
-  asset, err := s.queries.GetAssetByID(
-    context.Background(),
-    assetID,
-  )
-  if err != nil {
-    return nil, err
-  }
+	asset, err := s.queries.GetAssetByID(
+		context.Background(),
+		assetID,
+	)
+	if err != nil {
+		return nil, err
+	}
 
-  return &asset, nil
+	return &asset, nil
 }
 
 func (s *assetsStore) SaveAssetToDisk(b []byte, assetID string, shopToken string, fileExt string) (*sqlc.Asset, error) {
-  asset, err := s.GetAssetByID(assetID)
-  if err != nil {
-    return nil, fmt.Errorf("GetAssetByID: %w", err)
-  }
+	asset, err := s.GetAssetByID(assetID)
+	if err != nil {
+		return nil, fmt.Errorf("GetAssetByID: %w", err)
+	}
 
-  filename := asset.ID + fileExt
+	filename := asset.ID + fileExt
 
-  path := s.assetsPath + string(os.PathSeparator)
-  path = path + shopToken + string(os.PathSeparator)
+	path := s.assetsPath + string(os.PathSeparator)
+	path = path + shopToken + string(os.PathSeparator)
 
-  err = os.MkdirAll(path, os.ModePerm)
-  if err != nil {
-    return nil, err
-  }
+	err = os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
 
-  path = path + filename
+	path = path + filename
 
 	err = ioutil.WriteFile(path, b, 0644)
 	if err != nil {
-    return nil, fmt.Errorf("ioutil.WriteFile: %w", err)
+		return nil, fmt.Errorf("ioutil.WriteFile: %w", err)
 	}
 
-  param := sqlc.UpdateAssetParams{
-    ShopID: null.NewString("", false),
-    MurmurHash: null.NewString("", false),
-    OriginalFilename: null.NewString("", false),
-    Extension: null.StringFrom(fileExt),
-    FileSize: null.NewInt(0, false),
-    Width: null.NewInt(0, false),
-    Height: null.NewInt(0, false),
-    ID: asset.ID,
-  }
+	param := sqlc.UpdateAssetParams{
+		ShopID:           null.NewString("", false),
+		MurmurHash:       null.NewString("", false),
+		OriginalFilename: null.NewString("", false),
+		Extension:        null.StringFrom(fileExt),
+		FileSize:         null.NewInt(0, false),
+		Width:            null.NewInt(0, false),
+		Height:           null.NewInt(0, false),
+		ID:               asset.ID,
+	}
 
-  updatedAsset, err := s.queries.UpdateAsset(
-    context.Background(),
-    param,
-  )
-  if err != nil {
-    return nil, fmt.Errorf("UpdateAsset: %w", err)
-  }
+	updatedAsset, err := s.queries.UpdateAsset(
+		context.Background(),
+		param,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateAsset: %w", err)
+	}
 
-  return &updatedAsset, nil
+	return &updatedAsset, nil
 }
 
 func (s *assetsStore) GetAssetByMurmur(murmurHash string, shopID string) (*sqlc.Asset, error) {
-  params := sqlc.GetAssetByMurmurParams{
-    MurmurHash: murmurHash,
-    ShopID: shopID,
-  }
+	params := sqlc.GetAssetByMurmurParams{
+		MurmurHash: murmurHash,
+		ShopID:     shopID,
+	}
 
-  asset, err := s.queries.GetAssetByMurmur(
-    context.Background(),
-    params,
-  )
-  if err != nil {
-    return nil, err
-  }
+	asset, err := s.queries.GetAssetByMurmur(
+		context.Background(),
+		params,
+	)
+	if err != nil {
+		return nil, err
+	}
 
-  return &asset, nil
+	return &asset, nil
 }
 
 func (s *assetsStore) GetAssetByOriginalName(originalName string, shopID string) (*sqlc.Asset, error) {
-  params := sqlc.GetAssetByOriginalNameParams{
-    OriginalFilename: null.StringFrom(originalName),
-    ShopID: shopID,
-  }
+	params := sqlc.GetAssetByOriginalNameParams{
+		OriginalFilename: null.StringFrom(originalName),
+		ShopID:           shopID,
+	}
 
-  asset, err := s.queries.GetAssetByOriginalName(
-    context.Background(),
-    params,
-  )
-  if err != nil {
-    return nil, err
-  }
+	asset, err := s.queries.GetAssetByOriginalName(
+		context.Background(),
+		params,
+	)
+	if err != nil {
+		return nil, err
+	}
 
-  return &asset, nil
+	return &asset, nil
 }

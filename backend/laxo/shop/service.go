@@ -361,13 +361,14 @@ func (s *Service) GetProductDetailsByID(productID string, shopID string) (*model
 	}
 
 	lazadaPlatform := models.ProductPlatformInformation{
-		ID:           strconv.FormatInt(pModel.LazadaID, 10),
+		ID:           strconv.FormatInt(pModel.LazadaID.Int64, 10),
 		ProductURL:   pModel.LazadaUrl,
 		Name:         pModel.LazadaName,
 		PlatformName: "lazada",
 		PlatformSKU:  platformSKU,
-		SellerSKU:    pModel.LazadaSellerSku,
+		SellerSKU:    pModel.LazadaSellerSku.String,
 		Status:       pModel.LazadaStatus.String,
+		SyncStatus:   pModel.LazadaSyncStatus.Bool,
 	}
 
 	platformList = append(platformList, lazadaPlatform)

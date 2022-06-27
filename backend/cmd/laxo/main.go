@@ -27,202 +27,202 @@ import (
 )
 
 func main() {
-  logger := laxo.NewLogger()
-  defer logger.Zap.Sync()
+	logger := laxo.NewLogger()
+	defer logger.Zap.Sync()
 
-  config, err := laxo.InitConfig()
-  if err != nil {
-    logger.Errorw("Could not init config",
-      "error", err,
-    )
-  }
+	config, err := laxo.InitConfig()
+	if err != nil {
+		logger.Errorw("Could not init config",
+			"error", err,
+		)
+	}
 
-  if err = godotenv.Load(".env"); err != nil {
-    logger.Errorw("Failed to load .env file",
-      "error", err,
-    )
-  }
+	if err = godotenv.Load(".env"); err != nil {
+		logger.Errorw("Failed to load .env file",
+			"error", err,
+		)
+	}
 
-  server, err := laxo.NewServer(logger, config)
-  if err != nil {
-    logger.Errorw("Failed to get server struct",
-      "error", err,
-    )
-  }
+	server, err := laxo.NewServer(logger, config)
+	if err != nil {
+		logger.Errorw("Failed to get server struct",
+			"error", err,
+		)
+	}
 
-  server.InitMiddleware()
+	server.InitMiddleware()
 
-  redisURI := os.Getenv("REDIS_URL")
+	redisURI := os.Getenv("REDIS_URL")
 
-  if err = server.InitRedis(redisURI); err != nil {
-    logger.Errorw("Failed to init Redis",
-      "error", err,
-    )
-    return
-  }
+	if err = server.InitRedis(redisURI); err != nil {
+		logger.Errorw("Failed to init Redis",
+			"error", err,
+		)
+		return
+	}
 
-  dbURI := os.Getenv("POSTGRESQL_URL")
+	dbURI := os.Getenv("POSTGRESQL_URL")
 
-  if err = server.InitDatabase(dbURI); err != nil {
-    logger.Errorw("Failed to init Database",
-      "error", err,
-      "uri", dbURI,
-    )
-    return
-  }
+	if err = server.InitDatabase(dbURI); err != nil {
+		logger.Errorw("Failed to init Database",
+			"error", err,
+			"uri", dbURI,
+		)
+		return
+	}
 
-  temporalClient, err := temporal_client.NewClient(logger)
-  if err != nil {
-    logger.Errorw("Failed to create Temporal client",
-      "error", err,
-    )
-  }
+	temporalClient, err := temporal_client.NewClient(logger)
+	if err != nil {
+		logger.Errorw("Failed to create Temporal client",
+			"error", err,
+		)
+	}
 
-  assetsBasePath := os.Getenv("ASSETS_BASE_PATH")
+	assetsBasePath := os.Getenv("ASSETS_BASE_PATH")
 
-  store, err := store.NewStore(dbURI, logger, assetsBasePath)
-  if err != nil {
-    logger.Error("Failed to create new store", "error", err)
-    return
-  }
+	store, err := store.NewStore(dbURI, logger, assetsBasePath)
+	if err != nil {
+		logger.Error("Failed to create new store", "error", err)
+		return
+	}
 
-  server.ServeStaticFiles(assetsBasePath)
+	server.ServeStaticFiles(assetsBasePath)
 
-  notificationService := notification.NewService(store, logger, server)
-  rest.InitNotificationHandler(server, &notificationService, server.Router, server.Negroni)
+	notificationService := notification.NewService(store, logger, server)
+	rest.InitNotificationHandler(server, &notificationService, server.Router, server.Negroni)
 
-  lazadaID := os.Getenv("LAZADA_ID")
-  lazadaSecret := os.Getenv("LAZADA_SECRET")
-  lazadaService := lazada.NewService(store, logger, server, lazadaID, lazadaSecret)
+	lazadaID := os.Getenv("LAZADA_ID")
+	lazadaSecret := os.Getenv("LAZADA_SECRET")
+	lazadaService := lazada.NewService(store, logger, server, lazadaID, lazadaSecret)
 
-  shopService := shop.NewService(store, logger, server)
-  rest.InitShopHandler(server, &shopService, &lazadaService, server.Router,
-                       server.Negroni, temporalClient)
+	shopService := shop.NewService(store, logger, server)
+	rest.InitShopHandler(server, &shopService, &lazadaService, server.Router,
+		server.Negroni, temporalClient)
 
-  userService := user.NewService(store, logger, server)
-  rest.InitUserHandler(server, &userService, server.Router, server.Negroni)
+	userService := user.NewService(store, logger, server)
+	rest.InitUserHandler(server, &userService, server.Router, server.Negroni)
 
-  assetsService := assets.NewService(store, logger, server)
+	assetsService := assets.NewService(store, logger, server)
 
-  rest.InitTestHandler(server, &lazadaService, &shopService, &assetsService, server.Router, server.Negroni)
-  rest.InitAssetsHandler(server, &shopService, &assetsService, server.Router, server.Negroni)
+	rest.InitTestHandler(server, &lazadaService, &shopService, &assetsService, server.Router, server.Negroni)
+	rest.InitAssetsHandler(server, &shopService, &assetsService, server.Router, server.Negroni)
 
-  ctx := context.Background()
-  ctx, cancel := context.WithCancel(ctx)
-  defer cancel()
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
-  interrupt := make(chan os.Signal, 1)
-  signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-  defer signal.Stop(interrupt)
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(interrupt)
 
-  g, ctx := errgroup.WithContext(ctx)
+	g, ctx := errgroup.WithContext(ctx)
 
-  var httpServer *http.Server
+	var httpServer *http.Server
 
-  logger.Infow("Serving http...",
-    "port", config.Port,
-  )
+	logger.Infow("Serving http...",
+		"port", config.Port,
+	)
 
-  g.Go(func() error {
-    httpServer = &http.Server{
-      Handler:      server.Router,
-      Addr:         "127.0.0.1:" + config.Port,
-      WriteTimeout: 15 * time.Second,
-      ReadTimeout:  15 * time.Second,
-    }
+	g.Go(func() error {
+		httpServer = &http.Server{
+			Handler:      server.Router,
+			Addr:         "127.0.0.1:" + config.Port,
+			WriteTimeout: 15 * time.Second,
+			ReadTimeout:  15 * time.Second,
+		}
 
-    if errServer := httpServer.ListenAndServe(); err != http.ErrServerClosed {
-      return errServer
-    }
+		if errServer := httpServer.ListenAndServe(); err != http.ErrServerClosed {
+			return errServer
+		}
 
-    return nil
-  })
+		return nil
+	})
 
-  var grpcHttpServer *http.Server
+	var grpcHttpServer *http.Server
 
-  logger.Infow("Serving GRPC...",
-    "port", config.GRPCPort,
-  )
+	logger.Infow("Serving GRPC...",
+		"port", config.GRPCPort,
+	)
 
-  g.Go(func() error {
-    protoServer, errGRPC := laxo_proto.NewServer(
-      &notificationService,
-      logger,
-      redisURI,
-      ctx,
-      server,
-    )
-    if errGRPC != nil {
-      logger.Error("GRPC Redis error", "error", errGRPC)
-      return errGRPC
-    }
+	g.Go(func() error {
+		protoServer, errGRPC := laxo_proto.NewServer(
+			&notificationService,
+			logger,
+			redisURI,
+			ctx,
+			server,
+		)
+		if errGRPC != nil {
+			logger.Error("GRPC Redis error", "error", errGRPC)
+			return errGRPC
+		}
 
-    protoMiddleware := laxo_proto.NewGRPCMiddleware(server)
+		protoMiddleware := laxo_proto.NewGRPCMiddleware(server)
 
-    opts := []grpc.ServerOption{
-      grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(protoMiddleware.StreamAuthFunc)),
-    }
-    grpcServer := grpc.NewServer(opts...)
+		opts := []grpc.ServerOption{
+			grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(protoMiddleware.StreamAuthFunc)),
+		}
+		grpcServer := grpc.NewServer(opts...)
 
-    laxo_proto_gen.RegisterUserServiceServer(grpcServer, protoServer)
+		laxo_proto_gen.RegisterUserServiceServer(grpcServer, protoServer)
 
-    option := []grpcweb.Option{
-      grpcweb.WithWebsockets(true),
-      grpcweb.WithOriginFunc(func(origin string) bool {
-        // Allow all origins, DO NOT do this in production
-        return true
-      }),
-    }
-    wrappedServer := grpcweb.WrapServer(
-      grpcServer,
-      option...,
-    )
+		option := []grpcweb.Option{
+			grpcweb.WithWebsockets(true),
+			grpcweb.WithOriginFunc(func(origin string) bool {
+				// Allow all origins, DO NOT do this in production
+				return true
+			}),
+		}
+		wrappedServer := grpcweb.WrapServer(
+			grpcServer,
+			option...,
+		)
 
-    handler := func(resp http.ResponseWriter, req *http.Request) {
-      wrappedServer.ServeHTTP(resp, req)
-    }
+		handler := func(resp http.ResponseWriter, req *http.Request) {
+			wrappedServer.ServeHTTP(resp, req)
+		}
 
-    grpcHttpServer = &http.Server{
-      Addr:    "127.0.0.1:" + config.GRPCPort,
-      Handler: http.HandlerFunc(handler),
-    }
+		grpcHttpServer = &http.Server{
+			Addr:    "127.0.0.1:" + config.GRPCPort,
+			Handler: http.HandlerFunc(handler),
+		}
 
-    if errGRPC = grpcHttpServer.ListenAndServe(); err != http.ErrServerClosed {
-      return errGRPC
-    }
+		if errGRPC = grpcHttpServer.ListenAndServe(); err != http.ErrServerClosed {
+			return errGRPC
+		}
 
-    return nil
-  })
+		return nil
+	})
 
-  select {
-  case <-interrupt:
-    break
-  case <-ctx.Done():
-    break
-  }
+	select {
+	case <-interrupt:
+		break
+	case <-ctx.Done():
+		break
+	}
 
-  logger.Info("Received shutdown signal...")
+	logger.Info("Received shutdown signal...")
 
-  cancel()
+	cancel()
 
-  shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 15*time.Second)
-  defer shutdownCancel()
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer shutdownCancel()
 
-  if temporalClient != nil {
-    temporalClient.Close()
-  }
+	if temporalClient != nil {
+		temporalClient.Close()
+	}
 
-  if httpServer != nil {
-    _ = httpServer.Shutdown(shutdownCtx)
-  }
+	if httpServer != nil {
+		_ = httpServer.Shutdown(shutdownCtx)
+	}
 
-  if grpcHttpServer != nil {
-    _ = grpcHttpServer.Shutdown(shutdownCtx)
-  }
+	if grpcHttpServer != nil {
+		_ = grpcHttpServer.Shutdown(shutdownCtx)
+	}
 
-  err = g.Wait()
-  if err != nil && err != http.ErrServerClosed {
-    logger.Error("Server returning an error", "error", err)
-    os.Exit(2)
-  }
- }
+	err = g.Wait()
+	if err != nil && err != http.ErrServerClosed {
+		logger.Error("Server returning an error", "error", err)
+		os.Exit(2)
+	}
+}

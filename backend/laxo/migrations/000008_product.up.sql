@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS products(
 CREATE TABLE IF NOT EXISTS products_platform(
   product_id CHAR(26) NOT NULL PRIMARY KEY,
   products_lazada_id CHAR(26),
+  sync_lazada BOOLEAN DEFAULT TRUE,
   CONSTRAINT fk_products_products_platform FOREIGN KEY(product_id) REFERENCES products(id),
   CONSTRAINT fk_products_products_lazada FOREIGN KEY(products_lazada_id) REFERENCES products_lazada(id)
 );

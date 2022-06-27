@@ -9,44 +9,43 @@ import (
 )
 
 type Client struct {
-  temporal client.Client
-  logger   *laxo.Logger
+	temporal client.Client
+	logger   *laxo.Logger
 }
 
 func NewClient(l *laxo.Logger) (*Client, error) {
-  tClient, err := client.NewClient(client.Options{
+	tClient, err := client.NewClient(client.Options{
 		HostPort: client.DefaultHostPort,
-  })
+	})
 
-  if err !=nil {
-    return nil, err
-  }
+	if err != nil {
+		return nil, err
+	}
 
-  c := &Client{
-    temporal: tClient,
-    logger: l,
-  }
+	c := &Client{
+		temporal: tClient,
+		logger:   l,
+	}
 
-  return c, err
+	return c, err
 }
 
 func (c *Client) Close() {
-  c.temporal.Close()
+	c.temporal.Close()
 }
 
 func (c *Client) StartLazadaPlatformSync(shopID string, userID string, overwrite bool) (string, error) {
-  workflowOptions := client.StartWorkflowOptions{
-    ID:        "product_" + laxo.GetUILD(),
-    TaskQueue: "product",
-  }
+	workflowOptions := client.StartWorkflowOptions{
+		ID:        "product_" + laxo.GetUILD(),
+		TaskQueue: "product",
+	}
 
 	we, err := c.temporal.ExecuteWorkflow(context.Background(), workflowOptions, lazada.SyncLazadaPlatform, shopID, userID, overwrite)
 	if err != nil {
-    c.logger.Errorw("Unable to execute workflow", "error", err)
-    return "", err
+		c.logger.Errorw("Unable to execute workflow", "error", err)
+		return "", err
 	}
 
 	c.logger.Infow("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
-  return we.GetID(), nil
+	return we.GetID(), nil
 }
-

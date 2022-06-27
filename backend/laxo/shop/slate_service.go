@@ -29,34 +29,34 @@ func parseCSS(token *html.Token) (alignValue string, isInlineBlock bool) {
 	}
 
 	if style != "" {
-    p := css.NewParser(bytes.NewBufferString(style), true)
-    out:
-    for {
-      gt, _, data := p.Next()
-      switch gt {
-      case css.DeclarationGrammar:
-        values := p.Values()
-        declarationValue := string(data)
-        if declarationValue == "text-align" {
-          if len(values) == 1 {
-            alignValue = string(values[0].Data)
-          }
-        }
-        if declarationValue == "display" {
-          if len(values) == 1 {
-            displayValue := string(values[0].Data)
+		p := css.NewParser(bytes.NewBufferString(style), true)
+	out:
+		for {
+			gt, _, data := p.Next()
+			switch gt {
+			case css.DeclarationGrammar:
+				values := p.Values()
+				declarationValue := string(data)
+				if declarationValue == "text-align" {
+					if len(values) == 1 {
+						alignValue = string(values[0].Data)
+					}
+				}
+				if declarationValue == "display" {
+					if len(values) == 1 {
+						displayValue := string(values[0].Data)
 
-            if displayValue == "inline-block" {
-              isInlineBlock = true
-            }
-          }
-        }
-      case css.ErrorGrammar:
-        break out
-      }
-    }
-  }
-  return alignValue, isInlineBlock
+						if displayValue == "inline-block" {
+							isInlineBlock = true
+						}
+					}
+				}
+			case css.ErrorGrammar:
+				break out
+			}
+		}
+	}
+	return alignValue, isInlineBlock
 }
 
 func addNode(schema []models.Element, nodeType string, index int, align string) ([]models.Element, int) {
@@ -67,20 +67,20 @@ func addNode(schema []models.Element, nodeType string, index int, align string) 
 			add = true
 		} else {
 			schema[len(schema)-1].Type = nodeType
-      if align != "" {
-        schema[len(schema)-1].Align = align
-      }
+			if align != "" {
+				schema[len(schema)-1].Align = align
+			}
 		}
 	} else {
 		add = true
 	}
 
 	if add {
-    el := models.Element{Type: nodeType, Children: []models.Text{}}
+		el := models.Element{Type: nodeType, Children: []models.Text{}}
 
-    if align != "" {
-      el.Align = align
-    }
+		if align != "" {
+			el.Align = align
+		}
 
 		schema = append(schema, el)
 		index++
@@ -119,12 +119,12 @@ out:
 			//s.server.Logger.Debugw("StartTagToken", "token", token, "type", token.Data, "depth", depth, "index", index)
 			switch token.Data {
 			case "div":
-        align, isInlineBlock := parseCSS(&token)
-        //@HACK: Lazada does dumb shit (just wrapping text with a div instead of adding a span like they normally do) with text aligning
-        if isInlineBlock {
+				align, isInlineBlock := parseCSS(&token)
+				//@HACK: Lazada does dumb shit (just wrapping text with a div instead of adding a span like they normally do) with text aligning
+				if isInlineBlock {
 					schema, index = addNode(schema, "paragraph", index, align)
-          depth++
-        }
+					depth++
+				}
 				prevNode = "div"
 			case "span":
 				//@HACK: Because Lazada is retarded.
@@ -135,7 +135,7 @@ out:
 				depth++
 			case "p":
 				if depth == 0 {
-          align, _ := parseCSS(&token)
+					align, _ := parseCSS(&token)
 					schema, index = addNode(schema, "paragraph", index, align)
 					prevNode = "p"
 				}

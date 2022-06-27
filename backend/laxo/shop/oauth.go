@@ -26,7 +26,7 @@ func (a availablePlatforms) Has(v string) bool {
 type OAuthRedirectRequest struct {
 	ShopID          string            `json:"shopID"`
 	ReturnRedirects []*ReturnRedirect `json:"platforms"`
-  Connected       []string          `json:"connectedPlatforms"`
+	Connected       []string          `json:"connectedPlatforms"`
 }
 
 func (s *OAuthRedirectRequest) JSON() ([]byte, error) {

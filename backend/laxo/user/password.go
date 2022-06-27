@@ -14,27 +14,27 @@ import (
 // Credit to: https://github.com/alexedwards/argon2id
 
 var (
-	ErrInvalidHash = errors.New("argon2id: hash is not in the correct format")
+	ErrInvalidHash         = errors.New("argon2id: hash is not in the correct format")
 	ErrIncompatibleVariant = errors.New("argon2id: incompatible variant of argon2")
 	ErrIncompatibleVersion = errors.New("argon2id: incompatible version of argon2")
 )
 
 type Params struct {
-	Memory uint32
-	Iterations uint32
+	Memory      uint32
+	Iterations  uint32
 	Parallelism uint8
-	SaltLength uint32
-	KeyLength uint32
+	SaltLength  uint32
+	KeyLength   uint32
 }
 
 func CreateHash(password string) (hash string, err error) {
-  params := &Params{
-    Memory:      64 * 1024,
-    Iterations:  7,
-    Parallelism: 1,
-    SaltLength:  16,
-    KeyLength:   48,
-  }
+	params := &Params{
+		Memory:      64 * 1024,
+		Iterations:  7,
+		Parallelism: 1,
+		SaltLength:  16,
+		KeyLength:   48,
+	}
 
 	salt, err := laxo.GenerateRandomString(int(params.SaltLength))
 	if err != nil {
@@ -49,7 +49,6 @@ func CreateHash(password string) (hash string, err error) {
 	hash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, params.Memory, params.Iterations, params.Parallelism, b64Salt, b64Key)
 	return hash, nil
 }
-
 
 func ComparePasswordAndHash(password, hash string) (match bool, err error) {
 	match, _, err = CheckHash(password, hash)

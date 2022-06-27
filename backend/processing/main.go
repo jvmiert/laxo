@@ -43,20 +43,18 @@ func main() {
 
 	//mw.WriteImage("out.png")
 
+	lw := imagick.NewMagickWand()
+	pw := imagick.NewPixelWand()
+	dw := imagick.NewDrawingWand()
 
-  lw := imagick.NewMagickWand()
-  pw := imagick.NewPixelWand()
-  dw := imagick.NewDrawingWand()
+	pw.SetColor("none")
+	lw.NewImage(400, 400, pw)
 
-  pw.SetColor("none")
-  lw.NewImage(400, 400, pw)
+	pw.SetColor("white")
+	dw.SetFillColor(pw)
+	dw.RoundRectangle(15, 15, 385, 385, 100, 100)
+	lw.DrawImage(dw)
 
-  pw.SetColor("white")
-  dw.SetFillColor(pw)
-  dw.RoundRectangle(15, 15, 385, 385, 100, 100)
-  lw.DrawImage(dw)
-
-
-  lw.CompositeImage(mw, imagick.COMPOSITE_OP_SRC_OUT, false, 0, 0)
-  lw.WriteImage("mask_result.png")
+	lw.CompositeImage(mw, imagick.COMPOSITE_OP_SRC_OUT, false, 0, 0)
+	lw.WriteImage("mask_result.png")
 }

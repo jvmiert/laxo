@@ -15,15 +15,15 @@ type AssetRequest struct {
 }
 
 type AssignRequest struct {
-  Action    string `json:"action"`
-  ProductID string `json:"productID"`
-  AssetID   string `json:"assetID"`
-  Order     int64  `json:"order"`
+	Action    string `json:"action"`
+	ProductID string `json:"productID"`
+	AssetID   string `json:"assetID"`
+	Order     int64  `json:"order"`
 }
 
 type AssetReply struct {
-	Asset     *sqlc.Asset `json:"asset"`
-	Upload    bool        `json:"upload"`
+	Asset  *sqlc.Asset `json:"asset"`
+	Upload bool        `json:"upload"`
 }
 
 func (a *AssetReply) JSON() ([]byte, error) {

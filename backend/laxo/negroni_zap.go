@@ -28,7 +28,7 @@ var LoggerDefaultDateFormat = time.RFC3339
 
 // Logger is a middleware handler that logs the request as it goes in and the response as it goes out.
 type NegroniZapLogger struct {
-	Logger *Logger
+	Logger     *Logger
 	dateFormat string
 	template   *template.Template
 }
@@ -67,7 +67,7 @@ func (l *NegroniZapLogger) ServeHTTP(rw http.ResponseWriter, r *http.Request, ne
 	buff := &bytes.Buffer{}
 	l.template.Execute(buff, log)
 
-  //@TODO: In production we will probably want to use Infow an pass the values
-  //       instead of templating the string.
-  l.Logger.Info(buff.String())
+	//@TODO: In production we will probably want to use Infow an pass the values
+	//       instead of templating the string.
+	l.Logger.Info(buff.String())
 }
