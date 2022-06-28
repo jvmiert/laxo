@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -9,6 +9,7 @@ import (
 	"laxo.vn/laxo/laxo"
 	"laxo.vn/laxo/laxo/assets"
 	"laxo.vn/laxo/laxo/lazada"
+	"laxo.vn/laxo/laxo/models"
 	"laxo.vn/laxo/laxo/shop"
 )
 
@@ -41,7 +42,7 @@ func InitTestHandler(server *laxo.Server, l *lazada.Service, p *shop.Service, a 
 }
 
 func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID string) {
-	_, err := h.service.shop.GetActiveShopByUserID(uID)
+	s, err := h.service.shop.GetActiveShopByUserID(uID)
 	if err != nil {
 		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
 			"error", err,
@@ -50,32 +51,34 @@ func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID str
 		return
 	}
 
-	test := `<div style="margin:0"><span style="font-family:none"><strong style="font-weight:bold;font-family:none">Test</strong></span></div><div style="margin:0"><span style="font-family:none"></span></div><div style="margin:0"><span style="font-family:none"><em>Test</em></span></div><div style="margin:0"><span style="font-family:none"></span></div><div style="margin:0;text-align:right;display:inline-block;width:100%"><u>Test</u></div><i><div style="margin:0;text-align:right;display:inline-block;width:100%">Test</div></i><div style="margin:0;text-align:right;display:inline-block;width:100%"> test</div><div style="margin:0"><span></span></div><div style="margin:0"><span></span></div><span><div style="margin:0;text-align:center;display:inline-block;width:100%">This is bold</div></span><div style="margin:0"><span></span></div><div style="margin:0"><span><u>This is underlined</u></span></div><div style="margin:0"><span></span></div><div style="margin:0"><span><em>This is italic</em></span></div><div style="margin:0"><span></span></div><div style="margin:0"><span></span></div><div style="margin:0"><h1><span>Heading1</span></h1></div><div style="margin:0"><h2><span>Heading2</span></h2></div><div style="margin:0"><h3><span>Heading3</span></h3></div><div style="margin:0"><span></span></div>`
+	product, err := h.service.shop.GetProductDetailsByID("01G4CES9QT2EPWGJW17DKYXAFS", s.Model.ID)
+	if err != nil {
+		h.server.Logger.Errorw("GetProductDetailsByID error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	test := `<div style="margin:0"><span style="font-family:none"><strong style="font-weight:bold;font-family:none">Test</strong></span></div><div style="margin:0"><span style="font-family:none"></span></div><div style="margin:0"><span style="font-family:none"><em>Test</em></span></div><div style="margin:0"><span style="font-family:none"></span></div><div style="margin:0;text-align:right;display:inline-block;width:100%"><u>Test</u></div><i><div style="margin:0;text-align:right;display:inline-block;width:100%">Test</div></i><div style="margin:0;text-align:right;display:inline-block;width:100%"> test</div><div style="margin:0"><span></span></div><div style="margin:0"><span></span></div><span><div style="margin:0;text-align:center;display:inline-block;width:100%">This is bold</div></span><div style="margin:0"><span></span></div><div style="margin:0"><span><strong><u>This is underlined</u></strong></span></div><div style="margin:0"><span></span></div><div style="margin:0"><span><em>This is italic</em></span></div><div style="margin:0"><span></span></div><div style="margin:0"><span></span></div><div style="margin:0"><h1><span>Heading1</span></h1></div><div style="margin:0"><h2><span>Heading2</span></h2></div><div style="margin:0"><h3><span>Heading3</span></h3></div><div style="margin:0"><span></span></div>`
 
 	schema, _ := h.service.shop.HTMLToSlate(test, "01G1FZCVYH9J47DB2HZENSBC6E")
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write([]byte(schema))
-	return
 
-	rows, _ := h.server.PglClient.Query(context.Background(), "select description from products_attribute_lazada")
-	defer rows.Close()
+	resp := &[]models.Element{}
+	_ = json.Unmarshal([]byte(schema), resp)
 
-	for rows.Next() {
-		values, _ := rows.Values()
+	html, _ := h.service.shop.SlateToHTML(*resp)
+	h.server.Logger.Debugw("SlateToHTML", "html", html)
 
-		if values[0] == nil {
-			continue
-		}
-
-		h.server.Logger.Debugw("start schema",
-			"data", values[0],
+	err = h.service.lazada.UpdateProductToLazada(product, html)
+	if err != nil {
+		h.server.Logger.Errorw("UpdateProductToLazada error",
+			"error", err,
 		)
-		schema, _ := h.service.shop.HTMLToSlate(values[0].(string), "01G1FZCVYH9J47DB2HZENSBC6E")
-		h.server.Logger.Debugw("finish schema",
-			"schema", schema,
-		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write([]byte("test"))
+	w.Write([]byte(schema))
 }

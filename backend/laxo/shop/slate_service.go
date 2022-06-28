@@ -89,6 +89,50 @@ func addNode(schema []models.Element, nodeType string, index int, align string) 
 	return schema, index
 }
 
+func slateElementToHTML(element models.Element) string {
+	var innerHtml string
+	var html string
+
+	for _, text := range element.Children {
+		innerHtml = innerHtml + text.Text
+
+		if text.Bold {
+			innerHtml = "<strong>" + innerHtml + "</strong>"
+		}
+
+		if text.Underline {
+			innerHtml = "<u>" + innerHtml + "</u>"
+		}
+
+		if text.Italic {
+			innerHtml = "<i>" + innerHtml + "</i>"
+		}
+	}
+
+	//@TODO: add support for lists, images, and alignment
+	switch element.Type {
+	case "paragraph":
+		html = "<p>" + innerHtml + "</p>"
+	case "heading-one":
+		html = "<h1>" + innerHtml + "</h1>"
+	case "heading-two":
+		html = "<h2>" + innerHtml + "</h2>"
+	case "heading-three":
+		html = "<h3>" + innerHtml + "</h3>"
+	}
+
+	//fmt.Println("slateElementToHTML", "html", html, "element", element)
+	return html
+}
+
+func (s *Service) SlateToHTML(slateSchema []models.Element) (string, error) {
+	var html string
+	for _, node := range slateSchema {
+		html = html + slateElementToHTML(node)
+	}
+	return html, nil
+}
+
 func (s *Service) HTMLToSlate(h string, shopID string) (string, error) {
 	tkn := html.NewTokenizer(strings.NewReader(h))
 
@@ -124,8 +168,10 @@ out:
 				if isInlineBlock {
 					schema, index = addNode(schema, "paragraph", index, align)
 					depth++
+					prevNode = "inlineBlockDiv"
+				} else {
+					prevNode = "div"
 				}
-				prevNode = "div"
 			case "span":
 				//@HACK: Because Lazada is retarded.
 				if prevNode == "div" {
@@ -227,6 +273,11 @@ out:
 		case html.EndTagToken:
 			//s.server.Logger.Debugw("EndTagToken", "token", token, "type", token.Data)
 			switch token.Data {
+			case "div":
+				if prevNode == "inlineBlockDiv" {
+					depth--
+					prevNode = ""
+				}
 			case "span":
 				depth--
 			case "p":

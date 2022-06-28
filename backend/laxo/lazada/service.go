@@ -112,7 +112,7 @@ func (s *Service) NewLazadaClient(token string) (*LazadaClient, error) {
 	return client, nil
 }
 
-func (s *Service) UpdateProductToLazada(p *models.Product) error {
+func (s *Service) UpdateProductToLazada(p *models.ProductDetails, descriptionHTML string) error {
 	token, err := s.GetValidTokenByShopID(p.Model.ShopID)
 	if err != nil {
 		return fmt.Errorf("GetValidTokenByShopID: %w", err)
@@ -123,7 +123,7 @@ func (s *Service) UpdateProductToLazada(p *models.Product) error {
 		return fmt.Errorf("NewLazadaClient: %w", err)
 	}
 
-	err = client.UpdateProduct(p)
+	err = client.UpdateProduct(p, descriptionHTML)
 	if err != nil {
 		return fmt.Errorf("client UpdateProduct: %w", err)
 	}

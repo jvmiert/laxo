@@ -61,10 +61,15 @@ type AuthResponse struct {
 	DateRefreshExpired time.Time
 }
 
+type ProductDescriptionChange struct {
+	XMLName xml.Name `xml:"description"`
+	Text    string   `xml:",cdata"`
+}
+
 type ProductsResponseAttributes struct {
 	Name                 null.String `json:"name" xml:"name"`
 	ShortDescription     null.String `json:"short_description" xml:"-"`
-	Description          null.String `json:"description" xml:"description"`
+	Description          null.String `json:"description" xml:"-"`
 	Brand                null.String `json:"brand" xml:"-"`
 	Model                null.String `json:"model" xml:"-"`
 	HeadphoneFeatures    null.String `json:"headphone_features" xml:"-"`
@@ -87,6 +92,9 @@ type ProductsResponseAttributes struct {
 	ColorFamily          null.String `json:"color_family" xml:"-"`
 	FragranceFamily      null.String `json:"fragrance_family" xml:"-"`
 	Source               null.String `json:"source" xml:"-"`
+
+	// This is used to create valid XML for updating the product details
+	HTMLChangeDescription ProductDescriptionChange `json:"-"`
 }
 
 type ProductsResponseSuspendedSkus struct {
@@ -249,7 +257,7 @@ type LazadaClient struct {
 	FileParams map[string][]byte
 }
 
-func (lc *LazadaClient) UpdateProduct(p *models.Product) error {
+func (lc *LazadaClient) UpdateProduct(p *models.ProductDetails, lazadaHTML string) error {
 	var lazadaPlatform models.ProductPlatformInformation
 	for _, v := range p.Platforms {
 		if v.PlatformName == "lazada" {
@@ -266,9 +274,13 @@ func (lc *LazadaClient) UpdateProduct(p *models.Product) error {
 		return fmt.Errorf("ParseInt: %w", err)
 	}
 
+	lazHTMLDescription := ProductDescriptionChange{
+		Text: lazadaHTML,
+	}
+
 	lazadaAttributes := ProductsResponseAttributes{
-		Name:        p.Model.Name,
-		Description: p.Model.Description,
+		Name:                  p.Model.Name,
+		HTMLChangeDescription: lazHTMLDescription,
 	}
 
 	SkuID, err := strconv.ParseInt(lazadaPlatform.PlatformSKU, 10, 64)
@@ -316,7 +328,7 @@ func (lc *LazadaClient) UpdateProduct(p *models.Product) error {
 	values.Add("sign", lc.sign(apiPath))
 	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
 
-	//lc.Logger.Debugw("UpdateProduct", "fullURL", fullURL, "xml", xml)
+	lc.Logger.Debugw("UpdateProduct", "fullURL", fullURL, "xml", xml)
 
 	req, err = http.NewRequest("POST", fullURL, nil)
 	if err != nil {
