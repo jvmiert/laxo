@@ -76,7 +76,7 @@ func addNode(schema []models.Element, nodeType string, index int, align string) 
 	}
 
 	if add {
-		el := models.Element{Type: nodeType, Children: []models.Text{}}
+		el := models.Element{Type: nodeType, Children: []models.Element{}}
 
 		if align != "" {
 			el.Align = align
@@ -89,38 +89,77 @@ func addNode(schema []models.Element, nodeType string, index int, align string) 
 	return schema, index
 }
 
+func getAlignStyle(align string) string {
+	var alignStyle string
+
+	switch align {
+	case "left":
+		alignStyle = ` style="text-align: left;"`
+	case "right":
+		alignStyle = ` style="text-align: right;"`
+	case "center":
+		alignStyle = ` style="text-align: center;"`
+	case "justify":
+		alignStyle = ` style="text-align: justify;white-space: pre-line;"`
+	}
+
+	return alignStyle
+}
+
 func slateElementToHTML(element models.Element) string {
 	var innerHtml string
 	var html string
 
-	for _, text := range element.Children {
-		innerHtml = innerHtml + text.Text
-
-		if text.Bold {
-			innerHtml = "<strong>" + innerHtml + "</strong>"
+	for _, innerNode := range element.Children {
+		// opening styling tags
+		if innerNode.Bold {
+			innerHtml = innerHtml + "<strong>"
 		}
 
-		if text.Underline {
-			innerHtml = "<u>" + innerHtml + "</u>"
+		if innerNode.Underline {
+			innerHtml = innerHtml + "<u>"
 		}
 
-		if text.Italic {
-			innerHtml = "<i>" + innerHtml + "</i>"
+		if innerNode.Italic {
+			innerHtml = innerHtml + "<i>"
+		}
+
+		// actual text
+		innerHtml = innerHtml + innerNode.Text
+
+		// closing styling tags
+		if innerNode.Bold {
+			innerHtml = innerHtml + "</strong>"
+		}
+
+		if innerNode.Underline {
+			innerHtml = innerHtml + "</u>"
+		}
+
+		if innerNode.Italic {
+			innerHtml = innerHtml + "</i>"
 		}
 	}
 
-	//@TODO: add support for lists, images, and alignment
+	alignStyle := getAlignStyle(element.Align)
+
+	//@TODO: add support for images
 	switch element.Type {
 	case "paragraph":
-		html = "<p>" + innerHtml + "</p>"
+		html = "<p" + alignStyle + ">" + innerHtml + "</p>"
 	case "heading-one":
-		html = "<h1>" + innerHtml + "</h1>"
+		html = "<h1" + alignStyle + ">" + innerHtml + "</h1>"
 	case "heading-two":
-		html = "<h2>" + innerHtml + "</h2>"
+		html = "<h2" + alignStyle + ">" + innerHtml + "</h2>"
 	case "heading-three":
-		html = "<h3>" + innerHtml + "</h3>"
+		html = "<h3" + alignStyle + ">" + innerHtml + "</h3>"
+	case "list-item":
+		html = "<li" + alignStyle + ">" + innerHtml + "</li>"
+	default:
+		html = innerHtml
 	}
 
+	fmt.Println("slateElementToHTML", "align", element.Align)
 	//fmt.Println("slateElementToHTML", "html", html, "element", element)
 	return html
 }
@@ -128,7 +167,26 @@ func slateElementToHTML(element models.Element) string {
 func (s *Service) SlateToHTML(slateSchema []models.Element) (string, error) {
 	var html string
 	for _, node := range slateSchema {
-		html = html + slateElementToHTML(node)
+		if node.Type == "numbered-list" || node.Type == "bulleted-list" {
+			if node.Type == "bulleted-list" {
+				html = html + "<ul>"
+			}
+			if node.Type == "numbered-list" {
+				html = html + "<ol>"
+			}
+			// These are the <li> elements
+			for _, listNode := range node.Children {
+				html = html + slateElementToHTML(listNode)
+			}
+			if node.Type == "bulleted-list" {
+				html = html + "</ul>"
+			}
+			if node.Type == "numbered-list" {
+				html = html + "</ol>"
+			}
+		} else {
+			html = html + slateElementToHTML(node)
+		}
 	}
 	return html, nil
 }
@@ -144,6 +202,8 @@ func (s *Service) HTMLToSlate(h string, shopID string) (string, error) {
 	bold := false
 	italic := false
 	underline := false
+
+	addToList := false
 
 out:
 	for {
@@ -178,6 +238,14 @@ out:
 					schema, index = addNode(schema, "paragraph", index, "")
 					prevNode = "span"
 				}
+				//@HACK: More lazada retardness (using a span inside a <li> element to align)
+				if addToList {
+					align, _ := parseCSS(&token)
+					if align != "" {
+						listItemIndex := len(schema[index].Children) - 1
+						schema[index].Children[listItemIndex].Align = align
+					}
+				}
 				depth++
 			case "p":
 				if depth == 0 {
@@ -204,6 +272,27 @@ out:
 					prevNode = "h3"
 				}
 				depth++
+			case "ul":
+				if depth == 0 {
+					schema, index = addNode(schema, "bulleted-list", index, "")
+					prevNode = "ul"
+				}
+				depth++
+			case "ol":
+				if depth == 0 {
+					schema, index = addNode(schema, "numbered-list", index, "")
+					prevNode = "ol"
+				}
+				depth++
+			case "li":
+				if schema[index].Type == "numbered-list" || schema[index].Type == "bulleted-list" {
+					align, _ := parseCSS(&token)
+					schema[index].Children = append(schema[index].Children, models.Element{Type: "list-item", Align: align, Children: []models.Element{}})
+					addToList = true
+				}
+				//el := models.Element{Type: "list-item", Children: []models.Element{}}
+				//schema, index = addNode(schema, "list-item", index, "")
+				//prevNode = "li"
 			case "img":
 				if depth == 0 {
 					findImages := regexp.MustCompile(`src=["'](.*?)["']`)
@@ -226,7 +315,7 @@ out:
 						el := models.Element{
 							Type:     "image",
 							Src:      asset.ID + asset.Extension.String,
-							Children: []models.Text{},
+							Children: []models.Element{},
 							Width:    asset.Width.Int64,
 							Height:   asset.Height.Int64,
 						}
@@ -257,7 +346,7 @@ out:
 
 							schema[index].Type = "image"
 							schema[index].Src = asset.ID + asset.Extension.String
-							schema[index].Children = []models.Text{}
+							schema[index].Children = []models.Element{}
 							schema[index].Width = asset.Width.Int64
 							schema[index].Height = asset.Height.Int64
 						}
@@ -282,12 +371,12 @@ out:
 				depth--
 			case "p":
 				depth--
-			case "h1":
+			case "h1", "h2", "h3":
 				depth--
-			case "h2":
+			case "ol", "ul":
 				depth--
-			case "h3":
-				depth--
+			case "li":
+				addToList = false
 			case "strong":
 				bold = false
 			case "em":
@@ -320,7 +409,7 @@ out:
 						el := models.Element{
 							Type:     "image",
 							Src:      asset.ID + asset.Extension.String,
-							Children: []models.Text{},
+							Children: []models.Element{},
 							Width:    asset.Width.Int64,
 							Height:   asset.Height.Int64,
 						}
@@ -331,11 +420,14 @@ out:
 				}
 			}
 		case html.TextToken:
-			trimmed := strings.TrimSpace(token.String())
-			if trimmed != "" {
+			tokenText := token.String()
+			if tokenText != "" {
 				//s.server.Logger.Debugw("TextToken", "token", token, "trimmed", trimmed, "depth", depth, "index", index)
-				if depth > 0 && index != -1 {
-					schema[index].Children = append(schema[index].Children, models.Text{Text: trimmed, Bold: bold, Underline: underline, Italic: italic})
+				if addToList {
+					listItemIndex := len(schema[index].Children) - 1
+					schema[index].Children[listItemIndex].Children = append(schema[index].Children[listItemIndex].Children, models.Element{Text: tokenText, Bold: bold, Underline: underline, Italic: italic})
+				} else if depth > 0 && index != -1 {
+					schema[index].Children = append(schema[index].Children, models.Element{Text: tokenText, Bold: bold, Underline: underline, Italic: italic})
 				}
 			}
 		}
@@ -346,7 +438,7 @@ out:
 		if text == "" {
 			return "", ErrEmptyText
 		}
-		schema = append(schema, models.Element{Type: "paragraph", Children: []models.Text{{Text: text}}})
+		schema = append(schema, models.Element{Type: "paragraph", Children: []models.Element{{Text: text}}})
 	}
 
 	b, _ := json.Marshal(schema)

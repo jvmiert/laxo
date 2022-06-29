@@ -2,6 +2,20 @@ import { ReactEditor } from "slate-react";
 import { BaseEditor, Editor } from "slate";
 import { HistoryEditor } from "slate-history";
 
+type LaxoParagraphElement = {
+  type: "paragraph";
+  children: LaxoText[];
+  align?: "left" | "center" | "right" | "justify";
+};
+
+type LaxoImageElement = {
+  type: "image";
+  src: string;
+  width: number;
+  height: number;
+};
+
+//@TODO: Replace this type with a composite type e.g. LaxoImage Element | LaxoParagraphElement
 type LaxoElement = {
   type:
     | "paragraph"

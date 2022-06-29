@@ -283,7 +283,19 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
         </h2>
       );
     case "list-item":
-      return <li {...attributes}>{children}</li>;
+      return (
+        <li
+          className={cc([
+            { "text-left": element.align === "left" },
+            { "text-right": element.align === "right" },
+            { "text-center": element.align === "center" },
+            { "whitespace-pre-line text-justify": element.align === "justify" },
+          ])}
+          {...attributes}
+        >
+          {children}
+        </li>
+      );
     case "numbered-list":
       return (
         <ol
