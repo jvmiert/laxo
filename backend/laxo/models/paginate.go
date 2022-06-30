@@ -1,4 +1,4 @@
-package shop
+package models
 
 type Paginate struct {
 	Total  int64 `json:"total"`

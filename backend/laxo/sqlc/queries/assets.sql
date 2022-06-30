@@ -59,3 +59,20 @@ LIMIT 1;
 SELECT * FROM assets
 WHERE id = $1
 LIMIT 1;
+
+-- name: GetAllAssetsByShopID :many
+SELECT
+  c.count, p.*
+FROM
+(
+  SELECT COUNT(*) AS COUNT
+  FROM assets
+  WHERE assets.shop_id = $1
+) as c
+LEFT JOIN (
+  SELECT assets.*
+  FROM assets
+  ORDER BY assets.created
+  LIMIT $2 OFFSET $3
+) as p
+ON true;

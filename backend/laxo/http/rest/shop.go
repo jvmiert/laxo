@@ -387,7 +387,7 @@ func (h *shopHandler) GetProduct(w http.ResponseWriter, r *http.Request, uID str
 
 	var err error
 	var products []models.Product
-	var paginate shop.Paginate
+	var paginate models.Paginate
 
 	if nameParsed.Valid || mskuParsed.Valid {
 		products, paginate, err = h.service.shop.GetProductsByNameOrSKU(uID, nameParsed, mskuParsed, offset, limit)

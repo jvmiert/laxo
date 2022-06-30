@@ -105,6 +105,7 @@ export type LaxoProductAsset = {
   order: number;
   width: number;
   height: number;
+  created: Date;
 };
 
 export type LaxoProduct = {
@@ -150,3 +151,8 @@ export type LaxoProductResponse = {
 };
 
 export type LaxoProductDetailsResponse = LaxoProductDetails;
+
+export type LaxoAssetResponse = {
+  assets: Array<LaxoProductAsset>;
+  paginate: PaginateObject;
+};

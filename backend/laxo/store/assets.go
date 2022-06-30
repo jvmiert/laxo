@@ -130,6 +130,22 @@ func (s *assetsStore) GetProductMedia(assetID string, productID string) (*sqlc.P
 	return &media, nil
 }
 
+func (s *assetsStore) GetAllAssetsByShopID(shopID string, limit int32, offset int32) ([]sqlc.GetAllAssetsByShopIDRow, error) {
+	assets, err := s.queries.GetAllAssetsByShopID(
+		context.Background(),
+		sqlc.GetAllAssetsByShopIDParams{
+			ShopID: shopID,
+			Limit:  limit,
+			Offset: offset,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return assets, nil
+}
+
 func (s *assetsStore) GetAssetByID(assetID string) (*sqlc.Asset, error) {
 	asset, err := s.queries.GetAssetByID(
 		context.Background(),

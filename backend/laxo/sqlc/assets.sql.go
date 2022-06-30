@@ -18,7 +18,7 @@ INSERT INTO assets (
 ) VALUES (
   $1, $2, $3, $4, $5, $6, $7
 )
-RETURNING id, shop_id, murmur_hash, original_filename, extension, file_size, width, height
+RETURNING id, shop_id, murmur_hash, original_filename, extension, file_size, width, height, created
 `
 
 type CreateAssetParams struct {
@@ -51,6 +51,7 @@ func (q *Queries) CreateAsset(ctx context.Context, arg CreateAssetParams) (Asset
 		&i.FileSize,
 		&i.Width,
 		&i.Height,
+		&i.Created,
 	)
 	return i, err
 }
@@ -104,8 +105,76 @@ func (q *Queries) DeleteProductMedia(ctx context.Context, arg DeleteProductMedia
 	return err
 }
 
+const getAllAssetsByShopID = `-- name: GetAllAssetsByShopID :many
+SELECT
+  c.count, p.id, p.shop_id, p.murmur_hash, p.original_filename, p.extension, p.file_size, p.width, p.height, p.created
+FROM
+(
+  SELECT COUNT(*) AS COUNT
+  FROM assets
+  WHERE assets.shop_id = $1
+) as c
+LEFT JOIN (
+  SELECT assets.id, assets.shop_id, assets.murmur_hash, assets.original_filename, assets.extension, assets.file_size, assets.width, assets.height, assets.created
+  FROM assets
+  ORDER BY assets.created
+  LIMIT $2 OFFSET $3
+) as p
+ON true
+`
+
+type GetAllAssetsByShopIDParams struct {
+	ShopID string `json:"shopID"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+type GetAllAssetsByShopIDRow struct {
+	Count            int64       `json:"count"`
+	ID               string      `json:"id"`
+	ShopID           string      `json:"shopID"`
+	MurmurHash       string      `json:"murmurHash"`
+	OriginalFilename null.String `json:"originalFilename"`
+	Extension        null.String `json:"extension"`
+	FileSize         null.Int    `json:"fileSize"`
+	Width            null.Int    `json:"width"`
+	Height           null.Int    `json:"height"`
+	Created          null.Time   `json:"created"`
+}
+
+func (q *Queries) GetAllAssetsByShopID(ctx context.Context, arg GetAllAssetsByShopIDParams) ([]GetAllAssetsByShopIDRow, error) {
+	rows, err := q.db.Query(ctx, getAllAssetsByShopID, arg.ShopID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllAssetsByShopIDRow
+	for rows.Next() {
+		var i GetAllAssetsByShopIDRow
+		if err := rows.Scan(
+			&i.Count,
+			&i.ID,
+			&i.ShopID,
+			&i.MurmurHash,
+			&i.OriginalFilename,
+			&i.Extension,
+			&i.FileSize,
+			&i.Width,
+			&i.Height,
+			&i.Created,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAssetByID = `-- name: GetAssetByID :one
-SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height FROM assets
+SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height, created FROM assets
 WHERE id = $1
 LIMIT 1
 `
@@ -122,12 +191,13 @@ func (q *Queries) GetAssetByID(ctx context.Context, id string) (Asset, error) {
 		&i.FileSize,
 		&i.Width,
 		&i.Height,
+		&i.Created,
 	)
 	return i, err
 }
 
 const getAssetByMurmur = `-- name: GetAssetByMurmur :one
-SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height FROM assets
+SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height, created FROM assets
 WHERE murmur_hash = $1 AND shop_id = $2
 LIMIT 1
 `
@@ -149,12 +219,13 @@ func (q *Queries) GetAssetByMurmur(ctx context.Context, arg GetAssetByMurmurPara
 		&i.FileSize,
 		&i.Width,
 		&i.Height,
+		&i.Created,
 	)
 	return i, err
 }
 
 const getAssetByOriginalName = `-- name: GetAssetByOriginalName :one
-SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height FROM assets
+SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height, created FROM assets
 WHERE original_filename = $1 AND shop_id = $2
 LIMIT 1
 `
@@ -176,6 +247,7 @@ func (q *Queries) GetAssetByOriginalName(ctx context.Context, arg GetAssetByOrig
 		&i.FileSize,
 		&i.Width,
 		&i.Height,
+		&i.Created,
 	)
 	return i, err
 }
@@ -213,7 +285,7 @@ SET
  width = coalesce($6, width),
  height = coalesce($7, height)
 WHERE id = $8
-RETURNING id, shop_id, murmur_hash, original_filename, extension, file_size, width, height
+RETURNING id, shop_id, murmur_hash, original_filename, extension, file_size, width, height, created
 `
 
 type UpdateAssetParams struct {
@@ -248,6 +320,7 @@ func (q *Queries) UpdateAsset(ctx context.Context, arg UpdateAssetParams) (Asset
 		&i.FileSize,
 		&i.Width,
 		&i.Height,
+		&i.Created,
 	)
 	return i, err
 }

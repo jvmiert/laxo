@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS assets(
   file_size BIGINT,
   width INT,
   height INT,
+  created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(shop_id, murmur_hash),
   CONSTRAINT fk_shop_assets FOREIGN KEY(shop_id) REFERENCES shops(id)
 );

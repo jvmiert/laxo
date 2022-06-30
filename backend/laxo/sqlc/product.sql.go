@@ -101,7 +101,7 @@ func (q *Queries) CreateProductPlatform(ctx context.Context, arg CreateProductPl
 }
 
 const getProductAssetsByProductID = `-- name: GetProductAssetsByProductID :many
-SELECT assets.id, assets.shop_id, assets.murmur_hash, assets.original_filename, assets.extension, assets.file_size, assets.width, assets.height, products_media.image_order, products_media.status FROM products
+SELECT assets.id, assets.shop_id, assets.murmur_hash, assets.original_filename, assets.extension, assets.file_size, assets.width, assets.height, assets.created, products_media.image_order, products_media.status FROM products
 LEFT JOIN products_media ON products_media.product_id = products.id
 LEFT JOIN assets ON assets.id = products_media.asset_id
 WHERE products.id = $1 AND products.shop_id = $2
@@ -122,6 +122,7 @@ type GetProductAssetsByProductIDRow struct {
 	FileSize         null.Int    `json:"fileSize"`
 	Width            null.Int    `json:"width"`
 	Height           null.Int    `json:"height"`
+	Created          null.Time   `json:"created"`
 	ImageOrder       null.Int    `json:"imageOrder"`
 	Status           null.String `json:"status"`
 }
@@ -144,6 +145,7 @@ func (q *Queries) GetProductAssetsByProductID(ctx context.Context, arg GetProduc
 			&i.FileSize,
 			&i.Width,
 			&i.Height,
+			&i.Created,
 			&i.ImageOrder,
 			&i.Status,
 		); err != nil {

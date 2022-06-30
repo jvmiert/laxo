@@ -57,23 +57,33 @@ type AlertAction = Omit<Alert, "id">;
 interface DashboardState {
   notifications: Array<NotificationResponseObject>;
   alerts: Array<Alert>;
+  insertImageIsOpen: boolean;
 }
 
 export const InitialDashboardState: DashboardState = {
   notifications: [],
   alerts: [],
+  insertImageIsOpen: false,
 };
 
 export type DashboardAction =
   | { type: "reset"; state: DashboardState }
   | { type: "add"; notification: NotificationResponseObject }
   | { type: "remove_alert"; id: string }
-  | { type: "alert"; alert: AlertAction };
+  | { type: "alert"; alert: AlertAction }
+  | { type: "open_image_insert" }
+  | { type: "close_image_insert" };
 
 function reducer(draft: Draft<DashboardState>, action: DashboardAction) {
   switch (action.type) {
     case "reset":
       return action.state;
+    case "open_image_insert":
+      draft.insertImageIsOpen = true;
+      break;
+    case "close_image_insert":
+      draft.insertImageIsOpen = false;
+      break;
     case "alert":
       draft.alerts.push({ ...action.alert, id: nanoid() });
       break;
@@ -217,7 +227,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     if (notifications.notifications.length > 0) {
       dispatch({
         type: "reset",
-        state: { notifications: notifications.notifications, alerts: [] },
+        state: { notifications: notifications.notifications, alerts: [], insertImageIsOpen: false },
       });
     }
   }, [notifications, dispatch]);

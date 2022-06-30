@@ -13,6 +13,8 @@ import type {
   LaxoProduct,
   LaxoProductDetails,
   LaxoProductDetailsResponse,
+  LaxoAssetResponse,
+  LaxoProductAsset,
 } from "@/types/ApiResponse";
 
 export function useGetAuth() {
@@ -176,7 +178,7 @@ export function useGetLaxoProducts(
     AxiosResponse<LaxoProductResponse>,
     AxiosError<unknown>
   >(
-    ["/product", name, offset, offset, limit],
+    ["/product", name, msku, offset, limit],
     (url) =>
       axiosClient.get<LaxoProductResponse>(url, {
         params: { name, msku, offset, limit },
@@ -237,5 +239,48 @@ export function useGetLaxoProductDetails(
     error,
     loading: isValidating,
     mutate: mutate,
+  };
+}
+
+function transformLaxoAssets(r: any): LaxoAssetResponse {
+  const resp = JSON.parse(r);
+
+  resp.assets.forEach((a: LaxoProductAsset) => {
+    a.created = new Date(a.created);
+  });
+
+  return resp;
+}
+
+export function useGetShopAssets(
+  offset: number,
+  limit: number,
+): {
+  assets: LaxoAssetResponse;
+  error: AxiosError | undefined;
+  loading: boolean;
+} {
+  const { axiosClient } = useAxios();
+  const { data, error, isValidating } = useSWR<
+    AxiosResponse<LaxoAssetResponse>,
+    AxiosError<unknown>
+  >(
+    ["/asset/shop-assets", offset, limit],
+    (url) =>
+      axiosClient.get<LaxoAssetResponse>(url, {
+        params: { offset, limit },
+        transformResponse: transformLaxoAssets,
+      }),
+    {
+      shouldRetryOnError: true,
+    },
+  );
+
+  return {
+    assets: data
+      ? data.data
+      : { assets: [], paginate: { total: 0, pages: 0, limit: 0, offset: 0 } },
+    error,
+    loading: isValidating,
   };
 }

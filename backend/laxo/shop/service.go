@@ -323,7 +323,7 @@ func (s *Service) ValidateNewShop(shop *Shop, printer *message.Printer) error {
 	return nil
 }
 
-func (s *Service) GetProductListJSON(pp []models.Product, paginate *Paginate) ([]byte, error) {
+func (s *Service) GetProductListJSON(pp []models.Product, paginate *models.Paginate) ([]byte, error) {
 	pList := []json.RawMessage{}
 
 	for _, p := range pp {
@@ -376,6 +376,7 @@ func (s *Service) GetProductDetailsByID(productID string, shopID string) (*model
 				Width:            a.Width,
 				Height:           a.Height,
 				Order:            a.ImageOrder,
+				Created:          a.Created,
 			})
 		}
 	}
@@ -419,9 +420,9 @@ func (s *Service) GetProductDetailsByID(productID string, shopID string) (*model
 	}, nil
 }
 
-func (s *Service) GetProductsByNameOrSKU(userID string, name null.String, msku null.String, offset string, limit string) ([]models.Product, Paginate, error) {
+func (s *Service) GetProductsByNameOrSKU(userID string, name null.String, msku null.String, offset string, limit string) ([]models.Product, models.Paginate, error) {
 	var pList []models.Product
-	var paginate Paginate
+	var paginate models.Paginate
 
 	shop, err := s.GetActiveShopByUserID(userID)
 	if err != nil {
@@ -516,9 +517,9 @@ func (s *Service) GetProductsByNameOrSKU(userID string, name null.String, msku n
 	return pList, paginate, nil
 }
 
-func (s *Service) GetProductsByUserID(userID string, offset string, limit string) ([]models.Product, Paginate, error) {
+func (s *Service) GetProductsByUserID(userID string, offset string, limit string) ([]models.Product, models.Paginate, error) {
 	var pList []models.Product
-	var paginate Paginate
+	var paginate models.Paginate
 
 	shop, err := s.GetActiveShopByUserID(userID)
 	if err != nil {

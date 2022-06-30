@@ -20,6 +20,7 @@ type Asset struct {
 	FileSize         null.Int    `json:"fileSize"`
 	Width            null.Int    `json:"width"`
 	Height           null.Int    `json:"height"`
+	Created          null.Time   `json:"created"`
 }
 
 type Notification struct {

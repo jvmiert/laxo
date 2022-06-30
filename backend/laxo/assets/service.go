@@ -17,12 +17,14 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/twmb/murmur3"
 	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo"
+	"laxo.vn/laxo/laxo/models"
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
@@ -35,6 +37,7 @@ type Store interface {
 	CreateProductMedia(assetID string, productID string, status string, order int64) (*sqlc.ProductsMedia, error)
 	UpdateProductMedia(assetID string, productID string, status null.String, order null.Int) (*sqlc.ProductsMedia, error)
 	UnlinkProductMedia(productID string, assetID string) error
+	GetAllAssetsByShopID(shopID string, limit int32, offset int32) ([]sqlc.GetAllAssetsByShopIDRow, error)
 }
 
 var ErrImageURLForbidden = errors.New("image url returned forbidden")
@@ -367,4 +370,77 @@ func (s *Service) SaveAndAssignImagesFromURL(i []string, shopID string, productI
 	}
 
 	return nil
+}
+
+func (s *Service) GetAllAssetsByShopID(shopID string, offset string, limit string) ([]sqlc.Asset, models.Paginate, error) {
+	var aList []sqlc.Asset
+	var paginate models.Paginate
+
+	offsetI, err := strconv.Atoi(offset)
+	if err != nil {
+		return aList, paginate, fmt.Errorf("atoi offset: %w", err)
+	}
+
+	limitI, err := strconv.Atoi(limit)
+	if err != nil {
+		return aList, paginate, fmt.Errorf("atoi limit: %w", err)
+	}
+
+	rows, err := s.store.GetAllAssetsByShopID(shopID, int32(limitI), int32(offsetI))
+	if err != nil {
+		return aList, paginate, fmt.Errorf("GetProductsByShopID: %w", err)
+	}
+
+	total := int64(0)
+	if len(rows) > 0 {
+		total = rows[0].Count
+	}
+
+	for _, row := range rows {
+		asset := sqlc.Asset{
+			ID:               row.ID,
+			ShopID:           row.ShopID,
+			MurmurHash:       row.MurmurHash,
+			OriginalFilename: row.OriginalFilename,
+			Extension:        row.OriginalFilename,
+			FileSize:         row.FileSize,
+			Width:            row.Width,
+			Height:           row.Height,
+			Created:          row.Created,
+		}
+
+		aList = append(aList, asset)
+	}
+
+	paginate.Total = total
+	paginate.Pages = (total + int64(limitI) - 1) / int64(limitI)
+	paginate.Limit = int64(limitI)
+	paginate.Offset = int64(offsetI)
+
+	return aList, paginate, nil
+}
+
+func (s *Service) GetAssetJSON(pp []sqlc.Asset, paginate *models.Paginate) ([]byte, error) {
+	aList := []json.RawMessage{}
+
+	for _, p := range pp {
+		b, err := json.Marshal(p)
+		if err != nil {
+			return nil, err
+		}
+		j := json.RawMessage(b)
+		aList = append(aList, j)
+	}
+
+	productData := map[string]interface{}{
+		"assets":   aList,
+		"paginate": paginate,
+	}
+
+	bytes, err := json.Marshal(productData)
+	if err != nil {
+		return bytes, err
+	}
+
+	return bytes, nil
 }

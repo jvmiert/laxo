@@ -71,6 +71,7 @@ type ProductAssets struct {
 	Order            null.Int    `json:"order"`
 	Width            null.Int    `json:"width"`
 	Height           null.Int    `json:"height"`
+	Created          null.Time   `json:"created"`
 }
 
 type ProductDetails struct {

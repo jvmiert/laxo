@@ -37,6 +37,53 @@ func InitAssetsHandler(server *laxo.Server, shop *shop.Service, assets *assets.S
 		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleAssignProduct)),
 	)).Methods("POST")
+
+	r.Handle("/asset/shop-assets", n.With(
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleGetShopAssets)),
+	)).Methods("GET")
+}
+
+func (h *assetsHandler) HandleGetShopAssets(w http.ResponseWriter, r *http.Request, uID string) {
+	s, err := h.shop.GetActiveShopByUserID(uID)
+	if err != nil {
+		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	offset := r.URL.Query().Get("offset")
+	limit := r.URL.Query().Get("limit")
+
+	if offset == "" {
+		offset = "0"
+	}
+
+	if limit == "" {
+		limit = "50"
+	}
+
+	assets, paginate, err := h.assets.GetAllAssetsByShopID(s.Model.ID, offset, limit)
+	if err != nil {
+		h.server.Logger.Errorw("GetAllAssetsByShopID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	b, err := h.assets.GetAssetJSON(assets, &paginate)
+	if err != nil {
+		h.server.Logger.Errorw("GetAssetJSON returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(b)
 }
 
 func (h *assetsHandler) HandleAssignProduct(w http.ResponseWriter, r *http.Request, uID string) {

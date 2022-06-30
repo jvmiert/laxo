@@ -13,6 +13,7 @@ import cc from "classcat";
 import DetailsGeneralEdit from "@/components/dashboard/product/DetailsGeneralEdit";
 import DetailsChangedNotification from "@/components/dashboard/product/DetailsChangedNotification";
 import DetailsPlatformsEdit from "@/components/dashboard/product/DetailsPlatformsEdit";
+import AssetInsertDialog from "@/components/dashboard/product/AssetInsertDialog";
 
 export const getServerSideProps: GetServerSideProps = withRedirectUnauth();
 
@@ -37,6 +38,7 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
   return (
     <div className="mx-auto max-w-5xl">
       <DetailsChangedNotification />
+      <AssetInsertDialog />
       <div className="space-y-3">
         <div className="rounded-md bg-white py-4 px-3 shadow-sm">
           <Disclosure defaultOpen>
