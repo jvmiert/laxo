@@ -421,7 +421,8 @@ out:
 			}
 		case html.TextToken:
 			tokenText := token.String()
-			if tokenText != "" {
+			trimmed := strings.TrimSpace(tokenText)
+			if trimmed != "" {
 				//s.server.Logger.Debugw("TextToken", "token", token, "trimmed", trimmed, "depth", depth, "index", index)
 				if addToList {
 					listItemIndex := len(schema[index].Children) - 1

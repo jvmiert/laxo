@@ -2,36 +2,48 @@ import { ReactEditor } from "slate-react";
 import { BaseEditor, Editor } from "slate";
 import { HistoryEditor } from "slate-history";
 
-type LaxoParagraphElement = {
+export type LaxoParagraphElement = {
   type: "paragraph";
   children: LaxoText[];
   align?: "left" | "center" | "right" | "justify";
 };
 
-type LaxoImageElement = {
+export type LaxoHeadingElement = {
+  type: "heading-one" | "heading-two" | "heading-three";
+  children: LaxoText[];
+  align?: "left" | "center" | "right" | "justify";
+};
+
+export type LaxoListItemElement = {
+  type: "list-item";
+  children: LaxoText[];
+  align?: "left" | "center" | "right" | "justify";
+};
+
+//@TODO: align shouldn't be here
+export type LaxoListElement = {
+  type: "bulleted-list" | "numbered-list";
+  children: LaxoListItemElement[];
+  align?: "left" | "center" | "right" | "justify";
+};
+
+export type LaxoBlockElements = Exclude<LaxoElement, LaxoImageElement>;
+
+//@TODO: align shouldn't be here
+export type LaxoImageElement = {
   type: "image";
   src: string;
   width: number;
   height: number;
-};
-
-//@TODO: Replace this type with a composite type e.g. LaxoImage Element | LaxoParagraphElement
-type LaxoElement = {
-  type:
-    | "paragraph"
-    | "image"
-    | "heading-one"
-    | "heading-two"
-    | "heading-three"
-    | "bulleted-list"
-    | "list-item"
-    | "numbered-list";
-  children?: LaxoText[];
-  src?: string;
-  width?: number;
-  height?: number;
   align?: "left" | "center" | "right" | "justify";
 };
+
+type LaxoElement =
+  | LaxoImageElement
+  | LaxoListElement
+  | LaxoListItemElement
+  | LaxoHeadingElement
+  | LaxoParagraphElement;
 
 export type FormatParameter = "bold" | "italic" | "code" | "underline";
 export type BlockFormatParameter =

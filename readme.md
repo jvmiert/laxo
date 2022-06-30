@@ -1,8 +1,4 @@
 # Tech to-do
-- Add some tests to the slate parser
-- Fix Slate editor list issue
-  - Is the db saving functionality working for lists?
-  - Define the custom types in laxoSlate lib: https://docs.slatejs.org/concepts/12-typescript#best-practices-for-element-and-text-types
 - Handle product sync to Lazada after saving product
   - Enable support for parsing images from product description
   - Enable support for updating product images

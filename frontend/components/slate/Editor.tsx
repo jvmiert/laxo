@@ -27,6 +27,7 @@ import { TrashIcon } from "@heroicons/react/solid";
 import {
   FormatParameter,
   BlockFormatParameter,
+  LaxoImageElement,
   withImages,
 } from "@/lib/laxoSlate";
 import { useDashboard } from "@/providers/DashboardProvider";
@@ -185,7 +186,7 @@ const ImageElement = ({
   children,
   element,
   token,
-}: RenderElementProps & { token: string }) => {
+}: RenderElementProps & { token: string; element: LaxoImageElement }) => {
   const editor = useSlateStatic();
   const path = ReactEditor.findPath(editor, element);
 
@@ -239,16 +240,7 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
   switch (element.type) {
     case "bulleted-list":
       return (
-        <ul
-          className={cc([
-            "list-inside list-disc",
-            { "text-left": element.align === "left" },
-            { "text-right": element.align === "right" },
-            { "text-center": element.align === "center" },
-            { "whitespace-pre-line text-justify": element.align === "justify" },
-          ])}
-          {...attributes}
-        >
+        <ul className="list-inside list-disc" {...attributes}>
           {children}
         </ul>
       );
@@ -298,16 +290,7 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
       );
     case "numbered-list":
       return (
-        <ol
-          className={cc([
-            "list-inside list-decimal",
-            { "text-left": element.align === "left" },
-            { "text-right": element.align === "right" },
-            { "text-center": element.align === "center" },
-            { "whitespace-pre-line text-justify": element.align === "justify" },
-          ])}
-          {...attributes}
-        >
+        <ol className="list-inside list-decimal" {...attributes}>
           {children}
         </ol>
       );
