@@ -53,24 +53,28 @@ func TestSlateToHTML(t *testing.T) {
 	shopService := shop.NewService(store, logger, server)
 
 	tests := []struct {
-		id    string
-		html  string
-		slate []models.Element
+		id       string
+		html     string
+		slate    []models.Element
+		laxoHTML string
 	}{
 		{
 			"Lazada simple text",
 			`<p style="margin:0"><span>This is left aligned</span></p>`,
 			[]models.Element{models.Element{Type: "paragraph", Children: []models.Element{models.Element{Text: "This is left aligned"}}}},
+			`<p>This is left aligned</p>`,
 		},
 		{
 			"Lazada center align",
 			`<p style="text-align:center;display:inline-block;width:100%;margin:0"><span>This is center aligned</span></p>`,
 			[]models.Element{models.Element{Type: "paragraph", Align: "center", Children: []models.Element{models.Element{Text: "This is center aligned"}}}},
+			`<p style="text-align: center;">This is center aligned</p>`,
 		},
 		{
 			"Lazada right align",
 			`<p style="text-align:right;display:inline-block;width:100%;margin:0"><span>This is right aligned</span></p>`,
 			[]models.Element{models.Element{Type: "paragraph", Align: "right", Children: []models.Element{models.Element{Text: "This is right aligned"}}}},
+			`<p style="text-align: right;">This is right aligned</p>`,
 		},
 		{
 			"Lazada ul list",
@@ -91,6 +95,7 @@ func TestSlateToHTML(t *testing.T) {
 					models.Element{Text: "This is bullet point three"},
 				}},
 			}}},
+			`<ul><li>This is bullet point one</li><li style="text-align: right;">This is bullet point two, right aligned and <strong>bold</strong></li><li>This is bullet point three</li></ul>`,
 		},
 	}
 
@@ -107,6 +112,19 @@ func TestSlateToHTML(t *testing.T) {
 			}
 
 			assert.Equal(t, schema, string(b), "generated schema does not match")
+
+			encodedSchema := &[]models.Element{}
+			err = json.Unmarshal([]byte(schema), encodedSchema)
+			if err != nil {
+				t.Errorf("Unmarshal returned error: %v", err)
+			}
+
+			html, err := shopService.SlateToHTML(*encodedSchema)
+			if err != nil {
+				t.Errorf("Marshal returned error: %v", err)
+			}
+
+			assert.Equal(t, v.laxoHTML, html, "generated html does not match")
 		})
 	}
 }
