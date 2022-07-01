@@ -1,7 +1,8 @@
 import { AxiosError, AxiosResponse } from "axios";
 import { useMemo } from "react";
-import useSWR, { KeyedMutator } from "swr";
+import useSWR, { KeyedMutator, Fetcher, Key } from "swr";
 import useSWRImmutable from "swr/immutable";
+import useSWRInfinite, { SWRInfiniteResponse } from "swr/infinite";
 import { useAxios } from "@/providers/AxiosProvider";
 import type {
   GetShopResponse,
@@ -252,35 +253,43 @@ function transformLaxoAssets(r: any): LaxoAssetResponse {
   return resp;
 }
 
-export function useGetShopAssets(
-  offset: number,
-  limit: number,
-): {
-  assets: LaxoAssetResponse;
+export function useGetShopAssets(limit: number): {
+  assetsPages: AxiosResponse<LaxoAssetResponse>[] | undefined;
   error: AxiosError | undefined;
   loading: boolean;
+  size: number;
+  setSize: (
+    size: number | ((_size: number) => number),
+  ) => Promise<AxiosResponse<LaxoAssetResponse>[] | undefined>;
 } {
   const { axiosClient } = useAxios();
-  const { data, error, isValidating } = useSWR<
+
+  const getKey = (
+    pageIndex: number,
+    previousPageData: LaxoAssetResponse,
+  ): Key => {
+    if (previousPageData && previousPageData.paginate.pages < pageIndex)
+      return null; // reached the end
+    return `/asset/shop-assets?offset=${pageIndex}&limit=${limit}`; // SWR key
+  };
+
+  const fetcher = (url: string) =>
+    axiosClient.get(url, {
+      transformResponse: transformLaxoAssets,
+    });
+
+  const { data, error, isValidating, setSize, size } = useSWRInfinite<
     AxiosResponse<LaxoAssetResponse>,
-    AxiosError<unknown>
-  >(
-    ["/asset/shop-assets", offset, limit],
-    (url) =>
-      axiosClient.get<LaxoAssetResponse>(url, {
-        params: { offset, limit },
-        transformResponse: transformLaxoAssets,
-      }),
-    {
-      shouldRetryOnError: true,
-    },
-  );
+    AxiosError<Error>
+  >(getKey, fetcher, {
+    shouldRetryOnError: true,
+  });
 
   return {
-    assets: data
-      ? data.data
-      : { assets: [], paginate: { total: 0, pages: 0, limit: 0, offset: 0 } },
+    assetsPages: data,
     error,
     loading: isValidating,
+    size,
+    setSize,
   };
 }

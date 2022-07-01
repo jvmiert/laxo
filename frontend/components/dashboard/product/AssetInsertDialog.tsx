@@ -1,9 +1,25 @@
-import { Fragment } from "react";
+import { Fragment, CSSProperties } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon, PlusCircleIcon, SearchIcon } from "@heroicons/react/solid";
+import { FixedSizeGrid as Grid } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 
 import { useDashboard } from "@/providers/DashboardProvider";
 import { useGetShopAssets } from "@/hooks/swrHooks";
+
+const ImageItem = ({
+  columnIndex,
+  rowIndex,
+  style,
+}: {
+  columnIndex: number;
+  rowIndex: number;
+  style: CSSProperties;
+}) => (
+  <div style={style}>
+    Item {rowIndex},{columnIndex}
+  </div>
+);
 
 type ProductImageDetailsProps = {};
 
@@ -13,7 +29,7 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
     dashboardState: { insertImageIsOpen },
   } = useDashboard();
 
-  const { assets, loading } = useGetShopAssets(1, 10);
+  const { assetsPages, loading, size, setSize } = useGetShopAssets(100);
 
   const closeDialog = () => {
     dashboardDispatch({
@@ -47,7 +63,7 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="h-full w-full transform overflow-hidden rounded-lg bg-white transition-all">
-                <div className="px-4 py-5 sm:px-6">
+                <div className="flex h-full flex-col px-4 py-5 sm:px-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
@@ -94,17 +110,23 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                     </div>
                   </div>
                   <div className="my-6 -ml-4 -mr-4 border-b border-gray-200 sm:-ml-6 sm:-mr-6" />
-                  <div className="">
-                    <ul
-                      role="list"
-                      className="grid grid-cols-4 gap-x-4 gap-y-8"
-                    >
-                      {assets.assets.map((a) => (
-                        <li key={a.id} className="relative">
-                          {a.originalFilename}
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="grow -mr-3 sm:-mr-5">
+                    <div className="block h-full w-full">
+                      <AutoSizer>
+                        {({ height, width }) => (
+                          <Grid
+                            columnCount={4}
+                            columnWidth={(width / 4) - 8}
+                            height={height}
+                            rowCount={1000}
+                            rowHeight={35}
+                            width={width}
+                          >
+                            {ImageItem}
+                          </Grid>
+                        )}
+                      </AutoSizer>
+                    </div>
                   </div>
                 </div>
               </Dialog.Panel>
