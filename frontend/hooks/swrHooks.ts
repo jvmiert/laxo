@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse } from "axios";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import useSWR, { KeyedMutator, Fetcher, Key } from "swr";
 import useSWRImmutable from "swr/immutable";
 import useSWRInfinite, { SWRInfiniteResponse } from "swr/infinite";
@@ -264,19 +264,25 @@ export function useGetShopAssets(limit: number): {
 } {
   const { axiosClient } = useAxios();
 
-  const getKey = (
-    pageIndex: number,
-    previousPageData: LaxoAssetResponse,
-  ): Key => {
-    if (previousPageData && previousPageData.paginate.pages < pageIndex)
-      return null; // reached the end
-    return `/asset/shop-assets?offset=${pageIndex}&limit=${limit}`; // SWR key
-  };
+  const getKey = useCallback(
+    (
+      pageIndex: number,
+      previousPageData: AxiosResponse<LaxoAssetResponse>,
+    ): Key => {
+      if (previousPageData && previousPageData.data.paginate.pages < pageIndex)
+        return null; // reached the end
+      return `/asset/shop-assets?offset=${pageIndex * limit}&limit=${limit}`; // SWR key
+    },
+    [limit],
+  );
 
-  const fetcher = (url: string) =>
-    axiosClient.get(url, {
-      transformResponse: transformLaxoAssets,
-    });
+  const fetcher = useCallback(
+    (url: string) =>
+      axiosClient.get(url, {
+        transformResponse: transformLaxoAssets,
+      }),
+    [axiosClient],
+  );
 
   const { data, error, isValidating, setSize, size } = useSWRInfinite<
     AxiosResponse<LaxoAssetResponse>,
@@ -285,11 +291,14 @@ export function useGetShopAssets(limit: number): {
     shouldRetryOnError: true,
   });
 
-  return {
-    assetsPages: data,
-    error,
-    loading: isValidating,
-    size,
-    setSize,
-  };
+  return useMemo(
+    () => ({
+      assetsPages: data,
+      error,
+      loading: isValidating,
+      size,
+      setSize,
+    }),
+    [data, error, isValidating, setSize, size],
+  );
 }

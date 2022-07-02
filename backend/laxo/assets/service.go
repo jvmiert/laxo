@@ -402,7 +402,7 @@ func (s *Service) GetAllAssetsByShopID(shopID string, offset string, limit strin
 			ShopID:           row.ShopID,
 			MurmurHash:       row.MurmurHash,
 			OriginalFilename: row.OriginalFilename,
-			Extension:        row.OriginalFilename,
+			Extension:        row.Extension,
 			FileSize:         row.FileSize,
 			Width:            row.Width,
 			Height:           row.Height,
