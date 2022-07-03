@@ -22,6 +22,33 @@ func newLazadaStore(store *Store) lazadaStore {
 	}
 }
 
+func (s *lazadaStore) GetLazadaLaxoLinkByAssetIDAndShopID(assetID string, shopID string) (*sqlc.AssetsLazada, error) {
+	row, err := s.queries.GetLazadaLaxoLinkByAssetIDAndShopID(
+		context.Background(),
+		sqlc.GetLazadaLaxoLinkByAssetIDAndShopIDParams{
+			ID:     assetID,
+			ShopID: shopID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sqlc.AssetsLazada{AssetID: row.AssetID.String, LazadaUrl: row.LazadaUrl, Created: row.Created}, err
+}
+
+func (s *lazadaStore) CreateLazadaLaxoLink(assetID string, URL string) (*sqlc.AssetsLazada, error) {
+	asset, err := s.queries.CreateLazadaLaxoAssetLink(
+		context.Background(),
+		sqlc.CreateLazadaLaxoAssetLinkParams{
+			AssetID:   assetID,
+			LazadaUrl: null.StringFrom(URL),
+		},
+	)
+
+	return &asset, err
+}
+
 func (s *lazadaStore) GetLazadaPlatformByShopID(shopID string) (*sqlc.PlatformLazada, error) {
 	lazInfo, err := s.queries.GetLazadaPlatformByShopID(
 		context.Background(),

@@ -155,11 +155,13 @@ func slateElementToHTML(element models.Element) string {
 		html = "<h3" + alignStyle + ">" + innerHtml + "</h3>"
 	case "list-item":
 		html = "<li" + alignStyle + ">" + innerHtml + "</li>"
+	case "image":
+		html = `<img src="` + element.Src + `" style="width:100%;display:block"/>`
 	default:
 		html = innerHtml
 	}
 
-	fmt.Println("slateElementToHTML", "align", element.Align)
+	//fmt.Println("slateElementToHTML", "align", element.Align)
 	//fmt.Println("slateElementToHTML", "html", html, "element", element)
 	return html
 }

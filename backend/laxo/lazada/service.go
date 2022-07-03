@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/mediocregopher/radix/v4"
@@ -28,6 +30,9 @@ type Store interface {
 	SaveNewLazadaPlatform(string, *AuthResponse) (*sqlc.PlatformLazada, error)
 	UpdateLazadaPlatform(string, *AuthResponse) error
 	GetLazadaPlatformByShopID(string) (*sqlc.PlatformLazada, error)
+	GetLazadaLaxoLinkByAssetIDAndShopID(assetID string, shopID string) (*sqlc.AssetsLazada, error)
+	CreateLazadaLaxoLink(assetID string, URL string) (*sqlc.AssetsLazada, error)
+	GetAssetBytesByID(assetID string, shopID string, shopToken string) ([]byte, error)
 }
 
 type Service struct {
@@ -46,6 +51,65 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server, clientID,
 		clientID:     clientID,
 		clientSecret: clientSecret,
 	}
+}
+
+func (s *Service) HandleDescriptionImages(h string, shopID string, shopToken string) (string, error) {
+	findImages := regexp.MustCompile(`src=["'](.*?)["']`)
+	matches := findImages.FindAllStringSubmatchIndex(h, -1)
+
+	startLength := len(h)
+	currentLength := len(h)
+
+	for _, m := range matches {
+		offset := startLength - currentLength
+		if len(m) > 2 {
+			imgNameStart := m[2] - offset
+			imgNameEnd := m[3] - offset
+
+			imgName := h[imgNameStart:imgNameEnd]
+
+			split := strings.Split(imgName, ".")
+
+			if len(split) != 2 {
+				return "", errors.New("could not get image id and extension with string split")
+			}
+
+			imgID := split[0]
+			imgExtension := split[1]
+
+			s.server.Logger.Debugw("match test", "imgName", imgName, "imgID", imgID, "imgExtension", imgExtension)
+			url, err := s.GetLazadaImageURLFromLaxoLinkOrUpload(imgID, shopID, shopToken, imgName)
+			if err != nil {
+				return "", fmt.Errorf("GetLazadaImageURLFromLaxoLinkOrUpload: %w", err)
+			}
+
+			h = h[0:imgNameStart] + url + h[imgNameEnd:]
+			currentLength = len(h)
+		}
+	}
+
+	return h, nil
+}
+
+func (s *Service) GetLazadaImageURLFromLaxoLinkOrUpload(assetID string, shopID string, shopToken string, oFilename string) (string, error) {
+	link, err := s.store.GetLazadaLaxoLinkByAssetIDAndShopID(assetID, shopID)
+	if errors.Is(err, pgx.ErrNoRows) || link.AssetID == "" {
+		b, err := s.store.GetAssetBytesByID(assetID, shopID, shopToken)
+		if err != nil {
+			return "", fmt.Errorf("GetAssetBytesByID: %w", err)
+		}
+
+		url, err := s.UploadImageToLazada(b, oFilename, shopID, assetID)
+		if err != nil {
+			return "", fmt.Errorf("UploadImageToLazada: %w", err)
+		}
+
+		return url, nil
+	} else if err != nil {
+		return "", fmt.Errorf("GetLazadaLaxoLinkByAssetIDAndShopID: %w", err)
+	}
+
+	return link.LazadaUrl.String, nil
 }
 
 func (s *Service) ExtractImagesListFromProductResponse(p *ProductsResponseProducts) ([]string, error) {
@@ -110,6 +174,30 @@ func (s *Service) NewLazadaClient(token string) (*LazadaClient, error) {
 	client := NewClient(s.clientID, s.clientSecret, token, s.logger)
 
 	return client, nil
+}
+
+func (s *Service) UploadImageToLazada(img []byte, filename string, shopID string, assetID string) (string, error) {
+	token, err := s.GetValidTokenByShopID(shopID)
+	if err != nil {
+		return "", fmt.Errorf("GetValidTokenByShopID: %w", err)
+	}
+
+	client, err := s.NewLazadaClient(token)
+	if err != nil {
+		return "", fmt.Errorf("NewLazadaClient: %w", err)
+	}
+
+	resp, err := client.UploadImage(img, filename)
+	if err != nil {
+		return "", fmt.Errorf("UploadImage: %w", err)
+	}
+
+	link, err := s.store.CreateLazadaLaxoLink(assetID, resp.Data.Image.URL)
+	if err != nil {
+		return "", fmt.Errorf("CreateLazadaLaxoLink: %w", err)
+	}
+
+	return link.LazadaUrl.String, err
 }
 
 func (s *Service) UpdateProductToLazada(p *models.ProductDetails, descriptionHTML string) error {

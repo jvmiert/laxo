@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"sort"
@@ -26,6 +27,7 @@ import (
 var ErrPlatformFailed = errors.New("platform returned failed message")
 var ErrProductsFailed = errors.New("get products returned failed message")
 var ErrProductUpdateFailed = errors.New("product update returned failed")
+var ErrUploadImageFailed = errors.New("image upload returned failed")
 var ErrProductsParseFailed = errors.New("couldn't parse products")
 
 type APIResponse struct {
@@ -33,6 +35,19 @@ type APIResponse struct {
 	Type      string `json:"type"`
 	Message   string `json:"message"`
 	RequestID string `json:"request_id"`
+}
+
+type ImageReplyData struct {
+	HashCode string `json:"hash_code"`
+	URL      string `json:"url"`
+}
+
+type ImageUploadData struct {
+	Image ImageReplyData `json:"image"`
+}
+type ImageUploadResponse struct {
+	APIResponse
+	Data ImageUploadData `json:"data"`
 }
 
 type CountryUserInfo struct {
@@ -255,6 +270,83 @@ type LazadaClient struct {
 	SysParams  map[string]string
 	APIParams  map[string]string
 	FileParams map[string][]byte
+}
+
+func (lc *LazadaClient) UploadImage(img []byte, filename string) (*ImageUploadResponse, error) {
+	var req *http.Request
+	var err error
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	contentType := writer.FormDataContentType()
+
+	part, err := writer.CreateFormFile("image", filename)
+	if err != nil {
+		return nil, fmt.Errorf("CreateFormFile: %w", err)
+	}
+
+	_, err = part.Write(img)
+	if err != nil {
+		return nil, fmt.Errorf("multipart Write: %w", err)
+	}
+
+	if err = writer.Close(); err != nil {
+		return nil, fmt.Errorf("multipart Close: %w", err)
+	}
+
+	// add query params
+	values := url.Values{}
+	for key, val := range lc.SysParams {
+		values.Add(key, val)
+	}
+
+	for key, val := range lc.APIParams {
+		values.Add(key, val)
+	}
+
+	apiPath := "/image/upload"
+	apiServerURL := "https://api.lazada.vn/rest"
+
+	values.Add("sign", lc.sign(apiPath))
+	fullURL := fmt.Sprintf("%s%s?%s", apiServerURL, apiPath, values.Encode())
+
+	lc.Logger.Debugw("UploadImage", "fullURL", fullURL)
+
+	req, err = http.NewRequest("POST", fullURL, body)
+	if err != nil {
+		return nil, fmt.Errorf("NewRequest: %w", err)
+	}
+
+	if contentType != "" {
+		req.Header.Add("Content-Type", contentType)
+	}
+
+	httpResp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("get http DefaultClient: %w", err)
+	}
+
+	defer httpResp.Body.Close()
+
+	respBody, err := ioutil.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("ioutil.ReadAll: %w", err)
+	}
+
+	lc.Logger.Debugw("lazada response", "resp", string(respBody))
+
+	resp := &ImageUploadResponse{}
+	err = json.Unmarshal(respBody, resp)
+	if err != nil {
+		return nil, fmt.Errorf("response Unmarshal: %w", err)
+	}
+
+	if resp.Code != "0" {
+		lc.Logger.Errorw("lazada returned failure", "body", respBody)
+		return nil, ErrUploadImageFailed
+	}
+
+	return resp, nil
 }
 
 func (lc *LazadaClient) UpdateProduct(p *models.ProductDetails, lazadaHTML string) error {

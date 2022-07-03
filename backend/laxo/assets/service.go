@@ -38,6 +38,7 @@ type Store interface {
 	UpdateProductMedia(assetID string, productID string, status null.String, order null.Int) (*sqlc.ProductsMedia, error)
 	UnlinkProductMedia(productID string, assetID string) error
 	GetAllAssetsByShopID(shopID string, limit int32, offset int32) ([]sqlc.GetAllAssetsByShopIDRow, error)
+	GetAssetBytesByID(assetID string, shopID string, shopToken string) ([]byte, error)
 }
 
 var ErrImageURLForbidden = errors.New("image url returned forbidden")
@@ -63,6 +64,15 @@ type Service struct {
 	store  Store
 	logger *laxo.Logger
 	server *laxo.Server
+}
+
+func (s *Service) GetAssetBytesByID(assetID string, shopID string, shopToken string) ([]byte, error) {
+	b, err := s.store.GetAssetBytesByID(assetID, shopID, shopToken)
+	if err != nil {
+		return nil, fmt.Errorf("GetAssetBytesByID: %w", err)
+	}
+
+	return b, err
 }
 
 func (s *Service) ExtractImagesFromDescription(d string, shopID string, assetsToken string) error {

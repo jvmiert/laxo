@@ -39,6 +39,73 @@ func InitTestHandler(server *laxo.Server, l *lazada.Service, p *shop.Service, a 
 	r.Handle("/test/test", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleTest)),
 	)).Methods("GET")
+
+	r.Handle("/test/upload", n.With(
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleTestUpload)),
+	)).Methods("GET")
+}
+
+func (h *testHandler) HandleTestUpload(w http.ResponseWriter, r *http.Request, uID string) {
+	s, err := h.service.shop.GetActiveShopByUserID(uID)
+	if err != nil {
+		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	productID := "01G4CES9QT2EPWGJW17DKYXAFS"
+
+	p, err := h.service.shop.GetProductDetailsByID(productID, s.Model.ID)
+	if err != nil {
+		h.server.Logger.Errorw("GetProductDetailsByID error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	slateSchema := []models.Element{}
+
+	err = json.Unmarshal([]byte(p.Model.DescriptionSlate.String), &slateSchema)
+	if err != nil {
+		h.server.Logger.Errorw("slate Unmarshal error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	html, err := h.service.shop.SlateToHTML(slateSchema)
+	if err != nil {
+		h.server.Logger.Errorw("SlateToHTML error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	parsedHTML, err := h.service.lazada.HandleDescriptionImages(html, s.Model.ID, s.Model.AssetsToken)
+	if err != nil {
+		h.server.Logger.Errorw("HandleDescriptionImages error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = h.service.lazada.UpdateProductToLazada(p, parsedHTML)
+	if err != nil {
+		h.server.Logger.Errorw("UpdateProductToLazada error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write([]byte(parsedHTML))
 }
 
 func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID string) {
@@ -51,7 +118,9 @@ func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID str
 		return
 	}
 
-	_, err = h.service.shop.GetProductDetailsByID("01G4CES9QT2EPWGJW17DKYXAFS", s.Model.ID)
+	productID := "01G4CES9QT2EPWGJW17DKYXAFS"
+
+	p, err := h.service.shop.GetProductDetailsByID(productID, s.Model.ID)
 	if err != nil {
 		h.server.Logger.Errorw("GetProductDetailsByID error",
 			"error", err,
@@ -60,25 +129,26 @@ func (h *testHandler) HandleTest(w http.ResponseWriter, r *http.Request, uID str
 		return
 	}
 
-	test := `<p style="margin:0"><span>This is left aligned</span></p><p style="text-align:center;display:inline-block;width:100%;margin:0"><span>This is center aligned</span></p><p style="text-align:right;display:inline-block;width:100%;margin:0"><span>This is right aligned</span></p><p style="margin:0"><span></span></p><p style="margin:0"><strong style="font-weight:bold">This is bold</strong></p><p style="margin:0"><em>This is italic</em></p><p style="margin:0"><strong style="font-weight:bold"><u>This is underlined and bold</u></strong></p><p style="margin:0"><span></span></p><ul style="list-style:disc;margin-left:10px"><li><span>This is bullet point one</span></li><li><span style="text-align:right;display:inline-block;width:100%">This is bullet point two, right aligned and <strong style="font-weight:bold">bold</strong></span></li><li><span>This is bullet point three</span></li></ul><div style="margin:0"><span></span></div><ol style="list-style:decimal"><li><span style="text-align:center;display:inline-block;width:100%">This is a center aligned and <u>underlined</u> numbered bullet point one</span></li><li><span>This is a <strong style="font-weight:bold">bold</strong> numbered bullet point two</span></li><li><span>This is an <em>italic</em> numbered bullet point three</span></li></ol>`
+	slateSchema := []models.Element{}
 
-	schema, _ := h.service.shop.HTMLToSlate(test, "01G1FZCVYH9J47DB2HZENSBC6E")
+	err = json.Unmarshal([]byte(p.Model.DescriptionSlate.String), &slateSchema)
+	if err != nil {
+		h.server.Logger.Errorw("slate Unmarshal error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-	resp := &[]models.Element{}
-	_ = json.Unmarshal([]byte(schema), resp)
-
-	html, _ := h.service.shop.SlateToHTML(*resp)
-	h.server.Logger.Debugw("SlateToHTML", "html", html)
-
-	//err = h.service.lazada.UpdateProductToLazada(product, html)
-	//if err != nil {
-	//	h.server.Logger.Errorw("UpdateProductToLazada error",
-	//		"error", err,
-	//	)
-	//	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-	//	return
-	//}
+	html, err := h.service.shop.SlateToHTML(slateSchema)
+	if err != nil {
+		h.server.Logger.Errorw("SlateToHTML error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write([]byte(schema))
+	w.Write([]byte(html))
 }

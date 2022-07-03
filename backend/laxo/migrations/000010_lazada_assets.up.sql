@@ -1,0 +1,11 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS assets_lazada(
+  asset_id CHAR(26) NOT NULL PRIMARY KEY,
+  lazada_url TEXT,
+  created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_assets_assets_lazada FOREIGN KEY(asset_id) REFERENCES assets(id)
+);
+
+
+COMMIT;

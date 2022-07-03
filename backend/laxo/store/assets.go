@@ -69,6 +69,27 @@ func (s *assetsStore) CreateNewAsset(ShopID, MurmurHash, OriginalFilename string
 	return &asset, err
 }
 
+func (s *assetsStore) GetAssetBytesByID(assetID string, shopID string, shopToken string) ([]byte, error) {
+	assetModel, err := s.GetAssetByIDAndShopID(assetID, shopID)
+	if err != nil {
+		return nil, fmt.Errorf("GetAssetByIDAndShopID: %w", err)
+	}
+
+	if !assetModel.Extension.Valid {
+		return nil, fmt.Errorf("!Extension.Valid: %w", errors.New("invalid image extension"))
+	}
+
+	assetDirPath := s.GetAssetDirPath(shopToken)
+	filename := assetModel.ID + assetModel.Extension.String
+
+	b, err := os.ReadFile(assetDirPath + filename)
+	if err != nil {
+		return nil, fmt.Errorf("ReadFile: %w", err)
+	}
+
+	return b, err
+}
+
 func (s *assetsStore) UnlinkProductMedia(productID string, assetID string) error {
 	param := sqlc.DeleteProductMediaParams{
 		ProductID: productID,
@@ -146,6 +167,28 @@ func (s *assetsStore) GetAllAssetsByShopID(shopID string, limit int32, offset in
 	return assets, nil
 }
 
+func (s *assetsStore) GetAssetByIDAndShopID(assetID string, shopID string) (*sqlc.Asset, error) {
+	asset, err := s.queries.GetAssetByIDAndShopID(
+		context.Background(),
+		sqlc.GetAssetByIDAndShopIDParams{
+			ID:     assetID,
+			ShopID: shopID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &asset, nil
+}
+
+func (s *assetsStore) GetAssetDirPath(shopToken string) string {
+	path := s.assetsPath + string(os.PathSeparator)
+	path = path + shopToken + string(os.PathSeparator)
+
+	return path
+}
+
 func (s *assetsStore) GetAssetByID(assetID string) (*sqlc.Asset, error) {
 	asset, err := s.queries.GetAssetByID(
 		context.Background(),
@@ -164,10 +207,8 @@ func (s *assetsStore) SaveAssetToDisk(b []byte, assetID string, shopToken string
 		return nil, fmt.Errorf("GetAssetByID: %w", err)
 	}
 
+	path := s.GetAssetDirPath(shopToken)
 	filename := asset.ID + fileExt
-
-	path := s.assetsPath + string(os.PathSeparator)
-	path = path + shopToken + string(os.PathSeparator)
 
 	err = os.MkdirAll(path, os.ModePerm)
 	if err != nil {

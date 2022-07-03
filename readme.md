@@ -1,8 +1,10 @@
 # Tech to-do
 - Handle product sync to Lazada after saving product
-  - Enable support for parsing images from product description
+  - Create temporal workflow/activities for syncing the Lazada product
   - Enable support for updating product images
   - Add support for notification when we update a product
+    - Make a clear distiction between saving the Laxo product and syncing the platform product
+  - Add manual sync button for products
 - Create asset management section
   - Add image search
   - Add ability to upload more images
@@ -65,6 +67,7 @@ There is no commerce API available yet for Vietnam. However, for the business ma
 # Frame feature research
 
 ## Image manipulation
+- https://github.com/discord/lilliput
 - https://github.com/gographics/imagick
 - https://github.com/omgovich/react-colorful#customization
 - https://github.com/jgraph/drawio/blob/dev/src/main/webapp/js/grapheditor/Shapes.js

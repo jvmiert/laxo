@@ -23,6 +23,12 @@ type Asset struct {
 	Created          null.Time   `json:"created"`
 }
 
+type AssetsLazada struct {
+	AssetID   string      `json:"assetID"`
+	LazadaUrl null.String `json:"lazadaUrl"`
+	Created   null.Time   `json:"created"`
+}
+
 type Notification struct {
 	ID                  string      `json:"id"`
 	RedisID             null.String `json:"redisID"`

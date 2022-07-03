@@ -60,6 +60,11 @@ SELECT * FROM assets
 WHERE id = $1
 LIMIT 1;
 
+-- name: GetAssetByIDAndShopID :one
+SELECT * FROM assets
+WHERE id = $1 AND shop_id = $2
+LIMIT 1;
+
 -- name: GetAllAssetsByShopID :many
 SELECT
   c.count, p.*
@@ -76,3 +81,17 @@ LEFT JOIN (
   LIMIT $2 OFFSET $3
 ) as p
 ON true;
+
+-- name: CreateLazadaLaxoAssetLink :one
+INSERT INTO assets_lazada (
+  asset_id, lazada_url
+) VALUES (
+  $1, $2
+)
+RETURNING *;
+
+-- name: GetLazadaLaxoLinkByAssetIDAndShopID :one
+SELECT assets_lazada.* FROM assets
+LEFT JOIN assets_lazada ON assets_lazada.asset_id = assets.id
+WHERE assets.id = $1 AND assets.shop_id = $2
+LIMIT 1;

@@ -56,6 +56,27 @@ func (q *Queries) CreateAsset(ctx context.Context, arg CreateAssetParams) (Asset
 	return i, err
 }
 
+const createLazadaLaxoAssetLink = `-- name: CreateLazadaLaxoAssetLink :one
+INSERT INTO assets_lazada (
+  asset_id, lazada_url
+) VALUES (
+  $1, $2
+)
+RETURNING asset_id, lazada_url, created
+`
+
+type CreateLazadaLaxoAssetLinkParams struct {
+	AssetID   string      `json:"assetID"`
+	LazadaUrl null.String `json:"lazadaUrl"`
+}
+
+func (q *Queries) CreateLazadaLaxoAssetLink(ctx context.Context, arg CreateLazadaLaxoAssetLinkParams) (AssetsLazada, error) {
+	row := q.db.QueryRow(ctx, createLazadaLaxoAssetLink, arg.AssetID, arg.LazadaUrl)
+	var i AssetsLazada
+	err := row.Scan(&i.AssetID, &i.LazadaUrl, &i.Created)
+	return i, err
+}
+
 const createProductMedia = `-- name: CreateProductMedia :one
 INSERT INTO products_media (
   product_id, asset_id,
@@ -196,6 +217,34 @@ func (q *Queries) GetAssetByID(ctx context.Context, id string) (Asset, error) {
 	return i, err
 }
 
+const getAssetByIDAndShopID = `-- name: GetAssetByIDAndShopID :one
+SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height, created FROM assets
+WHERE id = $1 AND shop_id = $2
+LIMIT 1
+`
+
+type GetAssetByIDAndShopIDParams struct {
+	ID     string `json:"id"`
+	ShopID string `json:"shopID"`
+}
+
+func (q *Queries) GetAssetByIDAndShopID(ctx context.Context, arg GetAssetByIDAndShopIDParams) (Asset, error) {
+	row := q.db.QueryRow(ctx, getAssetByIDAndShopID, arg.ID, arg.ShopID)
+	var i Asset
+	err := row.Scan(
+		&i.ID,
+		&i.ShopID,
+		&i.MurmurHash,
+		&i.OriginalFilename,
+		&i.Extension,
+		&i.FileSize,
+		&i.Width,
+		&i.Height,
+		&i.Created,
+	)
+	return i, err
+}
+
 const getAssetByMurmur = `-- name: GetAssetByMurmur :one
 SELECT id, shop_id, murmur_hash, original_filename, extension, file_size, width, height, created FROM assets
 WHERE murmur_hash = $1 AND shop_id = $2
@@ -249,6 +298,31 @@ func (q *Queries) GetAssetByOriginalName(ctx context.Context, arg GetAssetByOrig
 		&i.Height,
 		&i.Created,
 	)
+	return i, err
+}
+
+const getLazadaLaxoLinkByAssetIDAndShopID = `-- name: GetLazadaLaxoLinkByAssetIDAndShopID :one
+SELECT assets_lazada.asset_id, assets_lazada.lazada_url, assets_lazada.created FROM assets
+LEFT JOIN assets_lazada ON assets_lazada.asset_id = assets.id
+WHERE assets.id = $1 AND assets.shop_id = $2
+LIMIT 1
+`
+
+type GetLazadaLaxoLinkByAssetIDAndShopIDParams struct {
+	ID     string `json:"id"`
+	ShopID string `json:"shopID"`
+}
+
+type GetLazadaLaxoLinkByAssetIDAndShopIDRow struct {
+	AssetID   null.String `json:"assetID"`
+	LazadaUrl null.String `json:"lazadaUrl"`
+	Created   null.Time   `json:"created"`
+}
+
+func (q *Queries) GetLazadaLaxoLinkByAssetIDAndShopID(ctx context.Context, arg GetLazadaLaxoLinkByAssetIDAndShopIDParams) (GetLazadaLaxoLinkByAssetIDAndShopIDRow, error) {
+	row := q.db.QueryRow(ctx, getLazadaLaxoLinkByAssetIDAndShopID, arg.ID, arg.ShopID)
+	var i GetLazadaLaxoLinkByAssetIDAndShopIDRow
+	err := row.Scan(&i.AssetID, &i.LazadaUrl, &i.Created)
 	return i, err
 }
 
