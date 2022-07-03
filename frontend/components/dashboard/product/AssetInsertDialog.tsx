@@ -7,10 +7,12 @@ import InfiniteLoader from "react-window-infinite-loader";
 import { AxiosResponse } from "axios";
 import Image from "next/image";
 import prettyBytes from "pretty-bytes";
+import { Transforms } from "slate";
 
 import { useDashboard } from "@/providers/DashboardProvider";
 import { useGetShopAssets } from "@/hooks/swrHooks";
 import type { LaxoAssetResponse } from "@/types/ApiResponse";
+import { LaxoImageElement } from "@/lib/laxoSlate";
 
 const shimmer = `
 <svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -78,12 +80,11 @@ const ImageItem = memo(
       pageIndex == 0 ? index : index - pageIndex * data.pageCount;
     const asset = data.data[pageIndex].data.assets[pageItemIndex];
     return (
-      <div
-        style={style}
-        className="p-4"
-        onClick={() => data.onClick(pageIndex, pageItemIndex)}
-      >
-        <div className="relative flex h-full w-full cursor-pointer flex-col">
+      <div style={style} className="p-4">
+        <div
+          onClick={() => data.onClick(pageIndex, pageItemIndex)}
+          className="relative flex h-full w-full cursor-pointer flex-col"
+        >
           <div className="grow">
             <div className="group relative block h-full w-full overflow-hidden rounded-lg bg-gray-100">
               <Image
@@ -123,6 +124,7 @@ type ProductImageDetailsProps = {};
 export default function AssetInsertDialog({}: ProductImageDetailsProps) {
   const {
     activeShop,
+    slateEditorRef,
     dashboardDispatch,
     dashboardState: { insertImageIsOpen },
   } = useDashboard();
@@ -168,11 +170,25 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
 
   const onClick = useCallback(
     (pageIndex: number, itemIndex: number) => {
+      if (!slateEditorRef.current) return;
       if (!assetsPages) return;
       const asset = assetsPages[pageIndex].data.assets[itemIndex];
-      console.log("clicked asset:", asset);
+
+      const text = { text: "" };
+      const image: LaxoImageElement = {
+        type: "image",
+        src: `${asset.id}${asset.extension}`,
+        height: asset.height,
+        width: asset.width,
+        children: [text],
+      };
+      Transforms.insertNodes(slateEditorRef.current, image);
+
+      dashboardDispatch({
+        type: "close_image_insert",
+      });
     },
-    [assetsPages],
+    [assetsPages, slateEditorRef, dashboardDispatch],
   );
 
   const gridItemData: ItemDataShare = useMemo(

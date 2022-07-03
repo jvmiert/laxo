@@ -29,13 +29,14 @@ export type LaxoListElement = {
 
 export type LaxoBlockElements = Exclude<LaxoElement, LaxoImageElement>;
 
-//@TODO: align shouldn't be here
+//@TODO: align and children shouldn't be here
 export type LaxoImageElement = {
   type: "image";
   src: string;
   width: number;
   height: number;
   align?: "left" | "center" | "right" | "justify";
+  children: LaxoText[];
 };
 
 type LaxoElement =

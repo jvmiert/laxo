@@ -98,7 +98,8 @@ func (s *Service) UpdateProductFromRequest(r *models.ProductDetailPostRequest, p
 	costNumeric := pgtype.Numeric{}
 	costNumeric.Set(r.CostPrice)
 
-	bytes, err := json.Marshal(r.Description)
+	parsedDescription := s.ParseSlateEmptyChildren(r.Description)
+	bytes, err := json.Marshal(parsedDescription)
 	if err != nil {
 		err = validation.Errors{
 			"description": validation.NewError(

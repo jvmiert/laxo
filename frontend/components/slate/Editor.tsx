@@ -69,7 +69,11 @@ const isBlockActive = (
   return !!match;
 };
 
-const AssetButton = ({ openFunc }: { openFunc: () => void }) => {
+const AssetButton = ({
+  openFunc,
+}: {
+  openFunc: () => void;
+}) => {
   return (
     <button
       className="relative -ml-px inline-flex items-center rounded-tr-md border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -402,7 +406,8 @@ export default function Editor({ initialSchema }: EditorProps) {
     let parsedSchema;
     try {
       parsedSchema = JSON.parse(initialSchema);
-    } catch {
+    } catch (e) {
+      console.log("json error", e);
       parsedSchema = initialValue;
     }
     // Slate throws an error if the value on the initial render is invalid
@@ -411,7 +416,8 @@ export default function Editor({ initialSchema }: EditorProps) {
     editor.children = parsedSchema;
     try {
       SlateEditor.normalize(editor, { force: true });
-    } catch {
+    } catch (e) {
+      console.log("normalize error", e);
       editor.children = initialValue;
       SlateEditor.normalize(editor, { force: true });
     }

@@ -164,6 +164,22 @@ func slateElementToHTML(element models.Element) string {
 	return html
 }
 
+// Slate needs at least one text child node in order to be valid. Our implemention results in
+// a child text note that is an empty object (without the text property) after Marshalling to JSON
+// due to the use of omitempty on our struct. To fix this we remove the empty child text node.
+// This is normalized this in the frontend.
+func (s *Service) ParseSlateEmptyChildren(slateSchema []models.Element) []models.Element {
+	for i, node := range slateSchema {
+		if len(node.Children) == 1 {
+			if node.Children[0].Text == "" {
+				slateSchema[i].Children = []models.Element{}
+			}
+		}
+	}
+
+	return slateSchema
+}
+
 func (s *Service) SlateToHTML(slateSchema []models.Element) (string, error) {
 	var html string
 	for _, node := range slateSchema {

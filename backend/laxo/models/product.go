@@ -17,7 +17,7 @@ type Element struct {
 	Bold      bool      `json:"bold,omitempty"`
 	Underline bool      `json:"underline,omitempty"`
 	Italic    bool      `json:"italic,omitempty"`
-	Children  []Element `json:"children,omitempty"`
+	Children  []Element `json:"children"`
 }
 
 type ProductPlatformInformation struct {
