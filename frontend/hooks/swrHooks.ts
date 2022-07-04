@@ -258,6 +258,7 @@ export function useGetShopAssets(limit: number): {
   error: AxiosError | undefined;
   loading: boolean;
   size: number;
+  mutate: KeyedMutator<AxiosResponse<LaxoAssetResponse>[]>;
   setSize: (
     size: number | ((_size: number) => number),
   ) => Promise<AxiosResponse<LaxoAssetResponse>[] | undefined>;
@@ -284,11 +285,12 @@ export function useGetShopAssets(limit: number): {
     [axiosClient],
   );
 
-  const { data, error, isValidating, setSize, size } = useSWRInfinite<
+  const { data, error, isValidating, setSize, size, mutate } = useSWRInfinite<
     AxiosResponse<LaxoAssetResponse>,
     AxiosError<Error>
   >(getKey, fetcher, {
     shouldRetryOnError: true,
+    revalidateAll: false,
   });
 
   return useMemo(
@@ -298,7 +300,8 @@ export function useGetShopAssets(limit: number): {
       loading: isValidating,
       size,
       setSize,
+      mutate,
     }),
-    [data, error, isValidating, setSize, size],
+    [data, error, isValidating, setSize, size, mutate],
   );
 }

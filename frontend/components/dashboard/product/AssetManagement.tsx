@@ -1,14 +1,16 @@
 import cc from "classcat";
 import prettyBytes from "pretty-bytes";
 import { useEffect, useRef, useState, ChangeEvent, useCallback } from "react";
-import { useDashboard } from "@/providers/DashboardProvider";
 import Image from "next/image";
 import { CloudUploadIcon } from "@heroicons/react/outline";
-import useProductApi from "@/hooks/useProductApi";
 import MurmurHash3 from "murmurhash3js-revisited";
 import { useIntl } from "react-intl";
+
 import { LaxoProductAsset } from "@/types/ApiResponse";
 import ProductImageDetails from "@/components/dashboard/product/ProductImageDetails";
+import { useGetLaxoProductDetails, useGetShopAssets } from "@/hooks/swrHooks";
+import { useDashboard } from "@/providers/DashboardProvider";
+import useProductApi from "@/hooks/useProductApi";
 
 const shimmer = `
 <svg width="48px" height="48px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -47,6 +49,9 @@ export default function AssetManagement({
 
   const dropRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { mutate: detailMutate } = useGetLaxoProductDetails(productID);
+  const { mutate: assetsMutate } = useGetShopAssets(20);
 
   const { doCreateAsset, doUploadAsset, doAssetRequest } = useProductApi();
 
@@ -97,6 +102,8 @@ export default function AssetManagement({
       return;
     }
 
+    detailMutate();
+    assetsMutate();
     dashboardDispatch({
       type: "alert",
       alert: {
@@ -184,6 +191,8 @@ export default function AssetManagement({
           return;
         }
 
+        detailMutate();
+        assetsMutate();
         dashboardDispatch({
           type: "alert",
           alert: {
@@ -206,6 +215,8 @@ export default function AssetManagement({
       doAssetRequest,
       t,
       productID,
+      detailMutate,
+      assetsMutate,
     ],
   );
 
