@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import {
   ChevronLeftIcon,
+  ChevronRightIcon,
   DotsHorizontalIcon,
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
@@ -14,6 +15,108 @@ import lazShop from "@/assets/lazShop.svg";
 import lazLike from "@/assets/lazLike.png";
 import lazStar from "@/assets/lazStar.png";
 import gradientArrow from "@/assets/gradientArrow.svg";
+
+import tiktokBack from "@/assets/tiktokBack.png";
+import tiktokCart from "@/assets/tiktokCart.png";
+import tiktokArrow from "@/assets/tiktokArrow.png";
+import tiktokDots from "@/assets/tiktokDots.png";
+import tiktokShop from "@/assets/tiktokShop.png";
+import tiktokChat from "@/assets/tiktokChat.png";
+import tiktokShip from "@/assets/tiktokShip.webp";
+
+function Tiktok({ name }) {
+  return (
+    <>
+      <div className="h-20 w-full bg-[#d8ece6]">
+        <div className="flex items-center justify-between bg-gradient-to-b from-black/20 to-black/0 px-3 pt-4 pb-4">
+          <div className="h-4 w-4">
+            <Image
+              src={tiktokBack}
+              className="drop-shadow-md"
+              alt="back"
+              layout="responsive"
+            />
+          </div>
+          <div className="flex space-x-2">
+            <div className="h-4 w-4">
+              <Image
+                src={tiktokArrow}
+                className="drop-shadow-md"
+                alt="back"
+                layout="responsive"
+              />
+            </div>
+            <div className="h-4 w-4">
+              <Image
+                src={tiktokCart}
+                className="drop-shadow-md"
+                alt="back"
+                layout="responsive"
+              />
+            </div>
+            <div className="h-4 w-4">
+              <Image
+                src={tiktokDots}
+                className="drop-shadow-md"
+                alt="back"
+                layout="responsive"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="px-3 pt-2 font-semibold text-[#ff2758]">137.000₫</div>
+      <div className="px-3 pt-1 text-xs font-medium text-slate-800">{name}</div>
+      <div className="flex items-center justify-between px-3 pb-2 pt-1.5 text-[10px] font-medium">
+        <div className="text-slate-400">137 sold</div>
+        <div className="flex items-center text-[#fe2c55]">
+          <div className="mr-1 flex h-3 w-3">
+            <Image src={tiktokShip} alt="ship" />
+          </div>
+          <div>Free shipping</div>
+        </div>
+      </div>
+      <div className="h-2 bg-slate-50" />
+      <div className="flex items-center justify-between">
+        <div className="py-2 pl-3 text-xs font-medium">Coupons</div>
+        <ChevronRightIcon className="mr-3 h-4 w-4 stroke-slate-400" />
+      </div>
+      <div className="h-2 bg-slate-50" />
+      <div className="flex items-center justify-between">
+        <div className="py-2 pl-3 text-xs font-medium">
+          Shipping{" "}
+          <span className="text-[9px] text-slate-400">(5 - 7 days)</span>
+        </div>
+        <div className="flex items-center">
+          <div className="text-[9px] text-[#fe2c55]">Free</div>
+          <ChevronRightIcon className="mr-3 h-4 w-4 stroke-slate-400" />
+        </div>
+      </div>
+      <div className="flex items-center px-2 py-2">
+        <div className="relative mr-2 flex flex-col items-center">
+          <div className="h-4 w-4">
+            <Image src={tiktokShop} alt="shop" />
+          </div>
+          <div className="text-[10px]">Store</div>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="h-4 w-4">
+            <Image src={tiktokChat} alt="chat" />
+          </div>
+          <div className="text-[10px]">Chat</div>
+        </div>
+        <div className="ml-2 flex grow space-x-2 text-center text-xs">
+          <div className="flex w-1/2 items-center justify-center rounded border-2 border-[#fe2c55] bg-white py-1 px-2 leading-3 text-[#fe2c55]">
+            Add to cart
+          </div>
+          <div className="flex w-1/2 items-center justify-center rounded bg-[#fe2c55] py-1 px-2 leading-3 text-white">
+            Buy with coupon
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
 function Lazada({ name }) {
   return (
@@ -186,10 +289,10 @@ export default function Everywhere() {
             boxShadow:
               "rgba(0, 0, 0, 0.1) 0px 8px 10px -6px, inset 0 -2px 6px 0 rgba(10,37,64,.35)",
           }}
-          className="overflow-hidden rounded-3xl bg-[#f6f9fc] p-2"
+          className="w-full overflow-hidden rounded-3xl bg-[#f6f9fc] p-2"
         >
-          <div className="h-full w-full overflow-hidden rounded-3xl bg-white py-3">
-            <Lazada name={name} />
+          <div className="h-full w-full overflow-hidden rounded-3xl bg-white pb-3">
+            <Tiktok name={name} />
           </div>
         </div>
       </div>
