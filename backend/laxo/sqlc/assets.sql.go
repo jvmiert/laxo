@@ -138,7 +138,7 @@ FROM
 LEFT JOIN (
   SELECT assets.id, assets.shop_id, assets.murmur_hash, assets.original_filename, assets.extension, assets.file_size, assets.width, assets.height, assets.created
   FROM assets
-  ORDER BY assets.created
+  ORDER BY assets.created, id DESC
   LIMIT $2 OFFSET $3
 ) as p
 ON true
@@ -298,6 +298,34 @@ func (q *Queries) GetAssetByOriginalName(ctx context.Context, arg GetAssetByOrig
 		&i.Height,
 		&i.Created,
 	)
+	return i, err
+}
+
+const getAssetRankByIDAndShopID = `-- name: GetAssetRankByIDAndShopID :one
+SELECT t.id, t.rank
+FROM (SELECT
+  assets.id AS id,
+  dense_rank() over (order by created, id DESC) as rank
+  FROM assets
+  WHERE assets.shop_id = $1
+      ) as t
+WHERE id = $2
+`
+
+type GetAssetRankByIDAndShopIDParams struct {
+	ShopID string `json:"shopID"`
+	ID     string `json:"id"`
+}
+
+type GetAssetRankByIDAndShopIDRow struct {
+	ID   string `json:"id"`
+	Rank int64  `json:"rank"`
+}
+
+func (q *Queries) GetAssetRankByIDAndShopID(ctx context.Context, arg GetAssetRankByIDAndShopIDParams) (GetAssetRankByIDAndShopIDRow, error) {
+	row := q.db.QueryRow(ctx, getAssetRankByIDAndShopID, arg.ShopID, arg.ID)
+	var i GetAssetRankByIDAndShopIDRow
+	err := row.Scan(&i.ID, &i.Rank)
 	return i, err
 }
 

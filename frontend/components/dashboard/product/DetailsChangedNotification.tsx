@@ -45,7 +45,7 @@ export default function DetailsChangedNotification({}: DetailsChangedNotificatio
       leaveFrom="opacity-100 translate-y-0"
       leaveTo="opacity-0 -translate-y-full"
     >
-      <div className="fixed top-0 left-0 z-50 w-full bg-indigo-400 shadow">
+      <div className="fixed top-0 left-0 z-30 w-full bg-indigo-400 shadow">
         <div className="mx-auto flex h-[72px] max-w-lg items-center space-x-8">
           <div className="font-semibold text-white">
             You have unsaved changes

@@ -39,6 +39,7 @@ type Store interface {
 	UnlinkProductMedia(productID string, assetID string) error
 	GetAllAssetsByShopID(shopID string, limit int32, offset int32) ([]sqlc.GetAllAssetsByShopIDRow, error)
 	GetAssetBytesByID(assetID string, shopID string, shopToken string) ([]byte, error)
+	GetAssetRankByIDAndShopID(assetID string, shopID string) (int64, error)
 }
 
 var ErrImageURLForbidden = errors.New("image url returned forbidden")
@@ -64,6 +65,24 @@ type Service struct {
 	store  Store
 	logger *laxo.Logger
 	server *laxo.Server
+}
+
+func (s *Service) GetAssetRankByIDAndShopID(assetID string, shopID string) ([]byte, error) {
+	rank, err := s.store.GetAssetRankByIDAndShopID(assetID, shopID)
+	if err != nil {
+		return nil, fmt.Errorf("GetAssetRankByIDAndShopID: %w", err)
+	}
+
+	returnObject := map[string]interface{}{
+		"rank": rank,
+	}
+
+	bytes, err := json.Marshal(returnObject)
+	if err != nil {
+		return bytes, err
+	}
+
+	return bytes, nil
 }
 
 func (s *Service) GetAssetBytesByID(assetID string, shopID string, shopToken string) ([]byte, error) {

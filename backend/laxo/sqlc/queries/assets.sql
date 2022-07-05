@@ -65,6 +65,16 @@ SELECT * FROM assets
 WHERE id = $1 AND shop_id = $2
 LIMIT 1;
 
+-- name: GetAssetRankByIDAndShopID :one
+SELECT t.*
+FROM (SELECT
+  assets.id AS id,
+  dense_rank() over (order by created, id DESC) as rank
+  FROM assets
+  WHERE assets.shop_id = $1
+      ) as t
+WHERE id = $2;
+
 -- name: GetAllAssetsByShopID :many
 SELECT
   c.count, p.*
@@ -77,7 +87,7 @@ FROM
 LEFT JOIN (
   SELECT assets.*
   FROM assets
-  ORDER BY assets.created
+  ORDER BY assets.created, id DESC
   LIMIT $2 OFFSET $3
 ) as p
 ON true;

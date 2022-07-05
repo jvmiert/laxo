@@ -1,4 +1,14 @@
-import { Fragment, CSSProperties, useMemo, useCallback, memo } from "react";
+import {
+  Fragment,
+  CSSProperties,
+  useMemo,
+  useCallback,
+  memo,
+  useRef,
+  useEffect,
+  ChangeEvent,
+  useState,
+} from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon, PlusCircleIcon, SearchIcon } from "@heroicons/react/solid";
 import { FixedSizeGrid as Grid, areEqual } from "react-window";
@@ -8,11 +18,15 @@ import { AxiosResponse } from "axios";
 import Image from "next/image";
 import prettyBytes from "pretty-bytes";
 import { Transforms } from "slate";
+import MurmurHash3 from "murmurhash3js-revisited";
+import { useIntl } from "react-intl";
 
 import { useDashboard } from "@/providers/DashboardProvider";
+import useProductApi from "@/hooks/useProductApi";
 import { useGetShopAssets } from "@/hooks/swrHooks";
 import type { LaxoAssetResponse } from "@/types/ApiResponse";
 import { LaxoImageElement } from "@/lib/laxoSlate";
+import LoadSpinner from "@/components/LoadSpinner";
 
 const shimmer = `
 <svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -131,13 +145,41 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
 
   const pageCount = useMemo(() => 20, []);
 
-  const { assetsPages, size, setSize } = useGetShopAssets(pageCount);
+  const t = useIntl();
+
+  const { assetsPages, size, setSize, mutate, loading } =
+    useGetShopAssets(pageCount);
+
+  const { doCreateAsset, doUploadAsset, doGetAssetRank } = useProductApi();
 
   const totalAssets = assetsPages ? assetsPages[0].data.paginate.total : 0;
 
   const assetCount = assetsPages ? assetsPages[0].data.paginate.total : 0;
   const colCount = 4;
   const rowCount = Math.ceil(assetCount / colCount);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const gridRef = useRef<Grid | null>(null);
+
+  const [scrollToID, setScrollToID] = useState<string | null>(null);
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const scrollToData = async () => {
+      if (scrollToID && gridRef.current) {
+        const index = await doGetAssetRank(scrollToID);
+        gridRef.current.scrollToItem({
+          align: "center",
+          columnIndex: 1,
+          rowIndex: Math.floor(index / colCount),
+        });
+        setScrollToID(null);
+      }
+    };
+    if (gridRef.current && !loading && scrollToID) {
+      scrollToData();
+    }
+  }, [loading, scrollToID, assetsPages, doGetAssetRank, colCount]);
 
   const loadMoreAssets = (
     startIndex: number,
@@ -210,9 +252,111 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
     });
   };
 
+  const uploadFile = useCallback(
+    async (f: File) => {
+      const split = f.type.split("/");
+
+      const error = split.length >= 2 ? split[0] != "image" : true;
+      if (error) {
+        dashboardDispatch({
+          type: "alert",
+          alert: {
+            type: "error",
+            message: t.formatMessage({
+              description: "Asset management error upload",
+              defaultMessage: "Please only add images",
+            }),
+          },
+        });
+      }
+
+      const url = URL.createObjectURL(f);
+      const img = document.createElement("img");
+
+      const arrayBuffer = await f.arrayBuffer();
+      const byteArray = new Uint8Array(arrayBuffer);
+
+      const murmur = MurmurHash3.x64.hash128(byteArray);
+
+      const serverError = () => {
+        dashboardDispatch({
+          type: "alert",
+          alert: {
+            type: "error",
+            message: t.formatMessage({
+              description: "Asset management server error upload",
+              defaultMessage:
+                "Something went wrong, please make sure you're upload a valid image and try again",
+            }),
+          },
+        });
+      };
+
+      img.onload = async (ev: Event) => {
+        const target = ev.target as HTMLImageElement;
+        const result = await doCreateAsset({
+          originalName: f.name,
+          size: f.size,
+          width: target.width,
+          height: target.height,
+          hash: murmur,
+        });
+
+        if (result.error || !result?.asset) {
+          serverError();
+          return;
+        }
+
+        if (result.upload && result?.asset?.id) {
+          const uploadResult = await doUploadAsset(result.asset.id, f);
+          if (uploadResult.error) {
+            serverError();
+            return;
+          }
+        }
+        mutate();
+        dashboardDispatch({
+          type: "alert",
+          alert: {
+            type: "success",
+            message: t.formatMessage({
+              description: "Asset management successful upload",
+              defaultMessage: "Successfully added your new image",
+            }),
+          },
+        });
+
+        setScrollToID(result.asset.id);
+
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    },
+    [dashboardDispatch, doCreateAsset, doUploadAsset, t, mutate],
+  );
+
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setButtonLoading(true);
+    e.preventDefault();
+    e.persist();
+
+    if (!e.target?.files) return;
+
+    Array.from(e.target.files).forEach(async (f) => {
+      await uploadFile(f);
+    });
+    setButtonLoading(false);
+  };
+
+  const openFileDialog = () => {
+    if (inputRef.current) {
+      inputRef.current.click();
+    }
+  };
+
   return (
     <Transition appear show={!!insertImageIsOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={closeDialog}>
+      <Dialog as="div" className="relative z-40" onClose={closeDialog}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -263,14 +407,24 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                       </div>
                       <button
                         type="button"
-                        className="inline-flex items-center rounded-md border border-indigo-500 bg-indigo-500 py-2 px-4 text-white shadow shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-indigo-200"
-                        onClick={() => {}}
+                        disabled={buttonLoading}
+                        className="inline-flex min-w-[140px] items-center justify-center rounded-md border border-indigo-500 bg-indigo-500 py-2 px-4 text-white shadow shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:hover:bg-indigo-500"
+                        onClick={openFileDialog}
                       >
-                        <PlusCircleIcon
-                          className="mr-2 -ml-1 h-4 w-4"
-                          aria-hidden="true"
-                        />
-                        Add Image
+                        {buttonLoading ? (
+                          <>
+                            <LoadSpinner className="mr-2 h-4 w-4 animate-spin fill-indigo-600 text-gray-200" />
+                            Loading...
+                          </>
+                        ) : (
+                          <>
+                            <PlusCircleIcon
+                              className="mr-2 -ml-1 h-4 w-4"
+                              aria-hidden="true"
+                            />
+                            Add Image
+                          </>
+                        )}
                       </button>
                       <button
                         type="button"
@@ -282,6 +436,14 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                       </button>
                     </div>
                   </div>
+                  <input
+                    multiple
+                    accept=".png,.gif,.jpeg,.jpg"
+                    className="hidden"
+                    ref={inputRef}
+                    type="file"
+                    onChange={onFileChange}
+                  />
                   <div className="my-6 -ml-4 -mr-4 border-b border-gray-200 sm:-ml-6 sm:-mr-6" />
                   <div className="-mr-3 grow sm:-mr-5">
                     <div className="block h-full w-full">
@@ -294,38 +456,43 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                               loadMoreItems={loadMoreAssets}
                               minimumBatchSize={pageCount}
                             >
-                              {({ ref, onItemsRendered }) => (
-                                <Grid
-                                  ref={ref}
-                                  itemData={gridItemData}
-                                  columnCount={colCount}
-                                  columnWidth={width / colCount - 8}
-                                  height={height}
-                                  rowCount={rowCount}
-                                  rowHeight={420}
-                                  width={width}
-                                  overscanRowCount={4}
-                                  onItemsRendered={({
-                                    visibleRowStartIndex,
-                                    visibleRowStopIndex,
-                                    overscanRowStopIndex,
-                                    overscanRowStartIndex,
-                                  }) => {
-                                    onItemsRendered({
-                                      overscanStartIndex:
-                                        overscanRowStartIndex * colCount,
-                                      overscanStopIndex:
-                                        overscanRowStopIndex * colCount,
-                                      visibleStartIndex:
-                                        visibleRowStartIndex * colCount,
-                                      visibleStopIndex:
-                                        visibleRowStopIndex * colCount,
-                                    });
-                                  }}
-                                >
-                                  {ImageItem}
-                                </Grid>
-                              )}
+                              {({ ref, onItemsRendered }) => {
+                                return (
+                                  <Grid
+                                    ref={(e) => {
+                                      ref(e);
+                                      gridRef.current = e;
+                                    }}
+                                    itemData={gridItemData}
+                                    columnCount={colCount}
+                                    columnWidth={width / colCount - 8}
+                                    height={height}
+                                    rowCount={rowCount}
+                                    rowHeight={420}
+                                    width={width}
+                                    overscanRowCount={4}
+                                    onItemsRendered={({
+                                      visibleRowStartIndex,
+                                      visibleRowStopIndex,
+                                      overscanRowStopIndex,
+                                      overscanRowStartIndex,
+                                    }) => {
+                                      onItemsRendered({
+                                        overscanStartIndex:
+                                          overscanRowStartIndex * colCount,
+                                        overscanStopIndex:
+                                          overscanRowStopIndex * colCount,
+                                        visibleStartIndex:
+                                          visibleRowStartIndex * colCount,
+                                        visibleStopIndex:
+                                          visibleRowStopIndex * colCount,
+                                      });
+                                    }}
+                                  >
+                                    {ImageItem}
+                                  </Grid>
+                                );
+                              }}
                             </InfiniteLoader>
                           )}
                         </AutoSizer>

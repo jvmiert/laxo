@@ -41,6 +41,37 @@ func InitAssetsHandler(server *laxo.Server, shop *shop.Service, assets *assets.S
 	r.Handle("/asset/shop-assets", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleGetShopAssets)),
 	)).Methods("GET")
+
+	r.Handle("/asset/rank/{assetID:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}}", n.With(
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleGetRank)),
+	)).Methods("GET")
+}
+
+func (h *assetsHandler) HandleGetRank(w http.ResponseWriter, r *http.Request, uID string) {
+	s, err := h.shop.GetActiveShopByUserID(uID)
+	if err != nil {
+		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	vars := mux.Vars(r)
+	assetID := vars["assetID"]
+
+	b, err := h.assets.GetAssetRankByIDAndShopID(assetID, s.Model.ID)
+	//@TODO: Handle no db rows error by returning 404
+	if err != nil {
+		h.server.Logger.Errorw("GetAssetRankByIDAndShopID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(b)
 }
 
 func (h *assetsHandler) HandleGetShopAssets(w http.ResponseWriter, r *http.Request, uID string) {

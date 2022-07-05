@@ -69,6 +69,21 @@ func (s *assetsStore) CreateNewAsset(ShopID, MurmurHash, OriginalFilename string
 	return &asset, err
 }
 
+func (s *assetsStore) GetAssetRankByIDAndShopID(assetID string, shopID string) (int64, error) {
+	asset, err := s.queries.GetAssetRankByIDAndShopID(
+		context.Background(),
+		sqlc.GetAssetRankByIDAndShopIDParams{
+			ID:     assetID,
+			ShopID: shopID,
+		},
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return asset.Rank, nil
+}
+
 func (s *assetsStore) GetAssetBytesByID(assetID string, shopID string, shopToken string) ([]byte, error) {
 	assetModel, err := s.GetAssetByIDAndShopID(assetID, shopID)
 	if err != nil {
