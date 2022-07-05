@@ -7,7 +7,6 @@
   - Add manual sync button for products
 - Create asset management section
   - Add image search
-  - Add ability to upload more images
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)
 - Add rich text hotkeys: https://github.com/ianstormtaylor/is-hotkey
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can

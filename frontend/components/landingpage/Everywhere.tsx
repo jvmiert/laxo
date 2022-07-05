@@ -3,10 +3,13 @@ import React, { useState } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronDownIcon,
   DotsHorizontalIcon,
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
 import Image from "next/image";
+
+import product from "@/assets/product1.jpg";
 
 import lazSearch from "@/assets/lazSearch.png";
 import lazShare from "@/assets/lazShare.png";
@@ -24,11 +27,89 @@ import tiktokShop from "@/assets/tiktokShop.png";
 import tiktokChat from "@/assets/tiktokChat.png";
 import tiktokShip from "@/assets/tiktokShip.webp";
 
+import fbBack from "@/assets/fbBack.png";
+import fbCart from "@/assets/fbCart.png";
+import fbDots from "@/assets/fbDots.png";
+import fbShare from "@/assets/fbShare.png";
+import fbMark from "@/assets/fbMark.png";
+
+function Facebook({ name }) {
+  return (
+    <>
+      <div className="flex w-full items-center justify-between border-b border-slate-100 py-2 px-3">
+        <div className="flex items-center space-x-3">
+          <div className="h-4 w-4">
+            <Image src={fbBack} alt="back" layout="responsive" />
+          </div>
+          <span className="text-xs font-semibold">Laxo Shop</span>
+        </div>
+        <div className="flex space-x-2">
+          <div className="h-4 w-4">
+            <Image src={fbCart} alt="cart" layout="responsive" />
+          </div>
+          <div className="h-4 w-4">
+            <Image src={fbDots} alt="dots" layout="responsive" />
+          </div>
+        </div>
+      </div>
+      <div>
+        <Image src={product} alt="product" layout="responsive" />
+      </div>
+      <div className="flex w-full items-start justify-between px-3 pt-2">
+        <div className="text-xs font-bold">{name}</div>
+        <div className="flex items-center space-x-3">
+          <div className="h-4 w-4">
+            <Image
+              src={fbMark}
+              className="opacity-70"
+              alt="bookmark"
+              layout="responsive"
+            />
+          </div>
+          <div className="h-4 w-4">
+            <Image
+              src={fbShare}
+              className="opacity-70"
+              alt="share"
+              layout="responsive"
+            />
+          </div>
+        </div>
+      </div>
+      <div className="px-3 pb-3 text-[0.6rem]">₫137.000</div>
+      <div className="mx-3 rounded bg-[#1a74e5] py-1 text-center text-white">
+        Message
+      </div>
+      <div className="w-full pt-1 text-center text-[0.5rem] text-slate-500">
+        Message this seller to ask about the product
+      </div>
+      <div className="h-2 bg-[#f0f1f5]" />
+      <div className="flex items-center justify-between">
+        <div className="py-2 pl-3 text-xs font-bold">Description</div>
+        <ChevronDownIcon className="mr-3 h-4 w-4 stroke-slate-500 stroke-[3px]" />
+      </div>
+      <div className="h-2 bg-[#f0f1f5]" />
+      <div className="flex w-full items-center justify-between py-2 px-3">
+        <div className="flex flex-col">
+          <div className="text-xs font-semibold">Laxo Shop</div>
+          <div className="text-[0.65rem] text-slate-600">30K followers</div>
+        </div>
+        <div>
+          <ChevronRightIcon className="h-5 w-5" />
+        </div>
+      </div>
+      <div className="mx-3 rounded bg-[#e8f2fe] py-1 text-center text-[#1065d0]">
+        Follow
+      </div>
+    </>
+  );
+}
+
 function Tiktok({ name }) {
   return (
     <>
-      <div className="h-20 w-full bg-[#d8ece6]">
-        <div className="flex items-center justify-between bg-gradient-to-b from-black/20 to-black/0 px-3 pt-4 pb-4">
+      <div className="relative w-full">
+        <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/40 to-black/0 px-3 pt-4 pb-4">
           <div className="h-4 w-4">
             <Image
               src={tiktokBack}
@@ -64,6 +145,7 @@ function Tiktok({ name }) {
             </div>
           </div>
         </div>
+        <Image src={product} alt="product" layout="responsive" />
       </div>
       <div className="px-3 pt-2 font-semibold text-[#ff2758]">137.000₫</div>
       <div className="px-3 pt-1 text-xs font-medium text-slate-800">{name}</div>
@@ -83,6 +165,11 @@ function Tiktok({ name }) {
       </div>
       <div className="h-2 bg-slate-50" />
       <div className="flex items-center justify-between">
+        <div className="py-2 pl-3 text-xs font-medium">Select options</div>
+        <ChevronRightIcon className="mr-3 h-4 w-4 stroke-slate-400" />
+      </div>
+      <div className="mx-4 border-b border-slate-100 pt-0.5" />
+      <div className="flex items-center justify-between pt-0.5">
         <div className="py-2 pl-3 text-xs font-medium">
           Shipping{" "}
           <span className="text-[9px] text-slate-400">(5 - 7 days)</span>
@@ -136,6 +223,9 @@ function Lazada({ name }) {
         </div>
         <DotsHorizontalIcon className="h-4 w-4" />
       </div>
+      <div>
+        <Image src={product} alt="product" layout="responsive" />
+      </div>
       <div className="flex items-center px-3 py-2">
         <div className="grow">
           <p className="font-bold text-[#ea5d63]">
@@ -176,6 +266,11 @@ function Lazada({ name }) {
         <div className="text-xs">
           <span className="font-medium">89</span> sold
         </div>
+      </div>
+      <div className="h-2 bg-slate-100" />
+      <div className="flex items-center justify-between">
+        <div className="py-2 pl-3 text-xs font-bold">Vouchers</div>
+        <ChevronRightIcon className="mr-3 h-3 w-3 stroke-slate-500 stroke-[3px]" />
       </div>
       <div className="flex items-center border-t border-slate-100 px-3 py-2">
         <div className="relative mr-3 flex flex-col items-center">
@@ -303,10 +398,10 @@ export default function Everywhere() {
             boxShadow:
               "rgba(0, 0, 0, 0.1) 0px 8px 10px -6px, inset 0 -2px 6px 0 rgba(10,37,64,.35)",
           }}
-          className="overflow-hidden rounded-3xl bg-[#f6f9fc] p-2"
+          className="w-full overflow-hidden rounded-3xl bg-[#f6f9fc] p-2"
         >
           <div className="h-full w-full overflow-hidden rounded-3xl bg-white py-3">
-            <Lazada name={name} />
+            <Facebook name={name} />
           </div>
         </div>
       </div>
