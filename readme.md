@@ -5,8 +5,6 @@
   - Add support for notification when we update a product
     - Make a clear distiction between saving the Laxo product and syncing the platform product
   - Add manual sync button for products
-- Create asset management section
-  - Add image search
 - Change notification from Popover to Menu? (it's closing now when we don't want it to close)
 - Add rich text hotkeys: https://github.com/ianstormtaylor/is-hotkey
 - Backend API should return error_code, this code will be used for i18n on the frontend. The backend can
@@ -25,6 +23,7 @@
   - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 
 # Long-term to-do
+- Add image search to asset insert dialog?
 - Tweak dashboard loading/error states
   - Add a loading state to the table of the product overview so it doesn't jump around during loads
   - Make a state where there is no results/products

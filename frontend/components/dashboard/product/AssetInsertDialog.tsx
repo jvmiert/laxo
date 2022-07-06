@@ -391,7 +391,7 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                       </p>
                     </div>
                     <div className="flex items-center space-x-5">
-                      <div className="relative rounded-md border shadow">
+                      {/*<div className="relative rounded-md border shadow">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                           <span className="text-gray-500">
                             <SearchIcon className="h-4 w-4" />
@@ -404,7 +404,7 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                           placeholder="Search for image name"
                           defaultValue={""}
                         />
-                      </div>
+                      </div>*/}
                       <button
                         type="button"
                         disabled={buttonLoading}
