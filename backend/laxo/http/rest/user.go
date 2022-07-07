@@ -87,7 +87,7 @@ func (h *userHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	user, err := h.service.LoginUser(loginRequest.Email, loginRequest.Password, printer)
 
 	if err != nil {
-		laxo.ErrorJSONEncode(w, err, http.StatusUnauthorized)
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnauthorized, h.server.Logger)
 		return
 	}
 
@@ -127,7 +127,7 @@ func (h *userHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 
 	printer := laxo.GetLocalePrinter(r)
 	if err := h.service.ValidateNew(&u, printer); err != nil {
-		laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnprocessableEntity, h.server.Logger)
 		return
 	}
 

@@ -86,10 +86,10 @@ export default function useProductDetailsApi(
             ].includes(key)
           ) {
             errors[key as keyof ProductDetailsSubmissionErrors] =
-              errorObject.errorDetails[key];
+              errorObject.errorDetails[key].error;
           }
           if (key === "generalError") {
-            errors[FORM_ERROR] = errorObject.errorDetails[key];
+            errors[FORM_ERROR] = errorObject.errorDetails[key].error;
           }
         });
         return [errors, {}];

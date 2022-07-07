@@ -7,7 +7,7 @@ import Link from "next/link";
 import { withRedirectAuth, withUnauthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import useLoginFuncs, { LoginSchemaValues } from "@/hooks/loginFormFuncs";
-import NavLogo from "@/components/NavLogo";
+import LoginRegisterNavigation from "@/components/LoginRegisterNavigation";
 
 export const getServerSideProps: GetServerSideProps =
   withRedirectAuth("/dashboard/home");
@@ -36,13 +36,7 @@ function LoginPage(props: LoginPageProps) {
 
       <div className="mx-auto flex h-screen max-w-xl flex-col justify-center">
         <div>
-          <div className="mb-6">
-            <Link href="/" passHref>
-              <span className="cursor-pointer">
-                <NavLogo />
-              </span>
-            </Link>
-          </div>
+          <LoginRegisterNavigation />
           <Form
             onSubmit={submitForm}
             decorators={[focusOnError]}

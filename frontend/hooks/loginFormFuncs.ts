@@ -47,7 +47,25 @@ export default function useLoginFuncs(): [
       }
       const errors: { [key: string]: string } = {};
       Object.keys(errorDetails).forEach((key) => {
-        errors[key] = errorDetails[key];
+        switch (errorDetails[key].code) {
+          case "not_exists":
+            errors[key] = t.formatMessage({
+              defaultMessage: "Email does not exist",
+              description: "Login Form: login failure email does not exist",
+            });
+            break;
+          case "pw_incorrect":
+            errors[key] = t.formatMessage({
+              defaultMessage: "Password is incorrect",
+              description: "Login Form: login failure incorrect password",
+            });
+          default:
+            errors[key] = t.formatMessage({
+              defaultMessage: "Something went wrong, please try again later",
+              description: "Login Form: login failure unknown failure",
+            });
+            break;
+        }
       });
       return errors;
     }

@@ -38,7 +38,20 @@ export default function useShopFuncs(): [
       }
       const errors: { [key: string]: string } = {};
       Object.keys(errorDetails).forEach((key) => {
-        errors[key] = errorDetails[key];
+        switch (errorDetails[key].code) {
+          case "validation_length_out_of_range":
+            errors[key] = t.formatMessage({
+              defaultMessage:
+                "Make sure your shop name is between 6 and 300 characters",
+              description: "Shop Form: length validation failed",
+            });
+          default:
+            errors[key] = t.formatMessage({
+              defaultMessage: "Something went wrong, please try again later",
+              description: "Shop Form: unknown failure",
+            });
+            break;
+        }
       });
       return errors;
     }

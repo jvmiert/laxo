@@ -153,7 +153,7 @@ func (h *shopHandler) HandlePostProductDetails(w http.ResponseWriter, r *http.Re
 
 	err := h.service.shop.ValidateProductDetails(&p, printer)
 	if err != nil {
-		laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnprocessableEntity, h.server.Logger)
 		return
 	}
 
@@ -171,7 +171,7 @@ func (h *shopHandler) HandlePostProductDetails(w http.ResponseWriter, r *http.Re
 
 	err = h.service.shop.UpdateProductFromRequest(&p, printer, s.Model.ID, productID)
 	if err != nil {
-		laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnprocessableEntity, h.server.Logger)
 		return
 	}
 
@@ -179,7 +179,7 @@ func (h *shopHandler) HandlePostProductDetails(w http.ResponseWriter, r *http.Re
 
 	product, err := h.service.shop.GetProductDetailsByID(productID, s.Model.ID)
 	if errors.Is(err, shop.ErrProductNotFound) {
-		laxo.ErrorJSONEncode(w, err, http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -219,7 +219,7 @@ func (h *shopHandler) HandleProductDetails(w http.ResponseWriter, r *http.Reques
 
 	product, err := h.service.shop.GetProductDetailsByID(productID, s.Model.ID)
 	if errors.Is(err, shop.ErrProductNotFound) {
-		laxo.ErrorJSONEncode(w, err, http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -315,7 +315,7 @@ func (h *shopHandler) HandleOAuthRedirects(w http.ResponseWriter, r *http.Reques
 
 	printer := laxo.GetLocalePrinter(r)
 	if err := h.service.shop.ValidateOAuthRedirectRequest(o, uID, printer); err != nil {
-		laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnprocessableEntity, h.server.Logger)
 		return
 	}
 
@@ -352,7 +352,7 @@ func (h *shopHandler) HandleVerifyOAuth(w http.ResponseWriter, r *http.Request, 
 
 	printer := laxo.GetLocalePrinter(r)
 	if err := h.service.shop.ValidateOAuthVerifyRequest(o, uID, printer); err != nil {
-		laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnprocessableEntity, h.server.Logger)
 		return
 	}
 
@@ -430,7 +430,7 @@ func (h *shopHandler) HandleCreateShop(w http.ResponseWriter, r *http.Request, u
 
 	printer := laxo.GetLocalePrinter(r)
 	if err := h.service.shop.ValidateNewShop(&s, printer); err != nil {
-		laxo.ErrorJSONEncode(w, err, http.StatusUnprocessableEntity)
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnprocessableEntity, h.server.Logger)
 		return
 	}
 
@@ -452,9 +452,8 @@ func (h *shopHandler) HandleCreateShop(w http.ResponseWriter, r *http.Request, u
 
 func (h *shopHandler) HandleGetMyShops(w http.ResponseWriter, r *http.Request, uID string) {
 	shops, err := h.service.shop.RetrieveShopsPlatformsByUserID(uID)
-
 	if err != nil {
-		laxo.ErrorJSONEncode(w, err, http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 

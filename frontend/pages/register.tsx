@@ -9,7 +9,8 @@ import useRegisterFuncs, {
 } from "@/hooks/registerFormFuncs";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import { withRedirectAuth, withUnauthPage } from "@/lib/withAuth";
-import NavLogo from "@/components/NavLogo";
+
+import LoginRegisterNavigation from "@/components/LoginRegisterNavigation";
 
 export const getServerSideProps: GetServerSideProps = withRedirectAuth("/");
 
@@ -36,13 +37,7 @@ function RegisterPage(props: RegisterPageProps) {
 
       <div className="mx-auto flex h-screen max-w-xl flex-col justify-center">
         <div>
-          <div className="mb-6">
-            <Link href="/" passHref>
-              <span className="cursor-pointer">
-                <NavLogo />
-              </span>
-            </Link>
-          </div>
+          <LoginRegisterNavigation />
           <Form
             onSubmit={submitForm}
             decorators={[focusOnError]}
@@ -126,7 +121,6 @@ function RegisterPage(props: RegisterPageProps) {
                         (meta.error ||
                           (meta.submitError && !meta.dirtySinceLastSubmit)) &&
                         !meta.submitting;
-                      console.log(meta);
                       return (
                         <>
                           <input

@@ -50,7 +50,22 @@ export default function useRegisterFuncs(): [
       }
       const errors: { [key: string]: string } = {};
       Object.keys(errorDetails).forEach((key) => {
-        errors[key] = errorDetails[key];
+        switch (errorDetails[key].code) {
+          //@TODO: Add the additional validations that are already performed by zod
+          //       but are double checked in the backend with Ozzo
+          case "already_exists":
+            errors[key] = t.formatMessage({
+              defaultMessage: "User already exists",
+              description: "Register Form: user already exists",
+            });
+            break;
+          default:
+            errors[key] = t.formatMessage({
+              defaultMessage: "Something went wrong, please try again later",
+              description: "Register Form: unknown failure",
+            });
+            break;
+        }
       });
       return errors;
     }

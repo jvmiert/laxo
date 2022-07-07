@@ -1,5 +1,9 @@
+type ErrorDetailsObject = {
+  code: string;
+  error: string;
+};
 type ErrorDetails = {
-  [key: string]: string;
+  [key: string]: ErrorDetailsObject;
 };
 
 export type ResponseError = {

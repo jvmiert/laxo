@@ -8,28 +8,43 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
-type ErrorReturn struct {
-	ErrorDetails error `json:"errorDetails"`
-	Error        bool  `json:"error"`
+type ErrorDetails struct {
+	Code  string `json:"code"`
+	Error string `json:"error"`
 }
 
-func ErrorJSONEncode(w http.ResponseWriter, error error, code int) {
+type ErrorReturn struct {
+	ErrorDetails map[string]ErrorDetails `json:"errorDetails"`
+	Error        bool                    `json:"error"`
+}
+
+// A helper function that encodes ozzo-validation errors in a JSON format
+// suitable for the frontend to consume. Only call this function if the
+// errors are validation.Errors types.
+func OzzoErrorJSONEncode(w http.ResponseWriter, error error, code int, logger *Logger) {
 	var returnError ErrorReturn
 
-	/*
-	     @TODO: In addition to the i18n error string, return a error
-	            code that will be consistent between languages.
-
-	  ozzoError := error.(validation.Errors)
-
-	  Logger.Debug("test", ozzoError["email"].(validation.Error).Code())
-
-	*/
-
+	ozzoErrors, ok := error.(validation.Errors)
+	if !ok {
+		logger.Errorw("validation.Errors casting failed", "err", error)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	returnError.ErrorDetails = make(map[string]ErrorDetails)
 	returnError.Error = true
-	returnError.ErrorDetails = error
+
+	for key, vanillaErr := range ozzoErrors {
+		ozzoErr, ok := vanillaErr.(validation.Error)
+		if !ok {
+			logger.Errorw("validation.Error casting failed", "err", vanillaErr)
+			continue
+		}
+		returnError.ErrorDetails[key] = ErrorDetails{Error: ozzoErr.Error(), Code: ozzoErr.Code()}
+	}
 
 	b, err := json.Marshal(returnError)
 
@@ -38,7 +53,6 @@ func ErrorJSONEncode(w http.ResponseWriter, error error, code int) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
 	w.Write(b)
 }

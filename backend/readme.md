@@ -5,7 +5,7 @@
 Not anymore, this one is better: https://github.com/RPG-18/pg_ulid
 
 
-We also need to make sure Vietnamese locale is present:
+We also need to make sure Vietnamese locale is present in postgres:
 
 `sudo locale-gen vi`
 `sudo update-locale`
