@@ -1,110 +1,606 @@
 {
+  "+M79li": {
+    "description": "Dashboard: connect store button",
+    "message": "Connect a platform"
+  },
   "+Szoko": {
-    "defaultMessage": "Password must contain a digit",
-    "description": "Login Form: password contain digit validation failure"
+    "description": "Login Form: password contain digit validation failure",
+    "message": "Password must contain a digit"
   },
   "+YOAqi": {
-    "defaultMessage": "Password should be at least 8 characters",
-    "description": "Register Form: password min length validation failure"
+    "description": "Register Form: password min length validation failure",
+    "message": "Password should be at least 8 characters"
+  },
+  "+a4SMu": {
+    "description": "Platform edit: platform url label",
+    "message": "Product Link"
   },
   "/6/PQt": {
-    "defaultMessage": "Email should be less than 300 characters",
-    "description": "Login Form: email max length validation failure"
+    "description": "Login Form: email max length validation failure",
+    "message": "Email should be less than 300 characters"
+  },
+  "/Hb36L": {
+    "description": "Products Page: sync products button",
+    "message": "Sync Products"
+  },
+  "/dk0Ul": {
+    "description": "Dashboard platforms: Description",
+    "message": "Below you can see to which platforms your shop is connected and add new platforms."
+  },
+  "/nAuod": {
+    "description": "Save notification: unsaved changes",
+    "message": "You have unsaved changes"
   },
   "/qBv3h": {
-    "defaultMessage": "Register",
-    "description": "Register Page: Register Button"
+    "description": "Register Page: Register Button",
+    "message": "Register"
+  },
+  "/rFJjj": {
+    "description": "No shop: create store button",
+    "message": "Create your store"
+  },
+  "0M/H11": {
+    "description": "Dashboard navigation home button",
+    "message": "Home"
+  },
+  "0p1Pk4": {
+    "description": "Connect shop: Form description",
+    "message": "Add one of the platforms so we can use it to retrieve your shop information such as products."
+  },
+  "0qDjC/": {
+    "description": "Products list page row: edit button",
+    "message": "Edit"
+  },
+  "1ckB1Z": {
+    "description": "Lazada platform disconnected",
+    "message": "Disconnected"
+  },
+  "2SkB2D": {
+    "description": "Platform connect page: error title",
+    "message": "Sorry something went wrong"
+  },
+  "2VRZ6D": {
+    "description": "Dashboard navigation add platforms button",
+    "message": "Add Platforms"
+  },
+  "48S/FQ": {
+    "description": "Product image details: download button",
+    "message": "Download"
+  },
+  "4uGkEi": {
+    "description": "Asset insert: title",
+    "message": "Shop Assets"
+  },
+  "57UyXq": {
+    "description": "notification complete message: default",
+    "message": "Success"
+  },
+  "5J5kR0": {
+    "description": "Asset insert: successful upload",
+    "message": "Successfully added your new image"
   },
   "5fCJKU": {
-    "defaultMessage": "Password should be at least 8 characters",
-    "description": "Login Form: password min length validation failure"
+    "description": "Login Form: password min length validation failure",
+    "message": "Password should be at least 8 characters"
   },
   "5j+WaG": {
-    "defaultMessage": "Password should be less than 128 characters",
-    "description": "Login Form: password min length validation failure"
+    "description": "Login Form: password min length validation failure",
+    "message": "Password should be less than 128 characters"
+  },
+  "5jQihW": {
+    "description": "Asset insert: close panel button",
+    "message": "Close panel"
+  },
+  "66+5eE": {
+    "description": "Product image details: asset details dimension label",
+    "message": "Dimensions"
   },
   "6AYO/I": {
-    "defaultMessage": "Please enter your full name",
-    "description": "Register Form: name validation failure"
+    "description": "Register Form: name validation failure",
+    "message": "Please enter your full name"
+  },
+  "6QkRhO": {
+    "description": "notification message: fetching",
+    "message": "Retrieving your products"
+  },
+  "6Vdiz+": {
+    "description": "Registration Form: general failure",
+    "message": "Registration Failed"
+  },
+  "6nHqo2": {
+    "description": "Shop Form: unknown failure",
+    "message": "Something went wrong, please try again later"
   },
   "6rPTP8": {
-    "defaultMessage": "Please enter a valid email address",
-    "description": "Login Form: email validation failure"
+    "description": "Login Form: email validation failure",
+    "message": "Please enter a valid email address"
+  },
+  "6z2u7s": {
+    "description": "General product management: form description label",
+    "message": "Description"
+  },
+  "7K7rXT": {
+    "description": "Product Details Form: price validation validation failure",
+    "message": "Price should be a number"
+  },
+  "7gCyoH": {
+    "description": "Asset management server error upload",
+    "message": "Something went wrong, please make sure you're upload a valid image and try again"
+  },
+  "7hIpyY": {
+    "description": "Platform connect page: error message",
+    "message": "We are looking into this problem. Please try again later."
+  },
+  "8Gymfw": {
+    "description": "Platform connect page: standby loading message",
+    "message": "Please wait a moment while we connect this platform to your store."
+  },
+  "8qXD6q": {
+    "description": "Product detail edit: general title",
+    "message": "General"
+  },
+  "92bPT0": {
+    "description": "Asset management successful removed image",
+    "message": "Successfully removed your image"
+  },
+  "92j+DV": {
+    "description": "Dashboard specific platform lazada title",
+    "message": "Lazada"
   },
   "A/RgdZ": {
-    "defaultMessage": "Password should be less than 128 characters",
-    "description": "Register Form: password min length validation failure"
+    "description": "Register Form: password min length validation failure",
+    "message": "Password should be less than 128 characters"
+  },
+  "AbJ12w": {
+    "description": "Register Form: unknown failure",
+    "message": "Something went wrong, please try again later"
+  },
+  "Agd8sx": {
+    "description": "Product image details: title",
+    "message": "Image Details"
   },
   "B1947g": {
-    "defaultMessage": "Email",
-    "description": "Login Page: Email Field"
+    "description": "Login Page: Email Field",
+    "message": "Email"
   },
-  "CSz1XG": {
-    "defaultMessage": "Hello World",
-    "description": "Index Page: title"
+  "BgnfcB": {
+    "description": "Platform edit: keep product updated toggle button label",
+    "message": "Keep Product Updated"
+  },
+  "BlSv0n": {
+    "description": "Connect Page: Connect Shopee Button",
+    "message": "Shopee"
+  },
+  "C7Wevt": {
+    "description": "Shop Create Form: shop name min length validation failure",
+    "message": "Shop name should be less than 300 characters"
+  },
+  "CGHsyx": {
+    "description": "notification error message: default",
+    "message": "Something went wrong..."
+  },
+  "CIChdi": {
+    "description": "Login Page: title",
+    "message": "Sign In"
+  },
+  "CmpNt1": {
+    "description": "Product image details: delete button",
+    "message": "Delete"
+  },
+  "Cw8n/k": {
+    "description": "Product Details Form: sku min validation failure",
+    "message": "Your SKU should be at least 4 characters"
+  },
+  "DSCkc9": {
+    "description": "Register Form: user already exists",
+    "message": "User already exists"
+  },
+  "DaDEpP": {
+    "description": "Product Details Form: general validation failure",
+    "message": "Required"
+  },
+  "E8sEni": {
+    "description": "Asset insert: server error upload",
+    "message": "Something went wrong, please make sure you're upload a valid image and try again"
+  },
+  "EGVh0Q": {
+    "description": "Asset insert: add image button",
+    "message": "Add Image"
+  },
+  "EM/N1c": {
+    "description": "Product image details: asset details file size label",
+    "message": "File Size"
   },
   "FcbahC": {
-    "defaultMessage": "Password",
-    "description": "Login Page: Password Field"
+    "description": "Login Page: Password Field",
+    "message": "Password"
+  },
+  "Fo1yTa": {
+    "description": "Platform edit: title",
+    "message": "Platforms"
+  },
+  "I+wW3J": {
+    "description": "Asset insert: add image loading button",
+    "message": "Loading"
+  },
+  "IbHyfD": {
+    "description": "Setup shop: Continue Button",
+    "message": "Continue"
+  },
+  "ImNd+W": {
+    "description": "Products list page row: sku label",
+    "message": "SKU"
+  },
+  "J2v9g9": {
+    "description": "Dashboard products title",
+    "message": "Products"
+  },
+  "J419H5": {
+    "description": "Login Page: sign up button",
+    "message": "Sign up"
+  },
+  "JY3InO": {
+    "description": "Dashboard home title",
+    "message": "Home"
+  },
+  "KNTgYv": {
+    "description": "Shop Create Form: general validation failure",
+    "message": "Required"
+  },
+  "MAx7V0": {
+    "description": "Dashboard notification control: title",
+    "message": "Notifications"
+  },
+  "MPnkh8": {
+    "description": "product overview: row edit button label",
+    "message": "Edit"
+  },
+  "MzNCbJ": {
+    "description": "Dashboard navigation platforms header",
+    "message": "Platforms"
+  },
+  "N5TZns": {
+    "description": "Products list page selector: results per page button",
+    "message": "Results per page:"
+  },
+  "NnM/i9": {
+    "description": "Platform edit: platform name label",
+    "message": "Name"
+  },
+  "Nu+UEp": {
+    "description": "notification main message: default",
+    "message": "Notification"
   },
   "OXs9Do": {
-    "defaultMessage": "Password",
-    "description": "Register Page: Password Field"
+    "description": "Register Page: Password Field",
+    "message": "Password"
   },
   "Oi4nVT": {
-    "defaultMessage": "Required",
-    "description": "Login Form: general validation failure"
+    "description": "Login Form: general validation failure",
+    "message": "Required"
+  },
+  "Ol8ooo": {
+    "description": "Products list page row: platform label",
+    "message": "Platforms"
+  },
+  "OyCFb1": {
+    "description": "notification message: saving",
+    "message": "Checking your products"
+  },
+  "PbyQpr": {
+    "description": "Sign up Page: Log in bottom text",
+    "message": "Have an account? {signIn}"
+  },
+  "Q+n11E": {
+    "description": "Dashboard navigation settings button",
+    "message": "Settings"
+  },
+  "QJBx91": {
+    "description": "Dashboard navigation products button",
+    "message": "Products"
+  },
+  "QK7Y5R": {
+    "description": "Login Form: login failure unknown failure",
+    "message": "Something went wrong, please try again later"
+  },
+  "QmN1k+": {
+    "description": "Setup shop: Form description",
+    "message": "Enter the name you want your shop to be known as within our platform."
+  },
+  "RkO2f4": {
+    "description": "Platform management changed sync error",
+    "message": "Could not changed your synchronization status, please try again later"
+  },
+  "RzHN7m": {
+    "description": "Dashboard settings title",
+    "message": "Settings"
+  },
+  "S2kWkB": {
+    "description": "Shop Create Form: shop name min length validation failure",
+    "message": "Shop name should be at least 6 characters"
   },
   "S8Q3Ij": {
-    "defaultMessage": "Email",
-    "description": "Register Page: Email Field"
+    "description": "Register Page: Email Field",
+    "message": "Email"
   },
-  "XUvE7S": {
-    "defaultMessage": "my@email.com",
-    "description": "Register Page: Email Field"
+  "TF5Tg8": {
+    "description": "Product Details Form: name validation failure",
+    "message": "Please enter a product name"
+  },
+  "TcxZNC": {
+    "description": "Login Form: login failure email does not exist",
+    "message": "Email does not exist"
+  },
+  "TtP6nM": {
+    "description": "Register Page: Form header",
+    "message": "Create your account"
+  },
+  "U9LLE1": {
+    "description": "Asset management remove image server error",
+    "message": "Something went wrong while removing your image, try again later"
+  },
+  "UG8Clu": {
+    "description": "Products list page selector: next button",
+    "message": "Next"
+  },
+  "UY/9y3": {
+    "description": "Register Page: title",
+    "message": "Register"
+  },
+  "Urgs44": {
+    "description": "Dashboard add platform title",
+    "message": "Add Platform"
+  },
+  "V1oIks": {
+    "description": "notification message: product sync",
+    "message": "Synchronizing your products..."
+  },
+  "VC8tBu": {
+    "description": "Alert: dismiss button",
+    "message": "Dismiss"
+  },
+  "VEuKeC": {
+    "description": "Shop Form: length validation failed",
+    "message": "Make sure your shop name is between 6 and 300 characters"
+  },
+  "Vj54oC": {
+    "description": "Product image details: asset details name label",
+    "message": "Name"
+  },
+  "WNTEWQ": {
+    "description": "User dropdown menu: logout button",
+    "message": "Logout"
+  },
+  "Xq1LyK": {
+    "description": "Connect shop: Form header",
+    "message": "Connect an e-commerce platform"
+  },
+  "Y99Vi5": {
+    "description": "Email placeholder",
+    "message": "my@email.com"
+  },
+  "ZTfwHE": {
+    "description": "Login Form: login failure incorrect password",
+    "message": "Password is incorrect"
   },
   "ZcA0FH": {
-    "defaultMessage": "Login Failed",
-    "description": "Login Form: general failure"
+    "description": "Login Form: general failure",
+    "message": "Login Failed"
   },
-  "dADhz9": {
-    "defaultMessage": "my@email.com",
-    "description": "Login Page: Email Field"
+  "aq43/B": {
+    "description": "Sign in Page: Sign up bottom text",
+    "message": "Don't have an account? {signUp}"
+  },
+  "bSKOp+": {
+    "description": "Register Page: sign in button",
+    "message": "Sign in here"
+  },
+  "dQw+pE": {
+    "description": "Asset management successful upload",
+    "message": "Successfully added your new image"
+  },
+  "ebTzFs": {
+    "description": "Platform edit: platform item sku label",
+    "message": "Platform SKU"
+  },
+  "ebbrbZ": {
+    "description": "Dashboard shop settings: Shop name header",
+    "message": "Your Shop Name"
+  },
+  "h6mtmw": {
+    "description": "Dashboard navigation title",
+    "message": "Dashboard"
+  },
+  "hJHT/V": {
+    "description": "Connect Page: Connect Tiki Button",
+    "message": "Tiki"
+  },
+  "hnuotJ": {
+    "description": "General product management successful save",
+    "message": "Successfully updated your product"
+  },
+  "jLbyxW": {
+    "description": "General product management: form sku label",
+    "message": "SKU"
+  },
+  "jP3x/g": {
+    "description": "notification complete message: product sync",
+    "message": "Synchronized your products"
+  },
+  "kHgPP0": {
+    "description": "Products list page row: price label",
+    "message": "Price"
+  },
+  "kVx83a": {
+    "description": "Shop name placeholder",
+    "message": "My Shop's Name"
+  },
+  "l5IurB": {
+    "description": "Connect Page: Connect Lazada Button",
+    "message": "Lazada"
+  },
+  "lTjbV6": {
+    "description": "Product Details Form: general failure",
+    "message": "Having trouble saving your product, please try again later"
+  },
+  "llYA8R": {
+    "description": "General product management: form name label",
+    "message": "Name"
+  },
+  "lqBx3a": {
+    "description": "Asset insert: error upload",
+    "message": "Please only add images"
+  },
+  "lww2/e": {
+    "description": "Asset management error upload",
+    "message": "Please only add images"
+  },
+  "mCe8Lp": {
+    "description": "Save notification: save button",
+    "message": "Save"
+  },
+  "mPI7Au": {
+    "description": "Lazada update credentials button",
+    "message": "Update Credentials"
   },
   "n4ckm5": {
-    "defaultMessage": "Full Name",
-    "description": "Register Page: Name Field"
+    "description": "Register Page: Name Field",
+    "message": "Full Name"
   },
   "nIa1kc": {
-    "defaultMessage": "Required",
-    "description": "Register Form: general validation failure"
+    "description": "Register Form: general validation failure",
+    "message": "Required"
+  },
+  "nJPml+": {
+    "description": "Product image details: asset details title",
+    "message": "Information"
+  },
+  "nbQmhE": {
+    "description": "Product image details: close button",
+    "message": "Close panel"
+  },
+  "notification_sub_message_default": {
+    "description": "notification sub message: default",
+    "message": "..."
   },
   "nx8KOK": {
-    "defaultMessage": "Password must contain a digit",
-    "description": "Register Form: password contain digit validation failure"
+    "description": "Register Form: password contain digit validation failure",
+    "message": "Password must contain a digit"
+  },
+  "o/rvhH": {
+    "description": "Setup shop: Form header",
+    "message": "Enter your shop name"
+  },
+  "oJ8qD7": {
+    "description": "Dashboard shop settings: Shop name description",
+    "message": "This is what your shop is called within our platform."
+  },
+  "oK0kNU": {
+    "description": "Setup shop: Form header",
+    "message": "Shop Name"
+  },
+  "ocvKRs": {
+    "description": "Asset insert: description",
+    "message": "Insert one of the images below into your description"
   },
   "pTcuAB": {
-    "defaultMessage": "Please enter a valid email address",
-    "description": "Register Form: email validation failure"
+    "description": "Register Form: email validation failure",
+    "message": "Please enter a valid email address"
+  },
+  "qae7qo": {
+    "description": "Product Details Form: price positive validation failure",
+    "message": "Selling price should be positive"
+  },
+  "rXkQFM": {
+    "description": "Products list page row: name label",
+    "message": "Name"
+  },
+  "rZTTGq": {
+    "description": "Notification: empty",
+    "message": "You don't have any notifications yet"
   },
   "rdiIJQ": {
-    "defaultMessage": "Email should be less than 300 characters",
-    "description": "Register Form: email max length validation failure"
+    "description": "Register Form: email max length validation failure",
+    "message": "Email should be less than 300 characters"
   },
   "sp9Cg/": {
-    "defaultMessage": "Password must contain a letter",
-    "description": "Register Form: password contain letter validation failure"
+    "description": "Register Form: password contain letter validation failure",
+    "message": "Password must contain a letter"
+  },
+  "tDrPsI": {
+    "description": "No shop notifcation",
+    "message": "You didn't create your shop yet, please make your shop."
+  },
+  "tR15H5": {
+    "description": "Asset management: dropzone description",
+    "message": "Drop your images or click here to add them"
+  },
+  "tZ3Cqw": {
+    "description": "Product Details Form: sku max validation failure",
+    "message": "Your SKU should not be more than 1024 characters"
+  },
+  "twSbw6": {
+    "description": "Dashboard: not connected",
+    "message": "Please connect at least one e-commerce platform to your shop."
+  },
+  "uD3apA": {
+    "description": "Products list page selector: previous button",
+    "message": "Previous"
   },
   "uEevjw": {
-    "defaultMessage": "Elliot Alderson",
-    "description": "Register Page: Name Field"
+    "description": "Register Page: Name Field",
+    "message": "Elliot Alderson"
+  },
+  "uYV/vU": {
+    "description": "Lazada platform disconnected helper message",
+    "message": "Your sales channel is disconnected, please update your credentials"
   },
   "vKMJZo": {
-    "defaultMessage": "Sign In",
-    "description": "Login Page: Sign In Button"
+    "description": "Login Page: Sign In Button",
+    "message": "Sign In"
+  },
+  "vhlaSr": {
+    "description": "Login Page: Form header",
+    "message": "Sign in to your account"
+  },
+  "w7wEne": {
+    "description": "General product management: form cost price label",
+    "message": "Cost Price"
   },
   "xO8//p": {
-    "defaultMessage": "Password must contain a letter",
-    "description": "Login Form: password contain letter validation failure"
+    "description": "Login Form: password contain letter validation failure",
+    "message": "Password must contain a letter"
+  },
+  "xPUsEE": {
+    "description": "Shop Create Form: general failure",
+    "message": "Create shop unknown error"
+  },
+  "xoxHgI": {
+    "description": "Platform management successful changed sync",
+    "message": "Successfully changed your platform synchronization"
+  },
+  "y22muM": {
+    "description": "Save notification: reset button",
+    "message": "Reset"
+  },
+  "yYiQvG": {
+    "description": "Lazada platform connected",
+    "message": "Connected"
+  },
+  "ykGDMB": {
+    "description": "notification error message: product sync",
+    "message": "Could not synchronize"
+  },
+  "zMOsQ+": {
+    "description": "General product management: form selling price label",
+    "message": "Selling Price"
+  },
+  "zl4GJN": {
+    "description": "Platform edit: status label",
+    "message": "Status"
+  },
+  "zwzpf+": {
+    "description": "Product detail edit: media title",
+    "message": "Media"
   }
 }

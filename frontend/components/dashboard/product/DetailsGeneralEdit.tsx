@@ -106,7 +106,10 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
           <FormToDashboardProvider initialValues={initialValues} />
           <div className="col-span-5">
             <label className="mb-1 block text-sm text-gray-700" htmlFor="name">
-              Name
+              {t.formatMessage({
+                description: "General product management: form name label",
+                defaultMessage: "Name",
+              })}
             </label>
             <Field<string>
               name="name"
@@ -142,7 +145,10 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
           </div>
           <div className="col-span-3">
             <label className="mb-1 block text-sm text-gray-700" htmlFor="msku">
-              SKU
+              {t.formatMessage({
+                description: "General product management: form sku label",
+                defaultMessage: "SKU",
+              })}
             </label>
             <Field<string>
               name="msku"
@@ -175,7 +181,11 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
           </div>
           <div className="col-start-1 col-end-4">
             <label className="mb-1 block text-sm text-gray-700" htmlFor="name">
-              Selling Price
+              {t.formatMessage({
+                description:
+                  "General product management: form selling price label",
+                defaultMessage: "Selling Price",
+              })}
             </label>
             <div className="flex rounded shadow">
               <Field<number, HTMLInputElement, string>
@@ -215,7 +225,11 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
           </div>
           <div className="col-start-6 col-end-9">
             <label className="mb-1 block text-sm text-gray-700" htmlFor="name">
-              Cost Price
+              {t.formatMessage({
+                description:
+                  "General product management: form cost price label",
+                defaultMessage: "Cost Price",
+              })}
             </label>
             <div className="flex rounded shadow">
               <Field<number, HTMLInputElement, string>
@@ -258,7 +272,11 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
               className="mb-1 block text-sm text-gray-700"
               htmlFor="description"
             >
-              Description
+              {t.formatMessage({
+                description:
+                  "General product management: form description label",
+                defaultMessage: "Description",
+              })}
             </label>
           </div>
           <div className="col-span-8">

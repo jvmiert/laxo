@@ -1,15 +1,17 @@
 import type { ReactElement } from "react";
 import { defineMessage } from "react-intl";
-import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
-import DashboardLayout from "@/components/DashboardLayout";
-import AssetManagement from "@/components/dashboard/product/AssetManagement";
 import { useRouter } from "next/router";
 import { useGetLaxoProductDetails } from "@/hooks/swrHooks";
 import ErrorPage from "next/error";
 import { ChevronUpIcon } from "@heroicons/react/solid";
-import { Disclosure, Transition, Tab } from "@headlessui/react";
+import { Disclosure, Transition } from "@headlessui/react";
 import cc from "classcat";
+import { useIntl } from "react-intl";
+
+import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
+import DashboardLayout from "@/components/DashboardLayout";
+import AssetManagement from "@/components/dashboard/product/AssetManagement";
 import DetailsGeneralEdit from "@/components/dashboard/product/DetailsGeneralEdit";
 import DetailsChangedNotification from "@/components/dashboard/product/DetailsChangedNotification";
 import DetailsPlatformsEdit from "@/components/dashboard/product/DetailsPlatformsEdit";
@@ -22,6 +24,8 @@ type DashboardProductDetailsProps = InferGetServerSidePropsType<
 >;
 
 function DashboardProductDetails(props: DashboardProductDetailsProps) {
+  const t = useIntl();
+
   const {
     query: { productID },
   } = useRouter();
@@ -46,7 +50,10 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
               <>
                 <Disclosure.Button className="flex w-full justify-between rounded-xl bg-gray-50 px-4 py-3">
                   <h3 className="text-lg font-medium leading-6 text-gray-900">
-                    General
+                    {t.formatMessage({
+                      defaultMessage: "General",
+                      description: "Product detail edit: general title",
+                    })}
                   </h3>
                   <ChevronUpIcon
                     className={cc([
@@ -80,7 +87,10 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
               <>
                 <Disclosure.Button className="flex w-full justify-between rounded-xl bg-gray-50 px-4 py-3">
                   <h3 className="text-lg font-medium leading-6 text-gray-900">
-                    Media
+                    {t.formatMessage({
+                      defaultMessage: "Media",
+                      description: "Product detail edit: media title",
+                    })}
                   </h3>
                   <ChevronUpIcon
                     className={cc([

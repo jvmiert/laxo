@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { XIcon, PlusCircleIcon, SearchIcon } from "@heroicons/react/solid";
+import { XIcon, PlusCircleIcon } from "@heroicons/react/solid";
 import { FixedSizeGrid as Grid, areEqual } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import InfiniteLoader from "react-window-infinite-loader";
@@ -103,7 +103,7 @@ const ImageItem = memo(
             <div className="group relative block h-full w-full overflow-hidden rounded-lg bg-gray-100">
               <Image
                 className="rounded"
-                alt={"Product preview"}
+                alt=""
                 src={`/api/assets/${data.assetsToken}/${asset.id}${asset.extension}`}
                 layout="fill"
                 placeholder="blur"
@@ -263,7 +263,7 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
           alert: {
             type: "error",
             message: t.formatMessage({
-              description: "Asset management error upload",
+              description: "Asset insert: error upload",
               defaultMessage: "Please only add images",
             }),
           },
@@ -284,7 +284,7 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
           alert: {
             type: "error",
             message: t.formatMessage({
-              description: "Asset management server error upload",
+              description: "Asset insert: server error upload",
               defaultMessage:
                 "Something went wrong, please make sure you're upload a valid image and try again",
             }),
@@ -320,7 +320,7 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
           alert: {
             type: "success",
             message: t.formatMessage({
-              description: "Asset management successful upload",
+              description: "Asset insert: successful upload",
               defaultMessage: "Successfully added your new image",
             }),
           },
@@ -384,10 +384,17 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
-                        Shop Assets
+                        {t.formatMessage({
+                          defaultMessage: "Shop Assets",
+                          description: "Asset insert: title",
+                        })}
                       </Dialog.Title>
                       <p className="mt-1 text-sm text-gray-500">
-                        Insert one of the images below into your description
+                        {t.formatMessage({
+                          defaultMessage:
+                            "Insert one of the images below into your description",
+                          description: "Asset insert: description",
+                        })}
                       </p>
                     </div>
                     <div className="flex items-center space-x-5">
@@ -414,7 +421,11 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                         {buttonLoading ? (
                           <>
                             <LoadSpinner className="mr-2 h-4 w-4 animate-spin fill-indigo-600 text-gray-200" />
-                            Loading...
+                            {t.formatMessage({
+                              defaultMessage: "Loading",
+                              description:
+                                "Asset insert: add image loading button",
+                            })}
                           </>
                         ) : (
                           <>
@@ -422,7 +433,10 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                               className="mr-2 -ml-1 h-4 w-4"
                               aria-hidden="true"
                             />
-                            Add Image
+                            {t.formatMessage({
+                              defaultMessage: "Add Image",
+                              description: "Asset insert: add image button",
+                            })}
                           </>
                         )}
                       </button>
@@ -431,7 +445,12 @@ export default function AssetInsertDialog({}: ProductImageDetailsProps) {
                         className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500"
                         onClick={closeDialog}
                       >
-                        <span className="sr-only">Close panel</span>
+                        <span className="sr-only">
+                          {t.formatMessage({
+                            defaultMessage: "Close panel",
+                            description: "Asset insert: close panel button",
+                          })}
+                        </span>
                         <XIcon className="h-6 w-6" aria-hidden="true" />
                       </button>
                     </div>

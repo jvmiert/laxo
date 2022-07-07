@@ -3,15 +3,10 @@ import { Fragment, forwardRef, ReactNode } from "react";
 import type { ReactElement, ChangeEvent } from "react";
 import { useIntl, defineMessage } from "react-intl";
 import { useRouter } from "next/router";
-import DashboardLayout from "@/components/DashboardLayout";
-import OverviewTableRow from "@/components/dashboard/product/OverviewTableRow";
-import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import Link, { LinkProps } from "next/link";
 import { useGetLaxoProducts } from "@/hooks/swrHooks";
 import { useDashboard } from "@/providers/DashboardProvider";
-import useShopApi from "@/hooks/useShopApi";
-import { generatePaginateNumbers } from "@/lib/paginate";
 import {
   ChevronRightIcon,
   ChevronLeftIcon,
@@ -21,6 +16,12 @@ import {
   RefreshIcon,
 } from "@heroicons/react/solid";
 import { Menu, Transition } from "@headlessui/react";
+
+import { generatePaginateNumbers } from "@/lib/paginate";
+import DashboardLayout from "@/components/DashboardLayout";
+import OverviewTableRow from "@/components/dashboard/product/OverviewTableRow";
+import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
+import useShopApi from "@/hooks/useShopApi";
 
 export const getServerSideProps: GetServerSideProps = withRedirectUnauth();
 
@@ -207,28 +208,45 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                       >
-                        Name
+                        {t.formatMessage({
+                          defaultMessage: "Name",
+                          description: "Products list page row: name label",
+                        })}
                       </th>
                       <th
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                       >
-                        SKU
+                        {t.formatMessage({
+                          defaultMessage: "SKU",
+                          description: "Products list page row: sku label",
+                        })}
                       </th>
                       <th
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                       >
-                        Price
+                        {t.formatMessage({
+                          defaultMessage: "Price",
+                          description: "Products list page row: price label",
+                        })}
                       </th>
                       <th
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                       >
-                        Platforms
+                        {t.formatMessage({
+                          defaultMessage: "Platforms",
+                          description: "Products list page row: platform label",
+                        })}
                       </th>
                       <th scope="col" className="relative px-6 py-3">
-                        <span className="sr-only">Edit</span>
+                        <span className="sr-only">
+                          {t.formatMessage({
+                            defaultMessage: "Edit",
+                            description: "Products list page row: edit button",
+                          })}
+                        </span>
                       </th>
                     </tr>
                   </thead>
@@ -275,7 +293,12 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
             }}
           >
             <a className="cursor-pointer items-center rounded-l-md border bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
-              <span className="sr-only">Previous</span>
+              <span className="sr-only">
+                {t.formatMessage({
+                  defaultMessage: "Previous",
+                  description: "Products list page selector: previous button",
+                })}
+              </span>
               <ChevronLeftIcon className="h-5 w-5" />
             </a>
           </Link>
@@ -330,13 +353,24 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
             }}
           >
             <a className="cursor-pointer items-center rounded-r-md border bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
-              <span className="sr-only">Next</span>
+              <span className="sr-only">
+                {t.formatMessage({
+                  defaultMessage: "Next",
+                  description: "Products list page selector: next button",
+                })}
+              </span>
               <ChevronRightIcon className="h-5 w-5" />
             </a>
           </Link>
         </nav>
         <div className="flex items-center">
-          <span className="pr-3">Results per page: </span>
+          <span className="pr-3">
+            {t.formatMessage({
+              defaultMessage: "Results per page:",
+              description:
+                "Products list page selector: results per page button",
+            })}
+          </span>
           <Menu>
             <div className="relative">
               <Menu.Button className="relative box-content w-[3ch] cursor-default rounded-md border bg-white py-2 pl-5 pr-10 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-300">

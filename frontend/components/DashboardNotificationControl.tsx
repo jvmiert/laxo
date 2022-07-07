@@ -1,15 +1,20 @@
 import { Fragment, useRef } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { BellIcon } from "@heroicons/react/solid";
+import { XIcon } from "@heroicons/react/outline";
+import { useIntl } from "react-intl";
+
 import { useDashboard } from "@/providers/DashboardProvider";
 import DashboardNotification from "@/components/DashboardNotification";
 import NotificationEmpty from "@/components/NotificationEmpty";
-import { XIcon } from "@heroicons/react/outline";
 
 export default function DashboardNotificationControl() {
   const { dashboardState, notificationLoading } = useDashboard();
 
+  const t = useIntl();
+
   const notiRef = useRef<HTMLButtonElement>(null);
+
   return (
     <Popover className="relative">
       {({ open, close }) => {
@@ -48,7 +53,10 @@ export default function DashboardNotificationControl() {
                   </button>
                 </div>
                 <h2 className="pt-6 pb-4 text-center text-xl font-bold">
-                  Notifications
+                  {t.formatMessage({
+                    defaultMessage: "Notifications",
+                    description: "Dashboard notification control: title",
+                  })}
                 </h2>
                 <div className="flex max-h-[45vh] flex-col items-center gap-y-4 self-center overflow-y-auto overscroll-y-contain">
                   {dashboardState.notifications.length == 0 && (

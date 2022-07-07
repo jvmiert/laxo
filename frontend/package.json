@@ -8,9 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "extract": "formatjs extract \"{pages,components,hooks,helpers}/**/*.{js,ts,tsx}\" \"--id-interpolation-pattern\" \"[sha512:contenthash:base64:6]\" \"--out-file\" \"lang/en.json\"",
+    "extract": "formatjs extract \"{pages,components,hooks,helpers}/**/*.{js,ts,tsx}\" \"--id-interpolation-pattern\" \"[sha512:contenthash:base64:6]\" \"--out-file\" \"lang/en.json\" --format crowdin",
     "merge": "node ./updateTranslations.js",
-    "compile": "formatjs compile-folder lang compiled-lang",
+    "compile": "formatjs compile-folder lang compiled-lang --format crowdin",
     "test:e2e": "playwright test"
   },
   "dependencies": {

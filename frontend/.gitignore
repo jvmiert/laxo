@@ -38,3 +38,6 @@ yarn-error.log*
 
 # test data
 /test-results
+
+# formatjs compiled language files
+/compiled-lang

@@ -30,7 +30,13 @@ function LoginPage(props: LoginPageProps) {
   return (
     <>
       <Head>
-        <title>Laxo: Sign In</title>
+        <title>
+          Laxo:{" "}
+          {t.formatMessage({
+            defaultMessage: "Sign In",
+            description: "Login Page: title",
+          })}
+        </title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -156,7 +162,6 @@ function LoginPage(props: LoginPageProps) {
                   >
                     {t.formatMessage({
                       defaultMessage: "Sign In",
-
                       description: "Login Page: Sign In Button",
                     })}
                   </button>
@@ -174,7 +179,12 @@ function LoginPage(props: LoginPageProps) {
                 {
                   signUp: (
                     <Link href={"/register"} passHref>
-                      <a className="cursor-pointer text-indigo-500">Sign up</a>
+                      <a className="cursor-pointer text-indigo-500">
+                        {t.formatMessage({
+                          defaultMessage: "Sign up",
+                          description: "Login Page: sign up button",
+                        })}
+                      </a>
                     </Link>
                   ),
                 },

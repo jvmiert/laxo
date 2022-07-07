@@ -1,16 +1,20 @@
 import cc from "classcat";
 import { Fragment, useState, useEffect } from "react";
-import { useDashboard } from "@/providers/DashboardProvider";
 import { Transition } from "@headlessui/react";
-import { Alert as AlertProp } from "@/providers/DashboardProvider";
 import {
   CheckCircleIcon,
   ExclamationIcon,
   XCircleIcon,
   XIcon,
 } from "@heroicons/react/solid";
+import { useIntl } from "react-intl";
+
+import { useDashboard } from "@/providers/DashboardProvider";
+import { Alert as AlertProp } from "@/providers/DashboardProvider";
 
 export default function Alert({ id, type, message }: AlertProp) {
+  const t = useIntl();
+
   let [isShowing, setIsShowing] = useState(true);
   const { dashboardDispatch } = useDashboard();
 
@@ -123,7 +127,12 @@ export default function Alert({ id, type, message }: AlertProp) {
                   },
                 ])}
               >
-                <span className="sr-only">Dismiss</span>
+                <span className="sr-only">
+                  {t.formatMessage({
+                    defaultMessage: "Dismiss",
+                    description: "Alert: dismiss button",
+                  })}
+                </span>
                 <XIcon className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>

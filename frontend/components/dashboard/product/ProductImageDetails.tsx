@@ -1,9 +1,11 @@
-import { Fragment, useRef  } from "react";
+import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon, TrashIcon } from "@heroicons/react/solid";
-import { LaxoProductAsset } from "@/types/ApiResponse";
 import Image from "next/image";
 import prettyBytes from "pretty-bytes";
+import { useIntl } from "react-intl";
+
+import { LaxoProductAsset } from "@/types/ApiResponse";
 
 type ProductImageDetailsProps = {
   show: boolean;
@@ -20,10 +22,18 @@ export default function ProductImageDetails({
   assetsToken,
   removeAsset,
 }: ProductImageDetailsProps) {
-  let downloadButtonRef = useRef<HTMLAnchorElement>(null)
+  const t = useIntl();
+
+  let downloadButtonRef = useRef<HTMLAnchorElement>(null);
+
   return (
     <Transition appear show={show} as={Fragment}>
-      <Dialog initialFocus={downloadButtonRef} as="div" className="relative z-10" onClose={() => close()}>
+      <Dialog
+        initialFocus={downloadButtonRef}
+        as="div"
+        className="relative z-10"
+        onClose={() => close()}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -52,7 +62,7 @@ export default function ProductImageDetails({
                     <div className="relative h-full">
                       {asset && (
                         <Image
-                          alt={"Product preview"}
+                          alt=""
                           src={`/api/assets/${assetsToken}/${asset.id}${asset.extension}`}
                           layout="fill"
                           objectFit="contain"
@@ -64,7 +74,10 @@ export default function ProductImageDetails({
                   <div className="flex w-96 flex-col rounded-r-lg bg-white p-6">
                     <div className="flex items-start justify-between">
                       <Dialog.Title className="text-lg font-medium text-gray-900">
-                        Image Details
+                        {t.formatMessage({
+                          defaultMessage: "Image Details",
+                          description: "Product image details: title",
+                        })}
                       </Dialog.Title>
                       <div className="ml-3 flex h-7 items-center">
                         <button
@@ -72,7 +85,13 @@ export default function ProductImageDetails({
                           className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500"
                           onClick={() => close()}
                         >
-                          <span className="sr-only">Close panel</span>
+                          <span className="sr-only">
+                            {t.formatMessage({
+                              defaultMessage: "Close panel",
+                              description:
+                                "Product image details: close button",
+                            })}
+                          </span>
                           <XIcon className="h-6 w-6" aria-hidden="true" />
                         </button>
                       </div>
@@ -80,23 +99,45 @@ export default function ProductImageDetails({
                     {asset && (
                       <div className="pt-12">
                         <h3 className="font-medium text-gray-900">
-                          Information
+                          {t.formatMessage({
+                            defaultMessage: "Information",
+                            description:
+                              "Product image details: asset details title",
+                          })}
                         </h3>
                         <dl className="mt-2 divide-y divide-gray-200 border-t border-b border-gray-200">
                           <div className="flex justify-between py-3 text-sm font-medium">
-                            <dt className="text-gray-500">Name</dt>
+                            <dt className="text-gray-500">
+                              {t.formatMessage({
+                                defaultMessage: "Name",
+                                description:
+                                  "Product image details: asset details name label",
+                              })}
+                            </dt>
                             <dd className="text-gray-900">
                               {asset.originalFilename}
                             </dd>
                           </div>
                           <div className="flex justify-between py-3 text-sm font-medium">
-                            <dt className="text-gray-500">Dimensions</dt>
+                            <dt className="text-gray-500">
+                              {t.formatMessage({
+                                defaultMessage: "Dimensions",
+                                description:
+                                  "Product image details: asset details dimension label",
+                              })}
+                            </dt>
                             <dd className="text-gray-900">
                               {asset.width} x {asset.height}
                             </dd>
                           </div>
                           <div className="flex justify-between py-3 text-sm font-medium">
-                            <dt className="text-gray-500">File size</dt>
+                            <dt className="text-gray-500">
+                              {t.formatMessage({
+                                defaultMessage: "File Size",
+                                description:
+                                  "Product image details: asset details file size label",
+                              })}
+                            </dt>
                             <dd className="text-gray-900">
                               {prettyBytes(asset.fileSize, { locale: "vi" })}
                             </dd>
@@ -107,16 +148,20 @@ export default function ProductImageDetails({
                     <div className="grow" />
                     {asset && (
                       <div className="flex">
-                          <a
-                            download
-                            ref={downloadButtonRef}
-                            className="text-center flex-1 rounded-md border border-transparent bg-indigo-500 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            target="_blank"
-                            rel="noreferrer"
-                            href={`/api/assets/${assetsToken}/${asset.id}${asset.extension}`}
-                          >
-                            Download
-                          </a>
+                        <a
+                          download
+                          ref={downloadButtonRef}
+                          className="flex-1 rounded-md border border-transparent bg-indigo-500 py-2 px-4 text-center text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                          target="_blank"
+                          rel="noreferrer"
+                          href={`/api/assets/${assetsToken}/${asset.id}${asset.extension}`}
+                        >
+                          {t.formatMessage({
+                            defaultMessage: "Download",
+                            description:
+                              "Product image details: download button",
+                          })}
+                        </a>
                         <button
                           type="button"
                           className="ml-3 inline-flex shrink grow basis-0 items-center justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -126,7 +171,10 @@ export default function ProductImageDetails({
                             className="-ml-0.5 mr-2 h-4 w-4"
                             aria-hidden="true"
                           />
-                          Delete
+                          {t.formatMessage({
+                            defaultMessage: "Delete",
+                            description: "Product image details: delete button",
+                          })}
                         </button>
                       </div>
                     )}

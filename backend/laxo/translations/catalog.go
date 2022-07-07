@@ -39,37 +39,55 @@ func init() {
 }
 
 var messageKeyToIndex = map[string]int{
-	"Email not found":                      0,
-	"Password is incorrect":                1,
-	"cannot be blank":                      2,
-	"must be a valid email address":        4,
-	"must contain a digit":                 5,
-	"must contain a letter":                6,
-	"the length must be between %v and %v": 3,
-	"unknown validation error":             7,
-	"user already exists":                  8,
+	"Email not found":                              17,
+	"Password is incorrect":                        18,
+	"cannot be blank":                              0,
+	"code is required":                             6,
+	"could not find your product":                  11,
+	"description is not valid":                     10,
+	"must be a valid email address":                13,
+	"must be no less than %v":                      2,
+	"must contain a digit":                         14,
+	"must contain a letter":                        15,
+	"shop does not exist":                          4,
+	"something went wrong":                         8,
+	"something went wrong, please try again later": 12,
+	"supplied state is invalid":                    9,
+	"the length must be between %v and %v":         1,
+	"unknown validation error":                     3,
+	"user already exists":                          16,
+	"user does not have any shops":                 7,
+	"you don't own this shop":                      5,
 }
 
-var enIndex = []uint32{ // 10 elements
-	0x00000000, 0x00000010, 0x00000026, 0x00000036,
-	0x00000061, 0x0000007f, 0x00000094, 0x000000aa,
-	0x000000c3, 0x000000d7,
-} // Size: 64 bytes
+var enIndex = []uint32{ // 20 elements
+	0x00000000, 0x00000010, 0x0000003b, 0x00000056,
+	0x0000006f, 0x00000083, 0x0000009b, 0x000000ac,
+	0x000000c9, 0x000000de, 0x000000f8, 0x00000111,
+	0x0000012d, 0x0000015a, 0x00000178, 0x0000018d,
+	0x000001a3, 0x000001b7, 0x000001c7, 0x000001dd,
+} // Size: 104 bytes
 
-const enData string = "" + // Size: 215 bytes
-	"\x02Email not found\x02Password is incorrect\x02cannot be blank\x02the l" +
-	"ength must be between %[1]v and %[2]v\x02must be a valid email address" +
-	"\x02must contain a digit\x02must contain a letter\x02unknown validation " +
-	"error\x02user already exists"
+const enData string = "" + // Size: 477 bytes
+	"\x02cannot be blank\x02the length must be between %[1]v and %[2]v\x02mus" +
+	"t be no less than %[1]v\x02unknown validation error\x02shop does not exi" +
+	"st\x02you don't own this shop\x02code is required\x02user does not have " +
+	"any shops\x02something went wrong\x02supplied state is invalid\x02descri" +
+	"ption is not valid\x02could not find your product\x02something went wron" +
+	"g, please try again later\x02must be a valid email address\x02must conta" +
+	"in a digit\x02must contain a letter\x02user already exists\x02Email not " +
+	"found\x02Password is incorrect"
 
-var viIndex = []uint32{ // 10 elements
-	0x00000000, 0x00000019, 0x00000034, 0x00000034,
-	0x00000034, 0x00000065, 0x00000065, 0x00000065,
-	0x00000065, 0x00000065,
-} // Size: 64 bytes
+var viIndex = []uint32{ // 20 elements
+	0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	0x00000000, 0x00000000, 0x00000031, 0x00000031,
+	0x00000031, 0x00000031, 0x0000004a, 0x00000065,
+} // Size: 104 bytes
 
 const viData string = "" + // Size: 101 bytes
-	"\x02Không tìm thấy email\x02Mật khẩu không đúng\x02Phải la một địa ch" +
-	"ỉ email hợp lệ"
+	"\x02Phải la một địa chỉ email hợp lệ\x02Không tìm thấy email\x02Mậ" +
+	"t khẩu không đúng"
 
-	// Total table size 444 bytes (0KiB); checksum: 2A4B5670
+	// Total table size 786 bytes (0KiB); checksum: 3186C23A

@@ -31,7 +31,13 @@ function RegisterPage(props: RegisterPageProps) {
   return (
     <>
       <Head>
-        <title>Laxo: Register</title>
+        <title>
+          Laxo:{" "}
+          {t.formatMessage({
+            defaultMessage: "Register",
+            description: "Register Page: title",
+          })}
+        </title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -200,7 +206,6 @@ function RegisterPage(props: RegisterPageProps) {
                   >
                     {t.formatMessage({
                       defaultMessage: "Register",
-
                       description: "Register Page: Register Button",
                     })}
                   </button>
@@ -219,7 +224,12 @@ function RegisterPage(props: RegisterPageProps) {
                 {
                   signIn: (
                     <Link href={"/login"} passHref>
-                      <a className="cursor-pointer text-indigo-500">Sign in</a>
+                      <a className="cursor-pointer text-indigo-500">
+                        {t.formatMessage({
+                          defaultMessage: "Sign in here",
+                          description: "Register Page: sign in button",
+                        })}
+                      </a>
                     </Link>
                   ),
                 },

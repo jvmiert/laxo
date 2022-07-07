@@ -1,12 +1,13 @@
+import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import type { ReactElement } from "react";
 import { useIntl, defineMessage } from "react-intl";
 import Link from "next/link";
-import DashboardLayout from "@/components/DashboardLayout";
 import ShopNotMadeNotification from "@/components/ShopNotMadeNotification";
-import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
-import { InferGetServerSidePropsType, GetServerSideProps } from "next";
-import { useGetShop } from "@/hooks/swrHooks";
 import { ArrowNarrowRightIcon } from "@heroicons/react/outline";
+
+import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
+import { useGetShop } from "@/hooks/swrHooks";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export const getServerSideProps: GetServerSideProps = withRedirectUnauth();
 

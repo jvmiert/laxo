@@ -2,16 +2,6 @@
     "language": "vi",
     "messages": [
         {
-            "id": "Email not found",
-            "message": "Email not found",
-            "translation": "Không tìm thấy email"
-        },
-        {
-            "id": "Password is incorrect",
-            "message": "Password is incorrect",
-            "translation": "Mật khẩu không đúng"
-        },
-        {
             "id": "cannot be blank",
             "message": "cannot be blank",
             "translation": ""
@@ -40,9 +30,74 @@
             ]
         },
         {
+            "id": "must be no less than {Decimalparamsthreshold}",
+            "message": "must be no less than {Decimalparamsthreshold}",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Decimalparamsthreshold",
+                    "string": "%[1]v",
+                    "type": "golang.org/x/text/number.Formatter",
+                    "underlyingType": "struct{*golang.org/x/text/number.options; value interface{}}",
+                    "argNum": 1,
+                    "expr": "number.Decimal(params[\"threshold\"])"
+                }
+            ]
+        },
+        {
+            "id": "unknown validation error",
+            "message": "unknown validation error",
+            "translation": ""
+        },
+        {
+            "id": "shop does not exist",
+            "message": "shop does not exist",
+            "translation": ""
+        },
+        {
+            "id": "you don't own this shop",
+            "message": "you don't own this shop",
+            "translation": ""
+        },
+        {
+            "id": "code is required",
+            "message": "code is required",
+            "translation": ""
+        },
+        {
+            "id": "user does not have any shops",
+            "message": "user does not have any shops",
+            "translation": ""
+        },
+        {
+            "id": "something went wrong",
+            "message": "something went wrong",
+            "translation": ""
+        },
+        {
+            "id": "supplied state is invalid",
+            "message": "supplied state is invalid",
+            "translation": ""
+        },
+        {
+            "id": "description is not valid",
+            "message": "description is not valid",
+            "translation": ""
+        },
+        {
+            "id": "could not find your product",
+            "message": "could not find your product",
+            "translation": ""
+        },
+        {
+            "id": "something went wrong, please try again later",
+            "message": "something went wrong, please try again later",
+            "translation": ""
+        },
+        {
             "id": "must be a valid email address",
             "message": "must be a valid email address",
-            "translation": ""
+            "translation": "Phải la một địa chỉ email hợp lệ"
         },
         {
             "id": "must contain a digit",
@@ -55,14 +110,19 @@
             "translation": ""
         },
         {
-            "id": "unknown validation error",
-            "message": "unknown validation error",
-            "translation": ""
-        },
-        {
             "id": "user already exists",
             "message": "user already exists",
             "translation": ""
+        },
+        {
+            "id": "Email not found",
+            "message": "Email not found",
+            "translation": "Không tìm thấy email"
+        },
+        {
+            "id": "Password is incorrect",
+            "message": "Password is incorrect",
+            "translation": "Mật khẩu không đúng"
         }
     ]
 }

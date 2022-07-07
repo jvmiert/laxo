@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useIntl } from "react-intl";
+
 import LazadaIcon from "@/components/icons/LazadaIcon";
 import ShopeeIcon from "@/components/icons/ShopeeIcon";
 import { LaxoProductPlatforms } from "@/types/ApiResponse";
@@ -60,6 +62,8 @@ export default function OverviewTableRow({
   numberFormat,
   platforms,
 }: OverviewTableRowProps) {
+  const t = useIntl();
+
   const shownURL = imgURL.length > 0 ? imgURL[0] : null;
   return (
     <tr style={style} className="border-none hover:bg-gray-50">
@@ -72,7 +76,7 @@ export default function OverviewTableRow({
                   {shownURL && (
                     <Image
                       className="rounded"
-                      alt={"Product preview"}
+                      alt=""
                       src={`/api/assets/${shopToken}/${shownURL}`}
                       layout="fill"
                       placeholder="blur"
@@ -120,7 +124,10 @@ export default function OverviewTableRow({
           <a>
             <div className="px-6 py-4">
               <span className="text-indigo-600 hover:text-indigo-900">
-                Edit
+                {t.formatMessage({
+                  defaultMessage: "Edit",
+                  description: "product overview: row edit button label",
+                })}
               </span>
             </div>
           </a>

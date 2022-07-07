@@ -94,7 +94,10 @@ export default function DetailsPlatformsEdit({ product }: PlatformsEditProps) {
         <>
           <Disclosure.Button className="flex w-full justify-between rounded-xl bg-gray-50 px-4 py-3">
             <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Platforms
+              {t.formatMessage({
+                defaultMessage: "Platforms",
+                description: "Platform edit: title",
+              })}
             </h3>
             <ChevronUpIcon
               className={cc(["h-4 h-4", { "rotate-180 transform": open }])}
@@ -142,7 +145,11 @@ export default function DetailsPlatformsEdit({ product }: PlatformsEditProps) {
                         <dl className="grid grid-cols-6 gap-x-4 gap-y-8">
                           <div className="col-span-3">
                             <dt className="text-sm font-medium text-gray-500">
-                              Name
+                              {t.formatMessage({
+                                defaultMessage: "Name",
+                                description:
+                                  "Platform edit: platform name label",
+                              })}
                             </dt>
                             <dd className="mt-1 text-sm text-gray-900">
                               {p.name}
@@ -150,7 +157,11 @@ export default function DetailsPlatformsEdit({ product }: PlatformsEditProps) {
                           </div>
                           <div className="col-span-2">
                             <dt className="text-sm font-medium text-gray-500">
-                              Platform SKU
+                              {t.formatMessage({
+                                defaultMessage: "Platform SKU",
+                                description:
+                                  "Platform edit: platform item sku label",
+                              })}
                             </dt>
                             <dd className="mt-1 text-sm text-gray-900">
                               {p.platformSKU}
@@ -158,7 +169,10 @@ export default function DetailsPlatformsEdit({ product }: PlatformsEditProps) {
                           </div>
                           <div className="col-span-1">
                             <dt className="text-sm font-medium text-gray-500">
-                              Status
+                              {t.formatMessage({
+                                defaultMessage: "Status",
+                                description: "Platform edit: status label",
+                              })}
                             </dt>
                             <dd className="mt-1 text-sm text-gray-900">
                               <span
@@ -180,7 +194,11 @@ export default function DetailsPlatformsEdit({ product }: PlatformsEditProps) {
                           </div>
                           <div className="col-span-6">
                             <dt className="text-sm font-medium text-gray-500">
-                              Product Link
+                              {t.formatMessage({
+                                defaultMessage: "Product Link",
+                                description:
+                                  "Platform edit: platform url label",
+                              })}
                             </dt>
                             <dd className="mt-1 text-sm text-gray-900">
                               <a
@@ -195,7 +213,11 @@ export default function DetailsPlatformsEdit({ product }: PlatformsEditProps) {
                           {p.platformName in syncState && (
                             <div className="col-span-6">
                               <dt className="text-sm font-medium text-gray-500">
-                                Keep Product Updated
+                                {t.formatMessage({
+                                  defaultMessage: "Keep Product Updated",
+                                  description:
+                                    "Platform edit: keep product updated toggle button label",
+                                })}
                               </dt>
                               <dd className="mt-2 text-sm text-gray-900">
                                 <Switch

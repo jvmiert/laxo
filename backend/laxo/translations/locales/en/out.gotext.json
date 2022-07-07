@@ -2,20 +2,6 @@
     "language": "en",
     "messages": [
         {
-            "id": "Email not found",
-            "message": "Email not found",
-            "translation": "Email not found",
-            "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
-            "id": "Password is incorrect",
-            "message": "Password is incorrect",
-            "translation": "Password is incorrect",
-            "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
             "id": "cannot be blank",
             "message": "cannot be blank",
             "translation": "cannot be blank",
@@ -48,6 +34,93 @@
             "fuzzy": true
         },
         {
+            "id": "must be no less than {Decimalparamsthreshold}",
+            "message": "must be no less than {Decimalparamsthreshold}",
+            "translation": "must be no less than {Decimalparamsthreshold}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Decimalparamsthreshold",
+                    "string": "%[1]v",
+                    "type": "golang.org/x/text/number.Formatter",
+                    "underlyingType": "struct{*golang.org/x/text/number.options; value interface{}}",
+                    "argNum": 1,
+                    "expr": "number.Decimal(params[\"threshold\"])"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "unknown validation error",
+            "message": "unknown validation error",
+            "translation": "unknown validation error",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "shop does not exist",
+            "message": "shop does not exist",
+            "translation": "shop does not exist",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "you don't own this shop",
+            "message": "you don't own this shop",
+            "translation": "you don't own this shop",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "code is required",
+            "message": "code is required",
+            "translation": "code is required",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "user does not have any shops",
+            "message": "user does not have any shops",
+            "translation": "user does not have any shops",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "something went wrong",
+            "message": "something went wrong",
+            "translation": "something went wrong",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "supplied state is invalid",
+            "message": "supplied state is invalid",
+            "translation": "supplied state is invalid",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "description is not valid",
+            "message": "description is not valid",
+            "translation": "description is not valid",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "could not find your product",
+            "message": "could not find your product",
+            "translation": "could not find your product",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "something went wrong, please try again later",
+            "message": "something went wrong, please try again later",
+            "translation": "something went wrong, please try again later",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
             "id": "must be a valid email address",
             "message": "must be a valid email address",
             "translation": "must be a valid email address",
@@ -69,16 +142,23 @@
             "fuzzy": true
         },
         {
-            "id": "unknown validation error",
-            "message": "unknown validation error",
-            "translation": "unknown validation error",
+            "id": "user already exists",
+            "message": "user already exists",
+            "translation": "user already exists",
             "translatorComment": "Copied from source.",
             "fuzzy": true
         },
         {
-            "id": "user already exists",
-            "message": "user already exists",
-            "translation": "user already exists",
+            "id": "Email not found",
+            "message": "Email not found",
+            "translation": "Email not found",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Password is incorrect",
+            "message": "Password is incorrect",
+            "translation": "Password is incorrect",
             "translatorComment": "Copied from source.",
             "fuzzy": true
         }

@@ -324,7 +324,12 @@ export default function AssetManagement({
             className="absolute inset-0 z-10"
           />
           <CloudUploadIcon className="mb-5 h-8 w-8 text-gray-700" />
-          <span>Drop your images or click here to add them</span>
+          <span>
+            {t.formatMessage({
+              description: "Asset management: dropzone description",
+              defaultMessage: "Drop your images or click here to add them",
+            })}
+          </span>
           <input
             multiple
             accept=".png,.gif,.jpeg,.jpg"
@@ -354,7 +359,7 @@ export default function AssetManagement({
                     "pointer-events-none rounded",
                     { "group-hover:opacity-75": false }, //active
                   ])}
-                  alt={"Product preview"}
+                  alt=""
                   src={`/api/assets/${activeShop.assetsToken}/${m.id}${m.extension}`}
                   layout="fill"
                   placeholder="blur"

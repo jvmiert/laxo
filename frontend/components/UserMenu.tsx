@@ -1,3 +1,4 @@
+import { useIntl } from "react-intl";
 import { Fragment, forwardRef, ReactNode } from "react";
 import Link, { LinkProps } from "next/link";
 import { Menu, Transition } from "@headlessui/react";
@@ -25,6 +26,8 @@ const UserLink = forwardRef<HTMLAnchorElement, EnhancedLinkProps>(
 UserLink.displayName = "UserLink";
 
 export default function UserMenu() {
+  const t = useIntl();
+
   return (
     <Menu as="div" className="relative z-10 inline-block text-left">
       <Menu.Button>
@@ -48,7 +51,10 @@ export default function UserMenu() {
                 locale="en"
                 className="block px-4 py-2 text-sm text-gray-700"
               >
-                Logout
+                {t.formatMessage({
+                  defaultMessage: "Logout",
+                  description: "User dropdown menu: logout button",
+                })}
               </UserLink>
             </Menu.Item>
           </div>
