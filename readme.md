@@ -5,17 +5,13 @@
   - Add support for notification when we update a product
     - Make a clear distiction between saving the Laxo product and syncing the platform product
   - Add manual sync button for products
-- Change notification from Popover to Menu? (it's closing now when we don't want it to close)
-- Add rich text hotkeys: https://github.com/ianstormtaylor/is-hotkey
 - Fix breadcrumbs in dashboard
 - Use valid status in Axios to stop throwing certain validation errors that return != 200 http status code
   - https://axios-http.com/docs/handling_errors
 - Setup frontend to redirect default language to its /lang endpoint with nextjs middleware
   - Add psuedo locale for development: https://formatjs.io/docs/tooling/cli#--pseudo-locale-pseudolocale
+    - Exclude this language in weblate: https://docs.weblate.org/en/latest/admin/projects.html#language-filter
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
-- Implement CSRF protection: https://github.com/gorilla/csrf
-  - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#double-submit-cookie
-  - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 
 # Long-term to-do
 - Add image search to asset insert dialog?
@@ -38,6 +34,9 @@
   - Maybe use? https://github.com/garmeeh/next-seo
 - Debounce validation to prevent stutter?
   - https://codesandbox.io/s/mmywp9jl1y?file=/index.js:101-108
+- Implement CSRF protection: https://github.com/gorilla/csrf
+  - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#double-submit-cookie
+  - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 
 # Thoughts
 It seems for SKU creation, the best approach is to create a logical data model for the service. This data model will then be the source of truth from which we create translation functions for each individual platform. The tricky thing will be that it seems Lazada has predefined SKU attributes. They do not allow arbitrary SKU creation. It seems Tiki also follows this strategy.

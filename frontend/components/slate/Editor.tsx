@@ -1,3 +1,4 @@
+import isHotkey from "is-hotkey";
 import diff from "microdiff";
 import cc from "classcat";
 import React, { useCallback, useMemo, useEffect, useState } from "react";
@@ -32,6 +33,14 @@ import {
   withImages,
 } from "@/lib/laxoSlate";
 import { useDashboard } from "@/providers/DashboardProvider";
+
+const HOTKEYS: {
+  [key: string]: FormatParameter;
+} = {
+  "mod+b": "bold",
+  "mod+i": "italic",
+  "mod+u": "underline",
+};
 
 const isMarkActive = (editor: SlateEditor, format: FormatParameter) => {
   const marks = SlateEditor.marks(editor);
@@ -69,11 +78,7 @@ const isBlockActive = (
   return !!match;
 };
 
-const AssetButton = ({
-  openFunc,
-}: {
-  openFunc: () => void;
-}) => {
+const AssetButton = ({ openFunc }: { openFunc: () => void }) => {
   return (
     <button
       className="relative -ml-px inline-flex items-center rounded-tr-md border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -510,6 +515,15 @@ export default function Editor({ initialSchema }: EditorProps) {
         renderLeaf={renderLeaf}
         spellCheck
         className="focus:shadow-outline block min-h-[200px] w-full appearance-none rounded-b-md rounded-tr-md border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+        onKeyDown={(event) => {
+          for (const hotkey in HOTKEYS) {
+            if (isHotkey(hotkey, event as any)) {
+              event.preventDefault();
+              const mark = HOTKEYS[hotkey];
+              toggleMark(editor, mark);
+            }
+          }
+        }}
       />
     </Slate>
   );
