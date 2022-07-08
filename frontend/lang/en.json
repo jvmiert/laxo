@@ -67,6 +67,10 @@
     "description": "Product image details: download button",
     "message": "Download"
   },
+  "4cE0dL": {
+    "description": "notification message: product sync",
+    "message": "Synchronizing your products…"
+  },
   "4uGkEi": {
     "description": "Asset insert: title",
     "message": "Shop Assets"
@@ -174,10 +178,6 @@
   "C7Wevt": {
     "description": "Shop Create Form: shop name min length validation failure",
     "message": "Shop name should be less than 300 characters"
-  },
-  "CGHsyx": {
-    "description": "notification error message: default",
-    "message": "Something went wrong..."
   },
   "CIChdi": {
     "description": "Login Page: title",
@@ -351,10 +351,6 @@
     "description": "Dashboard add platform title",
     "message": "Add Platform"
   },
-  "V1oIks": {
-    "description": "notification message: product sync",
-    "message": "Synchronizing your products..."
-  },
   "VC8tBu": {
     "description": "Alert: dismiss button",
     "message": "Dismiss"
@@ -481,7 +477,7 @@
   },
   "notification_sub_message_default": {
     "description": "notification sub message: default",
-    "message": "..."
+    "message": "…"
   },
   "nx8KOK": {
     "description": "Register Form: password contain digit validation failure",
@@ -502,6 +498,10 @@
   "ocvKRs": {
     "description": "Asset insert: description",
     "message": "Insert one of the images below into your description"
+  },
+  "pHn8+x": {
+    "description": "notification error message: default",
+    "message": "Something went wrong…"
   },
   "pTcuAB": {
     "description": "Register Form: email validation failure",
