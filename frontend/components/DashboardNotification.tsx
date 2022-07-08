@@ -29,7 +29,7 @@ const notificationSubTranslate = function (key: string): MessageDescriptor {
       return defineMessage({
         id: "notification_sub_message_default",
         description: "notification sub message: default",
-        defaultMessage: "...",
+        defaultMessage: "…",
       });
   }
 };
@@ -63,7 +63,7 @@ const notificationErrorTranslate = function (key: string): MessageDescriptor {
     default:
       return defineMessage({
         description: "notification error message: default",
-        defaultMessage: "Something went wrong...",
+        defaultMessage: "Something went wrong…",
       });
   }
 };
@@ -73,7 +73,7 @@ const notificationMainTranslate = function (key: string): MessageDescriptor {
     case "product_add":
       return defineMessage({
         description: "notification message: product sync",
-        defaultMessage: "Synchronizing your products...",
+        defaultMessage: "Synchronizing your products…",
       });
 
     default:
