@@ -12,12 +12,12 @@
   - Add psuedo locale for development: https://formatjs.io/docs/tooling/cli#--pseudo-locale-pseudolocale
     - Exclude this language in weblate: https://docs.weblate.org/en/latest/admin/projects.html#language-filter
   - https://nextjs.org/docs/advanced-features/i18n-routing#prefixing-the-default-locale
-
-# Long-term to-do
-- Add image search to asset insert dialog?
 - Tweak dashboard loading/error states
   - Add a loading state to the table of the product overview so it doesn't jump around during loads
   - Make a state where there is no results/products
+
+# Long-term to-do
+- Add image search to asset insert dialog?
 - Make product dashboard page
 - Make order dashboard page
 - Make stock dashboard page

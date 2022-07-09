@@ -2,6 +2,8 @@ import cc from "classcat";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+import { getDashboardActiveItem } from "@/lib/getActiveNavigation";
+
 type DashboardNavItemProps = {
   href: string;
   name: JSX.Element;
@@ -17,14 +19,7 @@ export default function DashboardNavItem({
 }: DashboardNavItemProps) {
   const { pathname } = useRouter();
 
-  const splitPath = pathname.split("/");
-
-  const trimmedPath =
-    splitPath.length > 3
-      ? splitPath.slice(0, 3).join("/")
-      : splitPath.join("/");
-
-  const active = trimmedPath === href;
+  const active = getDashboardActiveItem(pathname, href);
 
   return (
     <Link href={href}>

@@ -24,7 +24,7 @@ export default function HomePage() {
               <span className="mb-8 text-xs font-bold uppercase tracking-widest text-indigo-600">
                 Sell better, sell more.
               </span>
-              <h1 className="mb-8 text-4xl font-bold text-zinc-900 tracking-tighter md:text-7xl lg:text-6xl lg:leading-snug">
+              <h1 className="mb-8 text-4xl font-bold tracking-tighter text-zinc-900 md:text-7xl lg:text-6xl lg:leading-snug">
                 Making Your Selling Experience Easier
               </h1>
               <div className="max-w-md">

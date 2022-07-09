@@ -1,9 +1,11 @@
 import cc from "classcat";
 import Link from "next/link";
 import { useRouter } from "next/router";
+
 import LazadaIcon from "@/components/icons/LazadaIcon";
 import ShopeeIcon from "@/components/icons/ShopeeIcon";
 import TikiIcon from "@/components/icons/TikiIcon";
+import { getDashboardActiveItem } from "@/lib/getActiveNavigation";
 
 type DashboardNavPlatformItemProps = {
   platform: string;
@@ -29,14 +31,14 @@ export default function DashboardNavPlatformItem({
 
   const href = `/dashboard/platforms/${platform.toLowerCase()}`;
 
-  const active = href === pathname;
+  const active = getDashboardActiveItem(pathname, href);
 
   return (
     <Link href={href}>
       <a href={href}>
         <div
           className={cc([
-            "cursor-pointer rounded-l border-l-2 py-2 px-3 ml-4",
+            "ml-4 cursor-pointer rounded-l border-l-2 py-2 px-3",
             {
               "border-indigo-700 bg-indigo-50 text-indigo-700": active,
             },
