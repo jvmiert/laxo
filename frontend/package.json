@@ -27,6 +27,7 @@
     "google-protobuf": "^3.20.1-rc.1",
     "immer": "^9.0.12",
     "is-hotkey": "^0.2.0",
+    "lucide-react": "^0.73.0",
     "microdiff": "^1.3.0",
     "murmurhash3js-revisited": "^3.0.0",
     "nanoid": "^4.0.0",

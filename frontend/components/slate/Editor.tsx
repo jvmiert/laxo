@@ -25,6 +25,14 @@ import {
 import { withHistory } from "slate-history";
 import { TrashIcon } from "@heroicons/react/solid";
 import { PhotographIcon } from "@heroicons/react/outline";
+import {
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
+  AlignCenter,
+  ListOrdered,
+  List,
+} from "lucide-react";
 
 import {
   FormatParameter,
@@ -96,11 +104,11 @@ const AssetButton = ({ openFunc }: { openFunc: () => void }) => {
 const BlockButton = ({
   format,
   className,
-  text,
+  icon,
 }: {
   format: any;
   className?: string;
-  text: string;
+  icon: JSX.Element | string;
 }) => {
   const editor = useSlate();
   const active = isBlockActive(
@@ -121,7 +129,7 @@ const BlockButton = ({
         toggleBlock(editor, format);
       }}
     >
-      {text}
+      {icon}
     </button>
   );
 };
@@ -469,42 +477,50 @@ export default function Editor({ initialSchema }: EditorProps) {
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 font-serif text-sm font-bold italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
-          text="one"
+          icon={
+            <span>
+              H<sub className="text-[9px]">1</sub>
+            </span>
+          }
           format="heading-one"
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
-          text="two"
+          icon={
+            <span>
+              H<sub className="text-[9px]">2</sub>
+            </span>
+          }
           format="heading-two"
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
-          text="# list"
+          icon={<ListOrdered className="h-4 w-4" />}
           format="numbered-list"
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
-          text="* list"
+          icon={<List className="h-4 w-4" />}
           format="bulleted-list"
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
-          text="left"
+          icon={<AlignLeft className="h-4 w-4" />}
           format="left"
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
-          text="center"
+          icon={<AlignCenter className="h-4 w-4" />}
           format="center"
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
-          text="right"
+          icon={<AlignRight className="h-4 w-4" />}
           format="right"
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <BlockButton
-          text="justify"
+          icon={<AlignJustify className="h-4 w-4" />}
           format="justify"
           className="relative -ml-px inline-flex items-center border-t border-l border-r px-4 py-2 text-sm font-medium focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
