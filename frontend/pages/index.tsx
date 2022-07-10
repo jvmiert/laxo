@@ -24,17 +24,21 @@ export default function HomePage() {
               <span className="mb-8 text-xs font-bold uppercase tracking-widest text-indigo-600">
                 Sell better, sell more.
               </span>
-              <h1 className="mb-8 text-4xl font-bold tracking-tighter text-zinc-900 md:text-7xl lg:text-6xl lg:leading-snug">
+              <h1 className="mb-3 text-4xl font-bold tracking-tighter text-zinc-900 md:text-7xl lg:text-6xl lg:leading-snug">
                 Making Your Selling Experience Easier
               </h1>
               <div className="max-w-md">
-                <p className="mb-8 text-left text-base leading-relaxed text-gray-500">
-                  Laxo helps you with managing your sales channels, your orders,
-                  and your marketing activities
+                <p className="mb-10 text-left text-lg leading-relaxed text-gray-500">
+                  Laxo allows you to automatically manage your products over all
+                  your sales channels, keep track of your orders, and improves
+                  your marketing activities.
                 </p>
               </div>
-              <div className="mt-0 flex-col sm:flex lg:mt-6">
-                <form className="border2 mt-8 transform rounded-xl bg-gray-50 p-2 transition duration-500 ease-in-out sm:flex sm:max-w-lg">
+              <h3 className="mb-2 text-base font-medium">
+                Sign up to get notified when it&apos;s ready.
+              </h3>
+              <div className="flex-col sm:flex">
+                <form className="border2 transform rounded-xl bg-gray-50 p-2 transition duration-500 ease-in-out sm:flex sm:max-w-lg">
                   <div className="revue-form-group min-w-0 flex-1">
                     <label htmlFor="email" className="sr-only">
                       Email address
@@ -59,11 +63,21 @@ export default function HomePage() {
                 <div className="sm:flex sm:max-w-lg">
                   <p className="mt-3 text-xs text-gray-500">
                     By subscribing, you agree with our{" "}
-                    <a target="_blank" rel="noreferrer" href="/terms">
+                    <a
+                      className="underline"
+                      target="_blank"
+                      rel="noreferrer"
+                      href="/terms"
+                    >
                       Terms of Service
                     </a>{" "}
                     and{" "}
-                    <a target="_blank" rel="noreferrer" href="/privacy">
+                    <a
+                      target="_blank"
+                      className="underline"
+                      rel="noreferrer"
+                      href="/privacy"
+                    >
                       Privacy Policy
                     </a>
                     .
@@ -86,7 +100,7 @@ export default function HomePage() {
       </section>
 
       <section>
-        <div className="bg-white py-12">
+        <div className="bg-white py-10">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
               <p className="mt-2 text-3xl font-extrabold leading-8 tracking-tight text-gray-900 sm:text-4xl">

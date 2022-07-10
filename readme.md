@@ -9,6 +9,9 @@
   - Add manual sync button for products
 - Use valid status in Axios to stop throwing certain validation errors that return != 200 http status code
   - https://axios-http.com/docs/handling_errors
+- Create email collecting backend
+  - Create login frontend so production doesn't allow users to sign up yet
+    - https://github.com/vercel/next.js/blob/canary/examples/with-env-from-next-config-js/next.config.js
 - Tweak dashboard loading/error states
   - Add a loading state to the table of the product overview so it doesn't jump around during loads
   - Make a state where there is no results/products
@@ -167,6 +170,7 @@ There is no commerce API available yet for Vietnam. However, for the business ma
 - https://indent.com/
 - https://tailscale.com/
 - https://sellerportal.deliverr.com/
+- https://codesandbox.io/s/dp7to
 
 # Programming
 
