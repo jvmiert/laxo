@@ -127,6 +127,10 @@
     "description": "Product Details Form: price validation validation failure",
     "message": "Price should be a number"
   },
+  "7cW7Va": {
+    "description": "Main navigation: sign up button",
+    "message": "Sign Up"
+  },
   "7gCyoH": {
     "description": "Asset management server error upload",
     "message": "Something went wrong, please make sure you're upload a valid image and try again"
@@ -150,6 +154,10 @@
   "92j+DV": {
     "description": "Dashboard specific platform lazada title",
     "message": "Lazada"
+  },
+  "9nJQbW": {
+    "description": "Main navigation: logout button",
+    "message": "Logout"
   },
   "A/RgdZ": {
     "description": "Register Form: password min length validation failure",
@@ -211,6 +219,10 @@
     "description": "Product image details: asset details file size label",
     "message": "File Size"
   },
+  "EWJD4N": {
+    "description": "Breadcrumb indicator: home",
+    "message": "Home"
+  },
   "FcbahC": {
     "description": "Login Page: Password Field",
     "message": "Password"
@@ -218,6 +230,10 @@
   "Fo1yTa": {
     "description": "Platform edit: title",
     "message": "Platforms"
+  },
+  "HpFGsD": {
+    "description": "Main navigation: dashboard button",
+    "message": "Dashboard"
   },
   "I+wW3J": {
     "description": "Asset insert: add image loading button",
@@ -387,6 +403,10 @@
     "description": "Sign in Page: Sign up bottom text",
     "message": "Don't have an account? {signUp}"
   },
+  "b94iRa": {
+    "description": "Breadcrumb indicator: products",
+    "message": "Products"
+  },
   "bSKOp+": {
     "description": "Register Page: sign in button",
     "message": "Sign in here"
@@ -499,6 +519,10 @@
     "description": "Asset insert: description",
     "message": "Insert one of the images below into your description"
   },
+  "omS7r8": {
+    "description": "Products Page: search placeholder",
+    "message": "Search for product name or SKU"
+  },
   "pHn8+x": {
     "description": "notification error message: default",
     "message": "Something went wrong…"
@@ -574,6 +598,10 @@
   "xPUsEE": {
     "description": "Shop Create Form: general failure",
     "message": "Create shop unknown error"
+  },
+  "xhICQ1": {
+    "description": "Breadcrumb indicator: platforms",
+    "message": "Platforms"
   },
   "xoxHgI": {
     "description": "Platform management successful changed sync",

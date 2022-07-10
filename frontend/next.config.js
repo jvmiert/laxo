@@ -7,9 +7,11 @@ module.exports = withBundleAnalyzer({
   reactStrictMode: true,
   poweredByHeader: false,
   i18n: {
-    locales: ["en", "vi"],
-    defaultLocale: "en",
+    locales: ["default", "en", "vi", "sw"],
+    defaultLocale: "default",
+    localeDetection: false,
   },
+  trailingSlash: true,
   async rewrites() {
     return [
       {

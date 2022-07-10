@@ -10,7 +10,8 @@
     "lint": "next lint",
     "extract": "formatjs extract \"{pages,components,hooks,helpers}/**/*.{js,ts,tsx}\" \"--id-interpolation-pattern\" \"[sha512:contenthash:base64:6]\" \"--out-file\" \"lang/en.json\" --format crowdin",
     "merge": "node ./updateTranslations.js",
-    "compile": "formatjs compile-folder lang compiled-lang --format crowdin",
+    "compile": "formatjs compile-folder lang compiled-lang --format crowdin --ast",
+    "compile-psuedo": "formatjs compile lang/en.json --format crowdin --out-file compiled-lang/sw.json --pseudo-locale en-XA --ast",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -29,7 +30,7 @@
     "microdiff": "^1.3.0",
     "murmurhash3js-revisited": "^3.0.0",
     "nanoid": "^4.0.0",
-    "next": "^12.1.6",
+    "next": "^12.2.2",
     "pretty-bytes": "^6.0.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
@@ -48,7 +49,7 @@
     "zod": "^3.11.6"
   },
   "devDependencies": {
-    "@formatjs/cli": "^4.8.1",
+    "@formatjs/cli": "^5.0.2",
     "@playwright/test": "^1.19.2",
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@types/final-form-focus": "^1.1.2",
@@ -63,11 +64,11 @@
     "autoprefixer": "^10.4.1",
     "babel-plugin-formatjs": "^10.3.17",
     "eslint": "8.13.0",
-    "eslint-config-next": "^12.1.6",
+    "eslint-config-next": "^12.2.2",
     "postcss": "^8.4.5",
     "prettier": "^2.6.2",
     "prettier-plugin-tailwindcss": "^0.1.10",
-    "tailwindcss": "^3.0.24",
-    "typescript": "4.6.3"
+    "tailwindcss": "^3.1.5",
+    "typescript": "^4.7.4"
   }
 }

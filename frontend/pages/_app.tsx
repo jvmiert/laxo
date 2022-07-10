@@ -10,6 +10,8 @@ import { AppPropsWithLayout } from "@/types/pages";
 
 import messages_en from "../compiled-lang/en.json";
 import messages_vi from "../compiled-lang/vi.json";
+// psuedo locale for development
+import messages_sw from "../compiled-lang/sw.json";
 
 type LocalesType = {
   [key: string]: any;
@@ -18,6 +20,7 @@ type LocalesType = {
 const languages: LocalesType = {
   en: { ...messages_en },
   vi: { ...messages_vi },
+  sw: { ...messages_sw },
 };
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {

@@ -1,6 +1,8 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/providers/AuthProvider";
+import { useIntl } from "react-intl";
+
 import LangMenu from "@/components/LangMenu";
 import NavLogo from "@/components/NavLogo";
 
@@ -43,6 +45,7 @@ function NavLink(props: NavLinkProps) {
 export default function Navigation() {
   const { pathname } = useRouter();
   const { auth } = useAuth();
+  const t = useIntl();
 
   return (
     <div className="flex h-16 w-full justify-center border-b border-gray-200">
@@ -66,7 +69,10 @@ export default function Navigation() {
                 <li>
                   <Link href="/register">
                     <a className="w-full rounded-md bg-indigo-500 py-2 px-4 font-bold text-white shadow-md shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200">
-                      Sign Up
+                      {t.formatMessage({
+                        defaultMessage: "Sign Up",
+                        description: "Main navigation: sign up button",
+                      })}
                     </a>
                   </Link>
                 </li>
@@ -77,12 +83,18 @@ export default function Navigation() {
                 <NavLink
                   currentPath={pathname}
                   href="/dashboard/home"
-                  navText="Dashboard"
+                  navText={t.formatMessage({
+                    defaultMessage: "Dashboard",
+                    description: "Main navigation: dashboard button",
+                  })}
                 />
                 <NavLink
                   currentPath={pathname}
                   href="/logout"
-                  navText="Logout"
+                  navText={t.formatMessage({
+                    defaultMessage: "Logout",
+                    description: "Main navigation: logout button",
+                  })}
                 />
               </>
             )}

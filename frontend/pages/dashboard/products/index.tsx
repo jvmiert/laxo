@@ -177,7 +177,10 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
             onChange={handleSearch}
             type="text"
             className="block w-full rounded-md py-2 pl-9 pr-9 focus:outline-none focus:ring focus:ring-indigo-200"
-            placeholder="Search for product name or SKU"
+            placeholder={t.formatMessage({
+              defaultMessage: "Search for product name or SKU",
+              description: "Products Page: search placeholder",
+            })}
             defaultValue={currentSearchQuery}
           />
         </div>
