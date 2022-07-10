@@ -2,13 +2,13 @@ import type { ReactElement } from "react";
 import { defineMessage } from "react-intl";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { useGetLaxoProductDetails } from "@/hooks/swrHooks";
 import ErrorPage from "next/error";
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Disclosure, Transition } from "@headlessui/react";
 import cc from "classcat";
 import { useIntl } from "react-intl";
 
+import { useGetLaxoProductDetails } from "@/hooks/swrHooks";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import AssetManagement from "@/components/dashboard/product/AssetManagement";
