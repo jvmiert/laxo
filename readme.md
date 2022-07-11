@@ -1,5 +1,7 @@
 # Tech to-do
 
+- Create product image ordering system
+  - Implement the actual dragging of items (pass the listener useSortable return to the drag button)
 - Handle product sync to Lazada after saving product
   - Create temporal workflow/activities for syncing the Lazada product
   - Enable support for updating product images

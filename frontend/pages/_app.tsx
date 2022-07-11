@@ -1,6 +1,7 @@
 import "../styles/fonts.css";
 import "../styles/globals.css";
 import { IntlProvider } from "react-intl";
+import { IntlErrorCode } from "@formatjs/intl";
 import { SWRConfig } from "swr";
 import { useRouter } from "next/router";
 import { AxiosProvider } from "@/providers/AxiosProvider";
@@ -36,6 +37,17 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         locale={locale!}
         defaultLocale={defaultLocale}
         messages={languages[locale]}
+        onError={(err) => {
+          // Disabling missing translation warning for development
+          if (
+            err.code === IntlErrorCode.MISSING_TRANSLATION &&
+            process.env.NODE_ENV === "development"
+          ) {
+            //console.warn("Missing translation", err.message);
+            return;
+          }
+          throw err;
+        }}
       >
         <AxiosProvider>
           <AuthProvider>

@@ -1,35 +1,16 @@
 import cc from "classcat";
-import prettyBytes from "pretty-bytes";
 import { useEffect, useRef, useState, ChangeEvent, useCallback } from "react";
-import Image from "next/image";
 import { CloudUploadIcon } from "@heroicons/react/outline";
 import MurmurHash3 from "murmurhash3js-revisited";
 import { useIntl } from "react-intl";
 
 import { LaxoProductAsset } from "@/types/ApiResponse";
 import ProductImageDetails from "@/components/dashboard/product/ProductImageDetails";
+import AssetManagementItem from "@/components/dashboard/product/AssetManagement/AssetManagementItem";
+import DragAndDropContainer from "@/components/dashboard/product/AssetManagement/DragAndDropContainer";
 import { useGetLaxoProductDetails, useGetShopAssets } from "@/hooks/swrHooks";
 import { useDashboard } from "@/providers/DashboardProvider";
 import useProductApi from "@/hooks/useProductApi";
-
-const shimmer = `
-<svg width="48px" height="48px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <defs>
-    <linearGradient id="g">
-      <stop stop-color="#E2E8F0" offset="20%" />
-      <stop stop-color="#F1F5F9" offset="50%" />
-      <stop stop-color="#E2E8F0" offset="70%" />
-    </linearGradient>
-  </defs>
-  <rect width="48px" height="48px" fill="#E2E8F0" />
-  <rect id="r" width="48px" height="48px" fill="url(#g)" />
-  <animate xlink:href="#r" attributeName="x" from="-48px" to="48px" dur="1s" repeatCount="indefinite"  />
-</svg>`;
-
-const shimmerBase64 = () =>
-  typeof window === "undefined"
-    ? Buffer.from(shimmer).toString("base64")
-    : window.btoa(shimmer);
 
 type AssetManagementProps = {
   productID: string;
@@ -54,11 +35,6 @@ export default function AssetManagement({
   const { mutate: assetsMutate } = useGetShopAssets(20);
 
   const { doCreateAsset, doUploadAsset, doAssetRequest } = useProductApi();
-
-  const openImageDetails = (asset: LaxoProductAsset) => {
-    setActiveAssetDetails(asset);
-    setShowImageDetails(true);
-  };
 
   const closeImageDetails = () => {
     setShowImageDetails(false);
@@ -341,47 +317,12 @@ export default function AssetManagement({
         </div>
       </div>
       <div className="mt-8">
-        <ul role="list" className="grid grid-cols-4 gap-x-4 gap-y-8">
-          {mediaList.map((m) => (
-            <li key={m.id} className="relative">
-              <div
-                className={cc([
-                  "group aspect-w-10 aspect-h-7 relative block w-full overflow-hidden rounded-lg bg-gray-100",
-                  {
-                    "focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100":
-                      true,
-                  }, //active
-                  { "ring-2 ring-indigo-500 ring-offset-2": false }, //active
-                ])}
-              >
-                <Image
-                  className={cc([
-                    "pointer-events-none rounded",
-                    { "group-hover:opacity-75": false }, //active
-                  ])}
-                  alt=""
-                  src={`/api/assets/${activeShop.assetsToken}/${m.id}${m.extension}`}
-                  layout="fill"
-                  placeholder="blur"
-                  blurDataURL={`data:image/svg+xml;base64,${shimmerBase64()}`}
-                  objectFit="cover"
-                  objectPosition="center"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-0 focus:outline-none"
-                  onClick={() => openImageDetails(m)}
-                ></button>
-              </div>
-              <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-                {m.originalFilename}
-              </p>
-              <p className="pointer-events-none block text-sm font-medium text-gray-500">
-                {prettyBytes(m.fileSize, { locale: "vi" })}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <DragAndDropContainer
+          assets={mediaList}
+          setShowImageDetails={setShowImageDetails}
+          setActiveAssetDetails={setActiveAssetDetails}
+          assetsToken={activeShop.assetsToken}
+        />
       </div>
     </div>
   );

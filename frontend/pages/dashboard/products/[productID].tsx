@@ -11,7 +11,7 @@ import { useIntl } from "react-intl";
 import { useGetLaxoProductDetails } from "@/hooks/swrHooks";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import DashboardLayout from "@/components/DashboardLayout";
-import AssetManagement from "@/components/dashboard/product/AssetManagement";
+import AssetManagement from "@/components/dashboard/product/AssetManagement/AssetManagement";
 import DetailsGeneralEdit from "@/components/dashboard/product/DetailsGeneralEdit";
 import DetailsChangedNotification from "@/components/dashboard/product/DetailsChangedNotification";
 import DetailsPlatformsEdit from "@/components/dashboard/product/DetailsPlatformsEdit";
