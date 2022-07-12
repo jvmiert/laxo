@@ -18,7 +18,6 @@ import type {
   DragStartEvent,
   DragEndEvent,
   MeasuringConfiguration,
-  UniqueIdentifier,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -29,7 +28,11 @@ import {
 import { CSS, isKeyboardEvent } from "@dnd-kit/utilities";
 
 import { LaxoProductAsset } from "@/types/ApiResponse";
-import AssetManagementItem from "@/components/dashboard/product/AssetManagement/AssetManagementItem";
+import {
+  AssetManagementItem,
+  AssetManagementItemProps,
+  Position,
+} from "@/components/dashboard/product/AssetManagement/AssetManagementItem";
 
 type LaxoActive = Omit<Active, "id"> & {
   id: string;
@@ -63,7 +66,7 @@ const dropAnimation: DropAnimation = {
   },
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
-      active: { backgroundColor: "background-color: rgba(255, 70, 70, 0.9);" },
+      active: { opacity: "0" },
     },
   }),
 };
@@ -141,9 +144,10 @@ export default function DragAndDropContainer({
       measuring={measuring}
     >
       <SortableContext items={items}>
-        <ul role="list" className="grid grid-cols-4 gap-x-4 gap-y-8">
-          {assets.map((m) => (
-            <AssetManagementItem
+        <ul role="list" className="grid list-none grid-cols-4 gap-x-4 gap-y-8">
+          {items.map((m) => (
+            <SortableItem
+              activeIndex={activeIndex}
               key={m.id}
               asset={m}
               setShowImageDetails={setShowImageDetails}
@@ -155,14 +159,62 @@ export default function DragAndDropContainer({
       </SortableContext>
       <DragOverlay dropAnimation={dropAnimation}>
         {activeId ? (
-          <AssetManagementItem
-            asset={items[activeIndex]}
-            setShowImageDetails={setShowImageDetails}
-            setActiveAssetDetails={setActiveAssetDetails}
-            assetsToken={assetsToken}
-          />
+          <ul className="list-none">
+            <AssetManagementItem
+              clone
+              asset={items[activeIndex]}
+              setShowImageDetails={setShowImageDetails}
+              setActiveAssetDetails={setActiveAssetDetails}
+              assetsToken={assetsToken}
+            />
+          </ul>
         ) : null}
       </DragOverlay>
     </DndContext>
   );
+}
+
+function SortableItem({
+  activeIndex,
+  ...props
+}: AssetManagementItemProps & { activeIndex: number }) {
+  const {
+    attributes,
+    listeners,
+    index,
+    isDragging,
+    isSorting,
+    over,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id: props.asset.id,
+    animateLayoutChanges: always,
+  });
+
+  return (
+    <AssetManagementItem
+      ref={setNodeRef}
+      active={isDragging}
+      style={{
+        transition,
+        transform: isSorting ? undefined : CSS.Translate.toString(transform),
+      }}
+      insertPosition={
+        over?.id === props.asset.id
+          ? index > activeIndex
+            ? Position.After
+            : Position.Before
+          : undefined
+      }
+      {...props}
+      {...attributes}
+      {...listeners}
+    />
+  );
+}
+
+function always() {
+  return true;
 }

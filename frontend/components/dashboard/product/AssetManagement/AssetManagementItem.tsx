@@ -1,3 +1,4 @@
+import { forwardRef, HTMLAttributes } from "react";
 import cc from "classcat";
 import prettyBytes from "pretty-bytes";
 import Image from "next/image";
@@ -24,73 +25,118 @@ const shimmerBase64 = () =>
     ? Buffer.from(shimmer).toString("base64")
     : window.btoa(shimmer);
 
-type AssetManagementItemProps = {
+export enum Position {
+  Before = -1,
+  After = 1,
+}
+
+export type AssetManagementItemProps = Omit<
+  HTMLAttributes<HTMLButtonElement>,
+  "id"
+> & {
+  clone?: boolean;
+  active?: boolean;
   asset: LaxoProductAsset;
   assetsToken: string;
   setActiveAssetDetails: (arg: LaxoProductAsset) => void;
   setShowImageDetails: (arg: boolean) => void;
+  insertPosition?: Position;
 };
 
-export default function AssetManagementItem({
-  asset,
-  assetsToken,
-  setActiveAssetDetails,
-  setShowImageDetails,
-}: AssetManagementItemProps) {
-  const openImageDetails = (asset: LaxoProductAsset) => {
-    setActiveAssetDetails(asset);
-    setShowImageDetails(true);
-  };
+export const AssetManagementItem = forwardRef<
+  HTMLLIElement,
+  AssetManagementItemProps
+>(
+  (
+    {
+      asset,
+      assetsToken,
+      setActiveAssetDetails,
+      setShowImageDetails,
+      insertPosition,
+      active,
+      clone,
+      ...props
+    }: AssetManagementItemProps,
+    ref,
+  ) => {
+    const openImageDetails = (asset: LaxoProductAsset) => {
+      setActiveAssetDetails(asset);
+      setShowImageDetails(true);
+    };
 
-  return (
-    <li key={asset.id} className="relative">
-      <div
+    return (
+      <li
+        key={asset.id}
+        ref={ref}
         className={cc([
-          "group aspect-w-10 aspect-h-7 relative block w-full overflow-hidden rounded-lg bg-gray-100",
+          "relative",
+          { "cursor-grab shadow-md": clone },
+          { "animate-pop": clone },
           {
-            "focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100":
-              true,
-          }, //active
-          { "ring-2 ring-indigo-500 ring-offset-2": false }, //active
+            "after:absolute after:inset-y-0 after:-left-2 after:w-0.5 after:bg-indigo-600 after:content-['']":
+              insertPosition === Position.Before,
+          },
+          {
+            "after:absolute after:inset-y-0 after:-right-2 after:w-0.5 after:bg-indigo-600 after:content-['']":
+              insertPosition === Position.After,
+          },
         ])}
+        style={
+          clone ? { transform: "translate3d(10px, 10px, 0) scale(1.025)" } : {}
+        }
       >
-        <Image
-          className={cc([
-            "pointer-events-none rounded",
-            { "group-hover:opacity-75": false }, //active
-          ])}
-          alt=""
-          src={`/api/assets/${assetsToken}/${asset.id}${asset.extension}`}
-          layout="fill"
-          placeholder="blur"
-          blurDataURL={`data:image/svg+xml;base64,${shimmerBase64()}`}
-          objectFit="cover"
-          objectPosition="center"
-        />
-        <button
-          type="button"
-          className="absolute inset-0 focus:outline-none"
-          onClick={() => openImageDetails(asset)}
-        ></button>
-      </div>
-      <div className="flex w-full flex-nowrap items-center">
-        <div className="min-w-0 shrink">
-          <p className="pointer-events-none mt-2 block w-full truncate text-sm font-medium text-gray-900">
-            {asset.originalFilename}
-          </p>
-          <p className="pointer-events-none block w-full text-sm font-medium text-gray-500">
-            {prettyBytes(asset.fileSize, { locale: "vi" })}
-          </p>
-        </div>
-        <div className="mx-1 grow">
-          <button
-            type="button"
-            className="cursor-grab rounded p-2 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        <div className="relative overflow-hidden rounded-md bg-white p-2">
+          <div
+            className={cc([
+              { "absolute inset-0 z-20 bg-slate-100": active },
+              { hidden: !active },
+            ])}
+          />
+          <div
+            className={cc([
+              "aspect-w-10 aspect-h-7 relative block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100",
+            ])}
           >
-            <GripVertical className="h-4 w-4" />
-          </button>
+            <Image
+              className="pointer-events-none rounded"
+              alt=""
+              src={`/api/assets/${assetsToken}/${asset.id}${asset.extension}`}
+              layout="fill"
+              placeholder={clone ? "empty" : "blur"}
+              blurDataURL={`data:image/svg+xml;base64,${shimmerBase64()}`}
+              objectFit="cover"
+              objectPosition="center"
+            />
+            <button
+              type="button"
+              className="absolute inset-0 focus:outline-none"
+              onClick={() => openImageDetails(asset)}
+            ></button>
+          </div>
+          <div className={cc(["flex w-full flex-nowrap items-center"])}>
+            <div className="min-w-0 shrink">
+              <p className="pointer-events-none mt-2 block w-full truncate text-sm font-medium text-gray-900">
+                {asset.originalFilename}
+              </p>
+              <p className="pointer-events-none block w-full text-sm font-medium text-gray-500">
+                {prettyBytes(asset.fileSize, { locale: "vi" })}
+              </p>
+            </div>
+            <div className="mx-1 grow">
+              <button
+                type="button"
+                className="cursor-grab rounded p-2 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                {...props}
+              >
+                <GripVertical className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </li>
-  );
-}
+      </li>
+    );
+  },
+);
+
+AssetManagementItem.displayName = "AssetManagementItem";

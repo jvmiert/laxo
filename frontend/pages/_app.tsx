@@ -25,7 +25,8 @@ const languages: LocalesType = {
 };
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
-  const { locale = "en", defaultLocale } = useRouter();
+  const { locale } = useRouter();
+  const laxoLocale = locale ? (locale === "default" ? "vi" : locale) : "vi";
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
@@ -34,9 +35,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       value={pageProps?.fallback ? { fallback: pageProps.fallback } : {}}
     >
       <IntlProvider
-        locale={locale!}
-        defaultLocale={defaultLocale}
-        messages={languages[locale]}
+        locale={laxoLocale}
+        defaultLocale={"vi"}
+        messages={languages[laxoLocale]}
         onError={(err) => {
           // Disabling missing translation warning for development
           if (

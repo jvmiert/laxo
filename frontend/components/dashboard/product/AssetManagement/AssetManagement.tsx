@@ -6,7 +6,6 @@ import { useIntl } from "react-intl";
 
 import { LaxoProductAsset } from "@/types/ApiResponse";
 import ProductImageDetails from "@/components/dashboard/product/ProductImageDetails";
-import AssetManagementItem from "@/components/dashboard/product/AssetManagement/AssetManagementItem";
 import DragAndDropContainer from "@/components/dashboard/product/AssetManagement/DragAndDropContainer";
 import { useGetLaxoProductDetails, useGetShopAssets } from "@/hooks/swrHooks";
 import { useDashboard } from "@/providers/DashboardProvider";
