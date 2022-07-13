@@ -57,6 +57,11 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleChangePlatformSync)),
 	)).Methods("POST")
 
+	r.Handle("/change-image-order/{productID:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}}", n.With(
+		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleChangeImageOrder)),
+	)).Methods("POST")
+
 	r.Handle("/shop", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleGetMyShops)),
 	)).Methods("GET")
@@ -82,6 +87,64 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 	r.Handle("/platforms/lazada", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleLazadaPlatformInfo)),
 	)).Methods("GET")
+}
+
+func (h *shopHandler) HandleChangeImageOrder(w http.ResponseWriter, r *http.Request, uID string) {
+	vars := mux.Vars(r)
+	productID := vars["productID"]
+
+	s, err := h.service.shop.GetActiveShopByUserID(uID)
+	if err != nil {
+		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = h.service.shop.ProductIsOwnedByStore(productID, s.Model.ID)
+	if err != nil && err != shop.ErrProductNotOwned {
+		h.server.Logger.Errorw("ProductIsOwnedByStore returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if err == shop.ErrProductNotOwned {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
+	var p models.ProductImageOrderRequest
+
+	if err = laxo.DecodeJSONBody(h.server.Logger, w, r, &p); err != nil {
+		var mr *laxo.MalformedRequest
+		if errors.As(err, &mr) {
+			http.Error(w, mr.Msg, mr.Status)
+		} else {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	err = h.service.shop.ValidateProductImageOrderRequest(&p)
+	if err != nil {
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnprocessableEntity, h.server.Logger)
+		return
+	}
+
+	err = h.service.shop.UpdateProductImageOrderRequest(productID, &p)
+	if err != nil {
+		h.server.Logger.Errorw("UpdateProductImageOrderRequest returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write([]byte("{\"success\":true}"))
 }
 
 func (h *shopHandler) HandleChangePlatformSync(w http.ResponseWriter, r *http.Request, uID string) {

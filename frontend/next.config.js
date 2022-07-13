@@ -11,7 +11,7 @@ module.exports = withBundleAnalyzer({
     defaultLocale: "default",
     localeDetection: false,
   },
-  trailingSlash: true,
+  trailingSlash: false,
   async rewrites() {
     return [
       {

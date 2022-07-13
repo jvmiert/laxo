@@ -105,7 +105,7 @@ SELECT assets.id, assets.shop_id, assets.murmur_hash, assets.original_filename, 
 LEFT JOIN products_media ON products_media.product_id = products.id
 LEFT JOIN assets ON assets.id = products_media.asset_id
 WHERE products.id = $1 AND products.shop_id = $2
-ORDER BY products_media.product_id, assets.id
+ORDER BY products_media.image_order, products_media.product_id, assets.id
 `
 
 type GetProductAssetsByProductIDParams struct {
@@ -326,7 +326,7 @@ FROM
 ) as c
 LEFT JOIN (
   SELECT products.id, products.name, products.description, products.description_slate, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
-    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
+    STRING_AGG(CONCAT(assets.id, assets.extension), ',' order by products_media.image_order) as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
     products_attribute_lazada.name as lazada_name,
@@ -437,7 +437,7 @@ FROM
 ) as c
 LEFT JOIN (
   SELECT products.id, products.name, products.description, products.description_slate, products.msku, products.selling_price, products.cost_price, products.shop_id, products.media_id, products.created, products.updated,
-    STRING_AGG(CONCAT(assets.id, assets.extension), ',') as media_id_list,
+    STRING_AGG(CONCAT(assets.id, assets.extension), ',' order by products_media.image_order) as media_id_list,
     products_lazada.lazada_id as lazada_id,
     products_sku_lazada.url as lazada_url,
     products_attribute_lazada.name as lazada_name,

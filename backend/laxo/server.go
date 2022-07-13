@@ -34,7 +34,7 @@ type Server struct {
 
 func NewServer(l *Logger, c *Config) (*Server, error) {
 	base := mux.NewRouter()
-	r := base.PathPrefix("/api").Subrouter().StrictSlash(true)
+	r := base.PathPrefix("/api").Subrouter().StrictSlash(false)
 
 	// Common middlewares
 	var commonMiddlewares []negroni.Handler

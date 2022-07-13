@@ -317,6 +317,8 @@ export default function AssetManagement({
       </div>
       <div className="mt-8">
         <DragAndDropContainer
+          detailMutate={detailMutate}
+          productID={productID}
           assets={mediaList}
           setShowImageDetails={setShowImageDetails}
           setActiveAssetDetails={setActiveAssetDetails}

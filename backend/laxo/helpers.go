@@ -30,7 +30,7 @@ func OzzoErrorJSONEncode(w http.ResponseWriter, error error, code int, logger *L
 
 	ozzoErrors, ok := error.(validation.Errors)
 	if !ok {
-		logger.Errorw("validation.Errors casting failed", "err", error)
+		logger.Warnw("validation.Errors casting failed", "err", error)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -40,7 +40,8 @@ func OzzoErrorJSONEncode(w http.ResponseWriter, error error, code int, logger *L
 	for key, vanillaErr := range ozzoErrors {
 		ozzoErr, ok := vanillaErr.(validation.Error)
 		if !ok {
-			logger.Errorw("validation.Error casting failed", "err", vanillaErr)
+			logger.Warnw("validation.Error casting failed", "err", vanillaErr)
+			returnError.ErrorDetails[key] = ErrorDetails{Error: vanillaErr.Error()}
 			continue
 		}
 		returnError.ErrorDetails[key] = ErrorDetails{Error: ozzoErr.Error(), Code: ozzoErr.Code()}

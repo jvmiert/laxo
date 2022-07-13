@@ -51,6 +51,7 @@ type Store interface {
 	GetAssetByOriginalName(originalName string, shopID string) (*sqlc.Asset, error)
 	CheckProductOwner(productID string, shopID string) (string, error)
 	UpdateLazadaProductPlatformSync(productID string, state bool) error
+	UpdateProductImageOrderRequest(productID string, request *models.ProductImageOrderRequest) error
 }
 
 type Service struct {
@@ -65,6 +66,14 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
 		logger: logger,
 		server: server,
 	}
+}
+
+func (s *Service) UpdateProductImageOrderRequest(productID string, request *models.ProductImageOrderRequest) error {
+	return s.store.UpdateProductImageOrderRequest(productID, request)
+}
+
+func (s *Service) ValidateProductImageOrderRequest(request *models.ProductImageOrderRequest) error {
+	return validation.Validate(request.Assets)
 }
 
 // Allows the user to change whether the product's data is synced back to the platform

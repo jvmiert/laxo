@@ -49,7 +49,16 @@ export type ChangeSyncRequest = {
   state: boolean;
 };
 
+export type ChangeImageOrderItem = {
+  assetID: string;
+  order: number;
+};
+
 export default function useProductApi(): {
+  doChangeImageOrder: (
+    productID: string,
+    imageList: Array<ChangeImageOrderItem>,
+  ) => Promise<boolean>;
   doGetAssetRank: (assetID: string) => Promise<number>;
   doCreateAsset: (request: CreateAssetRequest) => Promise<CreateAssetReply>;
   doUploadAsset: (assetID: string, file: File) => Promise<UploadAssetReply>;
@@ -58,6 +67,23 @@ export default function useProductApi(): {
 } {
   const { axiosClient } = useAxios();
   const { mutate } = useSWRConfig();
+
+  const doChangeImageOrder = useCallback(
+    async (
+      productID: string,
+      imageList: Array<ChangeImageOrderItem>,
+    ): Promise<boolean> => {
+      try {
+        await axiosClient.post(`/change-image-order/${productID}`, {
+          assets: imageList,
+        });
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
+    [axiosClient],
+  );
 
   const doChangePlatformSync = useCallback(
     async (r: ChangeSyncRequest): Promise<boolean> => {
@@ -132,6 +158,7 @@ export default function useProductApi(): {
       doAssetRequest,
       doChangePlatformSync,
       doGetAssetRank,
+      doChangeImageOrder,
     }),
     [
       doCreateAsset,
@@ -139,6 +166,7 @@ export default function useProductApi(): {
       doAssetRequest,
       doChangePlatformSync,
       doGetAssetRank,
+      doChangeImageOrder,
     ],
   );
 }

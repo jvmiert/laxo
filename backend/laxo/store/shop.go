@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v4"
@@ -20,6 +21,40 @@ func newShopStore(store *Store) shopStore {
 	return shopStore{
 		store,
 	}
+}
+
+func (s *shopStore) UpdateProductImageOrderRequest(productID string, request *models.ProductImageOrderRequest) error {
+	var b strings.Builder
+	paramCount := 1
+	paramList := []interface{}{}
+
+	b.WriteString("UPDATE products_media AS t SET ")
+	b.WriteString("image_order = c.image_order ")
+
+	b.WriteString("FROM (VALUES ")
+
+	for i, v := range request.Assets {
+		if i+1 == len(request.Assets) {
+			fmt.Fprintf(&b, "($%d, $%d::integer) ", paramCount, paramCount+1)
+		} else {
+			fmt.Fprintf(&b, "($%d, $%d::integer), ", paramCount, paramCount+1)
+		}
+		paramList = append(paramList, v.AssetID, v.Order)
+		paramCount += 2
+	}
+
+	b.WriteString(") as c(asset_id, image_order) ")
+	b.WriteString("WHERE c.asset_id = t.asset_id AND t.product_id = ")
+	fmt.Fprintf(&b, "$%d", paramCount)
+
+	paramList = append(paramList, productID)
+
+	_, err := s.pglClient.Exec(context.Background(), b.String(), paramList...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *shopStore) UpdateLazadaProductPlatformSync(productID string, state bool) error {

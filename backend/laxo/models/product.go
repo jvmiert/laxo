@@ -2,10 +2,28 @@ package models
 
 import (
 	"encoding/json"
+	"regexp"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gopkg.in/guregu/null.v4"
 	"laxo.vn/laxo/laxo/sqlc"
 )
+
+type ProductImageOrder struct {
+	AssetID string `json:"assetID"`
+	Order   int64  `json:"order"`
+}
+
+func (p ProductImageOrder) Validate() error {
+	return validation.ValidateStruct(&p,
+		validation.Field(&p.AssetID, validation.Required, validation.Match(regexp.MustCompile("^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$"))),
+		validation.Field(&p.Order, validation.Min(0)),
+	)
+}
+
+type ProductImageOrderRequest struct {
+	Assets []ProductImageOrder `json:"assets"`
+}
 
 type Element struct {
 	Type      string    `json:"type,omitempty"`

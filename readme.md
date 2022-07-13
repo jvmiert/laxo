@@ -1,11 +1,13 @@
 # Tech to-do
 
-- Create product image ordering system
-  - Create logic to store order in frontend
-  - Create logic to store order in backend
 - Handle product sync to Lazada after saving product
   - Create temporal workflow/activities for syncing the Lazada product
-  - Enable support for updating product images
+  - Enable support for updating product images (and image order)
+    - Dispatch a temporal task to update
+      - Check if a task is currently in sleeping/executing mode through Redis?
+      - Start the task with some debounce sleep period
+      - Whenever a new image change comes in, reset the sleep period
+      - After sleep period is over, execute task
     - Make sure the maximum image size for each platform is respected
   - Add support for notification when we update a product
     - Make a clear distiction between saving the Laxo product and syncing the platform product

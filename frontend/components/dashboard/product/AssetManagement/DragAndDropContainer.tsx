@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useIntl } from "react-intl";
+import { AxiosResponse } from "axios";
 import {
   closestCenter,
   DndContext,
@@ -19,6 +21,7 @@ import type {
   DragEndEvent,
   MeasuringConfiguration,
 } from "@dnd-kit/core";
+import { KeyedMutator } from "swr";
 import {
   arrayMove,
   useSortable,
@@ -27,12 +30,14 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS, isKeyboardEvent } from "@dnd-kit/utilities";
 
-import { LaxoProductAsset } from "@/types/ApiResponse";
+import { LaxoProductAsset, LaxoProductDetails } from "@/types/ApiResponse";
+import useProductApi from "@/hooks/useProductApi";
 import {
   AssetManagementItem,
   AssetManagementItemProps,
   Position,
 } from "@/components/dashboard/product/AssetManagement/AssetManagementItem";
+import { useDashboard } from "@/providers/DashboardProvider";
 
 type LaxoActive = Omit<Active, "id"> & {
   id: string;
@@ -82,6 +87,8 @@ type DragAndDropContainerProps = {
   assetsToken: string;
   setActiveAssetDetails: (arg: LaxoProductAsset) => void;
   setShowImageDetails: (arg: boolean) => void;
+  productID: string;
+  detailMutate: KeyedMutator<AxiosResponse<LaxoProductDetails, any>>;
 };
 
 export default function DragAndDropContainer({
@@ -89,9 +96,16 @@ export default function DragAndDropContainer({
   assetsToken,
   setActiveAssetDetails,
   setShowImageDetails,
+  productID,
+  detailMutate,
 }: DragAndDropContainerProps) {
+  const { doChangeImageOrder } = useProductApi();
+  const t = useIntl();
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [items, setItems] = useState<LaxoProductAsset[]>(assets);
+
+  const { dashboardDispatch } = useDashboard();
 
   const activeIndex = activeId
     ? items
@@ -108,6 +122,40 @@ export default function DragAndDropContainer({
     }),
   );
 
+  async function handleOrderChange(items: LaxoProductAsset[]) {
+    const newOrder = items.map((item, index) => ({
+      assetID: item.id,
+      order: index,
+    }));
+
+    const result = await doChangeImageOrder(productID, newOrder);
+    if (result) {
+      detailMutate();
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "success",
+          message: t.formatMessage({
+            description: "Change image order success",
+            defaultMessage: "Successfully updated your image order",
+          }),
+        },
+      });
+    } else {
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "error",
+          message: t.formatMessage({
+            description: "Change image order server error",
+            defaultMessage:
+              "Something went wrong while removing your image, try again later",
+          }),
+        },
+      });
+    }
+  }
+
   function handleDragStart({ active }: LaxoDragStartEvent) {
     setActiveId(active.id);
   }
@@ -123,7 +171,11 @@ export default function DragAndDropContainer({
       if (activeIndex !== overIndex) {
         const newIndex = overIndex;
 
-        setItems((items) => arrayMove(items, activeIndex, newIndex));
+        setItems((items) => {
+          const newArray = arrayMove(items, activeIndex, newIndex);
+          handleOrderChange(newArray);
+          return newArray;
+        });
       }
     }
 
