@@ -263,6 +263,10 @@
     "description": "Shop Create Form: general validation failure",
     "message": "Required"
   },
+  "L41FlQ": {
+    "description": "Change image order success",
+    "message": "Successfully updated your image order"
+  },
   "MAx7V0": {
     "description": "Dashboard notification control: title",
     "message": "Notifications"
@@ -390,6 +394,10 @@
   "Y99Vi5": {
     "description": "Email placeholder",
     "message": "my@email.com"
+  },
+  "ZJM0ON": {
+    "description": "Change image order server error",
+    "message": "Something went wrong while removing your image, try again later"
   },
   "ZTfwHE": {
     "description": "Login Form: login failure incorrect password",
