@@ -20,6 +20,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { generatePaginateNumbers } from "@/lib/paginate";
 import DashboardLayout from "@/components/DashboardLayout";
 import OverviewTableRow from "@/components/dashboard/product/OverviewTableRow";
+import OverviewTableRowLoading from "@/components/dashboard/product/OverviewTableRowLoading";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import useShopApi from "@/hooks/useShopApi";
 
@@ -73,7 +74,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
   const { doPlatformSync } = useShopApi();
   const { activeShop } = useDashboard();
 
-  const { products } = useGetLaxoProducts(
+  const { products, loading } = useGetLaxoProducts(
     currentSearchQuery,
     currentSearchQuery,
     offset,
@@ -254,27 +255,32 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {products.products.map((p, i) => (
-                      <OverviewTableRow
-                        key={p.product.id}
-                        imgURL={p.mediaList}
-                        shopToken={activeShop.assetsToken}
-                        id={p.product.id}
-                        name={p.product.name}
-                        msku={p.product.msku}
-                        sellingPriceInt={p.product.sellingPrice.Int}
-                        sellingPriceExp={p.product.sellingPrice.Exp}
-                        platforms={p.platforms}
-                        numberFormat={numberFormatter}
-                        style={
-                          i + 1 != products.products.length
-                            ? {
-                                boxShadow: "inset 0 -1px rgb(244, 244, 244)",
-                              }
-                            : {}
-                        }
-                      />
-                    ))}
+                    {loading
+                      ? [...Array(currentLimit)].map((k) => (
+                          <OverviewTableRowLoading key={k} />
+                        ))
+                      : products.products.map((p, i) => (
+                          <OverviewTableRow
+                            key={p.product.id}
+                            imgURL={p.mediaList}
+                            shopToken={activeShop.assetsToken}
+                            id={p.product.id}
+                            name={p.product.name}
+                            msku={p.product.msku}
+                            sellingPriceInt={p.product.sellingPrice.Int}
+                            sellingPriceExp={p.product.sellingPrice.Exp}
+                            platforms={p.platforms}
+                            numberFormat={numberFormatter}
+                            style={
+                              i + 1 != products.products.length
+                                ? {
+                                    boxShadow:
+                                      "inset 0 -1px rgb(244, 244, 244)",
+                                  }
+                                : {}
+                            }
+                          />
+                        ))}
                   </tbody>
                 </table>
               </div>
@@ -305,48 +311,73 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
               <ChevronLeftIcon className="h-5 w-5" />
             </a>
           </Link>
-          {pNumbers.map((p, i) => {
-            if (p === "...") {
+          {loading ? (
+            <>
+              <div className="box-content inline-block w-[2ch] border bg-white px-4 py-2 text-sm font-medium">
+                <div className="h-full w-full animate-pulse rounded bg-slate-100" />
+              </div>
+              <div className="box-content inline-block w-[2ch] border bg-white px-4 py-2 text-sm font-medium">
+                <div className="h-full w-full animate-pulse rounded bg-slate-100" />
+              </div>
+              <div className="box-content inline-block w-[2ch] border bg-white px-4 py-2 text-sm font-medium">
+                <div className="h-full w-full animate-pulse rounded bg-slate-100" />
+              </div>
+              <div className="box-content inline-block w-[2ch] border bg-white px-4 py-2 text-sm font-medium">
+                <div className="h-full w-full animate-pulse rounded bg-slate-100" />
+              </div>
+              <div className="box-content inline-block w-[2ch] border bg-white px-4 py-2 text-sm font-medium">
+                <div className="h-full w-full animate-pulse rounded bg-slate-100" />
+              </div>
+              <div className="box-content inline-block w-[2ch] border bg-white px-4 py-2 text-sm font-medium">
+                <div className="h-full w-full animate-pulse rounded bg-slate-100" />
+              </div>
+            </>
+          ) : (
+            pNumbers.map((p, i) => {
+              if (p === "...") {
+                return (
+                  <span
+                    key={`${p}-${i}`}
+                    className="box-content w-[2ch] border bg-white px-4 py-2 text-center text-sm font-medium text-gray-700"
+                  >
+                    ...
+                  </span>
+                );
+              }
               return (
-                <span
-                  key={`${p}-${i}`}
-                  className="box-content w-[2ch] border bg-white px-4 py-2 text-center text-sm font-medium text-gray-700"
+                <Link
+                  key={p}
+                  shallow={true}
+                  scroll={true}
+                  href={{
+                    pathname: "/dashboard/products",
+                    query: {
+                      ...(p > 1 && { p: p }),
+                      ...(currentLimit > 10 && { l: queryLimitNumber }),
+                      ...(currentSearchQuery != "" && {
+                        s: currentSearchQuery,
+                      }),
+                    },
+                  }}
                 >
-                  ...
-                </span>
+                  <a
+                    className={cc([
+                      {
+                        "box-content w-[2ch] cursor-pointer border bg-white px-4 py-2 text-center text-sm font-medium text-gray-500 hover:bg-gray-50":
+                          p != queryPageNumber,
+                      },
+                      {
+                        "z-10 box-content w-[2ch] cursor-pointer border border-indigo-500 bg-indigo-50 px-4 py-2 text-center text-sm font-medium text-indigo-600":
+                          p == queryPageNumber || (p == 1 && !queryPageNumber),
+                      },
+                    ])}
+                  >
+                    {p}
+                  </a>
+                </Link>
               );
-            }
-            return (
-              <Link
-                key={p}
-                shallow={true}
-                scroll={true}
-                href={{
-                  pathname: "/dashboard/products",
-                  query: {
-                    ...(p > 1 && { p: p }),
-                    ...(currentLimit > 10 && { l: queryLimitNumber }),
-                    ...(currentSearchQuery != "" && { s: currentSearchQuery }),
-                  },
-                }}
-              >
-                <a
-                  className={cc([
-                    {
-                      "box-content w-[2ch] cursor-pointer border bg-white px-4 py-2 text-center text-sm font-medium text-gray-500 hover:bg-gray-50":
-                        p != queryPageNumber,
-                    },
-                    {
-                      "z-10 box-content w-[2ch] cursor-pointer border border-indigo-500 bg-indigo-50 px-4 py-2 text-center text-sm font-medium text-indigo-600":
-                        p == queryPageNumber || (p == 1 && !queryPageNumber),
-                    },
-                  ])}
-                >
-                  {p}
-                </a>
-              </Link>
-            );
-          })}
+            })
+          )}
           <Link
             shallow={true}
             scroll={true}

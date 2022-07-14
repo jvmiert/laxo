@@ -12,20 +12,24 @@
   - Add support for notification when we update a product
     - Make a clear distiction between saving the Laxo product and syncing the platform product
   - Add manual sync button for products
+- Implement tooltips https://github.com/floating-ui/floating-ui
+  - For the drag and drop image ordering
 - Use valid status in Axios to stop throwing certain validation errors that return != 200 http status code
   - https://axios-http.com/docs/handling_errors
 - Create email collecting backend
   - Create login frontend so production doesn't allow users to sign up yet
     - https://github.com/vercel/next.js/blob/canary/examples/with-env-from-next-config-js/next.config.js
-- Tweak dashboard loading/error states
-  - Add a loading state to the table of the product overview so it doesn't jump around during loads
-  - Make a state where there is no results/products
 
 # Long-term to-do
 
-- Add image search to asset insert dialog?
+- Create empty states for various screens
+  - No shop screen
+  - No products screen
+  - No product result screen
+  - No assets available
 - Make product dashboard page
 - Make order dashboard page
+  - Use ShoppingBagIcon from heroicons
 - Make stock dashboard page
 - Make a password strength indicator
   - https://www.openwall.com/passwdqc/
