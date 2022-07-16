@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIntl } from "react-intl";
 import { AxiosResponse } from "axios";
 import {
@@ -31,7 +31,7 @@ import {
 import { CSS, isKeyboardEvent } from "@dnd-kit/utilities";
 
 import { LaxoProductAsset, LaxoProductDetails } from "@/types/ApiResponse";
-import useProductApi from "@/hooks/useProductApi";
+import useProductApi, { Asset } from "@/hooks/useProductApi";
 import {
   AssetManagementItem,
   AssetManagementItemProps,
@@ -83,11 +83,11 @@ const measuring: MeasuringConfiguration = {
 };
 
 type DragAndDropContainerProps = {
-  assets: LaxoProductAsset[];
+  assets: Array<LaxoProductAsset | Asset>;
   assetsToken: string;
-  setActiveAssetDetails: (arg: LaxoProductAsset) => void;
+  setActiveAssetDetails: (arg: LaxoProductAsset | Asset) => void;
   setShowImageDetails: (arg: boolean) => void;
-  productID: string;
+  productID?: string;
   detailMutate: KeyedMutator<AxiosResponse<LaxoProductDetails, any>>;
 };
 
@@ -103,7 +103,41 @@ export default function DragAndDropContainer({
   const t = useIntl();
 
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [items, setItems] = useState<LaxoProductAsset[]>(assets);
+  const [items, setItems] = useState<Array<LaxoProductAsset | Asset>>(assets);
+
+  useEffect(() => {
+    if (productID) {
+      setItems(assets);
+      return;
+    }
+
+    // We assume the list hasn't changed. Not checking
+    // this will result in infinite useEffect loop.
+    if (assets.length === items.length) return;
+
+    let newItems: Array<LaxoProductAsset | Asset> = [];
+
+    // Remove any asset that has been removed in AssetManagement
+    newItems = items.filter((a) => {
+      const found = assets.find((i) => i.id === a.id);
+      if (!found) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+
+    // Add any asset that has been added in AssetManagement
+    assets.forEach((a) => {
+      const found = items.find((i) => i.id === a.id);
+      if (!found) {
+        setItems((prevItems) => [...prevItems, a]);
+        newItems.push(a);
+      }
+    });
+
+    setItems(newItems);
+  }, [productID, assets, items]);
 
   const { dashboardDispatch } = useDashboard();
 
@@ -122,7 +156,9 @@ export default function DragAndDropContainer({
     }),
   );
 
-  async function handleOrderChange(items: LaxoProductAsset[]) {
+  async function handleOrderChange(items: Array<LaxoProductAsset | Asset>) {
+    if (!productID) return;
+
     const newOrder = items.map((item, index) => ({
       assetID: item.id,
       order: index,

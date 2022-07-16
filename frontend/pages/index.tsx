@@ -34,7 +34,7 @@ export default function HomePage() {
                   your marketing activities.
                 </p>
               </div>
-              <h3 className="mb-2 text-base font-medium">
+              <h3 className="mb-2 text-base font-medium underline decoration-indigo-400 decoration-2 underline-offset-2">
                 Sign up to get notified when it&apos;s ready.
               </h3>
               <div className="flex-col sm:flex">

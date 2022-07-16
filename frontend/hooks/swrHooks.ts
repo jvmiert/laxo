@@ -202,7 +202,13 @@ export function useGetLaxoProducts(
 function transformLaxoProductDetails(
   r: any,
 ): LaxoProductDetailsResponse | undefined {
-  const resp = JSON.parse(r);
+  let resp;
+
+  try {
+    resp = JSON.parse(r);
+  } catch {
+    return undefined;
+  }
 
   if (resp?.product) {
     resp.product.created = new Date(resp.product.created);

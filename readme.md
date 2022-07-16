@@ -12,6 +12,10 @@
   - Add support for notification when we update a product
     - Make a clear distiction between saving the Laxo product and syncing the platform product
   - Add manual sync button for products
+- Create new product form
+  - Do validation
+- Fix ordering issue when adding new image to product
+  - We are not populating the order field when linking a new image to a product
 - Implement tooltips https://github.com/floating-ui/floating-ui
   - For the drag and drop image ordering
 - Use valid status in Axios to stop throwing certain validation errors that return != 200 http status code

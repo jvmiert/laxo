@@ -9,10 +9,10 @@ import ProductImageDetails from "@/components/dashboard/product/ProductImageDeta
 import DragAndDropContainer from "@/components/dashboard/product/AssetManagement/DragAndDropContainer";
 import { useGetLaxoProductDetails, useGetShopAssets } from "@/hooks/swrHooks";
 import { useDashboard } from "@/providers/DashboardProvider";
-import useProductApi from "@/hooks/useProductApi";
+import useProductApi, { Asset } from "@/hooks/useProductApi";
 
 type AssetManagementProps = {
-  productID: string;
+  productID?: string;
   mediaList: LaxoProductAsset[];
 };
 
@@ -23,9 +23,14 @@ export default function AssetManagement({
   const t = useIntl();
   const [showImageDetails, setShowImageDetails] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [activeAssetDetails, setActiveAssetDetails] =
-    useState<LaxoProductAsset>();
+  const [activeAssetDetails, setActiveAssetDetails] = useState<
+    LaxoProductAsset | Asset
+  >();
   const { activeShop, dashboardDispatch } = useDashboard();
+
+  const [createList, setCreateList] = useState<Array<LaxoProductAsset | Asset>>(
+    [],
+  );
 
   const dropRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,39 +60,47 @@ export default function AssetManagement({
 
     closeImageDetails();
 
-    const assignResult = await doAssetRequest({
-      action: "delete",
-      productID: productID,
-      assetID: activeAssetDetails.id,
-      order: 0,
-    });
+    if (productID) {
+      const assignResult = await doAssetRequest({
+        action: "delete",
+        productID: productID,
+        assetID: activeAssetDetails.id,
+        order: 0,
+      });
 
-    if (assignResult.error) {
+      if (assignResult.error) {
+        dashboardDispatch({
+          type: "alert",
+          alert: {
+            type: "error",
+            message: t.formatMessage({
+              description: "Asset management remove image server error",
+              defaultMessage:
+                "Something went wrong while removing your image, try again later",
+            }),
+          },
+        });
+        return;
+      }
+
+      detailMutate();
+      setActiveAssetDetails(undefined);
       dashboardDispatch({
         type: "alert",
         alert: {
-          type: "error",
+          type: "success",
           message: t.formatMessage({
-            description: "Asset management remove image server error",
-            defaultMessage:
-              "Something went wrong while removing your image, try again later",
+            description: "Asset management successful removed image",
+            defaultMessage: "Successfully removed your image",
           }),
         },
       });
-      return;
+    } else {
+      setCreateList((prevList) =>
+        prevList.filter((a) => a.id != activeAssetDetails.id),
+      );
+      setActiveAssetDetails(undefined);
     }
-
-    detailMutate();
-    dashboardDispatch({
-      type: "alert",
-      alert: {
-        type: "success",
-        message: t.formatMessage({
-          description: "Asset management successful removed image",
-          defaultMessage: "Successfully removed your image",
-        }),
-      },
-    });
   };
 
   const uploadFile = useCallback(
@@ -153,32 +166,39 @@ export default function AssetManagement({
           }
         }
 
-        const assignResult = await doAssetRequest({
-          action: "active",
-          productID: productID,
-          assetID: result.asset.id,
-          order: 0,
-        });
+        if (productID) {
+          const assignResult = await doAssetRequest({
+            action: "active",
+            productID: productID,
+            assetID: result.asset.id,
+            order: 0,
+          });
 
-        if (assignResult.error) {
-          serverError();
-          return;
+          if (assignResult.error) {
+            serverError();
+            return;
+          }
+
+          detailMutate();
+          assetsMutate();
+          dashboardDispatch({
+            type: "alert",
+            alert: {
+              type: "success",
+              message: t.formatMessage({
+                description: "Asset management successful upload",
+                defaultMessage: "Successfully added your new image",
+              }),
+            },
+          });
+
+          URL.revokeObjectURL(url);
+        } else {
+          if (result?.asset) {
+            const newAsset = result.asset as Asset;
+            setCreateList((prev) => [...prev, newAsset]);
+          }
         }
-
-        detailMutate();
-        assetsMutate();
-        dashboardDispatch({
-          type: "alert",
-          alert: {
-            type: "success",
-            message: t.formatMessage({
-              description: "Asset management successful upload",
-              defaultMessage: "Successfully added your new image",
-            }),
-          },
-        });
-
-        URL.revokeObjectURL(url);
       };
       img.src = url;
     },
@@ -319,7 +339,7 @@ export default function AssetManagement({
         <DragAndDropContainer
           detailMutate={detailMutate}
           productID={productID}
-          assets={mediaList}
+          assets={productID ? mediaList : createList}
           setShowImageDetails={setShowImageDetails}
           setActiveAssetDetails={setActiveAssetDetails}
           assetsToken={activeShop.assetsToken}

@@ -34,6 +34,22 @@ function getTranslation(key: string): ReactElement<MessageDescriptor> | "" {
   }
 }
 
+function getSecondCrumbTranslation(
+  key: string,
+): ReactElement<MessageDescriptor> | "" {
+  switch (key.toLowerCase()) {
+    case "new":
+      return (
+        <FormattedMessage
+          defaultMessage="Add New Product"
+          description="Breadcrumb indicator: add product"
+        />
+      );
+    default:
+      return "";
+  }
+}
+
 export default function Breadcrumbs() {
   const {
     pathname,
@@ -46,14 +62,16 @@ export default function Breadcrumbs() {
 
   const { product, loading } = useGetLaxoProductDetails(productID);
 
-  const getSecondCrumb = (): string => {
+  const getSecondCrumb = (): string | ReactElement<MessageDescriptor> => {
     if (loading) return "";
 
     if (product) {
       return product.product.name;
     }
 
-    if (depth > 1) return splitPath[3];
+    if (depth > 1) {
+      return getSecondCrumbTranslation(splitPath[3]);
+    }
 
     return "";
   };

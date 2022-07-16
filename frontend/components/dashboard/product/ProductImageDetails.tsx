@@ -6,12 +6,13 @@ import prettyBytes from "pretty-bytes";
 import { useIntl } from "react-intl";
 
 import { LaxoProductAsset } from "@/types/ApiResponse";
+import { Asset } from "@/hooks/useProductApi";
 
 type ProductImageDetailsProps = {
   show: boolean;
   close: () => void;
   removeAsset: () => void;
-  asset: LaxoProductAsset | undefined;
+  asset: LaxoProductAsset | Asset | undefined;
   assetsToken: string;
 };
 

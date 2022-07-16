@@ -14,6 +14,7 @@ import {
   SelectorIcon,
   SearchIcon,
   RefreshIcon,
+  PlusCircleIcon,
 } from "@heroicons/react/solid";
 import { Menu, Transition } from "@headlessui/react";
 
@@ -185,19 +186,31 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
             defaultValue={currentSearchQuery}
           />
         </div>
-        <div>
-          <button
-            type="button"
-            onClick={handlePlatformSync}
-            className="inline-flex items-center rounded-md border border-indigo-500 bg-indigo-500 py-2 px-4 text-white shadow shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-indigo-200"
-          >
-            <RefreshIcon className="mr-2 -ml-1 h-4 w-4" />
-            {t.formatMessage({
-              defaultMessage: "Sync Products",
-
-              description: "Products Page: sync products button",
-            })}
-          </button>
+        <div className="flex items-center space-x-3">
+          <div>
+            <Link href="/dashboard/products/new">
+              <a className="inline-flex items-center rounded-md border border-slate-300 bg-white py-2 px-4 text-slate-700 shadow shadow-slate-300/50 hover:bg-slate-50 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-slate-200">
+                <PlusCircleIcon className="mr-2 -ml-1 h-4 w-4" />
+                {t.formatMessage({
+                  defaultMessage: "Create Product",
+                  description: "Products Page: create product button",
+                })}
+              </a>
+            </Link>
+          </div>
+          <div>
+            <button
+              type="button"
+              onClick={handlePlatformSync}
+              className="inline-flex items-center rounded-md border border-indigo-500 bg-indigo-500 py-2 px-4 text-white shadow shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-indigo-200"
+            >
+              <RefreshIcon className="mr-2 -ml-1 h-4 w-4" />
+              {t.formatMessage({
+                defaultMessage: "Sync Products",
+                description: "Products Page: sync products button",
+              })}
+            </button>
+          </div>
         </div>
       </div>
       <div className="my-6">
@@ -256,8 +269,8 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {loading
-                      ? [...Array(currentLimit)].map((k) => (
-                          <OverviewTableRowLoading key={k} />
+                      ? [...Array(currentLimit)].map((_, i) => (
+                          <OverviewTableRowLoading key={i} />
                         ))
                       : products.products.map((p, i) => (
                           <OverviewTableRow

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { GripVertical } from "lucide-react";
 
 import { LaxoProductAsset } from "@/types/ApiResponse";
+import { Asset } from "@/hooks/useProductApi";
 
 const shimmer = `
 <svg width="48px" height="48px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -36,9 +37,9 @@ export type AssetManagementItemProps = Omit<
 > & {
   clone?: boolean;
   active?: boolean;
-  asset: LaxoProductAsset;
+  asset: LaxoProductAsset | Asset;
   assetsToken: string;
-  setActiveAssetDetails: (arg: LaxoProductAsset) => void;
+  setActiveAssetDetails: (arg: LaxoProductAsset | Asset) => void;
   setShowImageDetails: (arg: boolean) => void;
   insertPosition?: Position;
 };
@@ -60,7 +61,7 @@ export const AssetManagementItem = forwardRef<
     }: AssetManagementItemProps,
     ref,
   ) => {
-    const openImageDetails = (asset: LaxoProductAsset) => {
+    const openImageDetails = (asset: LaxoProductAsset | Asset) => {
       setActiveAssetDetails(asset);
       setShowImageDetails(true);
     };

@@ -12,16 +12,9 @@ import useProductDetailsApi, {
 } from "@/hooks/useProductDetailsApi";
 import { useGetLaxoProductDetails } from "@/hooks/swrHooks";
 import { useDashboard } from "@/providers/DashboardProvider";
+import { formatPrice, parsePrice } from "@/lib/priceFormat";
 
 const focusOnError = createDecorator<ProductDetailsSchemaValues>();
-
-const formatPrice = (value: number, name: string): string => {
-  return value.toLocaleString("vi-VN");
-};
-
-const parsePrice = (value: string, name: string): number => {
-  return parseFloat(value.replaceAll(".", "")) || 0;
-};
 
 export type GeneralEditProps = {
   product: LaxoProduct["product"];
@@ -278,8 +271,6 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
                 defaultMessage: "Description",
               })}
             </label>
-          </div>
-          <div className="col-span-8">
             <Editor initialSchema={product.descriptionSlate} />
           </div>
           {submitError && (

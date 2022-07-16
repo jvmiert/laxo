@@ -32,12 +32,12 @@ function DashboardProductDetails(props: DashboardProductDetailsProps) {
 
   const { product, error } = useGetLaxoProductDetails(productID);
 
-  if (!product?.product) return <></>;
-
   const notFound = error?.response?.status === 404;
 
   if (notFound) return <ErrorPage statusCode={404} />;
   if (!productID) return <></>;
+
+  if (!product?.product) return <></>;
 
   return (
     <div className="mx-auto max-w-5xl">

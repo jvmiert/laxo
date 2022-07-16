@@ -1,5 +1,5 @@
 import { ReactEditor } from "slate-react";
-import { BaseEditor, Editor } from "slate";
+import { BaseEditor, Editor, Element, Transforms } from "slate";
 import { HistoryEditor } from "slate-history";
 
 export type LaxoParagraphElement = {
@@ -66,6 +66,9 @@ type LaxoText = {
   underline?: boolean;
 };
 
+export const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
+export const LIST_TYPES = ["numbered-list", "bulleted-list"];
+
 declare module "slate" {
   interface CustomTypes {
     Editor: BaseEditor & ReactEditor & HistoryEditor;
@@ -82,4 +85,85 @@ export const withImages = (editor: Editor) => {
   };
 
   return editor;
+};
+
+export function isBlockActive(
+  editor: Editor,
+  format: BlockFormatParameter,
+  blockType: "type" | "align" = "type",
+) {
+  const { selection } = editor;
+  if (!selection) return false;
+
+  const [match] = Array.from(
+    Editor.nodes(editor, {
+      at: Editor.unhangRange(editor, selection),
+      match: (n) =>
+        !Editor.isEditor(n) && Element.isElement(n) && n[blockType] === format,
+    }),
+  );
+
+  return !!match;
+}
+
+export const toggleBlock = (editor: Editor, format: BlockFormatParameter) => {
+  const isActive = isBlockActive(
+    editor,
+    format,
+    TEXT_ALIGN_TYPES.includes(format) ? "align" : "type",
+  );
+  const isList = LIST_TYPES.includes(format);
+
+  Transforms.unwrapNodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) &&
+      Element.isElement(n) &&
+      LIST_TYPES.includes(n.type) &&
+      !TEXT_ALIGN_TYPES.includes(format),
+    split: true,
+  });
+  let newProperties: Partial<Element>;
+  if (TEXT_ALIGN_TYPES.includes(format)) {
+    newProperties = {
+      align: isActive
+        ? undefined
+        : (format as "left" | "center" | "right" | "justify"),
+    };
+  } else {
+    newProperties = {
+      type: isActive
+        ? "paragraph"
+        : isList
+        ? "list-item"
+        : (format as Exclude<
+            BlockFormatParameter,
+            "left" | "center" | "right" | "justify"
+          >),
+    };
+  }
+
+  Transforms.setNodes<Element>(editor, newProperties);
+
+  if (!isActive && isList) {
+    const block = {
+      type: format as "numbered-list" | "bulleted-list",
+      children: [],
+    };
+    Transforms.wrapNodes(editor, block);
+  }
+};
+
+export const isMarkActive = (editor: Editor, format: FormatParameter) => {
+  const marks = Editor.marks(editor);
+  return marks ? marks[format] === true : false;
+};
+
+export const toggleMark = (editor: Editor, format: FormatParameter) => {
+  const isActive = isMarkActive(editor, format);
+
+  if (isActive) {
+    Editor.removeMark(editor, format);
+  } else {
+    Editor.addMark(editor, format, true);
+  }
 };
