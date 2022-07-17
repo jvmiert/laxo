@@ -351,6 +351,10 @@
     "description": "Dashboard settings title",
     "message": "Settings"
   },
+  "S1cR63": {
+    "description": "Product Details Form: price positive validation failure",
+    "message": "Price should be positive"
+  },
   "S2kWkB": {
     "description": "Shop Create Form: shop name min length validation failure",
     "message": "Shop name should be at least 6 characters"
@@ -430,6 +434,10 @@
   "aq43/B": {
     "description": "Sign in Page: Sign up bottom text",
     "message": "Don't have an account? {signUp}"
+  },
+  "b/yuQa": {
+    "description": "Product Details Form: name min validation failure",
+    "message": "Your name should be at least 4 characters"
   },
   "b94iRa": {
     "description": "Breadcrumb indicator: products",
@@ -574,10 +582,6 @@
   "pTcuAB": {
     "description": "Register Form: email validation failure",
     "message": "Please enter a valid email address"
-  },
-  "qae7qo": {
-    "description": "Product Details Form: price positive validation failure",
-    "message": "Selling price should be positive"
   },
   "rXkQFM": {
     "description": "Products list page row: name label",

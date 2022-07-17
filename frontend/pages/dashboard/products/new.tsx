@@ -9,7 +9,9 @@ import { InferGetServerSidePropsType, GetServerSideProps } from "next";
 
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import DashboardLayout from "@/components/DashboardLayout";
-import { ProductDetailsSchemaValues } from "@/hooks/useProductDetailsApi";
+import useProductDetailsApi, {
+  ProductDetailsSchemaValues,
+} from "@/hooks/useProductDetailsApi";
 import { formatPrice, parsePrice } from "@/lib/priceFormat";
 import Editor from "@/components/slate/Editor";
 import AssetInsertDialog from "@/components/dashboard/product/AssetInsertDialog";
@@ -25,6 +27,8 @@ type DashboardNewProductProps = InferGetServerSidePropsType<
 
 function DashboardNewProduct(props: DashboardNewProductProps) {
   const t = useIntl();
+  const [validate] = useProductDetailsApi("");
+
   return (
     <div className="mx-auto max-w-5xl">
       <AssetInsertDialog />
@@ -32,9 +36,9 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
         <div className="rounded-md bg-white py-7 px-6 shadow-sm">
           <Form
             onSubmit={() => {}}
-            // validate={()}
+            validate={validate}
+            validateOnBlur
             decorators={[focusOnError]}
-            initialValues={{}}
             render={({ handleSubmit, submitError }) => (
               <form
                 onSubmit={handleSubmit}
@@ -65,6 +69,7 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                       const unchangedAfterSubmit =
                         meta.submitError && !meta.dirtySinceLastSubmit;
                       const showError =
+                        !meta.active &&
                         attemped &&
                         meta.touched &&
                         (meta.error || unchangedAfterSubmit) &&
@@ -112,6 +117,7 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                       const unchangedAfterSubmit =
                         meta.submitError && !meta.dirtySinceLastSubmit;
                       const showError =
+                        !meta.active &&
                         attemped &&
                         meta.touched &&
                         (meta.error || unchangedAfterSubmit) &&
@@ -150,23 +156,24 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                       defaultMessage: "Selling Price",
                     })}
                   </label>
-                  <div className="flex rounded shadow">
-                    <Field<number, HTMLInputElement, string>
-                      name="sellingPrice"
-                      format={formatPrice}
-                      parse={parsePrice}
-                      render={({ input, meta }) => {
-                        const attemped = !meta.pristine || meta.submitFailed;
-                        const unchangedAfterSubmit =
-                          meta.submitError && !meta.dirtySinceLastSubmit;
-                        const showError =
-                          attemped &&
-                          meta.touched &&
-                          (meta.error || unchangedAfterSubmit) &&
-                          !meta.submitting;
+                  <Field<number, HTMLInputElement, string>
+                    name="sellingPrice"
+                    format={formatPrice}
+                    parse={parsePrice}
+                    render={({ input, meta }) => {
+                      const attemped = !meta.pristine || meta.submitFailed;
+                      const unchangedAfterSubmit =
+                        meta.submitError && !meta.dirtySinceLastSubmit;
+                      const showError =
+                        !meta.active &&
+                        attemped &&
+                        meta.touched &&
+                        (meta.error || unchangedAfterSubmit) &&
+                        !meta.submitting;
 
-                        return (
-                          <>
+                      return (
+                        <>
+                          <div className="flex rounded shadow">
                             <input
                               {...input}
                               className="focus:shadow-outline z-10 block w-full w-full flex-1 appearance-none rounded-none rounded-l border py-2 px-3 leading-tight text-gray-700 focus:outline-none focus:ring focus:ring-indigo-200"
@@ -177,19 +184,19 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                                 defaultMessage: "235.000",
                               })}
                             />
-                            {showError && (
-                              <span className="text-xs italic text-red-500">
-                                {meta.error || meta.submitError}
-                              </span>
-                            )}
-                          </>
-                        );
-                      }}
-                    />
-                    <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
-                      ₫
-                    </span>
-                  </div>
+                            <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
+                              ₫
+                            </span>
+                          </div>
+                          {showError && (
+                            <span className="text-xs italic text-red-500">
+                              {meta.error || meta.submitError}
+                            </span>
+                          )}
+                        </>
+                      );
+                    }}
+                  />
                 </div>
                 <div className="col-start-6 col-end-9">
                   <label
@@ -202,23 +209,24 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                       defaultMessage: "Cost Price",
                     })}
                   </label>
-                  <div className="flex rounded shadow">
-                    <Field<number, HTMLInputElement, string>
-                      name="costPrice"
-                      format={formatPrice}
-                      parse={parsePrice}
-                      render={({ input, meta }) => {
-                        const attemped = !meta.pristine || meta.submitFailed;
-                        const unchangedAfterSubmit =
-                          meta.submitError && !meta.dirtySinceLastSubmit;
-                        const showError =
-                          attemped &&
-                          meta.touched &&
-                          (meta.error || unchangedAfterSubmit) &&
-                          !meta.submitting;
+                  <Field<number, HTMLInputElement, string>
+                    name="costPrice"
+                    format={formatPrice}
+                    parse={parsePrice}
+                    render={({ input, meta }) => {
+                      const attemped = !meta.pristine || meta.submitFailed;
+                      const unchangedAfterSubmit =
+                        meta.submitError && !meta.dirtySinceLastSubmit;
+                      const showError =
+                        !meta.active &&
+                        attemped &&
+                        meta.touched &&
+                        (meta.error || unchangedAfterSubmit) &&
+                        !meta.submitting;
 
-                        return (
-                          <>
+                      return (
+                        <>
+                          <div className="flex rounded shadow">
                             <input
                               {...input}
                               className="focus:shadow-outline z-10 block w-full w-full flex-1 appearance-none rounded-none rounded-l border py-2 px-3 leading-tight text-gray-700 focus:outline-none focus:ring focus:ring-indigo-200"
@@ -229,19 +237,19 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                                 defaultMessage: "135.000",
                               })}
                             />
-                            {showError && (
-                              <span className="text-xs italic text-red-500">
-                                {meta.error || meta.submitError}
-                              </span>
-                            )}
-                          </>
-                        );
-                      }}
-                    />
-                    <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
-                      ₫
-                    </span>
-                  </div>
+                            <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
+                              ₫
+                            </span>
+                          </div>
+                          {showError && (
+                            <span className="text-xs italic text-red-500">
+                              {meta.error || meta.submitError}
+                            </span>
+                          )}
+                        </>
+                      );
+                    }}
+                  />
                 </div>
 
                 <div className="col-span-8">

@@ -13,7 +13,7 @@
     - Make a clear distiction between saving the Laxo product and syncing the platform product
   - Add manual sync button for products
 - Create new product form
-  - Do validation
+  - Add backend for creating product
 - Fix ordering issue when adding new image to product
   - We are not populating the order field when linking a new image to a product
 - Implement tooltips https://github.com/floating-ui/floating-ui

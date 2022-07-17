@@ -75,6 +75,7 @@ function LoginPage(props: LoginPageProps) {
                     autoFocus
                     render={({ input, meta }) => {
                       const showError =
+                        !meta.active &&
                         (!meta.pristine || meta.submitFailed) &&
                         meta.touched &&
                         (meta.error ||
@@ -120,6 +121,7 @@ function LoginPage(props: LoginPageProps) {
                     name="password"
                     render={({ input, meta }) => {
                       const showError =
+                        !meta.active &&
                         (!meta.pristine || meta.submitFailed) &&
                         meta.touched &&
                         (meta.error ||

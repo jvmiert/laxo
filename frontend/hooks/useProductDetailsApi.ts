@@ -9,16 +9,26 @@ import { ResponseError, LaxoProductDetailsResponse } from "@/types/ApiResponse";
 type SubmitSuccessReturn = LaxoProductDetailsResponse | {};
 
 const ProductDetailsSchema = z.object({
-  name: z.string({ required_error: "name_required" }),
-  msku: z
-    .string()
-    .min(4, { message: "too_small_sku" })
-    .max(1024, { message: "too_big_sku" }),
+  name: z.preprocess(
+    (val) => String(val),
+    z
+      .string({ required_error: "name_required" })
+      .min(4, { message: "too_small_name" }),
+  ),
+  msku: z.preprocess(
+    (val) => String(val),
+    z
+      .string()
+      .min(4, { message: "too_small_sku" })
+      .max(1024, { message: "too_big_sku" }),
+  ),
   sellingPrice: z
     .number({ invalid_type_error: "sellingPrice_should_number" })
     .positive({ message: "sellingPrice_positive" }),
   costPrice: z.optional(
-    z.number({ invalid_type_error: "costPrice_should_number" }),
+    z
+      .number({ invalid_type_error: "costPrice_should_number" })
+      .positive({ message: "costPrice_positive" }),
   ),
   description: z.optional(z.array(z.any())),
 });
@@ -114,6 +124,12 @@ export default function useProductDetailsApi(
               description: "Product Details Form: name validation failure",
             });
             break;
+          case "too_small_name":
+            errorMessage = t.formatMessage({
+              defaultMessage: "Your name should be at least 4 characters",
+              description: "Product Details Form: name min validation failure",
+            });
+            break;
           case "too_small_sku":
             errorMessage = t.formatMessage({
               defaultMessage: "Your SKU should be at least 4 characters",
@@ -127,9 +143,10 @@ export default function useProductDetailsApi(
               description: "Product Details Form: sku max validation failure",
             });
             break;
+          case "costPrice_positive":
           case "sellingPrice_positive":
             errorMessage = t.formatMessage({
-              defaultMessage: "Selling price should be positive",
+              defaultMessage: "Price should be positive",
               description:
                 "Product Details Form: price positive validation failure",
             });

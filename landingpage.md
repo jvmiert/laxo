@@ -24,7 +24,7 @@ No longer let your resources decide how many sales channels you operate. Manage 
   Upload your product photos to Laxo, decide the order in which they appear, and we will update them for you.
 
 - Change your product descriptions
-  Create product descriptions that allow you to highlight important facts and benefits and we will make sure they look good on each platform.
+  Create descriptions that highlight important product facts and benefits and we will make sure they look good on each platform.
 
 - Adjust your product prices
   Easily update your prices and prevent customer confusion.

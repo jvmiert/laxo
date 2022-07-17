@@ -79,6 +79,7 @@ function RegisterPage(props: RegisterPageProps) {
                       const unchangedAfterSubmit =
                         meta.submitError && !meta.dirtySinceLastSubmit;
                       const showError =
+                        !meta.active &&
                         attemped &&
                         meta.touched &&
                         (meta.error || unchangedAfterSubmit) &&
@@ -122,6 +123,7 @@ function RegisterPage(props: RegisterPageProps) {
                     name="email"
                     render={({ input, meta }) => {
                       const showError =
+                        !meta.active &&
                         (!meta.pristine || meta.submitFailed) &&
                         meta.touched &&
                         (meta.error ||
@@ -164,6 +166,7 @@ function RegisterPage(props: RegisterPageProps) {
                     name="password"
                     render={({ input, meta }) => {
                       const showError =
+                        !meta.active &&
                         (!meta.pristine || meta.submitFailed) &&
                         meta.touched &&
                         (meta.error ||

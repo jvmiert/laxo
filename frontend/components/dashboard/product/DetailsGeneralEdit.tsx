@@ -111,6 +111,7 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
                 const unchangedAfterSubmit =
                   meta.submitError && !meta.dirtySinceLastSubmit;
                 const showError =
+                  !meta.active &&
                   attemped &&
                   meta.touched &&
                   (meta.error || unchangedAfterSubmit) &&
@@ -150,6 +151,7 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
                 const unchangedAfterSubmit =
                   meta.submitError && !meta.dirtySinceLastSubmit;
                 const showError =
+                  !meta.active &&
                   attemped &&
                   meta.touched &&
                   (meta.error || unchangedAfterSubmit) &&
@@ -180,41 +182,42 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
                 defaultMessage: "Selling Price",
               })}
             </label>
-            <div className="flex rounded shadow">
-              <Field<number, HTMLInputElement, string>
-                name="sellingPrice"
-                format={formatPrice}
-                parse={parsePrice}
-                render={({ input, meta }) => {
-                  const attemped = !meta.pristine || meta.submitFailed;
-                  const unchangedAfterSubmit =
-                    meta.submitError && !meta.dirtySinceLastSubmit;
-                  const showError =
-                    attemped &&
-                    meta.touched &&
-                    (meta.error || unchangedAfterSubmit) &&
-                    !meta.submitting;
+            <Field<number, HTMLInputElement, string>
+              name="sellingPrice"
+              format={formatPrice}
+              parse={parsePrice}
+              render={({ input, meta }) => {
+                const attemped = !meta.pristine || meta.submitFailed;
+                const unchangedAfterSubmit =
+                  meta.submitError && !meta.dirtySinceLastSubmit;
+                const showError =
+                  !meta.active &&
+                  attemped &&
+                  meta.touched &&
+                  (meta.error || unchangedAfterSubmit) &&
+                  !meta.submitting;
 
-                  return (
-                    <>
+                return (
+                  <>
+                    <div className="flex rounded shadow">
                       <input
                         {...input}
                         className="focus:shadow-outline z-10 block w-full w-full flex-1 appearance-none rounded-none rounded-l border py-2 px-3 leading-tight text-gray-700 focus:outline-none focus:ring focus:ring-indigo-200"
                         type="text"
                       />
-                      {showError && (
-                        <span className="text-xs italic text-red-500">
-                          {meta.error || meta.submitError}
-                        </span>
-                      )}
-                    </>
-                  );
-                }}
-              />
-              <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
-                ₫
-              </span>
-            </div>
+                      <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
+                        ₫
+                      </span>
+                    </div>
+                    {showError && (
+                      <span className="text-xs italic text-red-500">
+                        {meta.error || meta.submitError}
+                      </span>
+                    )}
+                  </>
+                );
+              }}
+            />
           </div>
           <div className="col-start-6 col-end-9">
             <label className="mb-1 block text-sm text-gray-700" htmlFor="name">
@@ -224,41 +227,42 @@ export default function DetailsGeneralEdit({ product }: GeneralEditProps) {
                 defaultMessage: "Cost Price",
               })}
             </label>
-            <div className="flex rounded shadow">
-              <Field<number, HTMLInputElement, string>
-                name="costPrice"
-                format={formatPrice}
-                parse={parsePrice}
-                render={({ input, meta }) => {
-                  const attemped = !meta.pristine || meta.submitFailed;
-                  const unchangedAfterSubmit =
-                    meta.submitError && !meta.dirtySinceLastSubmit;
-                  const showError =
-                    attemped &&
-                    meta.touched &&
-                    (meta.error || unchangedAfterSubmit) &&
-                    !meta.submitting;
+            <Field<number, HTMLInputElement, string>
+              name="costPrice"
+              format={formatPrice}
+              parse={parsePrice}
+              render={({ input, meta }) => {
+                const attemped = !meta.pristine || meta.submitFailed;
+                const unchangedAfterSubmit =
+                  meta.submitError && !meta.dirtySinceLastSubmit;
+                const showError =
+                  !meta.active &&
+                  attemped &&
+                  meta.touched &&
+                  (meta.error || unchangedAfterSubmit) &&
+                  !meta.submitting;
 
-                  return (
-                    <>
+                return (
+                  <>
+                    <div className="flex rounded shadow">
                       <input
                         {...input}
                         className="focus:shadow-outline z-10 block w-full w-full flex-1 appearance-none rounded-none rounded-l border py-2 px-3 leading-tight text-gray-700 focus:outline-none focus:ring focus:ring-indigo-200"
                         type="text"
                       />
-                      {showError && (
-                        <span className="text-xs italic text-red-500">
-                          {meta.error || meta.submitError}
-                        </span>
-                      )}
-                    </>
-                  );
-                }}
-              />
-              <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
-                ₫
-              </span>
-            </div>
+                      <span className="inline-flex items-center rounded-r border border-l-0 bg-gray-50 py-2 px-3 text-gray-500">
+                        ₫
+                      </span>
+                    </div>
+                    {showError && (
+                      <span className="text-xs italic text-red-500">
+                        {meta.error || meta.submitError}
+                      </span>
+                    )}
+                  </>
+                );
+              }}
+            />
           </div>
           <div className="col-span-8">
             <label
