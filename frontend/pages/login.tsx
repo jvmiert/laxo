@@ -169,28 +169,30 @@ function LoginPage(props: LoginPageProps) {
               </form>
             )}
           />
-          <div className="ml-4 pt-6">
-            <span>
-              {t.formatMessage(
-                {
-                  defaultMessage: "Don't have an account? {signUp}",
-                  description: "Sign in Page: Sign up bottom text",
-                },
-                {
-                  signUp: (
-                    <Link href={"/register"} passHref>
-                      <a className="cursor-pointer text-indigo-500">
-                        {t.formatMessage({
-                          defaultMessage: "Sign up",
-                          description: "Login Page: sign up button",
-                        })}
-                      </a>
-                    </Link>
-                  ),
-                },
-              )}
-            </span>
-          </div>
+          {process.env.ENABLE_SIGN_UP && (
+            <div className="ml-4 pt-6">
+              <span>
+                {t.formatMessage(
+                  {
+                    defaultMessage: "Don't have an account? {signUp}",
+                    description: "Sign in Page: Sign up bottom text",
+                  },
+                  {
+                    signUp: (
+                      <Link href={"/register"} passHref>
+                        <a className="cursor-pointer text-indigo-500">
+                          {t.formatMessage({
+                            defaultMessage: "Sign up",
+                            description: "Login Page: sign up button",
+                          })}
+                        </a>
+                      </Link>
+                    ),
+                  },
+                )}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </>
