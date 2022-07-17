@@ -116,7 +116,8 @@ export default function HomePage() {
                     </p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    dolor sit amet consect adipisicing elit.
+                    Upload your product photos to Laxo, decide the order in
+                    which they appear, and we will update them for you.
                   </dd>
                 </div>
 
@@ -130,7 +131,9 @@ export default function HomePage() {
                     </p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    dolor sit amet consect adipisicing elit.
+                    Create descriptions that highlight important product facts
+                    and benefits and we will make sure they look good on each
+                    platform.
                   </dd>
                 </div>
 
@@ -144,7 +147,7 @@ export default function HomePage() {
                     </p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    dolor sit amet consect adipisicing elit.
+                    Easily update your prices and prevent customer confusion.
                   </dd>
                 </div>
               </dl>
@@ -207,8 +210,13 @@ export default function HomePage() {
             </div>
 
             <div className="relative -mx-4 mt-10 lg:col-start-1 lg:mt-0">
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <div className="bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-2xl font-bold text-transparent">
+                  Coming soon...
+                </div>
+              </div>
               <svg
-                className="relative mx-auto"
+                className="relative mx-auto blur-2xl"
                 xmlns="http://www.w3.org/2000/svg"
                 width="490"
                 height="570"
@@ -278,9 +286,14 @@ export default function HomePage() {
             </ul>
           </div>
 
-          <div className="relative -mx-4 mt-10 lg:mt-0" aria-hidden="true">
+          <div className="relative -mx-4 mt-10 lg:mt-0">
+            <div className="absolute inset-0 z-10 flex items-center justify-center">
+              <div className="bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-2xl font-bold text-transparent">
+                Coming soon...
+              </div>
+            </div>
             <svg
-              className="relative mx-auto"
+              className="relative mx-auto blur-2xl"
               xmlns="http://www.w3.org/2000/svg"
               width="490"
               height="570"
