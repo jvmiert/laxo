@@ -11,17 +11,16 @@ import (
 
 // LoggerEntry is the structure passed to the template.
 type LoggerEntry struct {
-	StartTime string
-	Status    int
-	Duration  time.Duration
-	Hostname  string
-	Method    string
-	Path      string
-	Request   *http.Request
+	Status   int
+	Duration time.Duration
+	Hostname string
+	Method   string
+	Path     string
+	Request  *http.Request
 }
 
 // LoggerDefaultFormat is the format logged used by the default Logger instance.
-var LoggerDefaultFormat = "{{.StartTime}} | {{.Status}} | \t {{.Duration}} | {{.Hostname}} | {{.Method}} {{.Path}}"
+var LoggerDefaultFormat = "{{.Method}} {{.Path}} | {{.Status}} | {{.Duration}} | {{.Hostname}}"
 
 // LoggerDefaultDateFormat is the format used for date by the default Logger instance.
 var LoggerDefaultDateFormat = time.RFC3339
@@ -55,13 +54,12 @@ func (l *NegroniZapLogger) ServeHTTP(rw http.ResponseWriter, r *http.Request, ne
 
 	res := rw.(negroni.ResponseWriter)
 	log := LoggerEntry{
-		StartTime: start.Format(l.dateFormat),
-		Status:    res.Status(),
-		Duration:  time.Since(start),
-		Hostname:  r.Host,
-		Method:    r.Method,
-		Path:      r.URL.Path,
-		Request:   r,
+		Status:   res.Status(),
+		Duration: time.Since(start),
+		Hostname: r.Host,
+		Method:   r.Method,
+		Path:     r.URL.Path,
+		Request:  r,
 	}
 
 	buff := &bytes.Buffer{}

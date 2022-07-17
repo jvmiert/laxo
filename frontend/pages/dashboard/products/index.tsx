@@ -40,7 +40,7 @@ const LimitLink = forwardRef<HTMLAnchorElement, EnhancedLinkProps>(
   (props, ref) => {
     let { href, children, locale, ...rest } = props;
     return (
-      <Link href={href} locale={locale}>
+      <Link shallow={true} href={href} locale={locale}>
         <a ref={ref} {...rest}>
           {children}
         </a>

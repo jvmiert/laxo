@@ -1,11 +1,12 @@
 import type { ReactElement } from "react";
+import Link from "next/link";
 import { useIntl } from "react-intl";
 import Head from "next/head";
-import DefaultLayout from "@/components/DefaultLayout";
-import { useAuth } from "@/providers/AuthProvider";
 import { AnnotationIcon } from "@heroicons/react/outline";
 
 import Everywhere from "@/components/landingpage/Everywhere";
+import DefaultLayout from "@/components/DefaultLayout";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function HomePage() {
   const t = useIntl();
@@ -63,23 +64,13 @@ export default function HomePage() {
                 <div className="sm:flex sm:max-w-lg">
                   <p className="mt-3 text-xs text-gray-500">
                     By subscribing, you agree with our{" "}
-                    <a
-                      className="underline"
-                      target="_blank"
-                      rel="noreferrer"
-                      href="/terms"
-                    >
-                      Terms of Service
-                    </a>{" "}
+                    <Link href="/terms">
+                      <a className="underline">Terms of Service</a>
+                    </Link>{" "}
                     and{" "}
-                    <a
-                      target="_blank"
-                      className="underline"
-                      rel="noreferrer"
-                      href="/privacy"
-                    >
-                      Privacy Policy
-                    </a>
+                    <Link href="/privacy">
+                      <a className="underline">Privacy Policy</a>
+                    </Link>
                     .
                   </p>
                 </div>

@@ -123,6 +123,10 @@
     "description": "General product management: form description label",
     "message": "Description"
   },
+  "7491CN": {
+    "description": "Footer: Navigation header",
+    "message": "Navigation"
+  },
   "7K7rXT": {
     "description": "Product Details Form: price validation validation failure",
     "message": "Price should be a number"
@@ -174,6 +178,10 @@
   "B1947g": {
     "description": "Login Page: Email Field",
     "message": "Email"
+  },
+  "BK3RVz": {
+    "description": "Dashboard new product title",
+    "message": "New Product"
   },
   "BgnfcB": {
     "description": "Platform edit: keep product updated toggle button label",
@@ -247,6 +255,10 @@
     "description": "Products list page row: sku label",
     "message": "SKU"
   },
+  "J/vhoZ": {
+    "description": "General product management: form sku placeholder",
+    "message": "your-unique-product-sku-123"
+  },
   "J2v9g9": {
     "description": "Dashboard products title",
     "message": "Products"
@@ -302,6 +314,10 @@
   "Ol8ooo": {
     "description": "Products list page row: platform label",
     "message": "Platforms"
+  },
+  "Osiuiz": {
+    "description": "Breadcrumb indicator: add product",
+    "message": "Add New Product"
   },
   "OyCFb1": {
     "description": "notification message: saving",
@@ -395,6 +411,10 @@
     "description": "Email placeholder",
     "message": "my@email.com"
   },
+  "YFtOZq": {
+    "description": "Products Page: create product button",
+    "message": "Create Product"
+  },
   "ZJM0ON": {
     "description": "Change image order server error",
     "message": "Something went wrong while removing your image, try again later"
@@ -419,9 +439,17 @@
     "description": "Register Page: sign in button",
     "message": "Sign in here"
   },
+  "dN6gJ8": {
+    "description": "Footer: Terms of Service navigation title",
+    "message": "Terms of Service"
+  },
   "dQw+pE": {
     "description": "Asset management successful upload",
     "message": "Successfully added your new image"
+  },
+  "dwl6AO": {
+    "description": "General product management: form name placeholder",
+    "message": "Your product name"
   },
   "ebTzFs": {
     "description": "Platform edit: platform item sku label",
@@ -442,6 +470,10 @@
   "hnuotJ": {
     "description": "General product management successful save",
     "message": "Successfully updated your product"
+  },
+  "iG+nKD": {
+    "description": "General product management: form price placeholder",
+    "message": "235.000"
   },
   "jLbyxW": {
     "description": "General product management: form sku label",
@@ -514,6 +546,10 @@
   "o/rvhH": {
     "description": "Setup shop: Form header",
     "message": "Enter your shop name"
+  },
+  "oIrHaF": {
+    "description": "General product management: form cost price placeholder",
+    "message": "135.000"
   },
   "oJ8qD7": {
     "description": "Dashboard shop settings: Shop name description",
@@ -598,6 +634,10 @@
   "w7wEne": {
     "description": "General product management: form cost price label",
     "message": "Cost Price"
+  },
+  "xKfrsP": {
+    "description": "Footer: Privacy Policy navigation title",
+    "message": "Privacy Policy"
   },
   "xO8//p": {
     "description": "Login Form: password contain letter validation failure",
