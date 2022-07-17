@@ -66,16 +66,18 @@ export default function Navigation() {
                   href="/login"
                   navText="Log In"
                 />
-                <li>
-                  <Link href="/register">
-                    <a className="w-full rounded-md bg-indigo-500 py-2 px-4 font-bold text-white shadow-md shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200">
-                      {t.formatMessage({
-                        defaultMessage: "Sign Up",
-                        description: "Main navigation: sign up button",
-                      })}
-                    </a>
-                  </Link>
-                </li>
+                {process.env.ENABLE_SIGN_UP && (
+                  <li>
+                    <Link href="/register">
+                      <a className="w-full rounded-md bg-indigo-500 py-2 px-4 font-bold text-white shadow-md shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200">
+                        {t.formatMessage({
+                          defaultMessage: "Sign Up",
+                          description: "Main navigation: sign up button",
+                        })}
+                      </a>
+                    </Link>
+                  </li>
+                )}
               </>
             )}
             {auth && (

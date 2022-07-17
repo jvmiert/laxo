@@ -33,7 +33,7 @@ import fbDots from "@/assets/fbDots.png";
 import fbShare from "@/assets/fbShare.png";
 import fbMark from "@/assets/fbMark.png";
 
-function Facebook({ name }) {
+function Facebook({ name }: { name: string }) {
   return (
     <>
       <div className="flex w-full items-center justify-between border-b border-slate-100 py-2 px-3">
@@ -105,7 +105,7 @@ function Facebook({ name }) {
   );
 }
 
-function Tiktok({ name }) {
+function Tiktok({ name }: { name: string }) {
   return (
     <>
       <div className="relative w-full">
@@ -205,7 +205,7 @@ function Tiktok({ name }) {
   );
 }
 
-function Lazada({ name }) {
+function Lazada({ name }: { name: string }) {
   return (
     <>
       <div className="flex items-center justify-between px-3 py-2">

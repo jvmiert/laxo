@@ -21,8 +21,6 @@
 - Use valid status in Axios to stop throwing certain validation errors that return != 200 http status code
   - https://axios-http.com/docs/handling_errors
 - Create email collecting backend
-  - Create login frontend so production doesn't allow users to sign up yet
-    - https://github.com/vercel/next.js/blob/canary/examples/with-env-from-next-config-js/next.config.js
 
 # Long-term to-do
 
