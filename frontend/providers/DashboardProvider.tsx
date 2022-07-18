@@ -18,11 +18,13 @@ import useNotificationApi from "@/hooks/useNotificationApi";
 import type {
   NotificationResponseObject,
   GetShopResponseShops,
+  LaxoProductAsset,
 } from "@/types/ApiResponse";
 import { NotificationUpdateReply } from "@/proto/user_pb";
 import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/router";
 import { Editor } from "slate";
+import { Asset } from "@/hooks/useProductApi";
 
 export interface DashboardConsumerProps {
   notificationOpen: boolean;
@@ -44,6 +46,9 @@ export interface DashboardConsumerProps {
   toggleProductDetailSubmitIsDisabled: () => void;
   productDetailFormIsSubmitting: boolean;
   toggleProductDetailFormIsSubmitting: () => void;
+  productAssetListRef: MutableRefObject<
+    Array<LaxoProductAsset | Asset> | undefined
+  >;
 }
 
 export type Alert = {
@@ -200,12 +205,17 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     setProductDetailSubmitIsDisabled((prevState) => !prevState);
   }, []);
 
-  const slateEditorRef = useRef<Editor>();
+  const productAssetListRef = useRef<
+    Array<LaxoProductAsset | Asset> | undefined
+  >(undefined);
+
   const slateResetRef = useRef<() => void>(() => {});
   const [slateIsDirty, setSlateIsDirty] = useState(false);
   const toggleSlateDirtyState = useCallback(() => {
     setSlateIsDirty((prevState) => !prevState);
   }, []);
+
+  const slateEditorRef = useRef<Editor>();
 
   const [state, dispatch] = useImmerReducer(reducer, InitialDashboardState);
 
@@ -227,7 +237,11 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     if (notifications.notifications.length > 0) {
       dispatch({
         type: "reset",
-        state: { notifications: notifications.notifications, alerts: [], insertImageIsOpen: false },
+        state: {
+          notifications: notifications.notifications,
+          alerts: [],
+          insertImageIsOpen: false,
+        },
       });
     }
   }, [notifications, dispatch]);
@@ -295,6 +309,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       slateEditorRef: slateEditorRef,
       productDetailFormIsSubmitting: productDetailFormIsSubmitting,
       toggleProductDetailFormIsSubmitting: toggleProductDetailFormIsSubmitting,
+      productAssetListRef,
     }),
     [
       notificationOpen,
@@ -313,6 +328,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       toggleProductDetailSubmitIsDisabled,
       productDetailFormIsSubmitting,
       toggleProductDetailFormIsSubmitting,
+      productAssetListRef,
     ],
   );
 

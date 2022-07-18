@@ -9,19 +9,13 @@ import { ResponseError, LaxoProductDetailsResponse } from "@/types/ApiResponse";
 type SubmitSuccessReturn = LaxoProductDetailsResponse | {};
 
 const ProductDetailsSchema = z.object({
-  name: z.preprocess(
-    (val) => String(val),
-    z
-      .string({ required_error: "name_required" })
-      .min(4, { message: "too_small_name" }),
-  ),
-  msku: z.preprocess(
-    (val) => String(val),
-    z
-      .string()
-      .min(4, { message: "too_small_sku" })
-      .max(1024, { message: "too_big_sku" }),
-  ),
+  name: z
+    .string({ required_error: "name_required" })
+    .min(4, { message: "too_small_name" }),
+  msku: z
+    .string({ required_error: "sku_required" })
+    .min(4, { message: "too_small_sku" })
+    .max(1024, { message: "too_big_sku" }),
   sellingPrice: z
     .number({ invalid_type_error: "sellingPrice_should_number" })
     .positive({ message: "sellingPrice_positive" }),
@@ -31,6 +25,7 @@ const ProductDetailsSchema = z.object({
       .positive({ message: "costPrice_positive" }),
   ),
   description: z.optional(z.array(z.any())),
+  assets: z.optional(z.array(z.any())),
 });
 
 export type ProductDetailsSchemaValues = z.infer<typeof ProductDetailsSchema>;
@@ -51,6 +46,9 @@ export default function useProductDetailsApi(
   submit: (
     values: ProductDetailsSchemaValues,
   ) => Promise<[SubmissionErrors, SubmitSuccessReturn] | undefined>,
+  submitCreate: (
+    values: ProductDetailsSchemaValues,
+  ) => Promise<[SubmissionErrors, SubmitSuccessReturn] | undefined>,
 ] {
   const t = useIntl();
   const { axiosClient } = useAxios();
@@ -61,6 +59,13 @@ export default function useProductDetailsApi(
         "Having trouble saving your product, please try again later",
       description: "Product Details Form: general failure",
     }),
+  };
+
+  const submitCreate = async (
+    values: ProductDetailsSchemaValues,
+  ): Promise<[SubmissionErrors, SubmitSuccessReturn] | undefined> => {
+    console.log(values);
+    return undefined;
   };
 
   const submitForm = async (
@@ -118,6 +123,12 @@ export default function useProductDetailsApi(
       validationResult.error.issues.forEach((validation) => {
         let errorMessage: string;
         switch (validation.message) {
+          case "sku_required":
+            errorMessage = t.formatMessage({
+              defaultMessage: "Please enter a SKU",
+              description: "Product Details Form: SKU validation failure",
+            });
+            break;
           case "name_required":
             errorMessage = t.formatMessage({
               defaultMessage: "Please enter a product name",
@@ -171,5 +182,5 @@ export default function useProductDetailsApi(
     return errors;
   };
 
-  return [validate, submitForm];
+  return [validate, submitForm, submitCreate];
 }

@@ -105,6 +105,14 @@ export default function DragAndDropContainer({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [items, setItems] = useState<Array<LaxoProductAsset | Asset>>(assets);
 
+  const { productAssetListRef, dashboardDispatch } = useDashboard();
+
+  // This makes our assets available to DashboardProvider which is
+  // used by the product creation form.
+  useEffect(() => {
+    productAssetListRef.current = items;
+  }, [productAssetListRef, items]);
+
   useEffect(() => {
     if (productID) {
       setItems(assets);
@@ -138,8 +146,6 @@ export default function DragAndDropContainer({
 
     setItems(newItems);
   }, [productID, assets, items]);
-
-  const { dashboardDispatch } = useDashboard();
 
   const activeIndex = activeId
     ? items

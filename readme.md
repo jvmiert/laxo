@@ -1,5 +1,6 @@
 # Tech to-do
 
+- When to show validation errors now is not working properly, spend some time to figure out what to do
 - Handle product sync to Lazada after saving product
   - Create temporal workflow/activities for syncing the Lazada product
   - Enable support for updating product images (and image order)
