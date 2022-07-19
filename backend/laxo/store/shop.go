@@ -23,6 +23,20 @@ func newShopStore(store *Store) shopStore {
 	}
 }
 
+func (s *shopStore) GetProductByProductMSKU(Msku string, shopID string) (*sqlc.Product, error) {
+	params := sqlc.GetProductByProductMSKUParams{
+		Msku:   null.StringFrom(Msku),
+		ShopID: shopID,
+	}
+
+	pModel, err := s.queries.GetProductByProductMSKU(
+		context.Background(),
+		params,
+	)
+
+	return &pModel, err
+}
+
 func (s *shopStore) UpdateProductImageOrderRequest(productID string, request *models.ProductImageOrderRequest) error {
 	var b strings.Builder
 	paramCount := 1
@@ -255,47 +269,54 @@ func (s *shopStore) GetProductByID(productID string) (*sqlc.Product, error) {
 	return &p, nil
 }
 
+//@TODO: The early returns here are pretty ugly. Should refactor into different functions.
 func (s *shopStore) SaveNewProductToStore(p *models.Product, shopID string) (*sqlc.Product, error) {
 	var pModel sqlc.Product
 	var err error
 
+	// No Laxo product ID is present
 	if p.Model.ID != "" {
+		// Retrieve Laxo product information from DB
 		pModel, err = s.queries.GetProductByID(
 			context.Background(),
 			p.Model.ID,
 		)
-
 		if err != pgx.ErrNoRows && err != nil {
 			return nil, fmt.Errorf("GetProductByID: %w", err)
 		}
 	}
 
+	// No Laxo product information was found, model has a merchant SKU
 	if pModel.ID != "" && p.Model.Msku.Valid {
 		params := sqlc.GetProductByProductMSKUParams{
 			Msku:   p.Model.Msku,
 			ShopID: shopID,
 		}
+		// Attempt to retrieve product information from DB with merchant SKU
 		pModel, err = s.queries.GetProductByProductMSKU(
 			context.Background(),
 			params,
 		)
-
 		if err != pgx.ErrNoRows && err != nil {
 			return nil, fmt.Errorf("GetProductByProductMSKU: %w", err)
 		}
 	}
 
+	// No Laxo product information was found after MSKU search
 	if pModel.ID == "" {
 		params := sqlc.CreateProductParams{
-			Name:         p.Model.Name,
-			Description:  p.Model.Description,
-			Msku:         p.Model.Msku,
-			SellingPrice: p.Model.SellingPrice,
-			CostPrice:    p.Model.CostPrice,
-			ShopID:       p.Model.ShopID,
-			MediaID:      p.Model.MediaID,
-			Updated:      null.TimeFrom(time.Now()),
+			Name:             p.Model.Name,
+			Description:      p.Model.Description,
+			Msku:             p.Model.Msku,
+			SellingPrice:     p.Model.SellingPrice,
+			CostPrice:        p.Model.CostPrice,
+			ShopID:           p.Model.ShopID,
+			MediaID:          p.Model.MediaID,
+			Updated:          null.TimeFrom(time.Now()),
+			DescriptionSlate: p.Model.DescriptionSlate,
 		}
+
+		// We create a new Laxo product
 		pModel, err = s.queries.CreateProduct(
 			context.Background(),
 			params,
@@ -304,9 +325,13 @@ func (s *shopStore) SaveNewProductToStore(p *models.Product, shopID string) (*sq
 			return nil, fmt.Errorf("CreateProduct: %w", err)
 		}
 
+		// Return new Laxo product
 		return &pModel, nil
 	}
 
+	// We either found a valid Laxo product with ID or MSKU
+	// above or we already returned after making a new product.
+	// Now we're handeling updating an existing product.
 	params := sqlc.UpdateProductParams{
 		Name:         p.Model.Name,
 		Description:  p.Model.Description,
@@ -318,6 +343,7 @@ func (s *shopStore) SaveNewProductToStore(p *models.Product, shopID string) (*sq
 		ID:           pModel.ID,
 	}
 
+	// Update the existing Laxo product
 	newModel, err := s.queries.UpdateProduct(
 		context.Background(),
 		params,

@@ -96,10 +96,15 @@ export default function Editor({
   // and handle that
   const slateValue = useMemo(() => {
     let parsedSchema;
-    try {
-      parsedSchema = JSON.parse(initialSchema);
-    } catch (e) {
-      console.log("json error", e);
+
+    if (initialSchema != "") {
+      try {
+        parsedSchema = JSON.parse(initialSchema);
+      } catch (e) {
+        console.log("json error", e);
+        parsedSchema = initialValue;
+      }
+    } else {
       parsedSchema = initialValue;
     }
     // Slate throws an error if the value on the initial render is invalid

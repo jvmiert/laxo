@@ -98,10 +98,10 @@ ORDER BY products_media.image_order, products_media.product_id, assets.id;
 -- name: CreateProduct :one
 INSERT INTO products (
   name, description, msku, selling_price, cost_price, shop_id,
-  media_id, updated
+  media_id, updated, description_slate
 ) VALUES (
   $1, $2, $3, $4, $5, $6, $7,
-  $8
+  $8, $9
 )
 RETURNING *;
 

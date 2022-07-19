@@ -49,12 +49,19 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
       ? productAssetListRef.current
       : [];
 
-    const result = submitCreate({
+    const result = await submitCreate({
       ...values,
       assets,
     });
 
-    return {};
+    //@TODO: Handle this
+    if (!result) return {};
+
+    const [errors, newProduct] = result;
+
+    if (!errors) return {};
+
+    return errors;
   };
 
   return (
@@ -94,14 +101,10 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                     autoFocus
                     name="name"
                     render={({ input, meta }) => {
-                      const attemped = !meta.pristine || meta.submitFailed;
                       const showError =
-                        !meta.dirtySinceLastSubmit &&
-                        (!meta.active || meta.submitFailed) &&
-                        attemped &&
-                        meta.touched &&
-                        (meta.error || meta.submitError) &&
-                        !meta.submitting;
+                        (meta.error ||
+                          (meta.submitError && !meta.dirtySinceLastSubmit)) &&
+                        meta.touched;
 
                       return (
                         <>
@@ -143,15 +146,10 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                   <Field<string>
                     name="msku"
                     render={({ input, meta }) => {
-                      const attemped = !meta.pristine || meta.submitFailed;
                       const showError =
-                        (!meta.active ||
-                          meta.submitFailed ||
-                          !meta.dirtySinceLastSubmit) &&
-                        attemped &&
-                        meta.touched &&
-                        (meta.error || meta.submitError) &&
-                        !meta.submitting;
+                        (meta.error ||
+                          (meta.submitError && !meta.dirtySinceLastSubmit)) &&
+                        meta.touched;
 
                       return (
                         <>

@@ -339,6 +339,10 @@
     "description": "Login Form: login failure unknown failure",
     "message": "Something went wrong, please try again later"
   },
+  "QkqHB+": {
+    "description": "Product Details Form: SKU validation failure",
+    "message": "Please enter a SKU"
+  },
   "QmN1k+": {
     "description": "Setup shop: Form description",
     "message": "Enter the name you want your shop to be known as within our platform."
@@ -430,6 +434,14 @@
   "ZcA0FH": {
     "description": "Login Form: general failure",
     "message": "Login Failed"
+  },
+  "ZkRqB0": {
+    "description": "New Product Form: msku already exists",
+    "message": "You have already used this SKU, enter a diferent one"
+  },
+  "ZoxhX9": {
+    "description": "New Product Form: general error",
+    "message": "Something went wrong with this field, please try again later"
   },
   "aq43/B": {
     "description": "Sign in Page: Sign up bottom text",
@@ -654,6 +666,10 @@
   "xhICQ1": {
     "description": "Breadcrumb indicator: platforms",
     "message": "Platforms"
+  },
+  "xnZTnG": {
+    "description": "Create Product Page: Create Button",
+    "message": "Create"
   },
   "xoxHgI": {
     "description": "Platform management successful changed sync",

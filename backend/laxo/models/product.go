@@ -9,6 +9,11 @@ import (
 	"laxo.vn/laxo/laxo/sqlc"
 )
 
+type NewProductRequest struct {
+	ProductDetailPostRequest
+	Assets []ProductAssets `json:"assets"`
+}
+
 type ProductImageOrder struct {
 	AssetID string `json:"assetID"`
 	Order   int64  `json:"order"`

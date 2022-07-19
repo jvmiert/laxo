@@ -32,23 +32,24 @@ func (q *Queries) CheckProductOwner(ctx context.Context, arg CheckProductOwnerPa
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
   name, description, msku, selling_price, cost_price, shop_id,
-  media_id, updated
+  media_id, updated, description_slate
 ) VALUES (
   $1, $2, $3, $4, $5, $6, $7,
-  $8
+  $8, $9
 )
 RETURNING id, name, description, description_slate, msku, selling_price, cost_price, shop_id, media_id, created, updated
 `
 
 type CreateProductParams struct {
-	Name         null.String    `json:"name"`
-	Description  null.String    `json:"description"`
-	Msku         null.String    `json:"msku"`
-	SellingPrice pgtype.Numeric `json:"sellingPrice"`
-	CostPrice    pgtype.Numeric `json:"costPrice"`
-	ShopID       string         `json:"shopID"`
-	MediaID      null.String    `json:"mediaID"`
-	Updated      null.Time      `json:"updated"`
+	Name             null.String    `json:"name"`
+	Description      null.String    `json:"description"`
+	Msku             null.String    `json:"msku"`
+	SellingPrice     pgtype.Numeric `json:"sellingPrice"`
+	CostPrice        pgtype.Numeric `json:"costPrice"`
+	ShopID           string         `json:"shopID"`
+	MediaID          null.String    `json:"mediaID"`
+	Updated          null.Time      `json:"updated"`
+	DescriptionSlate null.String    `json:"descriptionSlate"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
@@ -61,6 +62,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.ShopID,
 		arg.MediaID,
 		arg.Updated,
+		arg.DescriptionSlate,
 	)
 	var i Product
 	err := row.Scan(

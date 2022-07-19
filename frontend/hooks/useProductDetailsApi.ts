@@ -25,7 +25,7 @@ const ProductDetailsSchema = z.object({
       .positive({ message: "costPrice_positive" }),
   ),
   description: z.optional(z.array(z.any())),
-  assets: z.optional(z.array(z.any())),
+  assets: z.optional(z.array(z.object({ id: z.string() }))),
 });
 
 export type ProductDetailsSchemaValues = z.infer<typeof ProductDetailsSchema>;
@@ -64,8 +64,53 @@ export default function useProductDetailsApi(
   const submitCreate = async (
     values: ProductDetailsSchemaValues,
   ): Promise<[SubmissionErrors, SubmitSuccessReturn] | undefined> => {
-    console.log(values);
-    return undefined;
+    try {
+      const result = await axiosClient.post<LaxoProductDetailsResponse>(
+        "/product",
+        { ...values },
+      );
+      const returnObject = result.data;
+      return [{}, returnObject];
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        const errorObject = error.response.data as ResponseError;
+        if (Object.keys(errorObject.errorDetails).length == 0) {
+          return [generalError, {}];
+        }
+
+        const errors: ProductDetailsSubmissionErrors = {};
+        Object.keys(errorObject.errorDetails).forEach((key) => {
+          if (key === "generalError") {
+            errors[FORM_ERROR] = t.formatMessage({
+              defaultMessage:
+                "Having trouble saving your product, please try again later",
+              description: "Product Details Form: general failure",
+            });
+          }
+
+          switch (errorObject.errorDetails[key].error) {
+            case "already_exists":
+              errors[key as keyof ProductDetailsSubmissionErrors] =
+                t.formatMessage({
+                  defaultMessage:
+                    "You have already used this SKU, enter a diferent one",
+                  description: "New Product Form: msku already exists",
+                });
+              break;
+            default:
+              errors[key as keyof ProductDetailsSubmissionErrors] =
+                t.formatMessage({
+                  defaultMessage:
+                    "Something went wrong with this field, please try again later",
+                  description: "New Product Form: general error",
+                });
+              break;
+          }
+        });
+
+        return [errors, {}];
+      }
+    }
   };
 
   const submitForm = async (

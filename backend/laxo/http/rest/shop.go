@@ -52,6 +52,11 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.GetProduct)),
 	)).Methods("GET")
 
+	r.Handle("/product", n.With(
+		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
+		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.CreateProduct)),
+	)).Methods("POST")
+
 	r.Handle("/change-platform-sync/{productID:[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}}", n.With(
 		negroni.HandlerFunc(h.server.Middleware.AssureJSON),
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleChangePlatformSync)),
@@ -87,6 +92,47 @@ func InitShopHandler(server *laxo.Server, shop *shop.Service, l *lazada.Service,
 	r.Handle("/platforms/lazada", n.With(
 		negroni.WrapFunc(h.server.Middleware.AssureAuth(h.HandleLazadaPlatformInfo)),
 	)).Methods("GET")
+}
+
+func (h *shopHandler) CreateProduct(w http.ResponseWriter, r *http.Request, uID string) {
+	var p models.NewProductRequest
+
+	if err := laxo.DecodeJSONBody(h.server.Logger, w, r, &p); err != nil {
+		var mr *laxo.MalformedRequest
+		if errors.As(err, &mr) {
+			http.Error(w, mr.Msg, mr.Status)
+		} else {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	s, err := h.service.shop.GetActiveShopByUserID(uID)
+	if err != nil {
+		h.server.Logger.Errorw("GetActiveShopByUserID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = h.service.shop.ValidateNewProductRequest(&p, s.Model.ID)
+	if err != nil {
+		laxo.OzzoErrorJSONEncode(w, err, http.StatusUnprocessableEntity, h.server.Logger)
+		return
+	}
+
+	err = h.service.shop.CreateNewProduct(&p, s.Model.ID)
+	if err != nil {
+		h.server.Logger.Errorw("CreateNewProduct returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write([]byte("{\"boop\":true}"))
 }
 
 func (h *shopHandler) HandleChangeImageOrder(w http.ResponseWriter, r *http.Request, uID string) {

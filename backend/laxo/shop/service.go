@@ -28,7 +28,7 @@ var ErrProductNotOwned = errors.New("shop does not own this product")
 var ErrProductNotFound = errors.New("no product found")
 
 type Store interface {
-	SaveNewProductToStore(*models.Product, string) (*sqlc.Product, error)
+	SaveNewProductToStore(p *models.Product, shopID string) (*sqlc.Product, error)
 	GetProductPlatformByProductID(string) (*sqlc.ProductsPlatform, error)
 	GetProductPlatformByLazadaID(string) (*sqlc.ProductsPlatform, error)
 	CreateProductPlatform(*sqlc.CreateProductPlatformParams) (*sqlc.ProductsPlatform, error)
@@ -52,6 +52,8 @@ type Store interface {
 	CheckProductOwner(productID string, shopID string) (string, error)
 	UpdateLazadaProductPlatformSync(productID string, state bool) error
 	UpdateProductImageOrderRequest(productID string, request *models.ProductImageOrderRequest) error
+	GetProductByProductMSKU(Msku string, shopID string) (*sqlc.Product, error)
+	CreateProductMedia(assetID string, productID string, status string, order int64) (*sqlc.ProductsMedia, error)
 }
 
 type Service struct {
@@ -66,6 +68,88 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
 		logger: logger,
 		server: server,
 	}
+}
+
+func (s *Service) CreateNewProduct(p *models.NewProductRequest, shopID string) error {
+	sellingNumeric := pgtype.Numeric{}
+	sellingNumeric.Set(p.SellingPrice)
+
+	costNumeric := pgtype.Numeric{}
+	costNumeric.Set(p.CostPrice)
+
+	parsedDescription := s.ParseSlateEmptyChildren(p.Description)
+	bytes, err := json.Marshal(parsedDescription)
+	if err != nil {
+		return err
+	}
+
+	pModel := models.Product{
+		Model: &sqlc.Product{
+			Name: p.Name,
+			Msku: null.StringFrom(p.Msku),
+
+			// @TODO: add the non-rich description
+			//Description:
+
+			DescriptionSlate: null.StringFrom(string(bytes)),
+			SellingPrice:     sellingNumeric,
+			CostPrice:        costNumeric,
+			ShopID:           shopID,
+		},
+	}
+
+	rModel, err := s.store.SaveNewProductToStore(&pModel, shopID)
+	if err != nil {
+		return fmt.Errorf("SaveNewProductToStore: %w", err)
+	}
+
+	for i, a := range p.Assets {
+		_, err := s.store.CreateProductMedia(a.ID, rModel.ID, "active", int64(i))
+		if err != nil {
+			s.server.Logger.Errorw("CreateProductMedia", "error", err)
+			continue
+		}
+	}
+
+	return nil
+}
+
+// Validates a new product from the product creation frontend form
+func (s *Service) ValidateNewProductRequest(p *models.NewProductRequest, shopID string) error {
+	err := validation.ValidateStruct(p,
+		validation.Field(&p.Name, validation.Required, validation.Length(4, 0)),
+		validation.Field(&p.Msku, validation.Required, validation.Length(4, 1024)),
+		validation.Field(&p.SellingPrice, validation.Required, validation.Min(1)),
+		validation.Field(&p.CostPrice, validation.Min(1)),
+	)
+	if err != nil {
+		return err
+	}
+
+	// checking if merchant SKU already exists
+	_, err = s.store.GetProductByProductMSKU(p.Msku, shopID)
+
+	// Msku doesn't exist which is what we want
+	if err == pgx.ErrNoRows {
+		return nil
+	}
+
+	// We found a product with the merchant SKU, fail validation
+	if err == nil {
+		err = validation.Errors{
+			"msku": validation.NewError(
+				"already_exists",
+				"already_exists"),
+		}
+		return err
+	}
+
+	// A non-related error occured
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 func (s *Service) UpdateProductImageOrderRequest(productID string, request *models.ProductImageOrderRequest) error {
@@ -153,7 +237,7 @@ func (s *Service) UpdateProductFromRequest(r *models.ProductDetailPostRequest, p
 
 func (s *Service) ValidateProductDetails(p *models.ProductDetailPostRequest, printer *message.Printer) error {
 	err := validation.ValidateStruct(p,
-		validation.Field(&p.Name, validation.Required),
+		validation.Field(&p.Name, validation.Required, validation.Length(4, 0)),
 		validation.Field(&p.Msku, validation.Required, validation.Length(4, 1024)),
 		validation.Field(&p.SellingPrice, validation.Required, validation.Min(1)),
 		validation.Field(&p.CostPrice, validation.Min(1)),

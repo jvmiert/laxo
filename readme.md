@@ -1,6 +1,16 @@
 # Tech to-do
 
 - When to show validation errors now is not working properly, spend some time to figure out what to do
+
+  - This is probably best:
+
+  ```
+    const showError =
+      (meta.error ||
+        (meta.submitError && !meta.dirtySinceLastSubmit)) &&
+      meta.touched && !meta.submitting;
+  ```
+
 - Handle product sync to Lazada after saving product
   - Create temporal workflow/activities for syncing the Lazada product
   - Enable support for updating product images (and image order)
@@ -14,7 +24,8 @@
     - Make a clear distiction between saving the Laxo product and syncing the platform product
   - Add manual sync button for products
 - Create new product form
-  - Add backend for creating product
+  - Return productID and redirect to product details
+- Don't show Lazada in platform if there is no Lazada platform connected
 - Fix ordering issue when adding new image to product
   - We are not populating the order field when linking a new image to a product
 - Implement tooltips https://github.com/floating-ui/floating-ui
