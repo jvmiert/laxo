@@ -6,7 +6,7 @@ import { SubmissionErrors, ValidationErrors, FORM_ERROR } from "final-form";
 import { useAxios } from "@/providers/AxiosProvider";
 import { ResponseError, LaxoProductDetailsResponse } from "@/types/ApiResponse";
 
-type SubmitSuccessReturn = LaxoProductDetailsResponse | {};
+type SubmitSuccessReturn = LaxoProductDetailsResponse | undefined;
 
 const ProductDetailsSchema = z.object({
   name: z
@@ -75,7 +75,7 @@ export default function useProductDetailsApi(
       if (axios.isAxiosError(error) && error.response) {
         const errorObject = error.response.data as ResponseError;
         if (Object.keys(errorObject.errorDetails).length == 0) {
-          return [generalError, {}];
+          return [generalError, undefined];
         }
 
         const errors: ProductDetailsSubmissionErrors = {};
@@ -108,7 +108,7 @@ export default function useProductDetailsApi(
           }
         });
 
-        return [errors, {}];
+        return [errors, undefined];
       }
     }
   };
@@ -128,7 +128,7 @@ export default function useProductDetailsApi(
       if (axios.isAxiosError(error) && error.response) {
         const errorObject = error.response.data as ResponseError;
         if (Object.keys(errorObject.errorDetails).length == 0) {
-          return [generalError, {}];
+          return [generalError, undefined];
         }
 
         const errors: ProductDetailsSubmissionErrors = {};
@@ -152,10 +152,10 @@ export default function useProductDetailsApi(
             errors[FORM_ERROR] = errorObject.errorDetails[key].error;
           }
         });
-        return [errors, {}];
+        return [errors, undefined];
       }
 
-      return [generalError, {}];
+      return [generalError, undefined];
     }
   };
 

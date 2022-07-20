@@ -70,7 +70,7 @@ func NewService(store Store, logger *laxo.Logger, server *laxo.Server) Service {
 	}
 }
 
-func (s *Service) CreateNewProduct(p *models.NewProductRequest, shopID string) error {
+func (s *Service) CreateNewProduct(p *models.NewProductRequest, shopID string) (*sqlc.Product, error) {
 	sellingNumeric := pgtype.Numeric{}
 	sellingNumeric.Set(p.SellingPrice)
 
@@ -78,10 +78,20 @@ func (s *Service) CreateNewProduct(p *models.NewProductRequest, shopID string) e
 	costNumeric.Set(p.CostPrice)
 
 	parsedDescription := s.ParseSlateEmptyChildren(p.Description)
-	bytes, err := json.Marshal(parsedDescription)
-	if err != nil {
-		return err
+
+	// @TODO: Should filter out empty text properly
+
+	var stringDescription string
+
+	if len(parsedDescription) != 0 {
+		bytes, err := json.Marshal(parsedDescription)
+		if err != nil {
+			return nil, err
+		}
+		stringDescription = string(bytes)
 	}
+
+	s.logger.Debugw("parsedDescription", "len", len(parsedDescription), "value", parsedDescription)
 
 	pModel := models.Product{
 		Model: &sqlc.Product{
@@ -91,7 +101,7 @@ func (s *Service) CreateNewProduct(p *models.NewProductRequest, shopID string) e
 			// @TODO: add the non-rich description
 			//Description:
 
-			DescriptionSlate: null.StringFrom(string(bytes)),
+			DescriptionSlate: null.StringFrom(stringDescription),
 			SellingPrice:     sellingNumeric,
 			CostPrice:        costNumeric,
 			ShopID:           shopID,
@@ -100,7 +110,7 @@ func (s *Service) CreateNewProduct(p *models.NewProductRequest, shopID string) e
 
 	rModel, err := s.store.SaveNewProductToStore(&pModel, shopID)
 	if err != nil {
-		return fmt.Errorf("SaveNewProductToStore: %w", err)
+		return nil, fmt.Errorf("SaveNewProductToStore: %w", err)
 	}
 
 	for i, a := range p.Assets {
@@ -111,7 +121,7 @@ func (s *Service) CreateNewProduct(p *models.NewProductRequest, shopID string) e
 		}
 	}
 
-	return nil
+	return rModel, nil
 }
 
 // Validates a new product from the product creation frontend form

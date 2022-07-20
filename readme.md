@@ -23,8 +23,6 @@
   - Add support for notification when we update a product
     - Make a clear distiction between saving the Laxo product and syncing the platform product
   - Add manual sync button for products
-- Create new product form
-  - Return productID and redirect to product details
 - Don't show Lazada in platform if there is no Lazada platform connected
 - Fix ordering issue when adding new image to product
   - We are not populating the order field when linking a new image to a product

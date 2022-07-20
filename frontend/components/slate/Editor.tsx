@@ -54,7 +54,7 @@ export type EditorProps = {
 };
 
 export default function Editor({
-  initialSchema = "",
+  initialSchema,
   trackDirty = true,
 }: EditorProps) {
   const t = useIntl();
@@ -97,16 +97,16 @@ export default function Editor({
   const slateValue = useMemo(() => {
     let parsedSchema;
 
-    if (initialSchema != "") {
-      try {
-        parsedSchema = JSON.parse(initialSchema);
-      } catch (e) {
-        console.log("json error", e);
-        parsedSchema = initialValue;
-      }
-    } else {
-      parsedSchema = initialValue;
+    if (!initialSchema) return initialValue;
+    if (initialSchema === "null") return initialValue;
+
+    try {
+      parsedSchema = JSON.parse(initialSchema);
+    } catch (e) {
+      console.log("json error", e);
+      return initialValue;
     }
+
     // Slate throws an error if the value on the initial render is invalid
     // so we directly set the value on the editor in order
     // to be able to trigger normalization on the initial value before rendering
@@ -135,10 +135,8 @@ export default function Editor({
   }, [resetEditor, slateResetRef, trackDirty]);
 
   useEffect(() => {
-    if (trackDirty) {
-      slateEditorRef.current = editor;
-    }
-  }, [editor, slateEditorRef, trackDirty]);
+    slateEditorRef.current = editor;
+  }, [editor, slateEditorRef]);
 
   const onEditorChange = (d: Descendant[]) => {
     if (trackDirty && !slateIsDirty && diff(slateValue, d).length > 0) {

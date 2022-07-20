@@ -4,9 +4,10 @@ import { Form, Field } from "react-final-form";
 import { SubmissionErrors } from "final-form";
 import createDecorator from "final-form-focus";
 import type { ReactElement } from "react";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { defineMessage } from "react-intl";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -18,6 +19,7 @@ import Editor from "@/components/slate/Editor";
 import AssetInsertDialog from "@/components/dashboard/product/AssetInsertDialog";
 import AssetManagement from "@/components/dashboard/product/AssetManagement/AssetManagement";
 import { useDashboard } from "@/providers/DashboardProvider";
+import LoadSpinner from "@/components/LoadSpinner";
 
 const focusOnError = createDecorator<ProductDetailsSchemaValues>();
 
@@ -28,10 +30,15 @@ type DashboardNewProductProps = InferGetServerSidePropsType<
 >;
 
 function DashboardNewProduct(props: DashboardNewProductProps) {
+  const { push } = useRouter();
+
   const t = useIntl();
   const [validate, _, submitCreate] = useProductDetailsApi("");
 
-  const { slateEditorRef, productAssetListRef } = useDashboard();
+  const [loading, setLoading] = useState(false);
+
+  const { dashboardDispatch, slateEditorRef, productAssetListRef } =
+    useDashboard();
   const initialFocusRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,6 +48,7 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
   const submitFunc = async (
     values: ProductDetailsSchemaValues,
   ): Promise<SubmissionErrors> => {
+    setLoading(true);
     if (slateEditorRef.current) {
       values["description"] = slateEditorRef.current.children;
     }
@@ -55,12 +63,33 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
     });
 
     //@TODO: Handle this
-    if (!result) return {};
+    if (!result) {
+      return {};
+    }
 
     const [errors, newProduct] = result;
 
-    if (!errors) return {};
+    //@TODO: I'm not smart enough to figure out why I need this
+    if (!errors) {
+      return {};
+    }
 
+    if (Object.keys(errors).length == 0 && newProduct) {
+      dashboardDispatch({
+        type: "alert",
+        alert: {
+          type: "success",
+          message: t.formatMessage({
+            description: "General product management: success",
+            defaultMessage: "Successfully created your product",
+          }),
+        },
+      });
+      push(`/dashboard/products/${newProduct.product.id}`);
+      return {};
+    }
+
+    setLoading(false);
     return errors;
   };
 
@@ -322,7 +351,7 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                       defaultMessage: "Description",
                     })}
                   </label>
-                  <Editor />
+                  <Editor trackDirty={false} />
                 </div>
                 {submitError && (
                   <p className="mb-2 text-xs italic text-red-500">
@@ -345,13 +374,17 @@ function DashboardNewProduct(props: DashboardNewProductProps) {
                 <div className="col-span-8">
                   <button
                     disabled={submitting}
-                    className="mt-8 w-full rounded-md bg-indigo-500 py-2 px-4 font-bold text-white shadow-lg shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-indigo-200"
+                    className="mt-8 flex min-h-[40px] w-full items-center justify-center rounded-md bg-indigo-500 py-2 px-4 font-bold text-white shadow-lg shadow-indigo-500/50 hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-indigo-200"
                     type="submit"
                   >
-                    {t.formatMessage({
-                      defaultMessage: "Create",
-                      description: "Create Product Page: Create Button",
-                    })}
+                    {loading ? (
+                      <LoadSpinner className="mr-2 h-4 w-4 animate-spin fill-indigo-600 text-gray-200" />
+                    ) : (
+                      t.formatMessage({
+                        defaultMessage: "Create",
+                        description: "Create Product Page: Create Button",
+                      })
+                    )}
                   </button>
                 </div>
               </form>

@@ -122,7 +122,7 @@ func (h *shopHandler) CreateProduct(w http.ResponseWriter, r *http.Request, uID 
 		return
 	}
 
-	err = h.service.shop.CreateNewProduct(&p, s.Model.ID)
+	pModel, err := h.service.shop.CreateNewProduct(&p, s.Model.ID)
 	if err != nil {
 		h.server.Logger.Errorw("CreateNewProduct returned error",
 			"error", err,
@@ -131,8 +131,26 @@ func (h *shopHandler) CreateProduct(w http.ResponseWriter, r *http.Request, uID 
 		return
 	}
 
+	productDetails, err := h.service.shop.GetProductDetailsByID(pModel.ID, s.Model.ID)
+	if err != nil {
+		h.server.Logger.Errorw("GetProductDetailsByID returned error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	b, err := productDetails.JSON()
+	if err != nil {
+		h.server.Logger.Errorw("product JSON marshall error",
+			"error", err,
+		)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write([]byte("{\"boop\":true}"))
+	w.Write(b)
 }
 
 func (h *shopHandler) HandleChangeImageOrder(w http.ResponseWriter, r *http.Request, uID string) {
