@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS order_product(
   appearance_order INT,
 
   PRIMARY KEY(product_id, order_id),
-  CONSTRAINT fk_product_order_product FOREIGN KEY(shop_id) REFERENCES shops(id),
+  CONSTRAINT fk_product_order_product FOREIGN KEY(product_id) REFERENCES products(id),
   CONSTRAINT fk_order_order_product FOREIGN KEY(order_id) REFERENCES orders(id)
 );
 
