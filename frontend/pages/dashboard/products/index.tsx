@@ -1,6 +1,6 @@
 import cc from "classcat";
 import { Fragment, forwardRef, ReactNode } from "react";
-import type { ReactElement, ChangeEvent } from "react";
+import type { ReactElement } from "react";
 import { useIntl, defineMessage } from "react-intl";
 import { useRouter } from "next/router";
 import { InferGetServerSidePropsType, GetServerSideProps } from "next";
@@ -12,7 +12,6 @@ import {
   ChevronLeftIcon,
   CheckIcon,
   SelectorIcon,
-  SearchIcon,
   RefreshIcon,
   PlusCircleIcon,
 } from "@heroicons/react/solid";
@@ -24,6 +23,8 @@ import OverviewTableRow from "@/components/dashboard/product/OverviewTableRow";
 import OverviewTableRowLoading from "@/components/dashboard/product/OverviewTableRowLoading";
 import { withRedirectUnauth, withAuthPage } from "@/lib/withAuth";
 import useShopApi from "@/hooks/useShopApi";
+import SearchInput from "@/components/inputs/SearchInput";
+import SecondaryButton from "@/components/inputs/SecondaryButton";
 
 export const getServerSideProps: GetServerSideProps = withRedirectUnauth();
 
@@ -61,7 +62,6 @@ const limitCount = [
 function DashboardProductsPage(props: DashboardProductsPageProps) {
   const t = useIntl();
   const {
-    push,
     query: { p: queryPageNumber, l: queryLimitNumber, s: searchQuery },
   } = useRouter();
 
@@ -99,22 +99,6 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
     style: "currency",
     currency: "VND",
   });
-
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    const fixedPage = currentSearchQuery == "" ? 0 : currentPage;
-    push(
-      {
-        pathname: "/dashboard/products",
-        query: {
-          ...(fixedPage > 1 && { p: fixedPage }),
-          ...(currentLimit > 10 && { l: queryLimitNumber }),
-          ...(e.target.value != "" && { s: e.target.value }),
-        },
-      },
-      undefined,
-      { shallow: true, scroll: false },
-    );
-  };
 
   const getDecreaseParams = () => {
     const searchParams = {
@@ -169,34 +153,22 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
   return (
     <>
       <div className="flex items-center justify-between">
-        <div className="relative rounded-md border shadow">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <span className="text-gray-500">
-              <SearchIcon className="h-4 w-4" />
-            </span>
-          </div>
-          <input
-            onChange={handleSearch}
-            type="text"
-            className="block w-full rounded-md py-2 pl-9 pr-9 focus:outline-none focus:ring focus:ring-indigo-200"
-            placeholder={t.formatMessage({
-              defaultMessage: "Search for product name or SKU",
-              description: "Products Page: search placeholder",
-            })}
-            defaultValue={currentSearchQuery}
-          />
-        </div>
+        <SearchInput
+          placeholder={t.formatMessage({
+            defaultMessage: "Search for product name or SKU",
+            description: "Products Page: search placeholder",
+          })}
+        />
         <div className="flex items-center space-x-3">
           <div>
-            <Link href="/dashboard/products/new">
-              <a className="inline-flex items-center rounded-md border border-slate-300 bg-white py-2 px-4 text-slate-700 shadow shadow-slate-300/50 hover:bg-slate-50 focus:outline-none focus:ring focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-slate-200">
-                <PlusCircleIcon className="mr-2 -ml-1 h-4 w-4" />
-                {t.formatMessage({
-                  defaultMessage: "Create Product",
-                  description: "Products Page: create product button",
-                })}
-              </a>
-            </Link>
+            <SecondaryButton
+              href="/dashboard/products/new"
+              Icon={PlusCircleIcon}
+              buttonText={t.formatMessage({
+                defaultMessage: "Create Product",
+                description: "Products Page: create product button",
+              })}
+            />
           </div>
           <div>
             <button
@@ -380,7 +352,7 @@ function DashboardProductsPage(props: DashboardProductsPageProps) {
                           p != queryPageNumber,
                       },
                       {
-                        "z-10 box-content w-[2ch] cursor-pointer border border-indigo-500 bg-indigo-50 px-4 py-2 text-center text-sm font-medium text-indigo-600":
+                        "z-10 box-content w-[2ch] cursor-pointer rounded border border-indigo-500 bg-indigo-50 px-4 py-2 text-center text-sm font-medium text-indigo-600":
                           p == queryPageNumber || (p == 1 && !queryPageNumber),
                       },
                     ])}

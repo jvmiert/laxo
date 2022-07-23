@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { GetServerSideProps, NextPage } from "next";
-import { AxiosServerClient } from "@/lib/axios";
-import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/router";
+
+import { AxiosServerClient } from "@/lib/axios";
 import { NextPageWithLayout } from "@/types/pages";
+import { useAuth } from "@/providers/AuthProvider";
+import useRedirectSafely from "@/hooks/redirectSafely";
 
 // The GetServerSideProps wrappers in this file will query the backend to see if the user
 // is authenticated based on their cookie. Depending on which of the wrapper functions,
@@ -121,11 +123,11 @@ export const withRedirectUnauth = (
 export const withAuthPage = (Page: NextPageWithLayout) => {
   const WithAuthPage = (props: any) => {
     const { auth } = useAuth();
-    const { push, locale, route } = useRouter();
+    const { push, locale, asPath } = useRouter();
 
     useEffect(() => {
       if (!auth) {
-        push(`/${locale}/login?next=${route}`);
+        push(`/${locale}/login?next=${asPath}`);
       }
     });
     return <Page {...props} />;
@@ -141,6 +143,8 @@ export const withUnauthPage = (url: string, Page: NextPageWithLayout) => {
     const { auth } = useAuth();
     const { push, locale, query } = useRouter();
 
+    const { redirectSafely } = useRedirectSafely();
+
     useEffect(() => {
       if (auth) {
         // @HACK: Sometimes we want to redirect to the page that the user was
@@ -149,8 +153,12 @@ export const withUnauthPage = (url: string, Page: NextPageWithLayout) => {
         if (!query?.next) {
           push(url, url, { locale: locale });
         }
+
+        if (query?.next) {
+          redirectSafely(query.next as string);
+        }
       }
-    }, [auth, locale, push, query]);
+    }, [auth, locale, push, query, redirectSafely]);
     return <Page {...props} />;
   };
 

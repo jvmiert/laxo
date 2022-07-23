@@ -22,6 +22,20 @@ function getTranslation(key: string): ReactElement<MessageDescriptor> | "" {
           description="Breadcrumb indicator: products"
         />
       );
+    case "orders":
+      return (
+        <FormattedMessage
+          defaultMessage="Orders"
+          description="Breadcrumb indicator: orders"
+        />
+      );
+    case "customers":
+      return (
+        <FormattedMessage
+          defaultMessage="Customers"
+          description="Breadcrumb indicator: customers"
+        />
+      );
     case "home":
       return (
         <FormattedMessage

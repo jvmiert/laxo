@@ -223,6 +223,10 @@
     "description": "Asset insert: add image button",
     "message": "Add Image"
   },
+  "ELSzIv": {
+    "description": "General product management: success",
+    "message": "Successfully created your product"
+  },
   "EM/N1c": {
     "description": "Product image details: asset details file size label",
     "message": "File Size"
@@ -295,6 +299,10 @@
     "description": "Products list page selector: results per page button",
     "message": "Results per page:"
   },
+  "N5q6iA": {
+    "description": "Dashboard navigation customers button",
+    "message": "Customers"
+  },
   "NnM/i9": {
     "description": "Platform edit: platform name label",
     "message": "Name"
@@ -346,6 +354,10 @@
   "QmN1k+": {
     "description": "Setup shop: Form description",
     "message": "Enter the name you want your shop to be known as within our platform."
+  },
+  "R/2Drb": {
+    "description": "Dashboard customers title",
+    "message": "Customers"
   },
   "RkO2f4": {
     "description": "Platform management changed sync error",
@@ -467,6 +479,10 @@
     "description": "Asset management successful upload",
     "message": "Successfully added your new image"
   },
+  "dTyDNF": {
+    "description": "Dashboard orders title",
+    "message": "Orders"
+  },
   "dwl6AO": {
     "description": "General product management: form name placeholder",
     "message": "Your product name"
@@ -587,6 +603,10 @@
     "description": "Products Page: search placeholder",
     "message": "Search for product name or SKU"
   },
+  "pADl6A": {
+    "description": "Breadcrumb indicator: orders",
+    "message": "Orders"
+  },
   "pHn8+x": {
     "description": "notification error message: default",
     "message": "Something went wrong…"
@@ -683,9 +703,17 @@
     "description": "Lazada platform connected",
     "message": "Connected"
   },
+  "yikwRh": {
+    "description": "Breadcrumb indicator: customers",
+    "message": "Customers"
+  },
   "ykGDMB": {
     "description": "notification error message: product sync",
     "message": "Could not synchronize"
+  },
+  "ykTFl4": {
+    "description": "Dashboard navigation orders button",
+    "message": "Orders"
   },
   "zMOsQ+": {
     "description": "General product management: form selling price label",

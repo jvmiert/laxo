@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS orders(
   cost_price NUMERIC(21,2),
   discount_percent NUMERIC(19,4),
   discount_sum NUMERIC(19,4),
+  discount_reason TEXT,
   shop_id CHAR(26) NOT NULL,
   created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
@@ -42,6 +43,7 @@ CREATE TABLE IF NOT EXISTS order_product(
   discount_sum NUMERIC(19,4),
   quantity INT,
   appearance_order INT,
+  discount_reason TEXT,
 
   PRIMARY KEY(product_id, order_id),
   CONSTRAINT fk_product_order_product FOREIGN KEY(product_id) REFERENCES products(id),

@@ -1,5 +1,6 @@
 # Tech to-do
 
+- The search input field is too laggy right now. Find out a way to improve this
 - When to show validation errors now is not working properly, spend some time to figure out what to do
 
   - This is probably best:

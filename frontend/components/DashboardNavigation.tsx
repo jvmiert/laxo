@@ -6,6 +6,8 @@ import {
   HomeIcon,
   CollectionIcon,
   CogIcon,
+  ShoppingBagIcon,
+  UserGroupIcon,
 } from "@heroicons/react/solid";
 
 import NavLogo from "@/components/NavLogo";
@@ -43,6 +45,26 @@ const navigationData: Array<navObject> = [
     ),
     icon: <CollectionIcon />,
     href: "/dashboard/products",
+  },
+  {
+    name: (
+      <FormattedMessage
+        description="Dashboard navigation orders button"
+        defaultMessage="Orders"
+      />
+    ),
+    icon: <ShoppingBagIcon />,
+    href: "/dashboard/orders",
+  },
+  {
+    name: (
+      <FormattedMessage
+        description="Dashboard navigation customers button"
+        defaultMessage="Customers"
+      />
+    ),
+    icon: <UserGroupIcon />,
+    href: "/dashboard/customers",
   },
 ];
 
